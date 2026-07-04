@@ -1,0 +1,1199 @@
+<html lang="zh-Hant-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>自動批閱 hw04: For Loop with Range</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure,
+aside,
+details {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+
+
+/* AIOT dark review theme */
+:root {
+	color-scheme: dark;
+	--aiot-bg: #0d1117;
+	--aiot-panel: #111827;
+	--aiot-panel-soft: #161f2c;
+	--aiot-text: #e6edf3;
+	--aiot-muted: #9ba7b4;
+	--aiot-border: rgba(148, 163, 184, 0.24);
+	--aiot-accent: #58a6ff;
+	--aiot-accent-strong: #79c0ff;
+	--aiot-code-bg: #0b1220;
+	--aiot-code-text: #d6e2ff;
+}
+
+html,
+body {
+	background: var(--aiot-bg) !important;
+	color: var(--aiot-text) !important;
+}
+
+@media only screen {
+	body {
+		max-width: 980px;
+		color: var(--aiot-text) !important;
+	}
+}
+
+.page {
+	background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 23, 0.98)) !important;
+	border: 1px solid var(--aiot-border);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+	padding: 2.25rem;
+	border-radius: 14px;
+}
+
+.page-title,
+h1,
+h2,
+h3,
+strong {
+	color: #f8fafc !important;
+}
+
+p,
+li,
+td,
+th,
+blockquote,
+figcaption,
+.page-description,
+.pdf-relative-link-path {
+	color: var(--aiot-text) !important;
+}
+
+figcaption,
+.pdf-relative-link-path,
+.bookmark-description,
+.bookmark-href,
+.bookmark-text {
+	color: var(--aiot-muted) !important;
+}
+
+a,
+a.visited {
+	color: var(--aiot-accent-strong) !important;
+	text-decoration-color: rgba(121, 192, 255, 0.55) !important;
+}
+
+a:hover {
+	color: #a5d6ff !important;
+}
+
+hr {
+	border-bottom-color: var(--aiot-border) !important;
+}
+
+.page-cover-image {
+	filter: brightness(0.62) saturate(0.92);
+	border-radius: 12px;
+}
+
+.icon,
+.notion-static-icon,
+.notion-emoji {
+	filter: drop-shadow(0 0 6px rgba(88, 166, 255, 0.18));
+}
+
+.callout,
+.source,
+.bookmark,
+.collection-card,
+.block-color-default_background,
+.block-color-gray_background,
+.block-color-brown_background,
+.block-color-orange_background,
+.block-color-yellow_background,
+.block-color-green_background,
+.block-color-blue_background,
+.block-color-purple_background,
+.block-color-pink_background,
+.block-color-red_background {
+	background: var(--aiot-panel-soft) !important;
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table {
+	background: transparent !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.simple-table td,
+.simple-table th {
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table-header-color,
+thead,
+th {
+	background: #1f2937 !important;
+	color: #f8fafc !important;
+}
+
+pre,
+.code,
+code,
+.code > code {
+	background: var(--aiot-code-bg) !important;
+	color: var(--aiot-code-text) !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.code,
+pre {
+	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+blockquote {
+	border-left-color: var(--aiot-accent) !important;
+	background: rgba(88, 166, 255, 0.08) !important;
+}
+
+mark,
+.highlight-gray,
+.highlight-brown,
+.highlight-orange,
+.highlight-yellow,
+.highlight-green,
+.highlight-blue,
+.highlight-purple,
+.highlight-pink,
+.highlight-red {
+	color: var(--aiot-text) !important;
+}
+
+.highlight-gray_background,
+.highlight-brown_background,
+.highlight-orange_background,
+.highlight-yellow_background,
+.highlight-green_background,
+.highlight-blue_background,
+.highlight-purple_background,
+.highlight-pink_background,
+.highlight-red_background {
+	background: rgba(88, 166, 255, 0.11) !important;
+}
+
+.select-value-color-default,
+.select-value-color-gray,
+.select-value-color-brown,
+.select-value-color-orange,
+.select-value-color-yellow,
+.select-value-color-green,
+.select-value-color-blue,
+.select-value-color-purple,
+.select-value-color-pink,
+.select-value-color-red {
+	background-color: rgba(88, 166, 255, 0.15) !important;
+	color: var(--aiot-text) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8b949e !important;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #c9d1d9 !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #79c0ff !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a5d6ff !important;
+}
+
+.token.function,
+.token.class-name {
+	color: #d2a8ff !important;
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only screen and (max-width: 760px) {
+	body {
+		margin: 0;
+	}
+	.page {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 1.25rem;
+	}
+	.page-title {
+		font-size: 2rem;
+	}
+}
+
+
+/* AIOT code block readability patch */
+pre.code,
+pre.code[class*="language-"],
+.code.code-wrap {
+	background: #0b1220 !important;
+	color: #d6e2ff !important;
+	border: 1px solid rgba(148, 163, 184, 0.28) !important;
+	border-radius: 10px !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025), 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+	padding: 1rem 1.125rem !important;
+	overflow-x: auto !important;
+	white-space: pre !important;
+}
+
+pre.code > code,
+pre.code code,
+.code.code-wrap > code,
+.code.code-wrap code {
+	background: transparent !important;
+	color: #d6e2ff !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	font-size: 0.95rem !important;
+	line-height: 1.65 !important;
+	white-space: pre !important;
+	word-break: normal !important;
+	overflow-wrap: normal !important;
+	text-shadow: none !important;
+}
+
+p code,
+li code,
+td code,
+th code,
+h1 code,
+h2 code,
+h3 code {
+	background: transparent !important;
+	color: #8ecdf8 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	font-size: 0.92em !important;
+	white-space: break-spaces !important;
+}
+
+pre.code .token.comment,
+pre.code .token.prolog,
+pre.code .token.doctype,
+pre.code .token.cdata {
+	color: #8b949e !important;
+	font-style: italic !important;
+}
+
+pre.code .token.punctuation,
+pre.code .token.operator,
+pre.code .token.entity,
+pre.code .token.url,
+pre.code .token.variable {
+	color: #c9d1d9 !important;
+}
+
+pre.code .token.keyword,
+pre.code .token.atrule,
+pre.code .token.attr-name {
+	color: #ff7b72 !important;
+}
+
+pre.code .token.string,
+pre.code .token.char,
+pre.code .token.attr-value,
+pre.code .token.regex,
+pre.code .token.inserted {
+	color: #a5d6ff !important;
+}
+
+pre.code .token.number,
+pre.code .token.boolean,
+pre.code .token.constant,
+pre.code .token.symbol,
+pre.code .token.deleted {
+	color: #79c0ff !important;
+}
+
+pre.code .token.function,
+pre.code .token.class-name,
+pre.code .token.builtin {
+	color: #d2a8ff !important;
+}
+
+pre.code .token.property,
+pre.code .token.tag,
+pre.code .token.selector,
+pre.code .token.important {
+	color: #7ee787 !important;
+}
+
+pre.code .token.namespace {
+	opacity: 0.9 !important;
+}
+
+
+/* AIOT operator text-only patch */
+.token.operator,
+pre.code .token.operator,
+code .token.operator,
+.code.code-wrap .token.operator {
+	background: transparent !important;
+	background-color: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	color: #c9d1d9 !important;
+}
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')
+/* AIOT instructional material footer */
+.aiot-site-footer {
+  margin-top: 3rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #9ba7b4;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.aiot-site-footer p {
+  margin: 0;
+}
+</style></head><body><article id="7998fb4d-d8dd-8254-9ba9-01969321d200" class="page sans" data-notion-page-icon="https://s3-us-west-2.amazonaws.com/public.notion-static.com/3defc37d-4740-45fb-a42d-76c1739bbd3a/800x800.png"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1537498425277-c283d32ef9db?ixlib=rb-4.1.0&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb" style="object-position:center 50%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="800x800.png"/></div><h1 class="page-title" dir="auto">自動批閱 hw04: For Loop with Range</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><h2 id="f1d8fb4d-d8dd-8395-9b19-01547ff3cc82" style="display:inline-block" dir="auto">題組簡介</h2><p id="37c8fb4d-d8dd-83b0-a79a-01d609107fb7" class="" dir="auto">這一組題目聚焦在 Python 的 <code>for</code> 迴圈與 <code>range()</code>。學生會從最簡單的固定次數輸出，逐步走到區間累加、條件過濾、重複輸入、巢狀迴圈，以及最後的文字圖表輸出。它的教學重點是讓學生理解：當程式需要「重複做某件事」時，不應該手動複製程式碼，而是把相同邏輯交給迴圈。</p><p id="3718fb4d-d8dd-825e-96e2-817b5bc9b0dc" class="" dir="auto">對初學者來說，這一組真正困難的地方通常不是語法本身，而是搞清楚每一輪迴圈正在處理什麼、累加器或計數器何時更新、<code>range()</code> 到底會產生哪些數字。只要這些基本觀念不穩，後面的統計題和巢狀迴圈題就很容易混亂。</p><h2 id="b9a8fb4d-d8dd-8388-ae1c-811e41e0202f" style="display:inline-block" dir="auto">本篇涵蓋重點</h2><p id="5b28fb4d-d8dd-8292-86c0-01e38672540a" class="" dir="auto">1. 題型分類：固定次數輸出、區間過濾、累加統計、重複輸入、巢狀迴圈、文字圖表。</p><p id="d5f8fb4d-d8dd-821d-94e3-81713fa56509" class="" dir="auto">2. 核心概念：<code>for</code>、<code>range(stop)</code>、<code>range(start, stop, step)</code>、累加器、計數器、雙層迴圈。</p><p id="f7e8fb4d-d8dd-8268-894a-01e557d49670" class="" dir="auto">3. 常見卡點：<code>stop</code> 不包含、初始值設錯、迴圈次數與輸入筆數對不起來、列印格式錯誤。</p><p id="5938fb4d-d8dd-8209-a477-01f635cbb184" class="" dir="auto">4. 解題策略：先確認迴圈範圍，再決定每輪要做的事，最後處理輸出格式。</p><hr id="bc58fb4d-d8dd-83e3-86b1-017fbe5b6f72" dir="auto"/><h2 id="9c78fb4d-d8dd-82c8-a051-014b10d56d3f" style="display:inline-block" dir="auto">1. 題組總覽</h2><table id="1718fb4d-d8dd-831a-958a-01b7e356eeae" class="simple-table" dir="ltr"><thead class="simple-table-header"><tr id="4c68fb4d-d8dd-839b-aaf5-011811d279a8" dir="ltr"><th id="aIyr" class="simple-table-header-color simple-table-header">題目</th><th id="lrxS" class="simple-table-header-color simple-table-header">題型 / 任務</th><th id="WlX{" class="simple-table-header-color simple-table-header">主要練習概念</th><th id="[zz\" class="simple-table-header-color simple-table-header">預期 Python 知識</th><th id="ZvHu" class="simple-table-header-color simple-table-header">注意點</th></tr></thead><tbody><tr id="7758fb4d-d8dd-827a-a71e-01fc4be023ab" dir="ltr"><td id="aIyr" class=""><code>lab01</code> 數字直排</td><td id="lrxS" class="">固定次數列印</td><td id="WlX{" class=""><code>for</code> + <code>range(n)</code></td><td id="[zz\" class=""><code>input()</code>、<code>int()</code>、迴圈基本語法</td><td id="ZvHu" class=""><code>1</code> 到 <code>n</code> 不是 <code>0</code> 到 <code>n-1</code></td></tr><tr id="e7c8fb4d-d8dd-8237-bccf-01ec2e279c57" dir="ltr"><td id="aIyr" class=""><code>lab02</code> 間隔列印</td><td id="lrxS" class="">指定步長序列</td><td id="WlX{" class=""><code>range(start, stop, step)</code></td><td id="[zz\" class="">三參數 <code>range()</code></td><td id="ZvHu" class=""><code>stop</code> 不包含</td></tr><tr id="d808fb4d-d8dd-83f5-b083-81901576a2e3" dir="ltr"><td id="aIyr" class=""><code>lab03</code> 偶數直排</td><td id="lrxS" class="">條件過濾 / 等差序列</td><td id="WlX{" class="">偶數輸出</td><td id="[zz\" class=""><code>%</code> 或步長為 2 的想法</td><td id="ZvHu" class=""><code>0</code> 也算偶數</td></tr><tr id="0938fb4d-d8dd-83ef-ae6e-01492510b919" dir="ltr"><td id="aIyr" class=""><code>prob01</code> 區間奇數總和</td><td id="lrxS" class="">累加 + 計數</td><td id="WlX{" class="">遍歷區間、條件判斷</td><td id="[zz\" class="">變數累加、計數器</td><td id="ZvHu" class=""><code>a == b</code> 也要能處理</td></tr><tr id="12c8fb4d-d8dd-83ee-92ca-01e4feaab938" dir="ltr"><td id="aIyr" class=""><code>prob02</code> 倍數統計</td><td id="lrxS" class="">篩選後統計</td><td id="WlX{" class="">同時滿足與排除條件</td><td id="[zz\" class=""><code>%</code>、複合條件</td><td id="ZvHu" class="">是 <code>k</code> 倍數但不是 <code>m</code> 倍數</td></tr><tr id="9938fb4d-d8dd-830f-b0ae-81c9edc05c21" dir="ltr"><td id="aIyr" class=""><code>prob03</code> 成績批次摘要</td><td id="lrxS" class="">重複輸入</td><td id="WlX{" class="">讀入 <code>n</code> 筆資料</td><td id="[zz\" class="">迴圈讀資料、最高分更新</td><td id="ZvHu" class="">第一筆資料如何初始化</td></tr><tr id="e028fb4d-d8dd-82cd-bd21-011e88e99833" dir="ltr"><td id="aIyr" class=""><code>prob04</code> 星號方框</td><td id="lrxS" class="">巢狀迴圈圖形輸出</td><td id="WlX{" class="">列與欄、邊框判斷</td><td id="[zz\" class="">雙層 <code>for</code>、字串輸出</td><td id="ZvHu" class="">內外層角色要清楚</td></tr><tr id="c018fb4d-d8dd-82ef-ba5a-8127aee39511" dir="ltr"><td id="aIyr" class=""><code>prob05</code> 乘法三角形</td><td id="lrxS" class="">巢狀迴圈序列輸出</td><td id="WlX{" class="">內外層配合、格式控制</td><td id="[zz\" class="">雙層 <code>for</code>、空白分隔</td><td id="ZvHu" class="">每列長度不同</td></tr><tr id="fe58fb4d-d8dd-8339-898f-81c99e958755" dir="ltr"><td id="aIyr" class=""><code>extra01</code> 成績分布儀表板</td><td id="lrxS" class="">綜合統計 + 長條圖</td><td id="WlX{" class="">多個計數器、巢狀迴圈</td><td id="[zz\" class="">平均數、區間統計、字串重複</td><td id="ZvHu" class="">星號圖與統計值都要正確</td></tr></tbody></table><h3 id="6738fb4d-d8dd-82d3-b5b2-010fa1a37382" style="display:inline-block" dir="auto">A. 題型分布觀察</h3><p id="b798fb4d-d8dd-83dd-a573-8195ffd08064" class="" dir="auto">這組題目明顯分成三段。第一段 <code>lab</code> 是單純學會跑迴圈與看懂 <code>range()</code>；第二段 <code>prob01</code> 到 <code>prob03</code> 是把迴圈用在統計與重複輸入；第三段 <code>prob04</code>、<code>prob05</code>、<code>extra01</code> 則是把迴圈擴展到二維結構與格式化輸出。這種安排很合理，因為學生必須先會「一輪一輪處理資料」，才有能力進入雙層迴圈。</p><h3 id="1318fb4d-d8dd-823a-9769-81fff91c62df" style="display:inline-block" dir="auto">B. 難度遞進與建議順序</h3><p id="9458fb4d-d8dd-8231-abf5-0197a7fab4b5" class="" dir="auto">建議依原順序練習，不要跳題。尤其 <code>prob03</code> 是很重要的轉折，因為它第一次要求根據 <code>n</code> 重複讀入資料，這個能力會直接支撐 <code>extra01</code> 的整份統計流程。</p><hr id="6048fb4d-d8dd-83d4-a1b2-8159a6c1988b" dir="auto"/><h2 id="7ad8fb4d-d8dd-8223-a86a-815cf45f5705" style="display:inline-block" dir="auto">2. 核心概念群一：<code>for</code> 迴圈與 <code>range()</code> 的基本模型</h2><h3 id="fb58fb4d-d8dd-8260-a435-01007a9c787d" style="display:inline-block" dir="auto">A. 定義式解釋</h3><p id="ea58fb4d-d8dd-8316-b340-011fb484f065" class="" dir="auto"><code>for</code> 迴圈的意思是：按照一組順序資料，一個一個拿出來處理。<code>range()</code> 則是最常見的整數序列產生器，會提供一串依規則變化的數字給 <code>for</code> 使用。</p><h3 id="21f8fb4d-d8dd-8302-8207-819103662d99" style="display:inline-block" dir="auto">B. 題目脈絡式解釋</h3><p id="2038fb4d-d8dd-83dc-81e4-81b1698bae18" class="" dir="auto"><code>lab01</code> 和 <code>lab02</code> 都在教同一件事：不是你要印幾次就複製幾次 <code>print()</code>，而是讓迴圈自動重複。<code>lab02</code> 再往前一步，讓學生知道 <code>range()</code> 不只會從 <code>0</code> 開始，也可以指定起點和步長。</p><h3 id="ce68fb4d-d8dd-83f7-94f8-0105c6669ef0" style="display:inline-block" dir="auto">C. 解題策略式解釋</h3><p id="c8f8fb4d-d8dd-837c-9fc3-01647ac9549b" class="" dir="auto">每次寫 <code>for</code> 時，先回答三個問題：會跑幾輪、迴圈變數每輪代表什麼、每輪要輸出或更新什麼。如果這三件事說不清楚，程式通常還沒準備好開始寫。</p><h3 id="b3a8fb4d-d8dd-835a-a202-01fbf09acfc8" style="display:inline-block" dir="auto">D. 常見錯誤與修正</h3><p id="dd98fb4d-d8dd-833f-9370-01fd741044e4" class="" dir="auto">- <code>range(1, n)</code> 以為會包含 <code>n</code>，其實不會。</p><p id="b428fb4d-d8dd-8218-960f-015d07ca4b2d" class="" dir="auto">- 看見 <code>range(n)</code> 就忘了它從 <code>0</code> 開始。</p><p id="ab08fb4d-d8dd-8314-bab0-011aca18acc2" class="" dir="auto">- 把 <code>step</code> 寫錯，導致輸出數列不符合題目。</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" integrity="sha512-AKaNmg8COK0zEbjTdMHJAPJ0z6VeNqvRvH4/d5M4sHJbQQUToMBtodq4HaV4fa+WV2UTfoperElm66c9/8cKmQ==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="8898fb4d-d8dd-8219-86aa-81bffabc9bd3" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">n = int(input())
+
+for value in range(1, n + 1):
+    print(value)</code></pre><p id="8fa8fb4d-d8dd-8390-8827-816ac5678eb6" class="" dir="auto">這段在做的是從 <code>1</code> 印到 <code>n</code>。為什麼不是 <code>range(n)</code>？因為題目要的是人類習慣的 <code>1</code> 到 <code>n</code>，不是從 <code>0</code> 開始。初學者最容易看不懂的是 <code>n + 1</code>，原因就在於 <code>range()</code> 的結尾不包含在內。</p><hr id="4858fb4d-d8dd-8291-b60e-01fda84f520c" dir="auto"/><h2 id="79d8fb4d-d8dd-82a3-9538-010d784c84f4" style="display:inline-block" dir="auto">3. 核心概念群二：迴圈中的條件過濾、累加與計數</h2><h3 id="1988fb4d-d8dd-8361-a785-01e05cc18620" style="display:inline-block" dir="auto">A. 定義式解釋</h3><p id="3478fb4d-d8dd-82d1-afcc-0122bf8c7808" class="" dir="auto">累加器是用來持續加總的變數，常見初始值是 <code>0</code>。計數器是用來記錄符合條件次數的變數，也常從 <code>0</code> 開始。條件過濾則是在每輪迴圈判斷目前資料是否值得處理。</p><h3 id="8e38fb4d-d8dd-82ed-9247-81b8f94c22df" style="display:inline-block" dir="auto">B. 題目脈絡式解釋</h3><p id="76c8fb4d-d8dd-828c-9f09-01127dfd45b8" class="" dir="auto"><code>lab03</code>、<code>prob01</code>、<code>prob02</code> 都在訓練這組能力。你不是只把數字印出來，而是要在走訪區間時篩掉不需要的數字，並留下總和與個數。</p><h3 id="b7b8fb4d-d8dd-832a-8733-01e1c1951250" style="display:inline-block" dir="auto">C. 解題策略式解釋</h3><p id="f598fb4d-d8dd-8275-88c2-01dbcf3a0d28" class="" dir="auto">先建立迴圈範圍，再把「符合條件時要做什麼」寫進 <code>if</code> 裡。通常動作只有兩種：更新總和，或更新數量。如果題目兩者都要，就兩個變數一起維護。</p><h3 id="fc68fb4d-d8dd-8243-924e-0115420289f9" style="display:inline-block" dir="auto">D. 常見錯誤與修正</h3><p id="c368fb4d-d8dd-82c8-a8bd-01db9d6092cf" class="" dir="auto">- 忘了把 <code>total</code>、<code>count</code> 初始化成 <code>0</code>。</p><p id="4ee8fb4d-d8dd-82de-96ca-01719e666b1a" class="" dir="auto">- <code>if</code> 條件寫對了，但更新變數放在條件外面。</p><p id="98e8fb4d-d8dd-830d-9b5f-011d1aed63da" class="" dir="auto">- 邊界區間 <code>[a, b]</code> 少算 <code>b</code>。</p><pre id="9138fb4d-d8dd-82f9-8fe0-01e6c4bbdcc8" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">a, b = map(int, input().split())
+total = 0
+count = 0
+
+for number in range(a, b + 1):
+    if number % 2 == 1:
+        total += number
+        count += 1
+
+print(total)
+print(count)</code></pre><p id="c8b8fb4d-d8dd-835b-83bb-8100ed77378c" class="" dir="auto">這段是在找區間中的奇數總和與奇數個數。每輪先看目前 <code>number</code> 是否為奇數，若是才更新。初學者常錯在把 <code>count += 1</code> 放在 <code>if</code> 外面，結果變成統計全部數字。</p><hr id="65e8fb4d-d8dd-82b3-a09a-817324da85d9" dir="auto"/><h2 id="38e8fb4d-d8dd-831f-a720-01a1f4928028" style="display:inline-block" dir="auto">4. 核心概念群三：重複輸入與批次資料處理</h2><h3 id="f388fb4d-d8dd-833a-925c-01894745ce9e" style="display:inline-block" dir="auto">A. 定義式解釋</h3><p id="2078fb4d-d8dd-838e-b74a-01cc71646a2b" class="" dir="auto">當題目先給一個數量 <code>n</code>，再要求讀入 <code>n</code> 筆資料時，這就是典型的批次資料處理。程式要用迴圈重複讀取、重複更新統計值。</p><h3 id="7a28fb4d-d8dd-835b-9a5f-8127620d2dc2" style="display:inline-block" dir="auto">B. 題目脈絡式解釋</h3><p id="6118fb4d-d8dd-83ed-ad7d-01f46bd26433" class="" dir="auto"><code>prob03</code> 和 <code>extra01</code> 都是這種題型。它們的重點不是某一筆成績，而是整批資料的總分、平均、及格人數、最高分或區間分布。</p><h3 id="cd38fb4d-d8dd-836c-a13c-81ade119d5b4" style="display:inline-block" dir="auto">C. 解題策略式解釋</h3><p id="a818fb4d-d8dd-8393-9463-018581dd4692" class="" dir="auto">寫這類題目前，先列出每讀到一筆資料要更新哪些東西。例如總分要加、及格數可能加、最高分可能改、區間計數器其中一個可能加。把這些更新點列清楚，主程式就不會亂。</p><h3 id="9e48fb4d-d8dd-8267-90ab-01ce0c945832" style="display:inline-block" dir="auto">D. 常見錯誤與修正</h3><p id="aba8fb4d-d8dd-82bc-a37e-8148e872845e" class="" dir="auto">- 讀到 <code>n</code> 後，忘了真的跑 <code>n</code> 輪。</p><p id="caa8fb4d-d8dd-8333-81fd-01283ace2539" class="" dir="auto">- 最高分初始化不當，導致全部分數都低於初值時出錯。</p><p id="5ba8fb4d-d8dd-83a6-845b-81f4ae82cf27" class="" dir="auto">- 平均數在迴圈內就提早計算，邏輯變亂。</p><pre id="ac38fb4d-d8dd-8244-9808-818b86044474" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">n = int(input())
+total = 0
+passed = 0
+highest = -1
+
+for _ in range(n):
+    score = int(input())
+    total += score
+    if score &gt;= 60:
+        passed += 1
+    if score &gt; highest:
+        highest = score</code></pre><p id="a1c8fb4d-d8dd-8322-b39e-81acd1ae1925" class="" dir="auto">這段在做的是每讀一筆成績，就同步更新三種統計。為什麼 <code>highest</code> 可以先設成 <code>-1</code>？因為題目保證分數在 <code>0</code> 到 <code>100</code>，所以第一筆成績一定會比它大。新手常看不懂的是：有些變數每輪都更新，有些只在條件成立時更新。</p><hr id="cf28fb4d-d8dd-83d9-a496-01d352929614" dir="auto"/><h2 id="c078fb4d-d8dd-8262-ab0b-819c7fc68af1" style="display:inline-block" dir="auto">5. 核心概念群四：巢狀迴圈與圖形輸出</h2><h3 id="5e58fb4d-d8dd-82d5-9ce3-8145ca90365d" style="display:inline-block" dir="auto">A. 定義式解釋</h3><p id="4a08fb4d-d8dd-834f-a1db-01f209ab01f2" class="" dir="auto">巢狀迴圈就是在一個迴圈裡再放另一個迴圈。外層通常控制列數或大區塊，內層控制每一列中的欄位或細節。</p><h3 id="e898fb4d-d8dd-8380-9b87-81642a0a8bbe" style="display:inline-block" dir="auto">B. 題目脈絡式解釋</h3><p id="71c8fb4d-d8dd-82d8-9577-81fc5c65de8d" class="" dir="auto"><code>prob04</code> 的星號方框與 <code>prob05</code> 的乘法三角形，都是典型的雙層迴圈題。前者用來處理「列 x 欄」位置判斷，後者用來處理「每列長度不同」的遞增結構。</p><h3 id="e658fb4d-d8dd-82ea-8a28-810e309a269a" style="display:inline-block" dir="auto">C. 解題策略式解釋</h3><p id="1d48fb4d-d8dd-8314-98b3-01619ae28bad" class="" dir="auto">先只想外層一輪代表什麼，再想內層一輪代表什麼。若這兩個角色分不清楚，雙層迴圈一定會亂。實作時也建議先把一列內容組好，再一次輸出，格式更容易控制。</p><h3 id="9598fb4d-d8dd-8397-9105-0107a4c47916" style="display:inline-block" dir="auto">D. 常見錯誤與修正</h3><p id="d708fb4d-d8dd-838c-be16-81a3c1b53041" class="" dir="auto">- 內外層角色顛倒，輸出形狀錯掉。</p><p id="edc8fb4d-d8dd-8376-b0dc-815cedf45eec" class="" dir="auto">- 沒處理每列結尾的換行。</p><p id="8798fb4d-d8dd-83df-8f99-81ebe2cd8da4" class="" dir="auto">- 乘法三角形每列之間的空白格式不一致。</p><pre id="6cc8fb4d-d8dd-831d-af51-815496d1744c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">n = int(input())
+
+for row in range(n):
+    line = &quot;&quot;
+    for col in range(n):
+        if row == 0 or row == n - 1 or col == 0 or col == n - 1:
+            line += &quot;*&quot;
+        else:
+            line += &quot;.&quot;
+    print(line)</code></pre><p id="fcd8fb4d-d8dd-82cb-b2e8-81541499dcf3" class="" dir="auto">這段是在產生星號方框。<code>row</code> 代表目前第幾列，<code>col</code> 代表目前第幾欄。只要在邊界上就放 <code>*</code>，否則放 <code>.</code>。初學者最常卡住的是不知道該在何時 <code>print()</code>，這題最穩的做法就是先把整列字串拼好，再印出。</p><hr id="7938fb4d-d8dd-8387-9a24-0183569ad4c2" dir="auto"/><h2 id="28c8fb4d-d8dd-837e-b3d4-811791fe0080" style="display:inline-block" dir="auto">6. sample code 與 code snippets 導讀</h2><h3 id="8118fb4d-d8dd-8295-be8e-81acc22d4300" style="display:inline-block" dir="auto">A. 三參數 <code>range()</code></h3><pre id="4788fb4d-d8dd-8218-b60c-812d25ee5702" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">for value in range(start, stop, step):
+    print(value)</code></pre><p id="f148fb4d-d8dd-8210-9fdd-819341888bd7" class="" dir="auto">這段是在依照指定起點、終點與步長輸出數字。白話說，就是從 <code>start</code> 開始，每次加 <code>step</code>，但不超過 <code>stop</code> 前就停止。初學者容易誤會 <code>stop</code> 也會被印出，其實不會。</p><h3 id="81e8fb4d-d8dd-830a-a205-8186ac891c0d" style="display:inline-block" dir="auto">B. 累加器與計數器</h3><pre id="4988fb4d-d8dd-8386-a645-01229cc29191" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">total = 0
+count = 0
+
+for number in range(1, n + 1):
+    if number % 3 == 0:
+        total += number
+        count += 1</code></pre><p id="5628fb4d-d8dd-8351-a6aa-816b6835ec56" class="" dir="auto">這段在做的是把符合條件的數字加總，同時計算有幾個。為什麼要兩個變數？因為「總和」和「個數」是不同資訊。新手容易只顧著加總，忘了還需要另外計數。</p><h3 id="fb58fb4d-d8dd-83ee-b8e4-0104becbe022" style="display:inline-block" dir="auto">C. 依 <code>n</code> 重複讀資料</h3><pre id="5918fb4d-d8dd-83e2-80ce-8128d7e78b40" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">n = int(input())
+
+for _ in range(n):
+    score = int(input())
+    print(score)</code></pre><p id="5b68fb4d-d8dd-828d-b7fb-81267494e971" class="" dir="auto">這段是在示範如何依照題目給的筆數，重複讀資料。<code>_</code> 的意思是這輪次數本身不重要，我們只在意它會執行 <code>n</code> 次。初學者常不懂 <code>_</code>，其實它只是慣例上的占位名稱。</p><h3 id="a3c8fb4d-d8dd-8374-b2a7-01a8b7f5b70d" style="display:inline-block" dir="auto">D. 用字串重複產生星號</h3><pre id="55b8fb4d-d8dd-83ad-ad08-012e2e453ab3" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">stars = &quot;*&quot; * count
+print(f&quot;60-69: {stars}&quot;)</code></pre><p id="d968fb4d-d8dd-8232-9879-016099fff5aa" class="" dir="auto">這段是在依照人數產生長條圖。<code>&quot;*&quot;</code> 乘上一個整數，會得到重複那麼多次的字串。新手常忽略題目要求，即使沒有星號也要保留冒號後的空白。</p><hr id="2b68fb4d-d8dd-838e-a8df-01ced1f984d1" dir="auto"/><h2 id="d208fb4d-d8dd-8200-8e9a-81cae686b7af" style="display:inline-block" dir="auto">7. 題組概念地圖</h2><h3 id="8d68fb4d-d8dd-82ca-a83d-010f5507802a" style="display:inline-block" dir="auto">A. 題目與概念關聯圖</h3><pre id="2858fb4d-d8dd-8217-a196-818df9dd3749" class="code code-wrap" data-notion-code-syntax="mermaid"><code class="language-mermaid" style="white-space:pre-wrap;word-break:break-all">flowchart TD
+    A[&quot;lab01 數字直排&quot;] --&gt; B[&quot;for 基本迴圈&quot;]
+    C[&quot;lab02 間隔列印&quot;] --&gt; D[&quot;range start/stop/step&quot;]
+    E[&quot;lab03 偶數直排&quot;] --&gt; F[&quot;條件過濾&quot;]
+    B --&gt; G[&quot;prob01 奇數總和&quot;]
+    D --&gt; G
+    F --&gt; H[&quot;prob02 倍數統計&quot;]
+    B --&gt; I[&quot;prob03 成績批次摘要&quot;]
+    I --&gt; J[&quot;extra01 成績分布儀表板&quot;]
+    B --&gt; K[&quot;prob04 星號方框&quot;]
+    B --&gt; L[&quot;prob05 乘法三角形&quot;]
+    K --&gt; J
+    L --&gt; J</code></pre><h3 id="3928fb4d-d8dd-8223-8ae4-01c43036979f" style="display:inline-block" dir="auto">B. 圖解重點</h3><p id="bcd8fb4d-d8dd-825c-838b-01ca153f9eec" class="" dir="auto">這張圖表現的是能力堆疊關係。<code>lab</code> 題讓學生先會控制迴圈範圍與看懂序列；<code>prob01</code> 到 <code>prob03</code> 讓學生把迴圈用在資料統計；<code>prob04</code>、<code>prob05</code> 再把思路推進到雙層結構；最後 <code>extra01</code> 把區間統計、平均數、星號圖整合在一起，是整組的綜合應用題。</p><hr id="82d8fb4d-d8dd-83d6-aeff-819997f9f5ec" dir="auto"/><h2 id="23c8fb4d-d8dd-832f-885c-017fe314ef34" style="display:inline-block" dir="auto">8. 解題前必備知識與能力檢核</h2><h3 id="f268fb4d-d8dd-8279-8c18-81312fa0535c" style="display:inline-block" dir="auto">A. 已會</h3><p id="2898fb4d-d8dd-83c8-af57-812e1c750f18" class="" dir="auto">- 能用 <code>int(input())</code> 讀入整數。</p><p id="3308fb4d-d8dd-8339-a913-0129e74c6821" class="" dir="auto">- 知道 <code>for</code> 會一輪一輪執行縮排區塊。</p><p id="bca8fb4d-d8dd-82ec-aa14-81fadc00aac0" class="" dir="auto">- 知道 <code>%</code> 可用來判斷奇偶或倍數。</p><h3 id="3948fb4d-d8dd-8348-9d3f-01ce942dd011" style="display:inline-block" dir="auto">B. 還需補強</h3><p id="f828fb4d-d8dd-830d-a98b-01a2a89d49b6" class="" dir="auto">- <code>range()</code> 的結尾不包含這件事。</p><p id="dba8fb4d-d8dd-82de-8dc2-01023d7c3f77" class="" dir="auto">- 累加器、計數器的初始化。</p><p id="73c8fb4d-d8dd-8244-9477-81e2f3b362c9" class="" dir="auto">- 巢狀迴圈中「列」與「欄」的分工。</p><p id="3de8fb4d-d8dd-825a-8d04-01a4b85b1d52" class="" dir="auto">- 平均數、最高分、區間統計的更新時機。</p><h3 id="4e38fb4d-d8dd-8211-90b2-816782ceb65e" style="display:inline-block" dir="auto">C. 容易誤解</h3><p id="8a48fb4d-d8dd-83c3-8c6d-81fbd8af7f03" class="" dir="auto">- 以為 <code>range(1, n)</code> 會跑到 <code>n</code>。</p><p id="e118fb4d-d8dd-83f9-9fc1-01adf8d81c17" class="" dir="auto">- 以為每輪都應該重新把 <code>total</code> 設成 <code>0</code>。</p><p id="91c8fb4d-d8dd-8221-bdbc-01d95024775d" class="" dir="auto">- 以為巢狀迴圈一定很難，其實只是兩層單層迴圈的組合。</p><hr id="3b78fb4d-d8dd-83d1-8a58-81d257780745" dir="auto"/><h2 id="a2d8fb4d-d8dd-82b3-bb51-816bcd81f179" style="display:inline-block" dir="auto">9. 解題引導與學習建議</h2><p id="9608fb4d-d8dd-83ea-8664-01d17e6ed080" class="" dir="auto">這組題目的解法幾乎都可以用同一個模板思考：先決定迴圈跑幾輪，再決定每輪要檢查什麼條件，最後決定每輪要更新哪些變數或輸出什麼內容。只要把「範圍、條件、動作」三件事說清楚，程式通常就不會偏掉。</p><p id="4408fb4d-d8dd-826a-8477-810465760ccb" class="" dir="auto">實作時建議：</p><p id="9f88fb4d-d8dd-82db-bcac-81d9b1a1d419" class="" dir="auto">1. 先寫最小可執行版本，例如先把區間全部印出來。</p><p id="1978fb4d-d8dd-8269-9e75-81b6c6adbaa1" class="" dir="auto">2. 再加入 <code>if</code> 做過濾。</p><p id="8a38fb4d-d8dd-8323-bb7c-0141ae47637c" class="" dir="auto">3. 最後才加入累加、計數、格式控制。</p><p id="c238fb4d-d8dd-82a1-ae68-81bb7b8120b4" class="" dir="auto">除錯時建議：</p><p id="0148fb4d-d8dd-82f5-8a72-0109aac2a5b7" class="" dir="auto">- 印出目前迴圈變數，確認範圍正確。</p><p id="f668fb4d-d8dd-8381-9e44-81cee1a35172" class="" dir="auto">- 印出 <code>total</code> 或 <code>count</code>，確認是否只在正確時機更新。</p><p id="0ef8fb4d-d8dd-83c1-a443-01122640bba6" class="" dir="auto">- 對雙層迴圈先測最小案例，例如 <code>n = 2</code> 或 <code>n = 3</code>。</p><hr id="c428fb4d-d8dd-8348-887f-81ebd08e915d" dir="auto"/><h2 id="ced8fb4d-d8dd-82cc-97ad-8131d2c885a8" style="display:inline-block" dir="auto">10. 重點總結與下一步</h2><p id="cbe8fb4d-d8dd-835c-b2c9-018b879e51fa" class="" dir="auto">這份 assessment 的核心，是把「重複處理」從口語描述轉成可靠的程式結構。學生做完這組題目後，應該能掌握固定次數迴圈、區間遍歷、條件過濾、批次統計，以及雙層迴圈的基本寫法。</p><p id="8248fb4d-d8dd-8204-8bf1-01c99568ae85" class="" dir="auto">下一步通常會進入更自由的迴圈控制、串列處理、函式拆分或更大型的資料流程。到那時候，<code>for</code> 仍然是主力工具，而這一組的累加、計數、格式控制觀念會持續反覆出現。</p><p id="2a58fb4d-d8dd-8307-9f50-812263ec902c" class="" dir="auto">
+</p><figure id="58f8fb4d-d8dd-83b6-bcc0-01334035032d" class="image" data-notion-image="ending-stust.png" dir="ltr"><a href="ending-stust.png"><img style="width:709.967529296875px" src="ending-stust.png"/></a></figure>
+<footer id="aiot-site-footer" class="aiot-site-footer" dir="auto" aria-label="教材製作資訊">
+  <p>本教學材料由南臺科技大學電子工程系 楊榮林教授主導，並由 AI Agent 輔助整理與製作。</p>
+</footer>
+</div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

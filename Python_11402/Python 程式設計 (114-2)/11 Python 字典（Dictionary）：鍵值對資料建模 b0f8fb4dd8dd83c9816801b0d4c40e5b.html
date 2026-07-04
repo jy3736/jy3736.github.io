@@ -1,0 +1,1230 @@
+<html lang="zh-Hant-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>11 Python 字典（Dictionary）：鍵值對資料建模</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure,
+aside,
+details {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+
+
+/* AIOT dark review theme */
+:root {
+	color-scheme: dark;
+	--aiot-bg: #0d1117;
+	--aiot-panel: #111827;
+	--aiot-panel-soft: #161f2c;
+	--aiot-text: #e6edf3;
+	--aiot-muted: #9ba7b4;
+	--aiot-border: rgba(148, 163, 184, 0.24);
+	--aiot-accent: #58a6ff;
+	--aiot-accent-strong: #79c0ff;
+	--aiot-code-bg: #0b1220;
+	--aiot-code-text: #d6e2ff;
+}
+
+html,
+body {
+	background: var(--aiot-bg) !important;
+	color: var(--aiot-text) !important;
+}
+
+@media only screen {
+	body {
+		max-width: 980px;
+		color: var(--aiot-text) !important;
+	}
+}
+
+.page {
+	background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 23, 0.98)) !important;
+	border: 1px solid var(--aiot-border);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+	padding: 2.25rem;
+	border-radius: 14px;
+}
+
+.page-title,
+h1,
+h2,
+h3,
+strong {
+	color: #f8fafc !important;
+}
+
+p,
+li,
+td,
+th,
+blockquote,
+figcaption,
+.page-description,
+.pdf-relative-link-path {
+	color: var(--aiot-text) !important;
+}
+
+figcaption,
+.pdf-relative-link-path,
+.bookmark-description,
+.bookmark-href,
+.bookmark-text {
+	color: var(--aiot-muted) !important;
+}
+
+a,
+a.visited {
+	color: var(--aiot-accent-strong) !important;
+	text-decoration-color: rgba(121, 192, 255, 0.55) !important;
+}
+
+a:hover {
+	color: #a5d6ff !important;
+}
+
+hr {
+	border-bottom-color: var(--aiot-border) !important;
+}
+
+.page-cover-image {
+	filter: brightness(0.62) saturate(0.92);
+	border-radius: 12px;
+}
+
+.icon,
+.notion-static-icon,
+.notion-emoji {
+	filter: drop-shadow(0 0 6px rgba(88, 166, 255, 0.18));
+}
+
+.callout,
+.source,
+.bookmark,
+.collection-card,
+.block-color-default_background,
+.block-color-gray_background,
+.block-color-brown_background,
+.block-color-orange_background,
+.block-color-yellow_background,
+.block-color-green_background,
+.block-color-blue_background,
+.block-color-purple_background,
+.block-color-pink_background,
+.block-color-red_background {
+	background: var(--aiot-panel-soft) !important;
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table {
+	background: transparent !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.simple-table td,
+.simple-table th {
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table-header-color,
+thead,
+th {
+	background: #1f2937 !important;
+	color: #f8fafc !important;
+}
+
+pre,
+.code,
+code,
+.code > code {
+	background: var(--aiot-code-bg) !important;
+	color: var(--aiot-code-text) !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.code,
+pre {
+	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+blockquote {
+	border-left-color: var(--aiot-accent) !important;
+	background: rgba(88, 166, 255, 0.08) !important;
+}
+
+mark,
+.highlight-gray,
+.highlight-brown,
+.highlight-orange,
+.highlight-yellow,
+.highlight-green,
+.highlight-blue,
+.highlight-purple,
+.highlight-pink,
+.highlight-red {
+	color: var(--aiot-text) !important;
+}
+
+.highlight-gray_background,
+.highlight-brown_background,
+.highlight-orange_background,
+.highlight-yellow_background,
+.highlight-green_background,
+.highlight-blue_background,
+.highlight-purple_background,
+.highlight-pink_background,
+.highlight-red_background {
+	background: rgba(88, 166, 255, 0.11) !important;
+}
+
+.select-value-color-default,
+.select-value-color-gray,
+.select-value-color-brown,
+.select-value-color-orange,
+.select-value-color-yellow,
+.select-value-color-green,
+.select-value-color-blue,
+.select-value-color-purple,
+.select-value-color-pink,
+.select-value-color-red {
+	background-color: rgba(88, 166, 255, 0.15) !important;
+	color: var(--aiot-text) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8b949e !important;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #c9d1d9 !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #79c0ff !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a5d6ff !important;
+}
+
+.token.function,
+.token.class-name {
+	color: #d2a8ff !important;
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only screen and (max-width: 760px) {
+	body {
+		margin: 0;
+	}
+	.page {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 1.25rem;
+	}
+	.page-title {
+		font-size: 2rem;
+	}
+}
+
+
+/* AIOT code block readability patch */
+pre.code,
+pre.code[class*="language-"],
+.code.code-wrap {
+	background: #0b1220 !important;
+	color: #d6e2ff !important;
+	border: 1px solid rgba(148, 163, 184, 0.28) !important;
+	border-radius: 10px !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025), 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+	padding: 1rem 1.125rem !important;
+	overflow-x: auto !important;
+	white-space: pre !important;
+}
+
+pre.code > code,
+pre.code code,
+.code.code-wrap > code,
+.code.code-wrap code {
+	background: transparent !important;
+	color: #d6e2ff !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	font-size: 0.95rem !important;
+	line-height: 1.65 !important;
+	white-space: pre !important;
+	word-break: normal !important;
+	overflow-wrap: normal !important;
+	text-shadow: none !important;
+}
+
+p code,
+li code,
+td code,
+th code,
+h1 code,
+h2 code,
+h3 code {
+	background: transparent !important;
+	color: #8ecdf8 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	font-size: 0.92em !important;
+	white-space: break-spaces !important;
+}
+
+pre.code .token.comment,
+pre.code .token.prolog,
+pre.code .token.doctype,
+pre.code .token.cdata {
+	color: #8b949e !important;
+	font-style: italic !important;
+}
+
+pre.code .token.punctuation,
+pre.code .token.operator,
+pre.code .token.entity,
+pre.code .token.url,
+pre.code .token.variable {
+	color: #c9d1d9 !important;
+}
+
+pre.code .token.keyword,
+pre.code .token.atrule,
+pre.code .token.attr-name {
+	color: #ff7b72 !important;
+}
+
+pre.code .token.string,
+pre.code .token.char,
+pre.code .token.attr-value,
+pre.code .token.regex,
+pre.code .token.inserted {
+	color: #a5d6ff !important;
+}
+
+pre.code .token.number,
+pre.code .token.boolean,
+pre.code .token.constant,
+pre.code .token.symbol,
+pre.code .token.deleted {
+	color: #79c0ff !important;
+}
+
+pre.code .token.function,
+pre.code .token.class-name,
+pre.code .token.builtin {
+	color: #d2a8ff !important;
+}
+
+pre.code .token.property,
+pre.code .token.tag,
+pre.code .token.selector,
+pre.code .token.important {
+	color: #7ee787 !important;
+}
+
+pre.code .token.namespace {
+	opacity: 0.9 !important;
+}
+
+
+/* AIOT operator text-only patch */
+.token.operator,
+pre.code .token.operator,
+code .token.operator,
+.code.code-wrap .token.operator {
+	background: transparent !important;
+	background-color: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	color: #c9d1d9 !important;
+}
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')
+/* AIOT instructional material footer */
+.aiot-site-footer {
+  margin-top: 3rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #9ba7b4;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.aiot-site-footer p {
+  margin: 0;
+}
+</style></head><body><article id="b0f8fb4d-d8dd-83c9-8168-01b0d4c40e5b" class="page sans" data-notion-page-icon="https://s3-us-west-2.amazonaws.com/public.notion-static.com/3defc37d-4740-45fb-a42d-76c1739bbd3a/800x800.png"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.1.0&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb&amp;w=4800" style="object-position:center 50%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="800x800.png"/></div><h1 class="page-title" dir="auto">11 Python 字典（Dictionary）：鍵值對資料建模</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><h2 id="9428fb4d-d8dd-82a7-872d-019b76178f19" style="display:inline-block" dir="auto">課程簡介</h2><p id="73c8fb4d-d8dd-8335-b584-0138fede74b7" class="" dir="auto">本單元介紹 <code>dict</code>。字典以 <code>key: value</code> 方式儲存資料，適合表示「名稱對應值」或「ID 對應紀錄」。你會學到新增、更新、刪除、查詢與迭代，並使用 <code>.get()</code>、<code>.items()</code> 等常用方法。</p><h2 id="4f98fb4d-d8dd-824c-92e3-019ccc2109f1" style="display:inline-block" dir="auto">本講義涵蓋主題</h2><p id="0478fb4d-d8dd-82de-bc7c-0124819d165b" class="" dir="auto">1. dict 結構與基本操作</p><p id="d7d8fb4d-d8dd-836a-9bbe-8141b4b13199" class="" dir="auto">2. 新增、更新、刪除</p><p id="2268fb4d-d8dd-8324-95fd-01fc65c0a9cb" class="" dir="auto">3. 常用方法：<code>.get()</code>、<code>.keys()</code>、<code>.values()</code>、<code>.items()</code></p><p id="5c18fb4d-d8dd-82e5-9ea1-015babc2c3e0" class="" dir="auto">4. 迭代與巢狀字典入門</p><p id="e038fb4d-d8dd-8244-97c1-811c3bd85653" class="" dir="auto">5. 綜合實作：聯絡人管理系統</p><hr id="10f8fb4d-d8dd-8226-8633-817e98cea196" dir="auto"/><h2 id="f638fb4d-d8dd-830e-9f2c-8132d067190b" style="display:inline-block" dir="auto">1. dict 結構與存取</h2><h3 id="2c18fb4d-d8dd-82f9-b803-81d6beefd03a" style="display:inline-block" dir="auto">A. 建立字典</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" integrity="sha512-AKaNmg8COK0zEbjTdMHJAPJ0z6VeNqvRvH4/d5M4sHJbQQUToMBtodq4HaV4fa+WV2UTfoperElm66c9/8cKmQ==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="8628fb4d-d8dd-825c-9eea-01b906d1f2fe" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">student = {&quot;name&quot;: &quot;Amy&quot;, &quot;score&quot;: 88}
+print(student)</code></pre><pre id="b3c8fb4d-d8dd-82b0-b8fa-018e8809cf6a" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">phone_book = dict(alice=&quot;0912&quot;, bob=&quot;0922&quot;)
+print(phone_book)</code></pre><pre id="deb8fb4d-d8dd-82de-b255-81b554981db8" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">config = {&quot;host&quot;: &quot;localhost&quot;, &quot;port&quot;: 8080, &quot;debug&quot;: True}
+print(config)</code></pre><h3 id="af78fb4d-d8dd-8392-bce9-01508f162e38" style="display:inline-block" dir="auto">B. 依 key 存取 value</h3><pre id="26a8fb4d-d8dd-8218-977b-01bf9a000953" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">user = {&quot;id&quot;: 101, &quot;name&quot;: &quot;Leo&quot;}
+print(user[&quot;name&quot;])</code></pre><pre id="2c48fb4d-d8dd-839d-ae50-8193e23522bf" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">prices = {&quot;apple&quot;: 30, &quot;banana&quot;: 25}
+print(prices[&quot;apple&quot;])</code></pre><pre id="0718fb4d-d8dd-835e-ac48-8138293ade09" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">profile = {&quot;city&quot;: &quot;Taipei&quot;, &quot;lang&quot;: &quot;zh-TW&quot;}
+print(profile[&quot;city&quot;])</code></pre><p id="a388fb4d-d8dd-8284-9436-012dcc9b8d7e" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="ec68fb4d-d8dd-8339-b32f-81b1d99d3845" class="" dir="auto">- key 必須可雜湊（hashable），通常用字串、數字、tuple。</p><p id="48d8fb4d-d8dd-826f-ae42-818ca334779a" class="" dir="auto">- <code>d[key]</code> 若 key 不存在會拋錯。</p><hr id="29e8fb4d-d8dd-8319-a98d-81d249aa98d7" dir="auto"/><h2 id="4858fb4d-d8dd-8231-92b2-81e294a3c261" style="display:inline-block" dir="auto">2. 新增、更新、刪除</h2><h3 id="b398fb4d-d8dd-82d2-bde4-015ebd08e85b" style="display:inline-block" dir="auto">A. 新增與更新</h3><pre id="b498fb4d-d8dd-82f8-bb23-015f28e8737c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">scores = {}
+scores[&quot;Amy&quot;] = 90
+print(scores)</code></pre><pre id="7708fb4d-d8dd-8262-a66c-01528c12c62a" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">scores = {&quot;Amy&quot;: 90}
+scores[&quot;Amy&quot;] = 95
+print(scores)</code></pre><pre id="6188fb4d-d8dd-833f-8278-816646c48e90" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">stock = {&quot;pen&quot;: 10}
+stock.update({&quot;book&quot;: 5, &quot;pen&quot;: 12})
+print(stock)</code></pre><h3 id="6d28fb4d-d8dd-822a-bb77-014cebabe64f" style="display:inline-block" dir="auto">B. 刪除資料</h3><pre id="bf38fb4d-d8dd-8325-8b0f-012b3f20c25e" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">data = {&quot;a&quot;: 1, &quot;b&quot;: 2}
+del data[&quot;a&quot;]
+print(data)</code></pre><pre id="f988fb4d-d8dd-8219-a7d3-817d9e786994" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">data = {&quot;a&quot;: 1, &quot;b&quot;: 2}
+value = data.pop(&quot;b&quot;)
+print(value, data)</code></pre><pre id="7e78fb4d-d8dd-8390-877c-811f0bc931fd" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">data = {&quot;x&quot;: 1, &quot;y&quot;: 2}
+data.clear()
+print(data)</code></pre><p id="3d58fb4d-d8dd-82ee-b746-81fa9b836343" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="98f8fb4d-d8dd-83bb-bb0f-016f526d5dd4" class="" dir="auto">- 同一個 key 再次賦值會覆蓋舊值。</p><p id="1938fb4d-d8dd-8244-9fc6-819368ed2e0e" class="" dir="auto">- 刪除前可先檢查 key 是否存在。</p><hr id="6638fb4d-d8dd-8392-84cb-818b14f59450" dir="auto"/><h2 id="df58fb4d-d8dd-8340-907d-01858a88ee78" style="display:inline-block" dir="auto">3. 常用方法與安全存取</h2><h3 id="51c8fb4d-d8dd-83a7-85cf-8152c375e833" style="display:inline-block" dir="auto">A. <code>.get()</code> 與預設值</h3><pre id="be28fb4d-d8dd-82f8-a89d-019df15c2378" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">user = {&quot;name&quot;: &quot;Amy&quot;}
+print(user.get(&quot;name&quot;))</code></pre><pre id="5b88fb4d-d8dd-8286-beef-814cf20bc6b1" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">user = {&quot;name&quot;: &quot;Amy&quot;}
+print(user.get(&quot;age&quot;))</code></pre><pre id="9ff8fb4d-d8dd-82bf-b544-01df034d696c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">user = {&quot;name&quot;: &quot;Amy&quot;}
+print(user.get(&quot;age&quot;, 0))</code></pre><h3 id="ab28fb4d-d8dd-835c-b854-015633862c81" style="display:inline-block" dir="auto">B. <code>.keys()</code>、<code>.values()</code>、<code>.items()</code></h3><pre id="2ef8fb4d-d8dd-82a8-8174-01a9c912b688" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">d = {&quot;a&quot;: 1, &quot;b&quot;: 2}
+print(list(d.keys()))</code></pre><pre id="8be8fb4d-d8dd-8266-bc8a-017539a24794" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">d = {&quot;a&quot;: 1, &quot;b&quot;: 2}
+print(list(d.values()))</code></pre><pre id="6e78fb4d-d8dd-825f-bb2e-8177090c2e83" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">d = {&quot;a&quot;: 1, &quot;b&quot;: 2}
+for k, v in d.items():
+    print(k, v)</code></pre><p id="f468fb4d-d8dd-83b5-94b6-010df59f79c1" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="2c88fb4d-d8dd-8394-9804-0132e617473f" class="" dir="auto">- <code>.get()</code> 適合避免 KeyError。</p><p id="2288fb4d-d8dd-82e6-b261-81137e1f6578" class="" dir="auto">- 迭代 <code>items()</code> 可同時拿到 key 與 value。</p><hr id="9348fb4d-d8dd-82a1-ba8e-819634232dea" dir="auto"/><h2 id="b948fb4d-d8dd-837b-b38c-01aa29ba3cba" style="display:inline-block" dir="auto">4. 迭代與巢狀字典</h2><h3 id="a6c8fb4d-d8dd-8232-8e2a-8154573efd7e" style="display:inline-block" dir="auto">A. 字典迭代模式</h3><pre id="5298fb4d-d8dd-825f-b3a6-01c497a07855" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">scores = {&quot;Amy&quot;: 90, &quot;Ben&quot;: 75, &quot;Cody&quot;: 88}
+for name in scores:
+    print(name, scores[name])</code></pre><pre id="5fe8fb4d-d8dd-837b-a9dc-81857bae99ba" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">scores = {&quot;Amy&quot;: 90, &quot;Ben&quot;: 75, &quot;Cody&quot;: 88}
+for name, score in scores.items():
+    if score &gt;= 80:
+        print(name, &quot;優秀&quot;)</code></pre><pre id="1ed8fb4d-d8dd-82a2-bb6f-81fec25d0c13" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">counts = {}
+text = &quot;banana&quot;
+for ch in text:
+    counts[ch] = counts.get(ch, 0) + 1
+print(counts)</code></pre><h3 id="a658fb4d-d8dd-834e-85c5-816267780bd0" style="display:inline-block" dir="auto">B. 巢狀字典</h3><pre id="e338fb4d-d8dd-83c0-8e36-0191bac5545c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">students = {
+    &quot;S01&quot;: {&quot;name&quot;: &quot;Amy&quot;, &quot;score&quot;: 90},
+    &quot;S02&quot;: {&quot;name&quot;: &quot;Ben&quot;, &quot;score&quot;: 82}
+}
+print(students[&quot;S01&quot;][&quot;name&quot;])</code></pre><pre id="7118fb4d-d8dd-83fe-a9f7-813bb72d42ca" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">product = {
+    &quot;id&quot;: &quot;P100&quot;,
+    &quot;info&quot;: {&quot;name&quot;: &quot;Keyboard&quot;, &quot;price&quot;: 1290}
+}
+print(product[&quot;info&quot;][&quot;price&quot;])</code></pre><pre id="9b98fb4d-d8dd-82ba-b560-019b0f06ded6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">classes = {
+    &quot;A&quot;: {&quot;count&quot;: 30},
+    &quot;B&quot;: {&quot;count&quot;: 28}
+}
+for cls, info in classes.items():
+    print(cls, info[&quot;count&quot;])</code></pre><p id="0ab8fb4d-d8dd-83a4-bee5-8171a58bc55f" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="1328fb4d-d8dd-834c-809a-81bdb2843cf6" class="" dir="auto">- 巢狀結構適合複合資料，但深度太深會降低可讀性。</p><p id="9788fb4d-d8dd-8221-b628-81b11dbba13a" class="" dir="auto">- 可配合函式拆解操作，避免主程式過長。</p><hr id="ac98fb4d-d8dd-8384-b658-818f1940c914" dir="auto"/><h2 id="78b8fb4d-d8dd-83cc-9a32-0193157882f0" style="display:inline-block" dir="auto">5. 綜合實作：聯絡人管理系統</h2><h3 id="5e78fb4d-d8dd-83b3-83f6-019339167eef" style="display:inline-block" dir="auto">A. 實作目標</h3><p id="d848fb4d-d8dd-83be-ba0f-8198ef336d4c" class="" dir="auto">1. 以姓名作為 key，電話作為 value。</p><p id="8d98fb4d-d8dd-837d-8e0d-013426d58166" class="" dir="auto">2. 支援新增/更新、查詢、刪除、列出。</p><p id="7e88fb4d-d8dd-837d-a9d5-8171c9160259" class="" dir="auto">3. 處理 key 不存在的情況。</p><h3 id="a408fb4d-d8dd-8251-b692-8154592caac9" style="display:inline-block" dir="auto">B. 完整程式碼範例</h3><pre id="4f88fb4d-d8dd-8311-aaa2-01a74ba56e94" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">contacts = {}
+
+while True:
+    cmd = input(&quot;指令（set/get/del/list/q）：&quot;).strip().lower()
+
+    if cmd == &quot;set&quot;:
+        name = input(&quot;姓名：&quot;).strip()
+        phone = input(&quot;電話：&quot;).strip()
+        contacts[name] = phone
+        print(&quot;已新增/更新&quot;)
+
+    elif cmd == &quot;get&quot;:
+        name = input(&quot;姓名：&quot;).strip()
+        phone = contacts.get(name)
+        if phone is None:
+            print(&quot;找不到聯絡人&quot;)
+        else:
+            print(f&quot;{name} -&gt; {phone}&quot;)
+
+    elif cmd == &quot;del&quot;:
+        name = input(&quot;姓名：&quot;).strip()
+        if name in contacts:
+            contacts.pop(name)
+            print(&quot;已刪除&quot;)
+        else:
+            print(&quot;找不到聯絡人&quot;)
+
+    elif cmd == &quot;list&quot;:
+        print(&quot;\n=== 聯絡人清單 ===&quot;)
+        for name, phone in contacts.items():
+            print(f&quot;{name}: {phone}&quot;)
+
+    elif cmd == &quot;q&quot;:
+        break
+
+    else:
+        print(&quot;無效指令&quot;)</code></pre><h3 id="c6d8fb4d-d8dd-8267-99e9-015315282f97" style="display:inline-block" dir="auto">C. 程式碼亮點解析</h3><h3 id="17c8fb4d-d8dd-83fb-882d-81556f8ecf9a" style="display:inline-block" dir="auto">1. 使用姓名當 key 快速查詢</h3><pre id="a478fb4d-d8dd-8214-9cee-018c192277f4" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">contacts[name] = phone</code></pre><h3 id="b108fb4d-d8dd-8233-9133-0192c90e1f83" style="display:inline-block" dir="auto">2. <code>.get()</code> 安全讀取</h3><pre id="2dd8fb4d-d8dd-82a3-b492-011bc6cb3dc4" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">phone = contacts.get(name)</code></pre><h3 id="7f18fb4d-d8dd-823d-a03b-8170dbda05ce" style="display:inline-block" dir="auto">3. <code>in</code> 檢查後刪除</h3><pre id="bba8fb4d-d8dd-8369-b545-81202b11ab4c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">if name in contacts:
+    contacts.pop(name)</code></pre><h3 id="16e8fb4d-d8dd-82f0-a7d5-01cc7b09d6c8" style="display:inline-block" dir="auto">D. 擴展練習</h3><p id="6ad8fb4d-d8dd-8214-b0f3-01ad7a631c0e" class="" dir="auto">1. 每位聯絡人擴充為巢狀資料（電話、email、地址）。</p><p id="c6f8fb4d-d8dd-825b-b5a2-010326794b3b" class="" dir="auto">2. 增加關鍵字搜尋（姓名部分比對）。</p><p id="e288fb4d-d8dd-8276-962e-8124babedecc" class="" dir="auto">3. 將聯絡人資料存入 JSON 檔，啟動時載入。</p><hr id="f7d8fb4d-d8dd-8205-ac2e-011cd1d8ee43" dir="auto"/><h2 id="6638fb4d-d8dd-83cb-8200-81a30af99d3d" style="display:inline-block" dir="auto">結論與下一步</h2><p id="cff8fb4d-d8dd-833c-a251-017f6af60a7d" class="" dir="auto">- 你已掌握 dict 的鍵值建模與常見操作。</p><p id="4b48fb4d-d8dd-8337-b90e-811171cd0632" class="" dir="auto">- 你可以用字典建立實用查詢系統與統計工具。</p><p id="dce8fb4d-d8dd-82ea-baeb-01cca6fed100" class="" dir="auto">- 下一步可整合 list + dict + function，做完整小型專案。</p><p id="d438fb4d-d8dd-83c4-ad7d-8180d9d9d184" class="" dir="auto">
+</p><figure id="a098fb4d-d8dd-8381-ba43-814216089dc8" class="image" data-notion-image="ending-stust.png" dir="ltr"><a href="ending-stust.png"><img style="width:709.967529296875px" src="ending-stust.png"/></a></figure>
+<hr id="snakify-citation-divider" dir="auto"/>
+<h2 id="snakify-citation" style="display:inline-block" dir="auto">參考資料</h2>
+<p id="snakify-citation-note" class="" dir="auto">本頁部分 Python 練習脈絡參考 <a href="https://snakify.org/en/" target="_blank" rel="noopener noreferrer">Snakify Python Tutorial</a>。</p>
+
+<footer id="aiot-site-footer" class="aiot-site-footer" dir="auto" aria-label="教材製作資訊">
+  <p>本教學材料由南臺科技大學電子工程系 楊榮林教授主導，並由 AI Agent 輔助整理與製作。</p>
+</footer>
+</div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

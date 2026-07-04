@@ -1,0 +1,1145 @@
+<html lang="zh-Hant-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Python 程式設計 (114-2)</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure,
+aside,
+details {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+
+
+/* AIOT dark review theme */
+:root {
+	color-scheme: dark;
+	--aiot-bg: #0d1117;
+	--aiot-panel: #111827;
+	--aiot-panel-soft: #161f2c;
+	--aiot-text: #e6edf3;
+	--aiot-muted: #9ba7b4;
+	--aiot-border: rgba(148, 163, 184, 0.24);
+	--aiot-accent: #58a6ff;
+	--aiot-accent-strong: #79c0ff;
+	--aiot-code-bg: #0b1220;
+	--aiot-code-text: #d6e2ff;
+}
+
+html,
+body {
+	background: var(--aiot-bg) !important;
+	color: var(--aiot-text) !important;
+}
+
+@media only screen {
+	body {
+		max-width: 980px;
+		color: var(--aiot-text) !important;
+	}
+}
+
+.page {
+	background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 23, 0.98)) !important;
+	border: 1px solid var(--aiot-border);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+	padding: 2.25rem;
+	border-radius: 14px;
+}
+
+.page-title,
+h1,
+h2,
+h3,
+strong {
+	color: #f8fafc !important;
+}
+
+p,
+li,
+td,
+th,
+blockquote,
+figcaption,
+.page-description,
+.pdf-relative-link-path {
+	color: var(--aiot-text) !important;
+}
+
+figcaption,
+.pdf-relative-link-path,
+.bookmark-description,
+.bookmark-href,
+.bookmark-text {
+	color: var(--aiot-muted) !important;
+}
+
+a,
+a.visited {
+	color: var(--aiot-accent-strong) !important;
+	text-decoration-color: rgba(121, 192, 255, 0.55) !important;
+}
+
+a:hover {
+	color: #a5d6ff !important;
+}
+
+hr {
+	border-bottom-color: var(--aiot-border) !important;
+}
+
+.page-cover-image {
+	filter: brightness(0.62) saturate(0.92);
+	border-radius: 12px;
+}
+
+.icon,
+.notion-static-icon,
+.notion-emoji {
+	filter: drop-shadow(0 0 6px rgba(88, 166, 255, 0.18));
+}
+
+.callout,
+.source,
+.bookmark,
+.collection-card,
+.block-color-default_background,
+.block-color-gray_background,
+.block-color-brown_background,
+.block-color-orange_background,
+.block-color-yellow_background,
+.block-color-green_background,
+.block-color-blue_background,
+.block-color-purple_background,
+.block-color-pink_background,
+.block-color-red_background {
+	background: var(--aiot-panel-soft) !important;
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table {
+	background: transparent !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.simple-table td,
+.simple-table th {
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table-header-color,
+thead,
+th {
+	background: #1f2937 !important;
+	color: #f8fafc !important;
+}
+
+pre,
+.code,
+code,
+.code > code {
+	background: var(--aiot-code-bg) !important;
+	color: var(--aiot-code-text) !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.code,
+pre {
+	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+blockquote {
+	border-left-color: var(--aiot-accent) !important;
+	background: rgba(88, 166, 255, 0.08) !important;
+}
+
+mark,
+.highlight-gray,
+.highlight-brown,
+.highlight-orange,
+.highlight-yellow,
+.highlight-green,
+.highlight-blue,
+.highlight-purple,
+.highlight-pink,
+.highlight-red {
+	color: var(--aiot-text) !important;
+}
+
+.highlight-gray_background,
+.highlight-brown_background,
+.highlight-orange_background,
+.highlight-yellow_background,
+.highlight-green_background,
+.highlight-blue_background,
+.highlight-purple_background,
+.highlight-pink_background,
+.highlight-red_background {
+	background: rgba(88, 166, 255, 0.11) !important;
+}
+
+.select-value-color-default,
+.select-value-color-gray,
+.select-value-color-brown,
+.select-value-color-orange,
+.select-value-color-yellow,
+.select-value-color-green,
+.select-value-color-blue,
+.select-value-color-purple,
+.select-value-color-pink,
+.select-value-color-red {
+	background-color: rgba(88, 166, 255, 0.15) !important;
+	color: var(--aiot-text) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8b949e !important;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #c9d1d9 !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #79c0ff !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a5d6ff !important;
+}
+
+.token.function,
+.token.class-name {
+	color: #d2a8ff !important;
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only screen and (max-width: 760px) {
+	body {
+		margin: 0;
+	}
+	.page {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 1.25rem;
+	}
+	.page-title {
+		font-size: 2rem;
+	}
+}
+
+
+/* AIOT code block readability patch */
+pre.code,
+pre.code[class*="language-"],
+.code.code-wrap {
+	background: #0b1220 !important;
+	color: #d6e2ff !important;
+	border: 1px solid rgba(148, 163, 184, 0.28) !important;
+	border-radius: 10px !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025), 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+	padding: 1rem 1.125rem !important;
+	overflow-x: auto !important;
+	white-space: pre !important;
+}
+
+pre.code > code,
+pre.code code,
+.code.code-wrap > code,
+.code.code-wrap code {
+	background: transparent !important;
+	color: #d6e2ff !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	font-size: 0.95rem !important;
+	line-height: 1.65 !important;
+	white-space: pre !important;
+	word-break: normal !important;
+	overflow-wrap: normal !important;
+	text-shadow: none !important;
+}
+
+p code,
+li code,
+td code,
+th code,
+h1 code,
+h2 code,
+h3 code {
+	background: transparent !important;
+	color: #8ecdf8 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	font-size: 0.92em !important;
+	white-space: break-spaces !important;
+}
+
+pre.code .token.comment,
+pre.code .token.prolog,
+pre.code .token.doctype,
+pre.code .token.cdata {
+	color: #8b949e !important;
+	font-style: italic !important;
+}
+
+pre.code .token.punctuation,
+pre.code .token.operator,
+pre.code .token.entity,
+pre.code .token.url,
+pre.code .token.variable {
+	color: #c9d1d9 !important;
+}
+
+pre.code .token.keyword,
+pre.code .token.atrule,
+pre.code .token.attr-name {
+	color: #ff7b72 !important;
+}
+
+pre.code .token.string,
+pre.code .token.char,
+pre.code .token.attr-value,
+pre.code .token.regex,
+pre.code .token.inserted {
+	color: #a5d6ff !important;
+}
+
+pre.code .token.number,
+pre.code .token.boolean,
+pre.code .token.constant,
+pre.code .token.symbol,
+pre.code .token.deleted {
+	color: #79c0ff !important;
+}
+
+pre.code .token.function,
+pre.code .token.class-name,
+pre.code .token.builtin {
+	color: #d2a8ff !important;
+}
+
+pre.code .token.property,
+pre.code .token.tag,
+pre.code .token.selector,
+pre.code .token.important {
+	color: #7ee787 !important;
+}
+
+pre.code .token.namespace {
+	opacity: 0.9 !important;
+}
+
+
+/* AIOT operator text-only patch */
+.token.operator,
+pre.code .token.operator,
+code .token.operator,
+.code.code-wrap .token.operator {
+	background: transparent !important;
+	background-color: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	color: #c9d1d9 !important;
+}
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')
+/* AIOT instructional material footer */
+.aiot-site-footer {
+  margin-top: 3rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #9ba7b4;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.aiot-site-footer p {
+  margin: 0;
+}
+</style></head><body><article id="3928fb4d-d8dd-80be-b0d9-d08f380b29d9" class="page sans" data-notion-page-icon="https://s3-us-west-2.amazonaws.com/public.notion-static.com/3defc37d-4740-45fb-a42d-76c1739bbd3a/800x800.png"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1649180556628-9ba704115795?ixlib=rb-4.1.0&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb" style="object-position:center 40.49%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/></div><h1 class="page-title" dir="auto">Python 程式設計 (114-2)</h1><p class="page-description" dir="auto"></p></header><div class="page-body">
+<p id="snakify-main-reference" class="" dir="auto">補充練習資源：<a href="https://snakify.org/en/" target="_blank" rel="noopener noreferrer">Snakify Python Tutorial</a> 可搭配本課程 Python 練習頁使用。</p>
+<figure id="0948fb4d-d8dd-83a6-bcc1-01d905d7c390" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20-%20%E8%AA%B2%E7%A8%8B%E6%A6%82%E8%BF%B0%200948fb4dd8dd83a6bcc101d905d7c390.html" data-notion-page-id="0948fb4d-d8dd-83a6-bcc1-01d905d7c390" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Python 程式設計 - 課程概述</a></figure><figure id="beb8fb4d-d8dd-82d8-b6a8-81c6edb00e53" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/C%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%E5%BF%AB%E9%80%9F%E8%A4%87%E7%BF%92%EF%BC%9A%E8%AE%8A%E6%95%B8%E3%80%81%E9%81%8B%E7%AE%97%E5%BC%8F%E3%80%81%E5%88%A4%E6%96%B7%E3%80%81%E8%BF%B4%E5%9C%88%E3%80%81%E5%87%BD%E5%BC%8F%E3%80%81%E9%99%A3%E5%88%97%E8%88%87%E6%8C%87%E6%A8%99%20beb8fb4dd8dd82d8b6a881c6edb00e53.html" data-notion-page-id="beb8fb4d-d8dd-82d8-b6a8-81c6edb00e53" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>C 程式設計快速複習：變數、運算式、判斷、迴圈、函式、陣列與指標</a></figure><figure id="34c8fb4d-d8dd-8286-9bbf-81b7178e4086" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%20%E5%8F%8D%E6%80%9D%E5%BC%8F%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%EF%BC%9AC%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%E5%BF%AB%E9%80%9F%E8%A4%87%E7%BF%92%2034c8fb4dd8dd82869bbf81b7178e4086.html" data-notion-page-id="34c8fb4d-d8dd-8286-9bbf-81b7178e4086" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing 反思式學習筆記：C 程式設計快速複習</a></figure><figure id="8b58fb4d-d8dd-823d-b824-01669b0aa461" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s%208b58fb4dd8dd823db82401669b0aa461.html" data-notion-page-id="8b58fb4d-d8dd-823d-b824-01669b0aa461" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>以 Dockerfile 解讀教學環境：JS/TS、Python、Node-RED 與 code-server</a></figure><figure id="43d8fb4d-d8dd-83d0-9579-01aa03384e9f" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97%2043d8fb4dd8dd83d0957901aa03384e9f.html" data-notion-page-id="43d8fb4d-d8dd-83d0-9579-01aa03384e9f" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>01 Python 的輸入、輸出與數值運算：從互動到計算</a></figure><figure id="9c08fb4d-d8dd-8296-99e8-01ffd4c609a1" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97%209c08fb4dd8dd829699e801ffd4c609a1.html" data-notion-page-id="9c08fb4d-d8dd-8296-99e8-01ffd4c609a1" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>02 Python 的整數與浮點數：精準計算與進階運算</a></figure><figure id="0478fb4d-d8dd-82cd-b5e8-0183fe010ef3" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/%E8%87%AA%E5%8B%95%E6%89%B9%E9%96%B1%20hw02%20Integer%20and%20Float%20Numbers%200478fb4dd8dd82cdb5e80183fe010ef3.html" data-notion-page-id="0478fb4d-d8dd-82cd-b5e8-0183fe010ef3" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>自動批閱 hw02: Integer and Float Numbers</a></figure><figure id="2288fb4d-d8dd-8265-88ab-81e256c9d24a" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/03%20Python%20%E6%A2%9D%E4%BB%B6%E5%88%A4%E6%96%B7%EF%BC%9Aif%E3%80%81elif%E3%80%81else%20%E7%9A%84%E6%B1%BA%E7%AD%96%E9%82%8F%E8%BC%AF%202288fb4dd8dd826588ab81e256c9d24a.html" data-notion-page-id="2288fb4d-d8dd-8265-88ab-81e256c9d24a" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>03 Python 條件判斷：if、elif、else 的決策邏輯</a></figure><figure id="2058fb4d-d8dd-82fb-8575-8162605347bb" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/%E8%87%AA%E5%8B%95%E6%89%B9%E9%96%B1%20hw03%20Conditions,%20if%20elif%20else%202058fb4dd8dd82fb85758162605347bb.html" data-notion-page-id="2058fb4d-d8dd-82fb-8575-8162605347bb" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>自動批閱 hw03: Conditions, if / elif / else</a></figure><figure id="1f98fb4d-d8dd-83b9-b3e5-013651a7de27" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/04%20Python%20for%20%E8%BF%B4%E5%9C%88%E8%88%87%20range%EF%BC%9A%E5%9B%BA%E5%AE%9A%E6%AC%A1%E6%95%B8%E9%87%8D%E8%A4%87%E7%9A%84%E6%A0%B8%E5%BF%83%E6%8A%80%E8%A1%93%201f98fb4dd8dd83b9b3e5013651a7de27.html" data-notion-page-id="1f98fb4d-d8dd-83b9-b3e5-013651a7de27" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>04 Python for 迴圈與 range：固定次數重複的核心技術</a></figure><figure id="7998fb4d-d8dd-8254-9ba9-01969321d200" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/%E8%87%AA%E5%8B%95%E6%89%B9%E9%96%B1%20hw04%20For%20Loop%20with%20Range%207998fb4dd8dd82549ba901969321d200.html" data-notion-page-id="7998fb4d-d8dd-8254-9ba9-01969321d200" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>自動批閱 hw04: For Loop with Range</a></figure><figure id="2d78fb4d-d8dd-8363-ab3d-8162e12ef0ab" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/05%20Python%20%E5%AD%97%E4%B8%B2%EF%BC%9A%E7%B4%A2%E5%BC%95%E3%80%81%E5%88%87%E7%89%87%E8%88%87%E6%96%87%E5%AD%97%E8%99%95%E7%90%86%202d78fb4dd8dd8363ab3d8162e12ef0ab.html" data-notion-page-id="2d78fb4d-d8dd-8363-ab3d-8162e12ef0ab" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>05 Python 字串：索引、切片與文字處理</a></figure><figure id="55d8fb4d-d8dd-82f8-aa04-81cf4b9646f5" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/06%20Python%20while%20%E8%BF%B4%E5%9C%88%EF%BC%9A%E6%A2%9D%E4%BB%B6%E9%A9%85%E5%8B%95%E7%9A%84%E9%87%8D%E8%A4%87%E6%B5%81%E7%A8%8B%2055d8fb4dd8dd82f8aa0481cf4b9646f5.html" data-notion-page-id="55d8fb4d-d8dd-82f8-aa04-81cf4b9646f5" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>06 Python while 迴圈：條件驅動的重複流程</a></figure><figure id="23a8fb4d-d8dd-83fa-89d4-81ee1e8ddee1" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/%E3%80%8A%E6%88%91%E5%80%91%E7%9A%84%E7%A6%8F%E7%88%BE%E6%91%A9%E6%B2%99%E3%80%8BSDGs%20%E6%A1%8C%E9%81%8A%E6%A6%82%E5%BF%B5%E8%AC%9B%E7%BE%A9%2023a8fb4dd8dd83fa89d481ee1e8ddee1.html" data-notion-page-id="23a8fb4d-d8dd-83fa-89d4-81ee1e8ddee1" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>《我們的福爾摩沙》SDGs 桌遊概念講義</a></figure><figure id="99d8fb4d-d8dd-823b-ba34-819c42f88e86" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8%2099d8fb4dd8dd823bba34819c42f88e86.html" data-notion-page-id="99d8fb4d-d8dd-823b-ba34-819c42f88e86" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>07 Python 串列（List）：一維資料的核心容器</a></figure><figure id="6118fb4d-d8dd-833d-ad7e-818c76ac698c" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/08%20Python%20%E5%87%BD%E5%BC%8F%E8%88%87%E9%81%9E%E8%BF%B4%EF%BC%9A%E6%8A%8A%E7%A8%8B%E5%BC%8F%E6%8B%86%E6%88%90%E5%8F%AF%E9%87%8D%E7%94%A8%E6%A8%A1%E7%B5%84%206118fb4dd8dd833dad7e818c76ac698c.html" data-notion-page-id="6118fb4d-d8dd-833d-ad7e-818c76ac698c" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>08 Python 函式與遞迴：把程式拆成可重用模組</a></figure><figure id="2bf8fb4d-d8dd-8243-bd04-81f5a8860256" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/09%20Python%20%E4%BA%8C%E7%B6%AD%E4%B8%B2%E5%88%97%EF%BC%9A%E8%A1%A8%E6%A0%BC%E8%88%87%E7%B6%B2%E6%A0%BC%E8%B3%87%E6%96%99%E8%99%95%E7%90%86%202bf8fb4dd8dd8243bd0481f5a8860256.html" data-notion-page-id="2bf8fb4d-d8dd-8243-bd04-81f5a8860256" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>09 Python 二維串列：表格與網格資料處理</a></figure><figure id="7fb8fb4d-d8dd-83b5-b356-8191881fd9eb" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/10%20Python%20%E9%9B%86%E5%90%88%EF%BC%88Set%EF%BC%89%EF%BC%9A%E5%94%AF%E4%B8%80%E5%80%BC%E8%88%87%E9%9B%86%E5%90%88%E9%81%8B%E7%AE%97%207fb8fb4dd8dd83b5b3568191881fd9eb.html" data-notion-page-id="7fb8fb4d-d8dd-83b5-b356-8191881fd9eb" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>10 Python 集合（Set）：唯一值與集合運算</a></figure><figure id="b0f8fb4d-d8dd-83c9-8168-01b0d4c40e5b" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/11%20Python%20%E5%AD%97%E5%85%B8%EF%BC%88Dictionary%EF%BC%89%EF%BC%9A%E9%8D%B5%E5%80%BC%E5%B0%8D%E8%B3%87%E6%96%99%E5%BB%BA%E6%A8%A1%20b0f8fb4dd8dd83c9816801b0d4c40e5b.html" data-notion-page-id="b0f8fb4d-d8dd-83c9-8168-01b0d4c40e5b" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>11 Python 字典（Dictionary）：鍵值對資料建模</a></figure><h2 id="1908fb4d-d8dd-8317-b5fa-01a63de8dc02" style="display:inline-block" dir="auto">Learning-by-Doing 反思式學習筆記</h2><figure id="3358fb4d-d8dd-8373-a0fc-01ea1c31bb3d" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97%203358fb4dd8dd8373a0fc01ea1c31bb3d.html" data-notion-page-id="3358fb4d-d8dd-8373-a0fc-01ea1c31bb3d" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：01 Python 的輸入、輸出與數值運算：從互動到計算</a></figure><figure id="bea8fb4d-d8dd-8267-8ef4-0104507b5fb6" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97%20bea8fb4dd8dd82678ef40104507b5fb6.html" data-notion-page-id="bea8fb4d-d8dd-8267-8ef4-0104507b5fb6" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：02 Python 的整數與浮點數：精準計算與進階運算</a></figure><figure id="7208fb4d-d8dd-82f9-9314-813fe57dd139" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A03%20Python%20%E6%A2%9D%E4%BB%B6%E5%88%A4%E6%96%B7%EF%BC%9Aif%E3%80%81elif%E3%80%81else%20%E7%9A%84%E6%B1%BA%E7%AD%96%E9%82%8F%207208fb4dd8dd82f99314813fe57dd139.html" data-notion-page-id="7208fb4d-d8dd-82f9-9314-813fe57dd139" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：03 Python 條件判斷：if、elif、else 的決策邏輯</a></figure><figure id="c3e8fb4d-d8dd-82cf-a4c8-81274b569596" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A04%20Python%20for%20%E8%BF%B4%E5%9C%88%E8%88%87%20range%EF%BC%9A%E5%9B%BA%E5%AE%9A%E6%AC%A1%E6%95%B8%E9%87%8D%E8%A4%87%E7%9A%84%E6%A0%B8%20c3e8fb4dd8dd82cfa4c881274b569596.html" data-notion-page-id="c3e8fb4d-d8dd-82cf-a4c8-81274b569596" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：04 Python for 迴圈與 range：固定次數重複的核心技術</a></figure><figure id="dd68fb4d-d8dd-833d-914b-81f2d3250d9b" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A05%20Python%20%E5%AD%97%E4%B8%B2%EF%BC%9A%E7%B4%A2%E5%BC%95%E3%80%81%E5%88%87%E7%89%87%E8%88%87%E6%96%87%E5%AD%97%E8%99%95%E7%90%86%20dd68fb4dd8dd833d914b81f2d3250d9b.html" data-notion-page-id="dd68fb4d-d8dd-833d-914b-81f2d3250d9b" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：05 Python 字串：索引、切片與文字處理</a></figure><figure id="7fb8fb4d-d8dd-82ed-9e56-81bf65b546f5" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A06%20Python%20while%20%E8%BF%B4%E5%9C%88%EF%BC%9A%E6%A2%9D%E4%BB%B6%E9%A9%85%E5%8B%95%E7%9A%84%E9%87%8D%E8%A4%87%E6%B5%81%E7%A8%8B%207fb8fb4dd8dd82ed9e5681bf65b546f5.html" data-notion-page-id="7fb8fb4d-d8dd-82ed-9e56-81bf65b546f5" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：06 Python while 迴圈：條件驅動的重複流程</a></figure><figure id="9d58fb4d-d8dd-829a-882e-81ca56902888" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8%209d58fb4dd8dd829a882e81ca56902888.html" data-notion-page-id="9d58fb4d-d8dd-829a-882e-81ca56902888" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：07 Python 串列（List）：一維資料的核心容器</a></figure><figure id="4ba8fb4d-d8dd-8226-9b74-81eee6158c9f" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A08%20Python%20%E5%87%BD%E5%BC%8F%E8%88%87%E9%81%9E%E8%BF%B4%EF%BC%9A%E6%8A%8A%E7%A8%8B%E5%BC%8F%E6%8B%86%E6%88%90%E5%8F%AF%E9%87%8D%E7%94%A8%E6%A8%A1%E7%B5%84%204ba8fb4dd8dd82269b7481eee6158c9f.html" data-notion-page-id="4ba8fb4d-d8dd-8226-9b74-81eee6158c9f" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：08 Python 函式與遞迴：把程式拆成可重用模組</a></figure><figure id="5e38fb4d-d8dd-83d7-a252-811564a3c96f" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A09%20Python%20%E4%BA%8C%E7%B6%AD%E4%B8%B2%E5%88%97%EF%BC%9A%E8%A1%A8%E6%A0%BC%E8%88%87%E7%B6%B2%E6%A0%BC%E8%B3%87%E6%96%99%E8%99%95%E7%90%86%205e38fb4dd8dd83d7a252811564a3c96f.html" data-notion-page-id="5e38fb4d-d8dd-83d7-a252-811564a3c96f" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：09 Python 二維串列：表格與網格資料處理</a></figure><figure id="6918fb4d-d8dd-823c-9654-8166a85fa663" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A10%20Python%20%E9%9B%86%E5%90%88%EF%BC%88Set%EF%BC%89%EF%BC%9A%E5%94%AF%E4%B8%80%E5%80%BC%E8%88%87%E9%9B%86%E5%90%88%E9%81%8B%E7%AE%97%206918fb4dd8dd823c96548166a85fa663.html" data-notion-page-id="6918fb4d-d8dd-823c-9654-8166a85fa663" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：10 Python 集合（Set）：唯一值與集合運算</a></figure><figure id="de38fb4d-d8dd-83f8-8533-01c95f5e00bc" class="link-to-page"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/Learning-by-Doing%EF%BC%9A11%20Python%20%E5%AD%97%E5%85%B8%EF%BC%88Dictionary%EF%BC%89%EF%BC%9A%E9%8D%B5%E5%80%BC%E5%B0%8D%E8%B3%87%E6%96%99%E5%BB%BA%E6%A8%A1%20de38fb4dd8dd83f8853301c95f5e00bc.html" data-notion-page-id="de38fb4d-d8dd-83f8-8533-01c95f5e00bc" data-notion-space-id="5ba95bf4-8f68-4e65-9bdf-3668b6a9e90a"><img class="icon" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/800x800.png"/>Learning-by-Doing：11 Python 字典（Dictionary）：鍵值對資料建模</a></figure><p id="5f38fb4d-d8dd-8245-80a0-813ee6bf92a9" class="" dir="auto">
+</p><figure id="3e58fb4d-d8dd-837c-b18a-81186cb520d4" class="image" data-notion-image="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/ending-stust.png" dir="ltr"><a href="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/ending-stust.png"><img style="width:709.967529296875px" src="Python%20%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%88%20(114-2)/ending-stust.png"/></a></figure><p id="3af8fb4d-d8dd-82e0-8370-81b865951b44" class="" dir="auto">
+</p>
+<footer id="aiot-site-footer" class="aiot-site-footer" dir="auto" aria-label="教材製作資訊">
+  <p>本教學材料由南臺科技大學電子工程系 楊榮林教授主導，並由 AI Agent 輔助整理與製作。</p>
+</footer>
+</div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

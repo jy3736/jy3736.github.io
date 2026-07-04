@@ -1,0 +1,1400 @@
+<html lang="zh-Hant-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Learning-by-Doing 反思式學習筆記：C 程式設計快速複習</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure,
+aside,
+details {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+
+
+/* AIOT dark review theme */
+:root {
+	color-scheme: dark;
+	--aiot-bg: #0d1117;
+	--aiot-panel: #111827;
+	--aiot-panel-soft: #161f2c;
+	--aiot-text: #e6edf3;
+	--aiot-muted: #9ba7b4;
+	--aiot-border: rgba(148, 163, 184, 0.24);
+	--aiot-accent: #58a6ff;
+	--aiot-accent-strong: #79c0ff;
+	--aiot-code-bg: #0b1220;
+	--aiot-code-text: #d6e2ff;
+}
+
+html,
+body {
+	background: var(--aiot-bg) !important;
+	color: var(--aiot-text) !important;
+}
+
+@media only screen {
+	body {
+		max-width: 980px;
+		color: var(--aiot-text) !important;
+	}
+}
+
+.page {
+	background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 23, 0.98)) !important;
+	border: 1px solid var(--aiot-border);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+	padding: 2.25rem;
+	border-radius: 14px;
+}
+
+.page-title,
+h1,
+h2,
+h3,
+strong {
+	color: #f8fafc !important;
+}
+
+p,
+li,
+td,
+th,
+blockquote,
+figcaption,
+.page-description,
+.pdf-relative-link-path {
+	color: var(--aiot-text) !important;
+}
+
+figcaption,
+.pdf-relative-link-path,
+.bookmark-description,
+.bookmark-href,
+.bookmark-text {
+	color: var(--aiot-muted) !important;
+}
+
+a,
+a.visited {
+	color: var(--aiot-accent-strong) !important;
+	text-decoration-color: rgba(121, 192, 255, 0.55) !important;
+}
+
+a:hover {
+	color: #a5d6ff !important;
+}
+
+hr {
+	border-bottom-color: var(--aiot-border) !important;
+}
+
+.page-cover-image {
+	filter: brightness(0.62) saturate(0.92);
+	border-radius: 12px;
+}
+
+.icon,
+.notion-static-icon,
+.notion-emoji {
+	filter: drop-shadow(0 0 6px rgba(88, 166, 255, 0.18));
+}
+
+.callout,
+.source,
+.bookmark,
+.collection-card,
+.block-color-default_background,
+.block-color-gray_background,
+.block-color-brown_background,
+.block-color-orange_background,
+.block-color-yellow_background,
+.block-color-green_background,
+.block-color-blue_background,
+.block-color-purple_background,
+.block-color-pink_background,
+.block-color-red_background {
+	background: var(--aiot-panel-soft) !important;
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table {
+	background: transparent !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.simple-table td,
+.simple-table th {
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table-header-color,
+thead,
+th {
+	background: #1f2937 !important;
+	color: #f8fafc !important;
+}
+
+pre,
+.code,
+code,
+.code > code {
+	background: var(--aiot-code-bg) !important;
+	color: var(--aiot-code-text) !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.code,
+pre {
+	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+blockquote {
+	border-left-color: var(--aiot-accent) !important;
+	background: rgba(88, 166, 255, 0.08) !important;
+}
+
+mark,
+.highlight-gray,
+.highlight-brown,
+.highlight-orange,
+.highlight-yellow,
+.highlight-green,
+.highlight-blue,
+.highlight-purple,
+.highlight-pink,
+.highlight-red {
+	color: var(--aiot-text) !important;
+}
+
+.highlight-gray_background,
+.highlight-brown_background,
+.highlight-orange_background,
+.highlight-yellow_background,
+.highlight-green_background,
+.highlight-blue_background,
+.highlight-purple_background,
+.highlight-pink_background,
+.highlight-red_background {
+	background: rgba(88, 166, 255, 0.11) !important;
+}
+
+.select-value-color-default,
+.select-value-color-gray,
+.select-value-color-brown,
+.select-value-color-orange,
+.select-value-color-yellow,
+.select-value-color-green,
+.select-value-color-blue,
+.select-value-color-purple,
+.select-value-color-pink,
+.select-value-color-red {
+	background-color: rgba(88, 166, 255, 0.15) !important;
+	color: var(--aiot-text) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8b949e !important;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #c9d1d9 !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #79c0ff !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a5d6ff !important;
+}
+
+.token.function,
+.token.class-name {
+	color: #d2a8ff !important;
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only screen and (max-width: 760px) {
+	body {
+		margin: 0;
+	}
+	.page {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 1.25rem;
+	}
+	.page-title {
+		font-size: 2rem;
+	}
+}
+
+
+/* AIOT code block readability patch */
+pre.code,
+pre.code[class*="language-"],
+.code.code-wrap {
+	background: #0b1220 !important;
+	color: #d6e2ff !important;
+	border: 1px solid rgba(148, 163, 184, 0.28) !important;
+	border-radius: 10px !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025), 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+	padding: 1rem 1.125rem !important;
+	overflow-x: auto !important;
+	white-space: pre !important;
+}
+
+pre.code > code,
+pre.code code,
+.code.code-wrap > code,
+.code.code-wrap code {
+	background: transparent !important;
+	color: #d6e2ff !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	font-size: 0.95rem !important;
+	line-height: 1.65 !important;
+	white-space: pre !important;
+	word-break: normal !important;
+	overflow-wrap: normal !important;
+	text-shadow: none !important;
+}
+
+p code,
+li code,
+td code,
+th code,
+h1 code,
+h2 code,
+h3 code {
+	background: transparent !important;
+	color: #8ecdf8 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	font-size: 0.92em !important;
+	white-space: break-spaces !important;
+}
+
+pre.code .token.comment,
+pre.code .token.prolog,
+pre.code .token.doctype,
+pre.code .token.cdata {
+	color: #8b949e !important;
+	font-style: italic !important;
+}
+
+pre.code .token.punctuation,
+pre.code .token.operator,
+pre.code .token.entity,
+pre.code .token.url,
+pre.code .token.variable {
+	color: #c9d1d9 !important;
+}
+
+pre.code .token.keyword,
+pre.code .token.atrule,
+pre.code .token.attr-name {
+	color: #ff7b72 !important;
+}
+
+pre.code .token.string,
+pre.code .token.char,
+pre.code .token.attr-value,
+pre.code .token.regex,
+pre.code .token.inserted {
+	color: #a5d6ff !important;
+}
+
+pre.code .token.number,
+pre.code .token.boolean,
+pre.code .token.constant,
+pre.code .token.symbol,
+pre.code .token.deleted {
+	color: #79c0ff !important;
+}
+
+pre.code .token.function,
+pre.code .token.class-name,
+pre.code .token.builtin {
+	color: #d2a8ff !important;
+}
+
+pre.code .token.property,
+pre.code .token.tag,
+pre.code .token.selector,
+pre.code .token.important {
+	color: #7ee787 !important;
+}
+
+pre.code .token.namespace {
+	opacity: 0.9 !important;
+}
+
+
+/* AIOT operator text-only patch */
+.token.operator,
+pre.code .token.operator,
+code .token.operator,
+.code.code-wrap .token.operator {
+	background: transparent !important;
+	background-color: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	color: #c9d1d9 !important;
+}
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')
+/* AIOT instructional material footer */
+.aiot-site-footer {
+  margin-top: 3rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #9ba7b4;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.aiot-site-footer p {
+  margin: 0;
+}
+</style></head><body><article id="34c8fb4d-d8dd-8286-9bbf-81b7178e4086" class="page sans" data-notion-page-icon="https://s3-us-west-2.amazonaws.com/public.notion-static.com/3defc37d-4740-45fb-a42d-76c1739bbd3a/800x800.png"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.1.0&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb&amp;w=4800" style="object-position:center 50%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="800x800.png"/></div><h1 class="page-title" dir="auto">Learning-by-Doing 反思式學習筆記：C 程式設計快速複習</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><h2 id="1548fb4d-d8dd-8240-ab80-01cf1e924818" style="display:inline-block" dir="auto">課程簡介</h2><p id="3e18fb4d-d8dd-82bb-bd88-01b0fc82303a" class="" dir="auto">本筆記對齊 <code>00-C Programming Quick Review-lecture-notes.md</code>，用「最小可執行範例 -&gt; 小幅變化 -&gt; 小任務」的方式練習 C 核心能力。每章都有反思題，幫你把語法轉成可解釋、可重用的實作能力。</p><h2 id="5588fb4d-d8dd-8353-ae7d-819ea2a2d1e8" style="display:inline-block" dir="auto">學習環境（Docker）</h2><p id="ad18fb4d-d8dd-83be-9bee-810c03f4357c" class="" dir="auto">- 課程 Docker 已包含 <code>build-essential</code>、<code>gcc/clang</code>、<code>gdb</code>、<code>valgrind</code>。</p><p id="a188fb4d-d8dd-8270-bee8-8155f951eeb5" class="" dir="auto">- 建議基本流程：<code>gcc main.c -Wall -Wextra -std=c11 -o main &amp;&amp; ./main</code></p><p id="4f78fb4d-d8dd-83dd-8760-016587c858c2" class="" dir="auto">- 若在本機操作，請確認有 C 編譯器（<code>gcc --version</code> 或 <code>clang --version</code>）。</p><h2 id="6f08fb4d-d8dd-834e-9fae-81276ebd8fc4" style="display:inline-block" dir="auto">本講義涵蓋主題</h2><p id="1a48fb4d-d8dd-82a4-9086-01b240929f91" class="" dir="auto">1. 變數與基本型別</p><p id="e558fb4d-d8dd-83d2-bc96-81e1f4456805" class="" dir="auto">2. 運算式與運算子</p><p id="e378fb4d-d8dd-8265-b767-81da855dfc51" class="" dir="auto">3. 判斷流程（<code>if</code> / <code>switch</code>）</p><p id="7828fb4d-d8dd-831b-a985-01cee2ff2b5f" class="" dir="auto">4. 迴圈（<code>for</code> / <code>while</code> / <code>do...while</code>）</p><p id="51d8fb4d-d8dd-82f4-93ec-01d9f9d93d36" class="" dir="auto">5. 函式與參數傳遞</p><p id="04d8fb4d-d8dd-836f-9e19-01e4b3b3f3ea" class="" dir="auto">6. 一維與二維陣列</p><p id="7748fb4d-d8dd-82d7-8f77-01a4cb0b2448" class="" dir="auto">7. 簡單指標</p><p id="ce08fb4d-d8dd-8397-8734-01d56ce7fa6c" class="" dir="auto">8. 綜合實作：成績統計系統</p><hr id="5418fb4d-d8dd-826a-badb-8152d3b3bd14" dir="auto"/><h2 id="2258fb4d-d8dd-8367-a88e-01d9c5365b6d" style="display:inline-block" dir="auto">1. 變數與基本型別</h2><h3 id="f018fb4d-d8dd-8391-82ca-81e14f3beda3" style="display:inline-block" dir="auto">概念摘要</h3><p id="0e18fb4d-d8dd-8349-94b7-0104a1f4377d" class="" dir="auto">C 是靜態型別語言，變數需先宣告。型別會影響計算結果、記憶體大小與輸出格式。</p><h3 id="c078fb4d-d8dd-8330-b531-01a6d728abc3" style="display:inline-block" dir="auto">Step-by-step 操作</h3><p id="25b8fb4d-d8dd-83af-a222-01f5bb4ca668" class="" dir="auto">1. 最小可執行範例</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js" integrity="sha512-8VrjxGFLIkS0mgEmO3p46A5OkqATHhrNVwyv2V7yUeZrk1jmSDuI3SOEpC9XHEHUWEOsfzzcJeBlUkee9lKGrw==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="8d98fb4d-d8dd-8377-9492-01f99d1e1857" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int age = 20;
+    double height = 172.5;
+    char grade = &#x27;A&#x27;;
+    printf(&quot;%d %.1f %c\n&quot;, age, height, grade);
+    return 0;
+}</code></pre><p id="c0b8fb4d-d8dd-83b3-a182-018fea372482" class="" dir="auto">2. 小幅變化範例</p><pre id="1988fb4d-d8dd-83ad-bc5f-01c28f48f5a3" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int x = 7, y = 2;
+    printf(&quot;int div=%d\n&quot;, x / y);
+    printf(&quot;float div=%.2f\n&quot;, (double)x / y);
+    return 0;
+}</code></pre><p id="0a08fb4d-d8dd-835a-ba19-01b92ec6dd54" class="" dir="auto">3. 小任務練習</p><pre id="9fc8fb4d-d8dd-8291-bdb1-81414b494a2b" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    const double PI = 3.14159;
+    double r = 5.0;
+    // 練習：輸出圓面積到小數點後 2 位
+    printf(&quot;area=%.2f\n&quot;, PI * r * r);
+    return 0;
+}</code></pre><h3 id="4148fb4d-d8dd-825a-835f-0109bc74ac3f" style="display:inline-block" dir="auto">反思提問</h3><p id="6518fb4d-d8dd-82f3-80c5-811cd06ff66c" class="" dir="auto">- 為什麼 <code>7 / 2</code> 與 <code>(double)7 / 2</code> 的結果不同？</p><p id="a848fb4d-d8dd-8260-884c-81cf853f8407" class="" dir="auto">- 我是否能正確對應 <code>%d</code>、<code>%f</code>、<code>%c</code>？</p><p id="4d18fb4d-d8dd-8296-a81d-81b31b05d4aa" class="" dir="auto">- 哪些值應該使用 <code>const</code>？</p><h3 id="18f8fb4d-d8dd-82d9-b160-015502a77803" style="display:inline-block" dir="auto">小型練習</h3><p id="33d8fb4d-d8dd-821b-a03e-81bc77129c4e" class="" dir="auto">- 新增 <code>long</code> 或 <code>float</code> 變數並用正確格式輸出。</p><p id="c328fb4d-d8dd-821b-a313-8153979bdebf" class="" dir="auto">- 使用 <code>sizeof</code> 印出 <code>int</code>、<code>double</code> 大小。</p><hr id="c248fb4d-d8dd-8275-b3d8-817891bf5656" dir="auto"/><h2 id="6318fb4d-d8dd-82c9-a02a-0127f47aa028" style="display:inline-block" dir="auto">2. 運算式與運算子</h2><h3 id="d218fb4d-d8dd-82be-b421-816ff5fe8f29" style="display:inline-block" dir="auto">概念摘要</h3><p id="0808fb4d-d8dd-82a8-9529-01c02c26c5e8" class="" dir="auto">運算式由運算元與運算子組成，需特別注意優先順序與遞增運算行為。</p><h3 id="9478fb4d-d8dd-82c5-815b-0132202931aa" style="display:inline-block" dir="auto">Step-by-step 操作</h3><p id="e1f8fb4d-d8dd-8370-b733-0195a377970e" class="" dir="auto">1. 最小可執行範例</p><pre id="6638fb4d-d8dd-82f3-94f7-817accbb34e7" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int a = 10, b = 3;
+    printf(&quot;+ - * / %% = %d %d %d %d %d\n&quot;, a+b, a-b, a*b, a/b, a%b);
+    return 0;
+}</code></pre><p id="5488fb4d-d8dd-82b0-91fb-01bb3f784b7c" class="" dir="auto">2. 小幅變化範例</p><pre id="cee8fb4d-d8dd-833c-90ff-014523bb2a67" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf(&quot;2 + 3 * 4 = %d\n&quot;, 2 + 3 * 4);
+    printf(&quot;(2 + 3) * 4 = %d\n&quot;, (2 + 3) * 4);
+    return 0;
+}</code></pre><p id="c2e8fb4d-d8dd-8381-949a-0164262e934e" class="" dir="auto">3. 小任務練習</p><pre id="3278fb4d-d8dd-8218-8b83-015d52ad4742" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int i = 5;
+    printf(&quot;before=%d\n&quot;, i);
+    printf(&quot;postfix=%d\n&quot;, i++);
+    printf(&quot;after postfix=%d\n&quot;, i);
+    return 0;
+}</code></pre><h3 id="39d8fb4d-d8dd-83ea-87d2-81c1a554d578" style="display:inline-block" dir="auto">反思提問</h3><p id="db48fb4d-d8dd-83c6-96ee-813232e430d5" class="" dir="auto">- 我何時應該主動加括號避免誤讀？</p><p id="4e98fb4d-d8dd-82ea-ac12-0145daafbe4f" class="" dir="auto">- <code>i++</code> 與 <code>++i</code> 在表達式中的差異是什麼？</p><p id="b9b8fb4d-d8dd-83ec-b63b-8182c69fefa2" class="" dir="auto">- <code>%</code> 何時不能使用？</p><h3 id="eef8fb4d-d8dd-8317-853e-81ae2fa9237a" style="display:inline-block" dir="auto">小型練習</h3><p id="9588fb4d-d8dd-826e-82f3-8171b5ec3f3b" class="" dir="auto">- 計算分鐘轉秒、公里轉公尺。</p><p id="6268fb4d-d8dd-827f-bdd7-81df4021cf09" class="" dir="auto">- 自行設計一個含 <code>&amp;&amp;</code> 與 <code>||</code> 的條件表達式。</p><hr id="ed78fb4d-d8dd-8382-ba14-013b95e0f456" dir="auto"/><h2 id="e118fb4d-d8dd-82bd-b74f-0167d0df54cb" style="display:inline-block" dir="auto">3. 判斷流程（<code>if</code> / <code>switch</code>）</h2><h3 id="1cf8fb4d-d8dd-8279-ad87-815ed7118b9a" style="display:inline-block" dir="auto">概念摘要</h3><p id="5668fb4d-d8dd-82c8-a83e-819aed9dfca2" class="" dir="auto">判斷流程讓程式能依資料做不同路徑。<code>if</code> 適合範圍條件，<code>switch</code> 適合離散選項。</p><h3 id="6688fb4d-d8dd-83cb-a3a3-81a79ff99d76" style="display:inline-block" dir="auto">Step-by-step 操作</h3><p id="d918fb4d-d8dd-822d-828c-017bedd6145f" class="" dir="auto">1. 最小可執行範例</p><pre id="0038fb4d-d8dd-8212-b2e1-8114da2192e9" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int score = 85;
+    if (score &gt;= 60) printf(&quot;PASS\n&quot;);
+    else printf(&quot;FAIL\n&quot;);
+    return 0;
+}</code></pre><p id="90d8fb4d-d8dd-83f5-be3a-812e9209eb46" class="" dir="auto">2. 小幅變化範例</p><pre id="49f8fb4d-d8dd-8234-9082-81d02e025d84" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int score = 85;
+    if (score &gt;= 90) printf(&quot;A\n&quot;);
+    else if (score &gt;= 80) printf(&quot;B\n&quot;);
+    else printf(&quot;C or below\n&quot;);
+    return 0;
+}</code></pre><p id="ff98fb4d-d8dd-83d2-abfc-01c29a037541" class="" dir="auto">3. 小任務練習</p><pre id="5f88fb4d-d8dd-82a8-aa24-819a8596c969" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int menu = 2;
+    switch (menu) {
+        case 1: printf(&quot;View\n&quot;); break;
+        case 2: printf(&quot;Edit\n&quot;); break;
+        default: printf(&quot;Unknown\n&quot;);
+    }
+    return 0;
+}</code></pre><h3 id="90a8fb4d-d8dd-8220-abca-016b49b54af6" style="display:inline-block" dir="auto">反思提問</h3><p id="e568fb4d-d8dd-82a4-97d4-01525efda8af" class="" dir="auto">- 我是否曾把 <code>==</code> 寫成 <code>=</code>？如何避免？</p><p id="8018fb4d-d8dd-8355-86d1-01fa5876989b" class="" dir="auto">- 哪種情境該用 <code>switch</code>，哪種該用 <code>if</code>？</p><p id="56a8fb4d-d8dd-83bf-97f9-813765ae48ad" class="" dir="auto">- <code>break</code> 少寫會發生什麼？</p><h3 id="1dc8fb4d-d8dd-82e5-9300-014bf3aa21be" style="display:inline-block" dir="auto">小型練習</h3><p id="7d58fb4d-d8dd-8230-891e-0175cc9926eb" class="" dir="auto">- 完成閏年判斷。</p><p id="e568fb4d-d8dd-82a7-a58b-81ffd4e3d8bc" class="" dir="auto">- 用 <code>switch</code> 寫月份天數查詢（先不考慮閏年）。</p><hr id="4e38fb4d-d8dd-82a2-ade4-819982a7fa72" dir="auto"/><h2 id="9c08fb4d-d8dd-83a2-8519-0168aba4b9a1" style="display:inline-block" dir="auto">4. 迴圈（<code>for</code> / <code>while</code> / <code>do...while</code>）</h2><h3 id="52e8fb4d-d8dd-8346-9068-01eb15d83cbe" style="display:inline-block" dir="auto">概念摘要</h3><p id="7e38fb4d-d8dd-8225-90a7-01f47b8e57ac" class="" dir="auto">迴圈用於重複執行。重點在正確設定起始值、終止條件與更新步驟。</p><h3 id="d4c8fb4d-d8dd-820a-8677-81d63461ae26" style="display:inline-block" dir="auto">Step-by-step 操作</h3><p id="6d58fb4d-d8dd-8355-933a-01d6948f5821" class="" dir="auto">1. 最小可執行範例</p><pre id="8438fb4d-d8dd-82ff-8686-01f92ba427fb" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    for (int i = 1; i &lt;= 5; i++) printf(&quot;%d &quot;, i);
+    printf(&quot;\n&quot;);
+    return 0;
+}</code></pre><p id="d518fb4d-d8dd-820d-a850-816c6b9d5fdd" class="" dir="auto">2. 小幅變化範例</p><pre id="6d28fb4d-d8dd-83da-9f10-81a10540df7d" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int n = 5, sum = 0;
+    while (n &gt; 0) {
+        sum += n;
+        n--;
+    }
+    printf(&quot;sum=%d\n&quot;, sum);
+    return 0;
+}</code></pre><p id="0f48fb4d-d8dd-833b-b90f-815d83b43a4d" class="" dir="auto">3. 小任務練習</p><pre id="8778fb4d-d8dd-82db-b7cc-015dfe8afe1e" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    for (int i = 1; i &lt;= 10; i++) {
+        if (i % 2 == 0) continue;
+        if (i &gt; 7) break;
+        printf(&quot;%d &quot;, i);
+    }
+    printf(&quot;\n&quot;);
+    return 0;
+}</code></pre><h3 id="0c48fb4d-d8dd-8350-ba6e-015374bcf9e4" style="display:inline-block" dir="auto">反思提問</h3><p id="f338fb4d-d8dd-8246-b18d-81e6e091cf1f" class="" dir="auto">- 我的迴圈條件是否會造成無限迴圈？</p><p id="6bf8fb4d-d8dd-835c-a8dc-817c1f7bc516" class="" dir="auto">- <code>break</code> 與 <code>continue</code> 對流程影響差在哪？</p><p id="3fe8fb4d-d8dd-82e3-b146-0170d577189f" class="" dir="auto">- 巢狀迴圈的執行次數如何估算？</p><h3 id="2aa8fb4d-d8dd-8387-b6ad-01ccc488e4f5" style="display:inline-block" dir="auto">小型練習</h3><p id="e3e8fb4d-d8dd-83ba-a599-81075660d105" class="" dir="auto">- 印出 1 到 9 的乘法表。</p><p id="4438fb4d-d8dd-83cc-b482-81144db78eef" class="" dir="auto">- 計算某數字各位數總和。</p><hr id="fbc8fb4d-d8dd-835c-b42a-81960c934ed9" dir="auto"/><h2 id="6008fb4d-d8dd-8229-899f-8115f747c4b0" style="display:inline-block" dir="auto">5. 函式與參數傳遞</h2><h3 id="8b18fb4d-d8dd-8227-8b9a-01ff9ddfab6d" style="display:inline-block" dir="auto">概念摘要</h3><p id="f448fb4d-d8dd-8245-a280-81e0cf406892" class="" dir="auto">函式能分解問題並提升重用性。C 預設傳值，若要修改外部資料需傳指標。</p><h3 id="b518fb4d-d8dd-8344-86e6-81f72962e5f9" style="display:inline-block" dir="auto">Step-by-step 操作</h3><p id="3bf8fb4d-d8dd-823a-9446-01fbdc7b8018" class="" dir="auto">1. 最小可執行範例</p><pre id="5728fb4d-d8dd-828a-94f1-81200a1f8dca" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int add(int a, int b) {
+    return a + b;
+}
+
+int main(void) {
+    printf(&quot;%d\n&quot;, add(3, 4));
+    return 0;
+}</code></pre><p id="51d8fb4d-d8dd-8325-b84c-01bb91617025" class="" dir="auto">2. 小幅變化範例</p><pre id="67c8fb4d-d8dd-83dd-b0ce-811f4fc3959a" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+void increase(int x) {
+    x++;
+}
+
+int main(void) {
+    int a = 10;
+    increase(a);
+    printf(&quot;a=%d\n&quot;, a); // 不變
+    return 0;
+}</code></pre><p id="7ef8fb4d-d8dd-8350-a4a2-0140f9473e2c" class="" dir="auto">3. 小任務練習</p><pre id="23a8fb4d-d8dd-8221-acb2-0146467a02c7" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+void increase_by_ptr(int *x) {
+    (*x)++;
+}
+
+int main(void) {
+    int a = 10;
+    increase_by_ptr(&amp;a);
+    printf(&quot;a=%d\n&quot;, a); // 變成 11
+    return 0;
+}</code></pre><h3 id="6248fb4d-d8dd-832c-84a7-81b611aa55fa" style="display:inline-block" dir="auto">反思提問</h3><p id="7658fb4d-d8dd-83a3-aca3-01431ffc16e8" class="" dir="auto">- 為什麼 <code>increase(a)</code> 不會改到 <code>a</code>？</p><p id="9bb8fb4d-d8dd-83fd-9e1a-814f1f64b726" class="" dir="auto">- 我是否能解釋 <code>int *x</code> 與 <code>*x</code> 的角色差異？</p><p id="3218fb4d-d8dd-8393-8f7c-811c00b49cd3" class="" dir="auto">- 哪些邏輯適合抽成函式？</p><h3 id="80d8fb4d-d8dd-8215-a78f-01514d911b11" style="display:inline-block" dir="auto">小型練習</h3><p id="cab8fb4d-d8dd-8207-8128-81838505e8ca" class="" dir="auto">- 寫一個 <code>min_max</code> 函式，透過指標回傳最小與最大值。</p><p id="bfe8fb4d-d8dd-8228-a7df-018978bccf79" class="" dir="auto">- 寫一個 <code>is_even</code> 函式回傳是否偶數。</p><hr id="a5a8fb4d-d8dd-835c-975e-811f885ffa83" dir="auto"/><h2 id="14f8fb4d-d8dd-83c0-9168-817b367a4904" style="display:inline-block" dir="auto">6. 一維與二維陣列</h2><h3 id="3898fb4d-d8dd-8227-9b9d-8159492dbd08" style="display:inline-block" dir="auto">概念摘要</h3><p id="a468fb4d-d8dd-82eb-bbc4-01f72fc2fb33" class="" dir="auto">陣列適合儲存同型別多筆資料；二維陣列可表示表格，常搭配巢狀迴圈。</p><h3 id="a618fb4d-d8dd-8296-8643-81e9ffe7b3c9" style="display:inline-block" dir="auto">Step-by-step 操作</h3><p id="7198fb4d-d8dd-8253-a314-819342c6d69b" class="" dir="auto">1. 最小可執行範例</p><pre id="0858fb4d-d8dd-82e0-8802-01c41b16b75c" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int arr[] = {2, 4, 6, 8};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int sum = 0;
+    for (int i = 0; i &lt; n; i++) sum += arr[i];
+    printf(&quot;sum=%d\n&quot;, sum);
+    return 0;
+}</code></pre><p id="3708fb4d-d8dd-8350-b66b-819d9f26975e" class="" dir="auto">2. 小幅變化範例</p><pre id="fc58fb4d-d8dd-837b-9b8f-81de7ba85e17" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int mat[2][3] = {{1,2,3},{4,5,6}};
+    for (int i = 0; i &lt; 2; i++) {
+        for (int j = 0; j &lt; 3; j++) printf(&quot;%d &quot;, mat[i][j]);
+        printf(&quot;\n&quot;);
+    }
+    return 0;
+}</code></pre><p id="d758fb4d-d8dd-8372-ab45-811abe2b5dca" class="" dir="auto">3. 小任務練習</p><pre id="eb88fb4d-d8dd-83c8-8835-01500906d19c" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int mat[2][3] = {{1,2,3},{4,5,6}};
+    int row_sum[2] = {0};
+    for (int i = 0; i &lt; 2; i++) {
+        for (int j = 0; j &lt; 3; j++) row_sum[i] += mat[i][j];
+    }
+    printf(&quot;row0=%d row1=%d\n&quot;, row_sum[0], row_sum[1]);
+    return 0;
+}</code></pre><h3 id="8728fb4d-d8dd-8284-8f22-013648360f28" style="display:inline-block" dir="auto">反思提問</h3><p id="5c48fb4d-d8dd-8233-9938-8159d59f3acc" class="" dir="auto">- 我是否確定索引都在合法範圍內？</p><p id="8278fb4d-d8dd-8378-8821-819cc3059101" class="" dir="auto">- <code>sizeof</code> 計算元素數量有哪些限制？</p><p id="1a38fb4d-d8dd-82c1-897d-01ebc80a7a02" class="" dir="auto">- 二維陣列在記憶體中如何排列？</p><h3 id="b0d8fb4d-d8dd-825d-9855-81f97460c38f" style="display:inline-block" dir="auto">小型練習</h3><p id="f0f8fb4d-d8dd-83b7-a85c-01ff2b40702d" class="" dir="auto">- 找出一維陣列最大值與最小值。</p><p id="4fd8fb4d-d8dd-82b8-b7ce-01f6e42e9192" class="" dir="auto">- 計算二維陣列每欄總和。</p><hr id="ea78fb4d-d8dd-83dc-b852-01841dcd0b8b" dir="auto"/><h2 id="a0d8fb4d-d8dd-8281-8b66-01397aeeb8ed" style="display:inline-block" dir="auto">7. 簡單指標</h2><h3 id="72a8fb4d-d8dd-83f1-9d70-01cefca35e77" style="display:inline-block" dir="auto">概念摘要</h3><p id="7748fb4d-d8dd-831b-bb8e-013b553edd7e" class="" dir="auto">指標儲存位址，是 C 的核心能力之一。學習順序建議：取址 <code>&amp;</code> -&gt; 解參照 <code>*</code> -&gt; 陣列與指標。</p><h3 id="3a08fb4d-d8dd-8257-b2d3-010a74163d94" style="display:inline-block" dir="auto">Step-by-step 操作</h3><p id="32f8fb4d-d8dd-83e6-b65e-0118aa274d3e" class="" dir="auto">1. 最小可執行範例</p><pre id="a808fb4d-d8dd-83ab-984e-8109e24b3f25" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int x = 42;
+    int *p = &amp;x;
+    printf(&quot;x=%d, *p=%d\n&quot;, x, *p);
+    return 0;
+}</code></pre><p id="f8c8fb4d-d8dd-835f-8d12-01ddffd441f6" class="" dir="auto">2. 小幅變化範例</p><pre id="86b8fb4d-d8dd-82f3-952a-01cfd8f59dc3" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+int main(void) {
+    int x = 10;
+    int *p = &amp;x;
+    *p = 99;
+    printf(&quot;x=%d\n&quot;, x);
+    return 0;
+}</code></pre><p id="9828fb4d-d8dd-83ac-abc5-01f06a27e50d" class="" dir="auto">3. 小任務練習</p><pre id="9408fb4d-d8dd-82de-849b-81aecbff18b2" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+void fill_zero(int *arr, int n) {
+    for (int i = 0; i &lt; n; i++) arr[i] = 0;
+}
+
+int main(void) {
+    int data[4] = {1, 2, 3, 4};
+    fill_zero(data, 4);
+    for (int i = 0; i &lt; 4; i++) printf(&quot;%d &quot;, data[i]);
+    printf(&quot;\n&quot;);
+    return 0;
+}</code></pre><h3 id="2808fb4d-d8dd-83e8-9536-0177efd9a54e" style="display:inline-block" dir="auto">反思提問</h3><p id="e808fb4d-d8dd-83ce-925e-81ab430e6537" class="" dir="auto">- <code>p</code> 與 <code>*p</code> 分別代表什麼？</p><p id="d5e8fb4d-d8dd-83ce-bb6f-8142a78b2ad3" class="" dir="auto">- 為什麼 <code>%p</code> 要搭配 <code>(void*)</code>？</p><p id="1528fb4d-d8dd-8299-9be2-81b40e1a630e" class="" dir="auto">- 何時我應該用指標，何時只用變數就好？</p><h3 id="6f08fb4d-d8dd-83c2-af7b-0150ac910727" style="display:inline-block" dir="auto">小型練習</h3><p id="2ca8fb4d-d8dd-83af-ae64-81567751b6c4" class="" dir="auto">- 寫 <code>swap(int *a, int *b)</code> 交換兩數。</p><p id="d7a8fb4d-d8dd-8272-b5a0-016b1dda76b7" class="" dir="auto">- 用指標走訪陣列並計算平均值。</p><hr id="c498fb4d-d8dd-82f8-83bc-017ffcd548cb" dir="auto"/><h2 id="4138fb4d-d8dd-82b4-8559-81f29b6d5015" style="display:inline-block" dir="auto">8. 綜合實作：成績統計系統</h2><h3 id="1748fb4d-d8dd-8214-b289-81c91d24e7df" style="display:inline-block" dir="auto">A. 實作目標</h3><p id="5098fb4d-d8dd-8305-bdcb-81081885d670" class="" dir="auto">1. 使用 2D 陣列存 5 位學生 3 科成績。</p><p id="8cb8fb4d-d8dd-83d7-89f7-013faf35cb6e" class="" dir="auto">2. 用函式計算每人總分。</p><p id="2978fb4d-d8dd-83ac-afdc-014974c97b92" class="" dir="auto">3. 使用判斷輸出 PASS/FAIL。</p><p id="c5c8fb4d-d8dd-825a-86fc-81f26c654d13" class="" dir="auto">4. 用指標函式找最高總分。</p><h3 id="6528fb4d-d8dd-82e4-94f3-0183b01a862a" style="display:inline-block" dir="auto">B. 逐步構建（Learning-by-Doing）</h3><p id="43a8fb4d-d8dd-83a2-aa99-01c3debf9293" class="" dir="auto">1. Step 1：建立資料與輸出骨架</p><pre id="1b58fb4d-d8dd-82bb-b7da-0145ad6d5ce7" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+#define STUDENTS 5
+#define SUBJECTS 3
+
+int main(void) {
+    int scores[STUDENTS][SUBJECTS] = {
+        {80, 75, 90}, {60, 58, 70}, {95, 88, 92}, {40, 65, 55}, {78, 82, 79}
+    };
+    for (int i = 0; i &lt; STUDENTS; i++) {
+        printf(&quot;ID=%d -&gt; %d %d %d\n&quot;, i, scores[i][0], scores[i][1], scores[i][2]);
+    }
+    return 0;
+}</code></pre><p id="f458fb4d-d8dd-832a-ace1-810899563a11" class="" dir="auto">2. Step 2：加入總分函式</p><pre id="9298fb4d-d8dd-8274-b2fe-01ff154bca63" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">void calc_totals(int scores[STUDENTS][SUBJECTS], int totals[STUDENTS]) {
+    for (int i = 0; i &lt; STUDENTS; i++) {
+        totals[i] = 0;
+        for (int j = 0; j &lt; SUBJECTS; j++) totals[i] += scores[i][j];
+    }
+}</code></pre><p id="91d8fb4d-d8dd-82e5-a779-814d5a298603" class="" dir="auto">3. Step 3：加入最高分查找與結果分類</p><pre id="1248fb4d-d8dd-82c3-97df-019123fde922" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">void find_max_total(int totals[STUDENTS], int *max_idx, int *max_val) {
+    *max_idx = 0;
+    *max_val = totals[0];
+    for (int i = 1; i &lt; STUDENTS; i++) {
+        if (totals[i] &gt; *max_val) {
+            *max_val = totals[i];
+            *max_idx = i;
+        }
+    }
+}</code></pre><h3 id="9c18fb4d-d8dd-83dd-98bb-81e315c477b0" style="display:inline-block" dir="auto">C. 完整程式碼範例</h3><pre id="6b68fb4d-d8dd-8219-b074-0173ccdbedd0" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">#include &lt;stdio.h&gt;
+
+#define STUDENTS 5
+#define SUBJECTS 3
+
+void calc_totals(int scores[STUDENTS][SUBJECTS], int totals[STUDENTS]) {
+    for (int i = 0; i &lt; STUDENTS; i++) {
+        totals[i] = 0;
+        for (int j = 0; j &lt; SUBJECTS; j++) totals[i] += scores[i][j];
+    }
+}
+
+void find_max_total(int totals[STUDENTS], int *max_idx, int *max_val) {
+    *max_idx = 0;
+    *max_val = totals[0];
+    for (int i = 1; i &lt; STUDENTS; i++) {
+        if (totals[i] &gt; *max_val) {
+            *max_val = totals[i];
+            *max_idx = i;
+        }
+    }
+}
+
+int main(void) {
+    int scores[STUDENTS][SUBJECTS] = {
+        {80, 75, 90},
+        {60, 58, 70},
+        {95, 88, 92},
+        {40, 65, 55},
+        {78, 82, 79}
+    };
+
+    int totals[STUDENTS];
+    calc_totals(scores, totals);
+
+    printf(&quot;ID  Scores(3)        Total  Result\n&quot;);
+    printf(&quot;-----------------------------------\n&quot;);
+    for (int i = 0; i &lt; STUDENTS; i++) {
+        printf(&quot;%d   %3d %3d %3d    %3d    %s\n&quot;,
+               i,
+               scores[i][0], scores[i][1], scores[i][2],
+               totals[i],
+               (totals[i] &gt;= 180) ? &quot;PASS&quot; : &quot;FAIL&quot;);
+    }
+
+    int max_idx, max_val;
+    find_max_total(totals, &amp;max_idx, &amp;max_val);
+    printf(&quot;\nTop student: ID=%d, total=%d\n&quot;, max_idx, max_val);
+    return 0;
+}</code></pre><h3 id="4138fb4d-d8dd-83d5-a67b-01779a5612de" style="display:inline-block" dir="auto">D. 程式碼亮點解析</h3><h3 id="8a08fb4d-d8dd-82e5-bd14-01ae5a01b132" style="display:inline-block" dir="auto">1. 二維陣列到一維摘要</h3><pre id="8b08fb4d-d8dd-8289-89cb-01f9bd6abeea" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">for (int i = 0; i &lt; STUDENTS; i++) {
+    totals[i] = 0;
+    for (int j = 0; j &lt; SUBJECTS; j++) totals[i] += scores[i][j];
+}</code></pre><p id="3418fb4d-d8dd-83b1-b5bf-0115a6f49bb6" class="" dir="auto">逐列累加，將每位學生的多科資料轉為單一總分。</p><h3 id="3c28fb4d-d8dd-82fb-bb8f-81517a4d1117" style="display:inline-block" dir="auto">2. 指標回傳多個結果</h3><pre id="f028fb4d-d8dd-83ff-be8e-0149eaf5a37d" class="code code-wrap" data-notion-code-syntax="c"><code class="language-c" style="white-space:pre-wrap;word-break:break-all">find_max_total(totals, &amp;max_idx, &amp;max_val);</code></pre><p id="af08fb4d-d8dd-8252-bd42-81b0699f0265" class="" dir="auto">用位址把「最高分學生 index」與「最高分值」同時帶回主流程。</p><hr id="4c08fb4d-d8dd-8269-8306-81ad1b6e7a5a" dir="auto"/><h2 id="8978fb4d-d8dd-83ac-aaf5-812551348442" style="display:inline-block" dir="auto">擴展練習</h2><p id="7858fb4d-d8dd-8345-a2f6-011a85bf6110" class="" dir="auto">- 把固定成績改成使用者輸入，並驗證 0 到 100。</p><p id="1678fb4d-d8dd-830d-9441-01a916629f1a" class="" dir="auto">- 新增每科平均、全班平均、最低分統計。</p><p id="f6a8fb4d-d8dd-82e8-88be-8128582a48bf" class="" dir="auto">- 增加 <code>switch</code> 選單：顯示資料、修改分數、重新計算。</p><p id="dd28fb4d-d8dd-821c-af2a-01f3c0bf64d8" class="" dir="auto">- 嘗試改成動態記憶體版本（<code>malloc</code> / <code>free</code>）。</p><hr id="0b18fb4d-d8dd-832c-8ac0-81a0f9c7ba92" dir="auto"/><h2 id="4b08fb4d-d8dd-827f-a67b-819822738ba4" style="display:inline-block" dir="auto">結論與下一步</h2><p id="d928fb4d-d8dd-8398-819b-01d47c83cc68" class="" dir="auto">- 你已完成 C 的核心語法與資料操作快速演練。</p><p id="7048fb4d-d8dd-828d-bbe3-01efd5c3276b" class="" dir="auto">- 若某段仍不熟，先回該章「最小範例」重跑，再做小變化。</p><p id="1c68fb4d-d8dd-8224-a817-8118cdd6cb2a" class="" dir="auto">- 下一步建議：字串處理、結構 <code>struct</code>、檔案 I/O、動態記憶體除錯（<code>valgrind</code>）。</p><p id="a348fb4d-d8dd-8313-95ba-0134742fb688" class="" dir="auto">
+</p><figure id="4ca8fb4d-d8dd-8298-ad4b-0186c10e4c55" class="image" data-notion-image="ending-stust.png" dir="ltr"><a href="ending-stust.png"><img style="width:709.967529296875px" src="ending-stust.png"/></a></figure>
+<footer id="aiot-site-footer" class="aiot-site-footer" dir="auto" aria-label="教材製作資訊">
+  <p>本教學材料由南臺科技大學電子工程系 楊榮林教授主導，並由 AI Agent 輔助整理與製作。</p>
+</footer>
+</div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

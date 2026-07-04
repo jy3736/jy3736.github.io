@@ -1,0 +1,1281 @@
+<html lang="zh-Hant-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>01 Python 的輸入、輸出與數值運算：從互動到計算</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure,
+aside,
+details {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+
+
+/* AIOT dark review theme */
+:root {
+	color-scheme: dark;
+	--aiot-bg: #0d1117;
+	--aiot-panel: #111827;
+	--aiot-panel-soft: #161f2c;
+	--aiot-text: #e6edf3;
+	--aiot-muted: #9ba7b4;
+	--aiot-border: rgba(148, 163, 184, 0.24);
+	--aiot-accent: #58a6ff;
+	--aiot-accent-strong: #79c0ff;
+	--aiot-code-bg: #0b1220;
+	--aiot-code-text: #d6e2ff;
+}
+
+html,
+body {
+	background: var(--aiot-bg) !important;
+	color: var(--aiot-text) !important;
+}
+
+@media only screen {
+	body {
+		max-width: 980px;
+		color: var(--aiot-text) !important;
+	}
+}
+
+.page {
+	background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 23, 0.98)) !important;
+	border: 1px solid var(--aiot-border);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+	padding: 2.25rem;
+	border-radius: 14px;
+}
+
+.page-title,
+h1,
+h2,
+h3,
+strong {
+	color: #f8fafc !important;
+}
+
+p,
+li,
+td,
+th,
+blockquote,
+figcaption,
+.page-description,
+.pdf-relative-link-path {
+	color: var(--aiot-text) !important;
+}
+
+figcaption,
+.pdf-relative-link-path,
+.bookmark-description,
+.bookmark-href,
+.bookmark-text {
+	color: var(--aiot-muted) !important;
+}
+
+a,
+a.visited {
+	color: var(--aiot-accent-strong) !important;
+	text-decoration-color: rgba(121, 192, 255, 0.55) !important;
+}
+
+a:hover {
+	color: #a5d6ff !important;
+}
+
+hr {
+	border-bottom-color: var(--aiot-border) !important;
+}
+
+.page-cover-image {
+	filter: brightness(0.62) saturate(0.92);
+	border-radius: 12px;
+}
+
+.icon,
+.notion-static-icon,
+.notion-emoji {
+	filter: drop-shadow(0 0 6px rgba(88, 166, 255, 0.18));
+}
+
+.callout,
+.source,
+.bookmark,
+.collection-card,
+.block-color-default_background,
+.block-color-gray_background,
+.block-color-brown_background,
+.block-color-orange_background,
+.block-color-yellow_background,
+.block-color-green_background,
+.block-color-blue_background,
+.block-color-purple_background,
+.block-color-pink_background,
+.block-color-red_background {
+	background: var(--aiot-panel-soft) !important;
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table {
+	background: transparent !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.simple-table td,
+.simple-table th {
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table-header-color,
+thead,
+th {
+	background: #1f2937 !important;
+	color: #f8fafc !important;
+}
+
+pre,
+.code,
+code,
+.code > code {
+	background: var(--aiot-code-bg) !important;
+	color: var(--aiot-code-text) !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.code,
+pre {
+	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+blockquote {
+	border-left-color: var(--aiot-accent) !important;
+	background: rgba(88, 166, 255, 0.08) !important;
+}
+
+mark,
+.highlight-gray,
+.highlight-brown,
+.highlight-orange,
+.highlight-yellow,
+.highlight-green,
+.highlight-blue,
+.highlight-purple,
+.highlight-pink,
+.highlight-red {
+	color: var(--aiot-text) !important;
+}
+
+.highlight-gray_background,
+.highlight-brown_background,
+.highlight-orange_background,
+.highlight-yellow_background,
+.highlight-green_background,
+.highlight-blue_background,
+.highlight-purple_background,
+.highlight-pink_background,
+.highlight-red_background {
+	background: rgba(88, 166, 255, 0.11) !important;
+}
+
+.select-value-color-default,
+.select-value-color-gray,
+.select-value-color-brown,
+.select-value-color-orange,
+.select-value-color-yellow,
+.select-value-color-green,
+.select-value-color-blue,
+.select-value-color-purple,
+.select-value-color-pink,
+.select-value-color-red {
+	background-color: rgba(88, 166, 255, 0.15) !important;
+	color: var(--aiot-text) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8b949e !important;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #c9d1d9 !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #79c0ff !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a5d6ff !important;
+}
+
+.token.function,
+.token.class-name {
+	color: #d2a8ff !important;
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only screen and (max-width: 760px) {
+	body {
+		margin: 0;
+	}
+	.page {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 1.25rem;
+	}
+	.page-title {
+		font-size: 2rem;
+	}
+}
+
+
+/* AIOT code block readability patch */
+pre.code,
+pre.code[class*="language-"],
+.code.code-wrap {
+	background: #0b1220 !important;
+	color: #d6e2ff !important;
+	border: 1px solid rgba(148, 163, 184, 0.28) !important;
+	border-radius: 10px !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025), 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+	padding: 1rem 1.125rem !important;
+	overflow-x: auto !important;
+	white-space: pre !important;
+}
+
+pre.code > code,
+pre.code code,
+.code.code-wrap > code,
+.code.code-wrap code {
+	background: transparent !important;
+	color: #d6e2ff !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	font-size: 0.95rem !important;
+	line-height: 1.65 !important;
+	white-space: pre !important;
+	word-break: normal !important;
+	overflow-wrap: normal !important;
+	text-shadow: none !important;
+}
+
+p code,
+li code,
+td code,
+th code,
+h1 code,
+h2 code,
+h3 code {
+	background: transparent !important;
+	color: #8ecdf8 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	font-size: 0.92em !important;
+	white-space: break-spaces !important;
+}
+
+pre.code .token.comment,
+pre.code .token.prolog,
+pre.code .token.doctype,
+pre.code .token.cdata {
+	color: #8b949e !important;
+	font-style: italic !important;
+}
+
+pre.code .token.punctuation,
+pre.code .token.operator,
+pre.code .token.entity,
+pre.code .token.url,
+pre.code .token.variable {
+	color: #c9d1d9 !important;
+}
+
+pre.code .token.keyword,
+pre.code .token.atrule,
+pre.code .token.attr-name {
+	color: #ff7b72 !important;
+}
+
+pre.code .token.string,
+pre.code .token.char,
+pre.code .token.attr-value,
+pre.code .token.regex,
+pre.code .token.inserted {
+	color: #a5d6ff !important;
+}
+
+pre.code .token.number,
+pre.code .token.boolean,
+pre.code .token.constant,
+pre.code .token.symbol,
+pre.code .token.deleted {
+	color: #79c0ff !important;
+}
+
+pre.code .token.function,
+pre.code .token.class-name,
+pre.code .token.builtin {
+	color: #d2a8ff !important;
+}
+
+pre.code .token.property,
+pre.code .token.tag,
+pre.code .token.selector,
+pre.code .token.important {
+	color: #7ee787 !important;
+}
+
+pre.code .token.namespace {
+	opacity: 0.9 !important;
+}
+
+
+/* AIOT operator text-only patch */
+.token.operator,
+pre.code .token.operator,
+code .token.operator,
+.code.code-wrap .token.operator {
+	background: transparent !important;
+	background-color: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	color: #c9d1d9 !important;
+}
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')
+/* AIOT instructional material footer */
+.aiot-site-footer {
+  margin-top: 3rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #9ba7b4;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.aiot-site-footer p {
+  margin: 0;
+}
+</style></head><body><article id="43d8fb4d-d8dd-83d0-9579-01aa03384e9f" class="page sans" data-notion-page-icon="https://s3-us-west-2.amazonaws.com/public.notion-static.com/3defc37d-4740-45fb-a42d-76c1739bbd3a/800x800.png"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.1.0&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb&amp;w=4800" style="object-position:center 50%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="800x800.png"/></div><h1 class="page-title" dir="auto">01 Python 的輸入、輸出與數值運算：從互動到計算</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><figure id="ea78fb4d-d8dd-8202-a058-019557f0202b" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image.png"/></a></figure><h2 id="3828fb4d-d8dd-8382-a6e7-01a3de3e3314" style="display:inline-block" dir="auto">課程簡介</h2><p id="3f28fb4d-d8dd-83ab-b4e2-0136289cf5dd" class="" dir="auto">本單元會建立你對 Python 程式互動流程的第一個完整心智模型：程式如何顯示資訊（<code>print()</code>）、接收使用者輸入（<code>input()</code>）、用變數保存資料，以及使用四則運算（<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>）算出結果。</p><p id="e198fb4d-d8dd-82a0-ae98-81ad2b031428" class="" dir="auto">完成本課後，你可以寫出小型互動程式：向使用者提問、把文字輸入用 <code>int()</code> 轉成整數，並輸出清楚、可驗證的結果。</p><figure id="cfe8fb4d-d8dd-82fe-86da-8175ba1f9516" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%201.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%201.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%201.png"/></a></figure><h2 id="28c8fb4d-d8dd-83a9-bedd-816fee699be5" style="display:inline-block" dir="auto">本講義涵蓋主題</h2><p id="9578fb4d-d8dd-829c-a0c3-81e35f2aea27" class="" dir="auto">1. 使用 <code>print()</code> 進行標準輸出</p><p id="e8a8fb4d-d8dd-829a-a6b0-811c6cc3266f" class="" dir="auto">2. 使用 <code>input()</code> 進行標準輸入</p><p id="5258fb4d-d8dd-82bb-955c-81f4430f41bf" class="" dir="auto">3. 變數與數值更新</p><p id="cab8fb4d-d8dd-83f8-9680-017a1d7a3793" class="" dir="auto">4. 基本算術運算子（<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>）</p><p id="b0e8fb4d-d8dd-82a8-9224-01ba269ee3d5" class="" dir="auto">5. 使用 <code>int()</code> 將輸入文字轉為整數</p><p id="bc38fb4d-d8dd-83b9-bf7b-0150f8dde88c" class="" dir="auto">6. 綜合練習：互動式購物總金額計算器</p><h2 id="5768fb4d-d8dd-83a7-99bb-01f9b6775cef" style="display:inline-block" dir="auto">1. 輸出基礎：<code>print()</code></h2><figure id="7048fb4d-d8dd-83f5-ab7c-01083e862eef" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%202.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%202.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%202.png"/></a></figure><h3 id="d338fb4d-d8dd-83e6-b28e-01f1faca289a" style="display:inline-block" dir="auto">A. 為什麼輸出很重要</h3><p id="8f18fb4d-d8dd-8378-908c-81a2c8abd7fa" class="" dir="auto"><code>print()</code> 是觀察程式行為最直接的方法。對使用者來說，它能看到結果；對開發者來說，它能協助驗證程式邏輯。</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" integrity="sha512-AKaNmg8COK0zEbjTdMHJAPJ0z6VeNqvRvH4/d5M4sHJbQQUToMBtodq4HaV4fa+WV2UTfoperElm66c9/8cKmQ==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="a038fb4d-d8dd-82f2-918a-81b002d8593c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(&quot;歡迎來到 Python&quot;)</code></pre><pre id="0ea8fb4d-d8dd-828f-8367-01d78201ee02" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">name = &quot;Alex&quot;
+print(&quot;使用者：&quot;, name)</code></pre><pre id="0f28fb4d-d8dd-823b-891a-01c5ac53b8b6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">a = 10
+b = 6
+print(&quot;總和 =&quot;, a + b)</code></pre><p id="9338fb4d-d8dd-8228-a958-015dd05251b5" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="8188fb4d-d8dd-8287-aa32-016eb81fb056" class="" dir="auto">- 學習階段請多用 <code>print()</code>，確認程式是否照預期執行。</p><p id="bad8fb4d-d8dd-8232-9bb1-018c07afade7" class="" dir="auto">- <code>print(&quot;A&quot;, &quot;B&quot;)</code> 會自動在兩個值中間加一個空白。</p><h3 id="6028fb4d-d8dd-82fd-bca9-81f1bfa678f2" style="display:inline-block" dir="auto">B. 讓輸出清楚可讀</h3><p id="8058fb4d-d8dd-83b6-9b1e-81456e130571" class="" dir="auto">可讀性高的輸出，能同時提升除錯效率與使用者體驗。</p><pre id="fb58fb4d-d8dd-83c5-9ded-8179711e8aea" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">item = &quot;筆記本&quot;
+price = 79
+print(f&quot;商品：{item}，價格：${price}&quot;)</code></pre><pre id="8018fb4d-d8dd-8335-9dcb-0188ad6c7a38" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">score = 92
+print(&quot;考試分數：&quot;, score)
+print(&quot;是否及格：&quot;, score &gt;= 60)</code></pre><pre id="fd58fb4d-d8dd-8235-99ef-018b7cb2db4a" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">x = 7
+y = 3
+print(&quot;x + y =&quot;, x + y)
+print(&quot;x - y =&quot;, x - y)</code></pre><p id="aea8fb4d-d8dd-83d7-9a93-0148dec4c945" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="dc78fb4d-d8dd-8395-8d9d-81569ac60102" class="" dir="auto">- 請加上標籤（例如 <code>&quot;總計 =&quot;</code>），讓讀者一眼看懂數值意義。</p><p id="6598fb4d-d8dd-8345-82f2-810621357a6d" class="" dir="auto">- 教學範例避免只印裸值，容易讓初學者看不出脈絡。</p><h2 id="e988fb4d-d8dd-8335-b2f6-0148109ec28c" style="display:inline-block" dir="auto">2. 輸入基礎：<code>input()</code></h2><figure id="39e8fb4d-d8dd-838c-833d-01efee6f7fc1" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%203.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%203.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%203.png"/></a></figure><h3 id="7d38fb4d-d8dd-825a-8a9d-01463c3784ef" style="display:inline-block" dir="auto">A. 接收使用者資料</h3><p id="e558fb4d-d8dd-83ed-be8d-812ed85452b4" class="" dir="auto"><code>input()</code> 會暫停程式，等待使用者輸入。</p><pre id="80a8fb4d-d8dd-8378-9318-817f25353b2c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">name = input(&quot;請輸入你的名字：&quot;)
+print(&quot;你好，&quot;, name)</code></pre><pre id="9ab8fb4d-d8dd-8328-b152-01a3aae10a1a" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">city = input(&quot;請輸入你所在的城市：&quot;)
+print(f&quot;你住在 {city}。&quot;)</code></pre><pre id="2498fb4d-d8dd-8389-9fce-81e76a87999c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">first = input(&quot;名字：&quot;)
+last = input(&quot;姓氏：&quot;)
+print(f&quot;全名：{last}{first}&quot;)</code></pre><p id="7578fb4d-d8dd-834c-a4aa-8148c1dd5156" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="e0b8fb4d-d8dd-83e8-bde5-81f5297c4ffb" class="" dir="auto">- <code>input()</code> 回傳值永遠是字串（<code>str</code>）。</p><p id="2a28fb4d-d8dd-831b-996d-015ce79e5688" class="" dir="auto">- 提示文字要具體，使用者才知道該輸入什麼。</p><h3 id="e728fb4d-d8dd-820f-a2e4-01fa0d2fb5b2" style="display:inline-block" dir="auto">B. 理解「輸入先是文字」</h3><p id="93c8fb4d-d8dd-8362-a844-011446d6bb83" class="" dir="auto">在還沒轉型前，輸入值會先以文字方式運作。</p><pre id="2f48fb4d-d8dd-8279-b3b4-81d9533dcbe9" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">a = input(&quot;請輸入第一個數字：&quot;)
+b = input(&quot;請輸入第二個數字：&quot;)
+print(a + b)  # 若輸入 10 與 20，輸出會是 1020</code></pre><pre id="2bf8fb4d-d8dd-83c8-92d2-01e893da7c67" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">text = input(&quot;請輸入任意內容：&quot;)
+print(&quot;資料型別是：&quot;, type(text))</code></pre><pre id="9948fb4d-d8dd-8330-bb77-01e6462e4107" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">age = input(&quot;請輸入年齡：&quot;)
+print(&quot;明年年齡（未轉型時會錯）：&quot;, age + &quot;1&quot;)</code></pre><p id="b278fb4d-d8dd-8218-b033-019e1a95ebdc" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="ac88fb4d-d8dd-8242-aa98-01563737062a" class="" dir="auto">- 字串相加是串接，不是數值加法。</p><p id="66b8fb4d-d8dd-8330-80a3-815efea45c72" class="" dir="auto">- 初學除錯時可搭配 <code>type(...)</code> 確認型別。</p><h2 id="9b18fb4d-d8dd-8269-b8bb-0103612767d6" style="display:inline-block" dir="auto">3. 變數：儲存與重複使用資料</h2><figure id="d208fb4d-d8dd-8231-8f9e-818f97d4c2aa" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%204.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%204.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%204.png"/></a></figure><h3 id="c5c8fb4d-d8dd-827e-8274-81012730878c" style="display:inline-block" dir="auto">A. 指派值給變數</h3><p id="5d78fb4d-d8dd-8364-bc0e-01a2adbef923" class="" dir="auto">變數可以把值存起來，方便後續運算與輸出重用。</p><pre id="a998fb4d-d8dd-83bd-8569-013e96ba39c1" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">student = &quot;Mia&quot;
+level = 1
+print(student, &quot;目前等級是&quot;, level)</code></pre><pre id="0f28fb4d-d8dd-8217-aaec-81e75423ebe6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">apples = 5
+oranges = 4
+total_fruit = apples + oranges
+print(&quot;水果總數：&quot;, total_fruit)</code></pre><pre id="5518fb4d-d8dd-83a7-82cf-819d11a08ce7" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">message = &quot;Python&quot;
+message = message + &quot; 入門&quot;
+print(message)</code></pre><p id="3638fb4d-d8dd-830e-a970-01f4ac7a757d" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="c328fb4d-d8dd-83f2-8f58-818a8ef3febd" class="" dir="auto">- 變數名稱要有語意（例如 <code>total_price</code>，不要用 <code>tp</code>）。</p><p id="2908fb4d-d8dd-8312-9563-81d971be27b2" class="" dir="auto">- <code>=</code> 在程式中代表「指定」，不是數學上的「相等」。</p><h3 id="9128fb4d-d8dd-83c6-8d40-81cffc561525" style="display:inline-block" dir="auto">B. 透過運算更新變數</h3><figure id="c018fb4d-d8dd-8240-8033-01b87fecb45b" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%205.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%205.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%205.png"/></a></figure><p id="95e8fb4d-d8dd-829d-9787-81e1e56dd4dc" class="" dir="auto">變數可以在運算後被更新為新值。</p><pre id="5618fb4d-d8dd-831a-9080-016c20f08de7" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">count = 0
+count = count + 1
+print(count)</code></pre><pre id="2b78fb4d-d8dd-83ff-bf3f-01a06f126623" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">balance = 100
+balance = balance - 35
+print(&quot;剩餘餘額：&quot;, balance)</code></pre><pre id="b758fb4d-d8dd-8327-abfc-01f1cef50e3d" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">hours = 2
+rate = 15
+pay = hours * rate
+print(&quot;薪資：&quot;, pay)</code></pre><p id="2398fb4d-d8dd-8370-988d-81e7963df119" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="1a68fb4d-d8dd-8330-843c-019fa9aad42e" class="" dir="auto">- 更新步驟建議寫清楚，讓邏輯更容易閱讀與追蹤。</p><p id="2b88fb4d-d8dd-8377-ab30-01660ac37608" class="" dir="auto">- 同名變數重複使用是合法的，但要留意每次更新後的值。</p><h2 id="8848fb4d-d8dd-838e-8ed7-010777cfbb69" style="display:inline-block" dir="auto">4. 基本算術運算子</h2><figure id="a2d8fb4d-d8dd-839e-a119-01911eb03c68" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%206.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%206.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%206.png"/></a></figure><h3 id="4e08fb4d-d8dd-832f-abeb-81a5c6897893" style="display:inline-block" dir="auto">A. 核心運算：<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code></h3><p id="90b8fb4d-d8dd-8207-aa6a-817b9dd36e6f" class="" dir="auto">這些運算子可進行最基本的數值計算。</p><pre id="baf8fb4d-d8dd-824e-a81d-01fe0ce02510" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">a = 12
+b = 4
+print(a + b)  # 16</code></pre><pre id="6c08fb4d-d8dd-8397-9062-81c50e850ef7" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">a = 12
+b = 4
+print(a - b)  # 8</code></pre><pre id="4488fb4d-d8dd-823e-bd57-81d4f4e074fc" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">a = 12
+b = 4
+print(a * b)  # 48</code></pre><pre id="bd28fb4d-d8dd-829d-b9c3-814c4be84ecc" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">a = 12
+b = 4
+print(a / b)  # 3.0</code></pre><p id="d738fb4d-d8dd-82cb-89a5-815f1ccb9860" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="fa08fb4d-d8dd-835b-bf20-812c6d6bba5c" class="" dir="auto">- 在 Python 3 中，<code>/</code> 的結果一定是浮點數（<code>float</code>）。</p><p id="cd58fb4d-d8dd-8330-8de5-017082934c03" class="" dir="auto">- 只有在值是數值型別時，算術運算才會符合預期。</p><h3 id="1498fb4d-d8dd-8376-98df-81bf1f56df04" style="display:inline-block" dir="auto">B. 在小任務中應用四則運算</h3><figure id="78f8fb4d-d8dd-82dc-a576-015fd46c8d2c" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%207.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%207.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%207.png"/></a></figure><pre id="c238fb4d-d8dd-83a1-9fc0-01b8935566f3" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">price = 120
+discount = 25
+final_price = price - discount
+print(&quot;折扣後價格：&quot;, final_price)</code></pre><pre id="28f8fb4d-d8dd-834c-a487-014541ccd95e" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">total = 300
+people = 4
+print(&quot;每人分攤：&quot;, total / people)</code></pre><pre id="4418fb4d-d8dd-83bf-835c-816a4b90edaf" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">width = 8
+height = 5
+area = width * height
+print(&quot;長方形面積：&quot;, area)</code></pre><p id="0bd8fb4d-d8dd-8240-949a-01e4cde9c65e" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="3d48fb4d-d8dd-83c6-a5af-01f9d971e164" class="" dir="auto">- 建議使用中介變數（例如 <code>final_price</code>、<code>area</code>）讓公式更清楚。</p><p id="9c78fb4d-d8dd-83b8-8f30-0164ac4e38e0" class="" dir="auto">- 除法結果可能出現小數，即使可整除也會以浮點數表示。</p><h2 id="f298fb4d-d8dd-822b-b0fa-014aebaf209a" style="display:inline-block" dir="auto">5. 使用 <code>int()</code> 把輸入文字轉成數字</h2><figure id="9ae8fb4d-d8dd-8233-b1e5-0192ece0aab1" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%208.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%208.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%208.png"/></a></figure><h3 id="afb8fb4d-d8dd-8397-9842-01c52168ecd7" style="display:inline-block" dir="auto">A. 基本整數轉型</h3><p id="63c8fb4d-d8dd-839b-8f43-01c2539797c8" class="" dir="auto">要對使用者輸入做數值計算，先把文字轉成整數。</p><pre id="9198fb4d-d8dd-8264-bbeb-819b153cd167" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">age_text = input(&quot;請輸入你的年齡：&quot;)
+age = int(age_text)
+print(&quot;明年年齡：&quot;, age + 1)</code></pre><pre id="9fc8fb4d-d8dd-825c-956e-81765b09a873" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">x = int(input(&quot;請輸入 x：&quot;))
+y = int(input(&quot;請輸入 y：&quot;))
+print(&quot;x + y =&quot;, x + y)</code></pre><pre id="46c8fb4d-d8dd-825b-8c92-81e6effd6ad1" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">quantity = int(input(&quot;請輸入數量：&quot;))
+unit_price = int(input(&quot;請輸入單價：&quot;))
+print(&quot;總金額：&quot;, quantity * unit_price)</code></pre><p id="d598fb4d-d8dd-821f-88f7-015f48900fcc" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="cfb8fb4d-d8dd-82ac-b349-014c5accf141" class="" dir="auto">- <code>int(&quot;42&quot;)</code> 可以成功；但 <code>int(&quot;42.5&quot;)</code> 會觸發 <code>ValueError</code>。</p><p id="1bc8fb4d-d8dd-83dc-9a62-812bdfe519c8" class="" dir="auto">- 如果輸入是要拿來運算，建議在 <code>input()</code> 後立即轉型。</p><h3 id="2998fb4d-d8dd-83fd-8f3c-81dc98691e1f" style="display:inline-block" dir="auto">B. 例外處理：避免不合法整數輸入</h3><figure id="f238fb4d-d8dd-83c5-a898-816e3df4e020" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%209.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%209.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%209.png"/></a></figure><pre id="1f58fb4d-d8dd-82b8-b551-815be7e4c130" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">try:
+    value = int(input(&quot;請輸入整數：&quot;))
+    print(&quot;兩倍結果：&quot;, value * 2)
+except ValueError:
+    print(&quot;輸入格式錯誤，請輸入整數。&quot;)</code></pre><pre id="d358fb4d-d8dd-83ce-808c-818dfb92aed6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">text = input(&quot;請輸入分數：&quot;)
+if text.isdigit():
+    score = int(text)
+    print(&quot;分數 + 5 =&quot;, score + 5)
+else:
+    print(&quot;輸入必須只包含數字字元。&quot;)</code></pre><pre id="0328fb4d-d8dd-83d2-b388-01b81fd8879c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">while True:
+    try:
+        number = int(input(&quot;請輸入正整數：&quot;))
+        if number &gt; 0:
+            print(&quot;輸入成功：&quot;, number)
+            break
+        print(&quot;請輸入大於 0 的值。&quot;)
+    except ValueError:
+        print(&quot;請輸入合法整數。&quot;)</code></pre><p id="d7a8fb4d-d8dd-8354-9316-01421aa348ad" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="32e8fb4d-d8dd-826a-a135-81d0f4508a7b" class="" dir="auto">- 使用者輸入錯誤很常見，程式要主動防護。</p><p id="5208fb4d-d8dd-82b9-a556-81ad34e1a79b" class="" dir="auto">- 透過重試迴圈可提升可靠性與使用體驗。</p><h2 id="d468fb4d-d8dd-8213-a742-01413a771075" style="display:inline-block" dir="auto">6. 綜合練習：互動式購物總金額計算器</h2><figure id="63f8fb4d-d8dd-82b9-a2b8-01b53ef82794" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2010.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2010.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2010.png"/></a></figure><h3 id="1598fb4d-d8dd-82b5-9358-813c454052cb" style="display:inline-block" dir="auto">A. 目標</h3><p id="50f8fb4d-d8dd-83d0-9ca3-81e5bd29e468" class="" dir="auto">1. 從輸入讀取顧客姓名、商品數量與單價。</p><p id="ab58fb4d-d8dd-8368-ac57-013483f57216" class="" dir="auto">2. 驗證數量與單價是否為合法整數。</p><p id="29b8fb4d-d8dd-82c5-a8a5-811811d082d4" class="" dir="auto">3. 計算小計、折扣與應付總額。</p><p id="6368fb4d-d8dd-826d-aa5b-010992738c22" class="" dir="auto">4. 輸出清楚的結帳摘要。</p><h3 id="f118fb4d-d8dd-8307-b6e3-81cf15dea5da" style="display:inline-block" dir="auto">B. 可直接執行的完整程式</h3><pre id="cf88fb4d-d8dd-83f0-b475-81fc9655c740" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">def read_non_negative_int(prompt: str) -&gt; int:
+    while True:
+        try:
+            value = int(input(prompt))
+            if value &lt; 0:
+                print(&quot;請輸入大於等於 0 的整數。&quot;)
+            else:
+                return value
+        except ValueError:
+            print(&quot;輸入格式錯誤，請輸入整數。&quot;)
+
+
+def calculate_discount(subtotal: int) -&gt; int:
+    if subtotal &gt;= 1000:
+        return 100
+    if subtotal &gt;= 500:
+        return 50
+    return 0
+
+
+def main() -&gt; None:
+    print(&quot;=== 購物總金額計算器 ===&quot;)
+
+    customer_name = input(&quot;顧客姓名：&quot;).strip()
+    if not customer_name:
+        customer_name = &quot;訪客&quot;
+
+    quantity = read_non_negative_int(&quot;商品數量：&quot;)
+    unit_price = read_non_negative_int(&quot;商品單價：&quot;)
+
+    subtotal = quantity * unit_price
+    discount = calculate_discount(subtotal)
+    final_total = subtotal - discount
+
+    print(&quot;\n--- 收據 ---&quot;)
+    print(f&quot;顧客：{customer_name}&quot;)
+    print(f&quot;數量：{quantity}&quot;)
+    print(f&quot;單價：${unit_price}&quot;)
+    print(f&quot;小計：${subtotal}&quot;)
+    print(f&quot;折扣：-${discount}&quot;)
+    print(f&quot;應付總額：${final_total}&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre><h3 id="c778fb4d-d8dd-83f4-ae71-81781b261e6c" style="display:inline-block" dir="auto">C. 程式碼亮點解析</h3><figure id="3238fb4d-d8dd-8276-bcf2-8182379ad4fd" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2011.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2011.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2011.png"/></a></figure><h3 id="1c08fb4d-d8dd-8237-8a4a-018e2cd00f96" style="display:inline-block" dir="auto">1. 輸入驗證函式</h3><pre id="bea8fb4d-d8dd-82d4-81ea-810191e317fd" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">def read_non_negative_int(prompt: str) -&gt; int:
+    while True:
+        try:
+            value = int(input(prompt))
+            if value &lt; 0:
+                print(&quot;請輸入大於等於 0 的整數。&quot;)
+            else:
+                return value
+        except ValueError:
+            print(&quot;輸入格式錯誤，請輸入整數。&quot;)</code></pre><p id="7638fb4d-d8dd-8384-a6d0-01c461bf85ad" class="" dir="auto">這個函式把「讀取輸入、轉型、驗證、重試」集中管理，主流程會更乾淨。</p><h3 id="2778fb4d-d8dd-8351-a864-812e3e2b18d6" style="display:inline-block" dir="auto">2. 計算邏輯與輸入輸出分離</h3><pre id="8b98fb4d-d8dd-8250-84f7-81d4b6d7db0c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">def calculate_discount(subtotal: int) -&gt; int:
+    if subtotal &gt;= 1000:
+        return 100
+    if subtotal &gt;= 500:
+        return 50
+    return 0</code></pre><p id="1528fb4d-d8dd-8352-b2eb-01138c388837" class="" dir="auto">折扣規則獨立後，後續測試或調整商業邏輯都更容易。</p><h3 id="37d8fb4d-d8dd-828e-8443-0123136ef0a4" style="display:inline-block" dir="auto">3. 結構化輸出</h3><pre id="8ab8fb4d-d8dd-8249-8596-019dc07b9e62" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(&quot;\n--- 收據 ---&quot;)
+print(f&quot;顧客：{customer_name}&quot;)
+print(f&quot;數量：{quantity}&quot;)
+print(f&quot;單價：${unit_price}&quot;)
+print(f&quot;小計：${subtotal}&quot;)
+print(f&quot;折扣：-${discount}&quot;)
+print(f&quot;應付總額：${final_total}&quot;)</code></pre><p id="1d58fb4d-d8dd-8350-a1fb-81f9ef61624f" class="" dir="auto">格式化輸出能提升可讀性，也方便核對金額。</p><h3 id="86c8fb4d-d8dd-820a-9b1a-01fa56b904a8" style="display:inline-block" dir="auto">D. 延伸練習</h3><p id="ba38fb4d-d8dd-82ee-ae60-0166d7c988ce" class="" dir="auto">1. 加入稅額計算（例如 5%），並同時顯示稅前與稅後金額。</p><p id="1e98fb4d-d8dd-828f-81e5-8119f88244df" class="" dir="auto">2. 支援多個商品項目，最後合併計算總帳單。</p><p id="0828fb4d-d8dd-8259-9d54-81d3b5ae3d4c" class="" dir="auto">3. 新增優惠碼輸入，符合條件時再套用額外折扣。</p><p id="8e68fb4d-d8dd-8358-abbd-014c2bfa9870" class="" dir="auto">4. 把每次交易摘要寫入文字檔保存。</p><h2 id="e998fb4d-d8dd-82db-b73d-814110a934a9" style="display:inline-block" dir="auto">結論：你的第一支可靠互動式 Python 程式</h2><figure id="fc48fb4d-d8dd-8270-8a2c-011bf9102dfb" class="image" data-notion-image="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2012.png" dir="ltr"><a href="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2012.png"><img style="width:691.9937744140625px" src="01%20Python%20%E7%9A%84%E8%BC%B8%E5%85%A5%E3%80%81%E8%BC%B8%E5%87%BA%E8%88%87%E6%95%B8%E5%80%BC%E9%81%8B%E7%AE%97%EF%BC%9A%E5%BE%9E%E4%BA%92%E5%8B%95%E5%88%B0%E8%A8%88%E7%AE%97/image%2012.png"/></a></figure><p id="8738fb4d-d8dd-8238-9030-81c765df291e" class="" dir="auto">- <code>print()</code> 讓結果可視化，也支援除錯。</p><p id="0c88fb4d-d8dd-82ba-920b-8141a886e470" class="" dir="auto">- <code>input()</code> 用來收資料，但預設是文字。</p><p id="88d8fb4d-d8dd-8315-ab80-810f87efa1ae" class="" dir="auto">- 變數可儲存資料並重複使用。</p><p id="16e8fb4d-d8dd-8311-84ab-81254fc30e51" class="" dir="auto">- 算術運算子（<code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>）負責核心計算。</p><p id="e108fb4d-d8dd-83fd-85e4-81720d52ffe4" class="" dir="auto">- <code>int()</code> 轉型與輸入驗證是安全處理數值輸入的關鍵。</p><p id="d018fb4d-d8dd-838a-8723-01e482eaf76d" class="" dir="auto">下一步建議：接著學條件判斷（<code>if / elif / else</code>），讓程式能根據計算結果做決策。</p><p id="41e8fb4d-d8dd-825b-bcec-81a505e8186e" class="" dir="auto">
+</p><figure id="3ef8fb4d-d8dd-8334-ba8b-8181262e694f" class="image" data-notion-image="ending-stust.png" dir="ltr"><a href="ending-stust.png"><img style="width:709.967529296875px" src="ending-stust.png"/></a></figure>
+<hr id="snakify-citation-divider" dir="auto"/>
+<h2 id="snakify-citation" style="display:inline-block" dir="auto">參考資料</h2>
+<p id="snakify-citation-note" class="" dir="auto">本頁部分 Python 練習脈絡參考 <a href="https://snakify.org/en/" target="_blank" rel="noopener noreferrer">Snakify Python Tutorial</a>。</p>
+
+<footer id="aiot-site-footer" class="aiot-site-footer" dir="auto" aria-label="教材製作資訊">
+  <p>本教學材料由南臺科技大學電子工程系 楊榮林教授主導，並由 AI Agent 輔助整理與製作。</p>
+</footer>
+</div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

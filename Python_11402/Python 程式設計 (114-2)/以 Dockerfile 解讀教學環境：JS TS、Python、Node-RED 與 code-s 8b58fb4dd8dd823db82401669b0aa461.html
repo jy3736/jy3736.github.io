@@ -1,0 +1,1313 @@
+<html lang="zh-Hant-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>以 Dockerfile 解讀教學環境：JS/TS、Python、Node-RED 與 code-server</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure,
+aside,
+details {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+
+
+/* AIOT dark review theme */
+:root {
+	color-scheme: dark;
+	--aiot-bg: #0d1117;
+	--aiot-panel: #111827;
+	--aiot-panel-soft: #161f2c;
+	--aiot-text: #e6edf3;
+	--aiot-muted: #9ba7b4;
+	--aiot-border: rgba(148, 163, 184, 0.24);
+	--aiot-accent: #58a6ff;
+	--aiot-accent-strong: #79c0ff;
+	--aiot-code-bg: #0b1220;
+	--aiot-code-text: #d6e2ff;
+}
+
+html,
+body {
+	background: var(--aiot-bg) !important;
+	color: var(--aiot-text) !important;
+}
+
+@media only screen {
+	body {
+		max-width: 980px;
+		color: var(--aiot-text) !important;
+	}
+}
+
+.page {
+	background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 23, 0.98)) !important;
+	border: 1px solid var(--aiot-border);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+	padding: 2.25rem;
+	border-radius: 14px;
+}
+
+.page-title,
+h1,
+h2,
+h3,
+strong {
+	color: #f8fafc !important;
+}
+
+p,
+li,
+td,
+th,
+blockquote,
+figcaption,
+.page-description,
+.pdf-relative-link-path {
+	color: var(--aiot-text) !important;
+}
+
+figcaption,
+.pdf-relative-link-path,
+.bookmark-description,
+.bookmark-href,
+.bookmark-text {
+	color: var(--aiot-muted) !important;
+}
+
+a,
+a.visited {
+	color: var(--aiot-accent-strong) !important;
+	text-decoration-color: rgba(121, 192, 255, 0.55) !important;
+}
+
+a:hover {
+	color: #a5d6ff !important;
+}
+
+hr {
+	border-bottom-color: var(--aiot-border) !important;
+}
+
+.page-cover-image {
+	filter: brightness(0.62) saturate(0.92);
+	border-radius: 12px;
+}
+
+.icon,
+.notion-static-icon,
+.notion-emoji {
+	filter: drop-shadow(0 0 6px rgba(88, 166, 255, 0.18));
+}
+
+.callout,
+.source,
+.bookmark,
+.collection-card,
+.block-color-default_background,
+.block-color-gray_background,
+.block-color-brown_background,
+.block-color-orange_background,
+.block-color-yellow_background,
+.block-color-green_background,
+.block-color-blue_background,
+.block-color-purple_background,
+.block-color-pink_background,
+.block-color-red_background {
+	background: var(--aiot-panel-soft) !important;
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table {
+	background: transparent !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.simple-table td,
+.simple-table th {
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table-header-color,
+thead,
+th {
+	background: #1f2937 !important;
+	color: #f8fafc !important;
+}
+
+pre,
+.code,
+code,
+.code > code {
+	background: var(--aiot-code-bg) !important;
+	color: var(--aiot-code-text) !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.code,
+pre {
+	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+blockquote {
+	border-left-color: var(--aiot-accent) !important;
+	background: rgba(88, 166, 255, 0.08) !important;
+}
+
+mark,
+.highlight-gray,
+.highlight-brown,
+.highlight-orange,
+.highlight-yellow,
+.highlight-green,
+.highlight-blue,
+.highlight-purple,
+.highlight-pink,
+.highlight-red {
+	color: var(--aiot-text) !important;
+}
+
+.highlight-gray_background,
+.highlight-brown_background,
+.highlight-orange_background,
+.highlight-yellow_background,
+.highlight-green_background,
+.highlight-blue_background,
+.highlight-purple_background,
+.highlight-pink_background,
+.highlight-red_background {
+	background: rgba(88, 166, 255, 0.11) !important;
+}
+
+.select-value-color-default,
+.select-value-color-gray,
+.select-value-color-brown,
+.select-value-color-orange,
+.select-value-color-yellow,
+.select-value-color-green,
+.select-value-color-blue,
+.select-value-color-purple,
+.select-value-color-pink,
+.select-value-color-red {
+	background-color: rgba(88, 166, 255, 0.15) !important;
+	color: var(--aiot-text) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8b949e !important;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #c9d1d9 !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #79c0ff !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a5d6ff !important;
+}
+
+.token.function,
+.token.class-name {
+	color: #d2a8ff !important;
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only screen and (max-width: 760px) {
+	body {
+		margin: 0;
+	}
+	.page {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 1.25rem;
+	}
+	.page-title {
+		font-size: 2rem;
+	}
+}
+
+
+/* AIOT code block readability patch */
+pre.code,
+pre.code[class*="language-"],
+.code.code-wrap {
+	background: #0b1220 !important;
+	color: #d6e2ff !important;
+	border: 1px solid rgba(148, 163, 184, 0.28) !important;
+	border-radius: 10px !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025), 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+	padding: 1rem 1.125rem !important;
+	overflow-x: auto !important;
+	white-space: pre !important;
+}
+
+pre.code > code,
+pre.code code,
+.code.code-wrap > code,
+.code.code-wrap code {
+	background: transparent !important;
+	color: #d6e2ff !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	font-size: 0.95rem !important;
+	line-height: 1.65 !important;
+	white-space: pre !important;
+	word-break: normal !important;
+	overflow-wrap: normal !important;
+	text-shadow: none !important;
+}
+
+p code,
+li code,
+td code,
+th code,
+h1 code,
+h2 code,
+h3 code {
+	background: transparent !important;
+	color: #8ecdf8 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	font-size: 0.92em !important;
+	white-space: break-spaces !important;
+}
+
+pre.code .token.comment,
+pre.code .token.prolog,
+pre.code .token.doctype,
+pre.code .token.cdata {
+	color: #8b949e !important;
+	font-style: italic !important;
+}
+
+pre.code .token.punctuation,
+pre.code .token.operator,
+pre.code .token.entity,
+pre.code .token.url,
+pre.code .token.variable {
+	color: #c9d1d9 !important;
+}
+
+pre.code .token.keyword,
+pre.code .token.atrule,
+pre.code .token.attr-name {
+	color: #ff7b72 !important;
+}
+
+pre.code .token.string,
+pre.code .token.char,
+pre.code .token.attr-value,
+pre.code .token.regex,
+pre.code .token.inserted {
+	color: #a5d6ff !important;
+}
+
+pre.code .token.number,
+pre.code .token.boolean,
+pre.code .token.constant,
+pre.code .token.symbol,
+pre.code .token.deleted {
+	color: #79c0ff !important;
+}
+
+pre.code .token.function,
+pre.code .token.class-name,
+pre.code .token.builtin {
+	color: #d2a8ff !important;
+}
+
+pre.code .token.property,
+pre.code .token.tag,
+pre.code .token.selector,
+pre.code .token.important {
+	color: #7ee787 !important;
+}
+
+pre.code .token.namespace {
+	opacity: 0.9 !important;
+}
+
+
+/* AIOT operator text-only patch */
+.token.operator,
+pre.code .token.operator,
+code .token.operator,
+.code.code-wrap .token.operator {
+	background: transparent !important;
+	background-color: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	color: #c9d1d9 !important;
+}
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')
+/* AIOT instructional material footer */
+.aiot-site-footer {
+  margin-top: 3rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #9ba7b4;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.aiot-site-footer p {
+  margin: 0;
+}
+</style></head><body><article id="8b58fb4d-d8dd-823d-b824-01669b0aa461" class="page sans" data-notion-page-icon="https://s3-us-west-2.amazonaws.com/public.notion-static.com/3defc37d-4740-45fb-a42d-76c1739bbd3a/800x800.png"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.1.0&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb&amp;w=4800" style="object-position:center 50%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="800x800.png"/></div><h1 class="page-title" dir="auto">以 Dockerfile 解讀教學環境：JS/TS、Python、Node-RED 與 code-server</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><h2 id="d398fb4d-d8dd-83c1-bd4b-01993eb39abc" style="display:inline-block" dir="auto">課程簡介</h2><p id="7d08fb4d-d8dd-824e-99ac-81d9ce165919" class="" dir="auto">本講義以 <code>resources/Dockerfile</code> 為唯一來源，帶你逐層理解容器內已建好的學習環境。你會知道「有哪些工具」、「如何驗證可用」、「啟動後服務如何連線」，並用 Python 驗證腳本做自動檢查，降低環境問題造成的學習阻力。</p><h2 id="8a08fb4d-d8dd-8209-a2f1-01a01aebea9a" style="display:inline-block" dir="auto">本講義涵蓋主題</h2><p id="4668fb4d-d8dd-831b-a43b-8124647d3628" class="" dir="auto">1. 基底映像與系統套件層</p><p id="0728fb4d-d8dd-8340-8cd8-8161e560855f" class="" dir="auto">2. Node.js 與 JavaScript 開發工具鏈（以 Python 驗證）</p><p id="1e68fb4d-d8dd-83ab-9784-01d44ed66e40" class="" dir="auto">3. Python 虛擬環境與資料分析工具</p><p id="9dd8fb4d-d8dd-832f-bbbe-011d5e3803e2" class="" dir="auto">4. code-server、JupyterLab、Node-RED 服務整合</p><p id="02e8fb4d-d8dd-8398-9177-01a9615ca201" class="" dir="auto">5. 使用者、目錄、連接埠與啟動流程</p><p id="5b68fb4d-d8dd-8231-ad72-81cc15fafdbb" class="" dir="auto">6. 綜合實作：3 支 Python 環境健康檢查腳本</p><h2 id="a4f8fb4d-d8dd-82d5-bb63-81a088c9a78f" style="display:inline-block" dir="auto">1. 基底映像與系統套件層</h2><figure id="5838fb4d-d8dd-82eb-aef3-01f5cc0c2f37" class="image" data-notion-image="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image.png" dir="ltr"><a href="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image.png"><img style="width:2752px" src="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image.png"/></a></figure><h3 id="ec28fb4d-d8dd-83a9-8362-01e3029457c0" style="display:inline-block" dir="auto">A. 概念說明</h3><p id="5818fb4d-d8dd-8370-b6d6-01407df1c717" class="" dir="auto">Dockerfile 使用 <code>ubuntu:latest</code> 作為基底，並一次安裝編譯、除錯、版本控制與網路工具。這一層決定了後續語言環境能否順利建置與執行。</p><h3 id="e338fb4d-d8dd-8370-b228-81e53351f052" style="display:inline-block" dir="auto">B. 範例程式碼</h3><p id="8628fb4d-d8dd-823b-9315-81cfac8d6a19" class="" dir="auto">原始範例：檢查作業系統與核心工具是否存在。</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" integrity="sha512-AKaNmg8COK0zEbjTdMHJAPJ0z6VeNqvRvH4/d5M4sHJbQQUToMBtodq4HaV4fa+WV2UTfoperElm66c9/8cKmQ==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="9de8fb4d-d8dd-831f-987e-81566e3f30b9" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import subprocess
+
+os_name = subprocess.check_output(&quot;grep PRETTY_NAME /etc/os-release&quot;, shell=True, text=True).strip()
+git_path = subprocess.check_output(&quot;command -v git&quot;, shell=True, text=True).strip()
+print(os_name)
+print(f&quot;git path: {git_path}&quot;)</code></pre><p id="4198fb4d-d8dd-833a-b6d0-013fd72bc698" class="" dir="auto">補強範例 1：批次檢查編譯工具。</p><pre id="cd88fb4d-d8dd-8308-bac7-81f19c471af8" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import shutil
+
+for cmd in [&quot;gcc&quot;, &quot;g++&quot;, &quot;cmake&quot;, &quot;ninja&quot;, &quot;gdb&quot;, &quot;valgrind&quot;]:
+    print(f&quot;{cmd}: {&#x27;OK&#x27; if shutil.which(cmd) else &#x27;MISSING&#x27;}&quot;)</code></pre><p id="e018fb4d-d8dd-8289-83b3-010355218cae" class="" dir="auto">補強範例 2：讀取工具版本資訊。</p><pre id="4108fb4d-d8dd-826a-80f7-81577c40a371" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import subprocess
+
+
+def version(cmd):
+    try:
+        out = subprocess.check_output(cmd, shell=True, text=True)
+        return out.splitlines()[0]
+    except Exception:
+        return &quot;not available&quot;
+
+
+print(&quot;clang -&gt;&quot;, version(&quot;clang --version&quot;))
+print(&quot;lldb  -&gt;&quot;, version(&quot;lldb --version&quot;))</code></pre><h3 id="7eb8fb4d-d8dd-8368-87e0-015b1b3b1e5e" style="display:inline-block" dir="auto">C. 注意事項</h3><p id="bf28fb4d-d8dd-83c4-a54a-01aba46d6ce1" class="" dir="auto">- <code>ubuntu:latest</code> 會隨時間變動，建議教學正式環境改用固定 tag。</p><p id="e0d8fb4d-d8dd-83e5-a8cd-01d4f6a3a3ec" class="" dir="auto">- 套件安裝集中在單一 <code>RUN</code>，可減少 layer，但除錯時可讀性較低。</p><h2 id="5248fb4d-d8dd-8346-b924-816894a501c8" style="display:inline-block" dir="auto">2. Node.js 與 JavaScript 開發工具鏈（以 Python 驗證）</h2><h3 id="87c8fb4d-d8dd-8374-a055-81f5f986634f" style="display:inline-block" dir="auto">A. 概念說明</h3><p id="6e18fb4d-d8dd-8306-a7fe-81fd9368f1df" class="" dir="auto">Dockerfile 透過 NodeSource 安裝 Node.js 20，並全域安裝 <code>typescript</code>、<code>ts-node</code>、<code>eslint</code>、<code>prettier</code>、<code>nodemon</code>、<code>yarn</code>、<code>pnpm</code>、<code>node-red</code> 等工具。雖然目標是 JS/TS 開發，本章以 Python 進行一致化驗證。</p><h3 id="80b8fb4d-d8dd-8252-9d8a-81869fd555e6" style="display:inline-block" dir="auto">B. 範例程式碼</h3><p id="36c8fb4d-d8dd-8277-a36f-81ebd65d32ff" class="" dir="auto">原始範例：檢查 Node 與 npm 版本。</p><pre id="55f8fb4d-d8dd-8201-9cfd-81d61b7a8c59" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import subprocess
+
+node_v = subprocess.check_output(&quot;node -v&quot;, shell=True, text=True).strip()
+npm_v = subprocess.check_output(&quot;npm -v&quot;, shell=True, text=True).strip()
+print({&quot;node&quot;: node_v, &quot;npm&quot;: npm_v})</code></pre><p id="7908fb4d-d8dd-8293-b9b6-8147732cd11f" class="" dir="auto">補強範例 1：檢查常用全域 CLI。</p><pre id="f968fb4d-d8dd-8274-9c5a-01d18b0614df" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import shutil
+
+for tool in [&quot;tsc&quot;, &quot;ts-node&quot;, &quot;eslint&quot;, &quot;prettier&quot;, &quot;nodemon&quot;, &quot;pnpm&quot;, &quot;yarn&quot;]:
+    path = shutil.which(tool)
+    print(f&quot;{tool}: {path if path else &#x27;missing&#x27;}&quot;)</code></pre><p id="0ad8fb4d-d8dd-83a4-9521-810c1b086333" class="" dir="auto">補強範例 2：驗證 Node.js 可執行。</p><pre id="9188fb4d-d8dd-8303-b973-018a902e760e" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import subprocess
+
+runtime = subprocess.check_output(&#x27;node -e &quot;console.log(JSON.stringify({v:process.version,p:process.platform}))&quot;&#x27;, shell=True, text=True).strip()
+print(&quot;node runtime check:&quot;, runtime)</code></pre><h3 id="4bd8fb4d-d8dd-830d-8b68-81b931a624a5" style="display:inline-block" dir="auto">C. 注意事項</h3><p id="1bb8fb4d-d8dd-8330-9949-01956084c000" class="" dir="auto">- 全域安裝方便教學，但專案實務仍建議以本地依賴鎖版本。</p><p id="2538fb4d-d8dd-83b9-85da-015cedbde15c" class="" dir="auto">- <code>node-red-dashboard</code> 等套件版本會更新，課程應定期回歸測試流程。</p><h2 id="bc58fb4d-d8dd-82db-bd47-018016f1a871" style="display:inline-block" dir="auto">3. Python 虛擬環境與資料分析工具</h2><h3 id="dd18fb4d-d8dd-8340-97f4-014805a278cd" style="display:inline-block" dir="auto">A. 概念說明</h3><p id="5b28fb4d-d8dd-83a0-a1bc-813a3c919d8c" class="" dir="auto">Dockerfile 建立 <code>/opt/venv</code> 並將其加入 <code>PATH</code>，安裝 JupyterLab、pandas、numpy、matplotlib、pytest、black 等工具。這讓同一容器可同時支援 JS 與 Python 實作。</p><h3 id="2378fb4d-d8dd-82ed-8c0e-0102339d8846" style="display:inline-block" dir="auto">B. 範例程式碼</h3><p id="a1e8fb4d-d8dd-82c3-b03f-0132cf6d9f52" class="" dir="auto">原始範例：檢查 Python 版本。</p><pre id="bce8fb4d-d8dd-83e8-831d-01b1550a4a55" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import subprocess
+
+print(subprocess.check_output(&quot;python -V&quot;, shell=True, text=True).strip())</code></pre><p id="c6c8fb4d-d8dd-8326-9843-0166cef4084d" class="" dir="auto">補強範例 1：確認 Python 來自 venv。</p><pre id="2758fb4d-d8dd-8323-8523-01cb38ea4e41" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import subprocess
+
+python_path = subprocess.check_output(&quot;which python&quot;, shell=True, text=True).strip()
+print(&quot;python path:&quot;, python_path)
+print(&quot;is venv:&quot;, python_path.startswith(&quot;/opt/venv/&quot;))</code></pre><p id="bdd8fb4d-d8dd-8207-81f3-01d2eb9a3b43" class="" dir="auto">補強範例 2：檢查主要 Python 套件可匯入。</p><pre id="1078fb4d-d8dd-8351-9bde-8171c43ebe80" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import importlib
+
+for pkg in [&quot;numpy&quot;, &quot;pandas&quot;, &quot;matplotlib&quot;, &quot;jupyterlab&quot;]:
+    try:
+        importlib.import_module(pkg)
+        print(f&quot;{pkg}: OK&quot;)
+    except Exception:
+        print(f&quot;{pkg}: MISSING&quot;)</code></pre><h3 id="2078fb4d-d8dd-82a9-9c12-8183bf01c22c" style="display:inline-block" dir="auto">C. 注意事項</h3><p id="9628fb4d-d8dd-824e-b4c7-813b7c52b51d" class="" dir="auto">- Dockerfile 內 <code>pip install pandas</code> 重複出現，不影響功能但會增加建置時間。</p><p id="fec8fb4d-d8dd-82ae-a797-817b26270f3b" class="" dir="auto">- 若課程不需部分 Python 工具，可拆分成精簡版映像降低映像體積。</p><h2 id="e338fb4d-d8dd-82e9-8345-0189db488edb" style="display:inline-block" dir="auto">4. code-server、JupyterLab、Node-RED 服務整合</h2><figure id="c918fb4d-d8dd-82a9-925e-81d5749af5e2" class="image" data-notion-image="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image%201.png" dir="ltr"><a href="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image%201.png"><img style="width:2752px" src="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image%201.png"/></a></figure><h3 id="0618fb4d-d8dd-82c2-aca9-813bbada5003" style="display:inline-block" dir="auto">A. 概念說明</h3><p id="bed8fb4d-d8dd-83b0-8d85-01eaf2dff1b2" class="" dir="auto">環境在啟動時同時開三個服務：</p><p id="2688fb4d-d8dd-836f-98a7-81872b616883" class="" dir="auto">- code-server：<code>8080</code></p><p id="6aa8fb4d-d8dd-8380-a6fe-0121dc0cc590" class="" dir="auto">- JupyterLab：<code>8888</code></p><p id="bb78fb4d-d8dd-8329-8d66-813cb058dd36" class="" dir="auto">- Node-RED：<code>1880</code></p><p id="edc8fb4d-d8dd-82b8-8190-81bc0f2d9232" class="" dir="auto"><code>ENTRYPOINT</code> 以 shell 串接三個命令，使單一容器具備 IDE、Notebook、Flow-based 開發能力。</p><h3 id="fc28fb4d-d8dd-83d1-8b41-81361c5c9401" style="display:inline-block" dir="auto">B. 範例程式碼</h3><p id="d128fb4d-d8dd-83ee-9dc7-81b6ba2f7968" class="" dir="auto">原始範例：列出預期服務連線網址。</p><pre id="a828fb4d-d8dd-8363-83c2-016d4e10adf5" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">services = {
+    &quot;code_server&quot;: &quot;http://localhost:8080&quot;,
+    &quot;jupyter_lab&quot;: &quot;http://localhost:8888&quot;,
+    &quot;node_red&quot;: &quot;http://localhost:1880&quot;,
+}
+for k, v in services.items():
+    print(f&quot;{k}: {v}&quot;)</code></pre><p id="b838fb4d-d8dd-8348-bb93-0192f714400b" class="" dir="auto">補強範例 1：檢查連接埠是否可連線。</p><pre id="6f88fb4d-d8dd-83f4-9a6b-81ec5db80633" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import socket
+
+
+def check_port(port, host=&quot;127.0.0.1&quot;):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1.5)
+        return s.connect_ex((host, port)) == 0
+
+
+for p in [8080, 8888, 1880]:
+    print({&quot;port&quot;: p, &quot;ok&quot;: check_port(p)})</code></pre><p id="f4b8fb4d-d8dd-82c0-bd42-81f19a06364f" class="" dir="auto">補強範例 2：用 HTTP 探測服務狀態碼。</p><pre id="89d8fb4d-d8dd-827a-b3c4-01a06ca7b28d" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import urllib.request
+
+for url in [&quot;http://127.0.0.1:8080&quot;, &quot;http://127.0.0.1:8888&quot;, &quot;http://127.0.0.1:1880&quot;]:
+    try:
+        with urllib.request.urlopen(url, timeout=2) as resp:
+            print({&quot;url&quot;: url, &quot;status&quot;: resp.status})
+    except Exception:
+        print({&quot;url&quot;: url, &quot;status&quot;: &quot;down&quot;})</code></pre><h3 id="9098fb4d-d8dd-82c6-a4c1-016787c51e07" style="display:inline-block" dir="auto">C. 注意事項</h3><p id="db28fb4d-d8dd-82b3-adc8-819170d3f223" class="" dir="auto">- 目前 code-server 與 Jupyter token/password 設為空，僅適合內網或教學封閉環境。</p><p id="cec8fb4d-d8dd-823b-996b-0150de6b9cdc" class="" dir="auto">- 單容器多服務方便教學，但正式部署建議拆成多容器並加反向代理與認證。</p><h2 id="4dd8fb4d-d8dd-820a-b11f-81677490b9bd" style="display:inline-block" dir="auto">5. 使用者、目錄、連接埠與啟動流程</h2><h3 id="1ba8fb4d-d8dd-8276-9c1d-81848cda3e64" style="display:inline-block" dir="auto">A. 概念說明</h3><p id="eb18fb4d-d8dd-8360-ac42-0132ad642829" class="" dir="auto">Dockerfile 建立 <code>stust</code> 使用者、預設工作目錄 <code>/home/stust</code>，並初始化 workspace 與設定檔。這有助於學生登入後立即開始開發，不需要手動初始化 IDE 與資料夾。</p><h3 id="6ea8fb4d-d8dd-83a2-a500-015ac140dda1" style="display:inline-block" dir="auto">B. 範例程式碼</h3><p id="d8e8fb4d-d8dd-8361-887e-813405c5d25d" class="" dir="auto">原始範例：檢查目前登入使用者與工作目錄。</p><pre id="c778fb4d-d8dd-8364-a278-8172960836e9" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">from pathlib import Path
+import getpass
+import os
+
+print(&quot;user:&quot;, getpass.getuser())
+print(&quot;home:&quot;, str(Path.home()))
+print(&quot;cwd:&quot;, os.getcwd())</code></pre><p id="e198fb4d-d8dd-82ba-8de9-01308e6495ac" class="" dir="auto">補強範例 1：確認關鍵目錄存在。</p><pre id="4b28fb4d-d8dd-83e9-a124-01f5449acb6d" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">from pathlib import Path
+
+for p in [
+    &quot;/home/stust/workspace&quot;,
+    &quot;/home/stust/.node-red&quot;,
+    &quot;/home/stust/.local/share/code-server&quot;,
+]:
+    print(f&quot;{p}: {&#x27;exists&#x27; if Path(p).exists() else &#x27;missing&#x27;}&quot;)</code></pre><p id="d3e8fb4d-d8dd-83b1-9836-0181ed00f8ef" class="" dir="auto">補強範例 2：檢查 README 是否可讀取。</p><pre id="c5c8fb4d-d8dd-8312-b723-013e64605ed1" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">from pathlib import Path
+
+readme = Path(&quot;/home/stust/workspace/README.md&quot;)
+if readme.exists():
+    preview = &quot;\n&quot;.join(readme.read_text(encoding=&quot;utf-8&quot;).splitlines()[:3])
+    print(preview)
+else:
+    print(&quot;README not found&quot;)</code></pre><h3 id="5e48fb4d-d8dd-820e-b893-01a90c6d56a9" style="display:inline-block" dir="auto">C. 注意事項</h3><p id="3e18fb4d-d8dd-82d6-a080-01ea1a7b11af" class="" dir="auto">- <code>stust:stust</code> 密碼僅供教學，實務上必須改密碼與停用弱認證。</p><p id="a178fb4d-d8dd-8384-93fe-817cd68b855c" class="" dir="auto">- <code>ENTRYPOINT</code> 以 <code>sh -c</code> 背景啟動多服務，若其中一個服務異常可能不易即時觀察。</p><h2 id="ef48fb4d-d8dd-83da-8b50-013a7c08507b" style="display:inline-block" dir="auto">6. 綜合實作：容器學習環境健康檢查器</h2><figure id="c558fb4d-d8dd-825c-8071-0153d6ea24a8" class="image" data-notion-image="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image%202.png" dir="ltr"><a href="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image%202.png"><img style="width:2752px" src="%E4%BB%A5%20Dockerfile%20%E8%A7%A3%E8%AE%80%E6%95%99%E5%AD%B8%E7%92%B0%E5%A2%83%EF%BC%9AJS%20TS%E3%80%81Python%E3%80%81Node-RED%20%E8%88%87%20code-s/image%202.png"/></a></figure><h3 id="9828fb4d-d8dd-8390-9cd8-01eb6929668a" style="display:inline-block" dir="auto">A. 實作目標</h3><p id="1d18fb4d-d8dd-8382-abbf-81a6ee2c232d" class="" dir="auto">1. 提供 3 支獨立驗證腳本：<code>JS/TS</code>、<code>Python</code>、<code>Node-RED</code>。</p><p id="4258fb4d-d8dd-82c9-abc2-8168981ab6f8" class="" dir="auto">2. 每支腳本輸出 PASS/FAIL，並可作為課前自檢工具。</p><h3 id="ecd8fb4d-d8dd-8349-ad2e-8149317af351" style="display:inline-block" dir="auto">B. 完整程式碼範例（3 支驗證腳本）</h3><h3 id="cec8fb4d-d8dd-8343-bc0f-0123850810d5" style="display:inline-block" dir="auto">1. <code>validate_js_ts.py</code></h3><pre id="6118fb4d-d8dd-821e-a519-0194ea052e35" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import json
+import shutil
+import subprocess
+import sys
+
+
+def safe_exec(cmd):
+    try:
+        return subprocess.check_output(cmd, shell=True, text=True).strip()
+    except Exception:
+        return &quot;missing&quot;
+
+
+checks = {
+    &quot;node&quot;: safe_exec(&quot;node -v&quot;),
+    &quot;npm&quot;: safe_exec(&quot;npm -v&quot;),
+    &quot;tsc&quot;: safe_exec(&quot;tsc -v&quot;),
+    &quot;ts_node&quot;: safe_exec(&quot;ts-node -v&quot;),
+    &quot;eslint&quot;: safe_exec(&quot;eslint -v&quot;),
+    &quot;prettier&quot;: safe_exec(&quot;prettier -v&quot;),
+    &quot;node_path&quot;: shutil.which(&quot;node&quot;) or &quot;missing&quot;,
+}
+
+failed = any(v == &quot;missing&quot; for v in checks.values())
+print(json.dumps({&quot;target&quot;: &quot;js-ts&quot;, &quot;checks&quot;: checks}, indent=2, ensure_ascii=False))
+if failed:
+    sys.exit(1)
+print(&quot;PASS: JS/TS env is ready&quot;)</code></pre><h3 id="0068fb4d-d8dd-825a-92d7-81b56e68f8ea" style="display:inline-block" dir="auto">2. <code>validate_python_env.py</code></h3><pre id="9798fb4d-d8dd-8355-8572-8192067103c6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import json
+import subprocess
+import sys
+
+
+def safe_exec(cmd):
+    try:
+        return subprocess.check_output(cmd, shell=True, text=True).strip()
+    except Exception:
+        return &quot;missing&quot;
+
+
+checks = {
+    &quot;python&quot;: safe_exec(&quot;python -V&quot;),
+    &quot;pip&quot;: safe_exec(&quot;pip -V&quot;),
+    &quot;jupyter&quot;: safe_exec(&quot;jupyter --version&quot;),
+    &quot;numpy&quot;: safe_exec(&#x27;python -c &quot;import numpy; print(numpy.__version__)&quot;&#x27;),
+    &quot;pandas&quot;: safe_exec(&#x27;python -c &quot;import pandas; print(pandas.__version__)&quot;&#x27;),
+    &quot;matplotlib&quot;: safe_exec(&#x27;python -c &quot;import matplotlib; print(matplotlib.__version__)&quot;&#x27;),
+}
+
+failed = any(v == &quot;missing&quot; for v in checks.values())
+print(json.dumps({&quot;target&quot;: &quot;python&quot;, &quot;checks&quot;: checks}, indent=2, ensure_ascii=False))
+if failed:
+    sys.exit(1)
+print(&quot;PASS: Python env is ready&quot;)</code></pre><h3 id="7b68fb4d-d8dd-82d0-9c04-01f2bff1dea8" style="display:inline-block" dir="auto">3. <code>validate_node_red.py</code></h3><pre id="1be8fb4d-d8dd-82b3-8dbe-01bba311050c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import json
+import socket
+import subprocess
+import sys
+
+
+def safe_exec(cmd):
+    try:
+        return subprocess.check_output(cmd, shell=True, text=True).strip()
+    except Exception:
+        return &quot;missing&quot;
+
+
+def check_port(port, host=&quot;127.0.0.1&quot;):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1.5)
+        return s.connect_ex((host, port)) == 0
+
+
+checks = {
+    &quot;node_red_cmd&quot;: safe_exec(&quot;node-red --version&quot;),
+    &quot;node_red_port_1880&quot;: check_port(1880),
+}
+
+print(json.dumps({&quot;target&quot;: &quot;node-red&quot;, &quot;checks&quot;: checks}, indent=2, ensure_ascii=False))
+if checks[&quot;node_red_cmd&quot;] == &quot;missing&quot; or not checks[&quot;node_red_port_1880&quot;]:
+    sys.exit(1)
+print(&quot;PASS: Node-RED env is ready&quot;)</code></pre><h3 id="a528fb4d-d8dd-835b-87e0-81b570c4e16e" style="display:inline-block" dir="auto">C. 程式碼亮點解析</h3><h3 id="9718fb4d-d8dd-835f-871c-01f35a50fa7b" style="display:inline-block" dir="auto">1. 每支腳本都能獨立判定成功或失敗</h3><pre id="f938fb4d-d8dd-8244-beb0-01beecc739b6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">if failed:
+    sys.exit(1)
+print(&quot;PASS: env is ready&quot;)</code></pre><p id="cbb8fb4d-d8dd-825d-ae98-018ccf38a697" class="" dir="auto">說明：可直接整合到 CI 或開課前自動檢查流程。</p><h3 id="fa28fb4d-d8dd-8254-8c95-01fa06aa4556" style="display:inline-block" dir="auto">2. Node-RED 使用連接埠檢查驗證服務狀態</h3><pre id="2db8fb4d-d8dd-8237-a0fe-01a54f46369c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">def check_port(port, host=&quot;127.0.0.1&quot;):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1.5)
+        return s.connect_ex((host, port)) == 0</code></pre><p id="d208fb4d-d8dd-8236-bc1f-01ae93360c61" class="" dir="auto">說明：只檢查命令存在不夠，還要確認 <code>1880</code> 真的在 listen。</p><h3 id="f058fb4d-d8dd-831a-a299-0188f7834cc4" style="display:inline-block" dir="auto">D. 擴展練習</h3><p id="ac98fb4d-d8dd-8260-8588-01b252f95ad5" class="" dir="auto">1. 三支 Python 腳本都加上 <code>--json</code> 參數，輸出純 JSON 方便機器讀取。</p><p id="2fa8fb4d-d8dd-83fd-ace4-012eccfc7e54" class="" dir="auto">2. 新增 <code>validate-all.sh</code>，串接三支 <code>python</code> 腳本並彙整結果。</p><p id="9018fb4d-d8dd-8282-9195-01f3fdd64714" class="" dir="auto">3. 在 <code>validate_node_red.py</code> 補上 <code>/</code> 路徑 HTTP 狀態碼檢查。</p><h2 id="a698fb4d-d8dd-8384-8e04-01db9465a3fe" style="display:inline-block" dir="auto">結論與下一步</h2><p id="0b18fb4d-d8dd-8311-a91e-0173f77fd619" class="" dir="auto">- 重點回顧：此 Dockerfile 不是只裝語言，而是完整教學平台，涵蓋編輯器、流程工具、Notebook 與除錯鏈。</p><p id="b318fb4d-d8dd-8348-9dd3-81f8117fe1fc" class="" dir="auto">- 關鍵能力：你應能從 Dockerfile 反推教學環境功能，並用 Python 程式化檢查快速定位問題。</p><p id="5558fb4d-d8dd-83ee-8ed7-81bedd685400" class="" dir="auto">- 下一步建議：將這份檢查器整合進課前腳本，讓每位學生在第一堂課前完成環境自檢。</p><p id="5c68fb4d-d8dd-8387-b53f-812ddceee964" class="" dir="auto">
+</p><figure id="fb98fb4d-d8dd-838c-9027-817bb4df6b0d" class="image" data-notion-image="ending-stust.png" dir="ltr"><a href="ending-stust.png"><img style="width:709.967529296875px" src="ending-stust.png"/></a></figure>
+<footer id="aiot-site-footer" class="aiot-site-footer" dir="auto" aria-label="教材製作資訊">
+  <p>本教學材料由南臺科技大學電子工程系 楊榮林教授主導，並由 AI Agent 輔助整理與製作。</p>
+</footer>
+</div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

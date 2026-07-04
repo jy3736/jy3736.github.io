@@ -1,0 +1,1221 @@
+<html lang="zh-Hant-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>07 Python 串列（List）：一維資料的核心容器</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure,
+aside,
+details {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+
+
+/* AIOT dark review theme */
+:root {
+	color-scheme: dark;
+	--aiot-bg: #0d1117;
+	--aiot-panel: #111827;
+	--aiot-panel-soft: #161f2c;
+	--aiot-text: #e6edf3;
+	--aiot-muted: #9ba7b4;
+	--aiot-border: rgba(148, 163, 184, 0.24);
+	--aiot-accent: #58a6ff;
+	--aiot-accent-strong: #79c0ff;
+	--aiot-code-bg: #0b1220;
+	--aiot-code-text: #d6e2ff;
+}
+
+html,
+body {
+	background: var(--aiot-bg) !important;
+	color: var(--aiot-text) !important;
+}
+
+@media only screen {
+	body {
+		max-width: 980px;
+		color: var(--aiot-text) !important;
+	}
+}
+
+.page {
+	background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 23, 0.98)) !important;
+	border: 1px solid var(--aiot-border);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+	padding: 2.25rem;
+	border-radius: 14px;
+}
+
+.page-title,
+h1,
+h2,
+h3,
+strong {
+	color: #f8fafc !important;
+}
+
+p,
+li,
+td,
+th,
+blockquote,
+figcaption,
+.page-description,
+.pdf-relative-link-path {
+	color: var(--aiot-text) !important;
+}
+
+figcaption,
+.pdf-relative-link-path,
+.bookmark-description,
+.bookmark-href,
+.bookmark-text {
+	color: var(--aiot-muted) !important;
+}
+
+a,
+a.visited {
+	color: var(--aiot-accent-strong) !important;
+	text-decoration-color: rgba(121, 192, 255, 0.55) !important;
+}
+
+a:hover {
+	color: #a5d6ff !important;
+}
+
+hr {
+	border-bottom-color: var(--aiot-border) !important;
+}
+
+.page-cover-image {
+	filter: brightness(0.62) saturate(0.92);
+	border-radius: 12px;
+}
+
+.icon,
+.notion-static-icon,
+.notion-emoji {
+	filter: drop-shadow(0 0 6px rgba(88, 166, 255, 0.18));
+}
+
+.callout,
+.source,
+.bookmark,
+.collection-card,
+.block-color-default_background,
+.block-color-gray_background,
+.block-color-brown_background,
+.block-color-orange_background,
+.block-color-yellow_background,
+.block-color-green_background,
+.block-color-blue_background,
+.block-color-purple_background,
+.block-color-pink_background,
+.block-color-red_background {
+	background: var(--aiot-panel-soft) !important;
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table {
+	background: transparent !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.simple-table td,
+.simple-table th {
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table-header-color,
+thead,
+th {
+	background: #1f2937 !important;
+	color: #f8fafc !important;
+}
+
+pre,
+.code,
+code,
+.code > code {
+	background: var(--aiot-code-bg) !important;
+	color: var(--aiot-code-text) !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.code,
+pre {
+	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+blockquote {
+	border-left-color: var(--aiot-accent) !important;
+	background: rgba(88, 166, 255, 0.08) !important;
+}
+
+mark,
+.highlight-gray,
+.highlight-brown,
+.highlight-orange,
+.highlight-yellow,
+.highlight-green,
+.highlight-blue,
+.highlight-purple,
+.highlight-pink,
+.highlight-red {
+	color: var(--aiot-text) !important;
+}
+
+.highlight-gray_background,
+.highlight-brown_background,
+.highlight-orange_background,
+.highlight-yellow_background,
+.highlight-green_background,
+.highlight-blue_background,
+.highlight-purple_background,
+.highlight-pink_background,
+.highlight-red_background {
+	background: rgba(88, 166, 255, 0.11) !important;
+}
+
+.select-value-color-default,
+.select-value-color-gray,
+.select-value-color-brown,
+.select-value-color-orange,
+.select-value-color-yellow,
+.select-value-color-green,
+.select-value-color-blue,
+.select-value-color-purple,
+.select-value-color-pink,
+.select-value-color-red {
+	background-color: rgba(88, 166, 255, 0.15) !important;
+	color: var(--aiot-text) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8b949e !important;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #c9d1d9 !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #79c0ff !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a5d6ff !important;
+}
+
+.token.function,
+.token.class-name {
+	color: #d2a8ff !important;
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only screen and (max-width: 760px) {
+	body {
+		margin: 0;
+	}
+	.page {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 1.25rem;
+	}
+	.page-title {
+		font-size: 2rem;
+	}
+}
+
+
+/* AIOT code block readability patch */
+pre.code,
+pre.code[class*="language-"],
+.code.code-wrap {
+	background: #0b1220 !important;
+	color: #d6e2ff !important;
+	border: 1px solid rgba(148, 163, 184, 0.28) !important;
+	border-radius: 10px !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025), 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+	padding: 1rem 1.125rem !important;
+	overflow-x: auto !important;
+	white-space: pre !important;
+}
+
+pre.code > code,
+pre.code code,
+.code.code-wrap > code,
+.code.code-wrap code {
+	background: transparent !important;
+	color: #d6e2ff !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	font-size: 0.95rem !important;
+	line-height: 1.65 !important;
+	white-space: pre !important;
+	word-break: normal !important;
+	overflow-wrap: normal !important;
+	text-shadow: none !important;
+}
+
+p code,
+li code,
+td code,
+th code,
+h1 code,
+h2 code,
+h3 code {
+	background: transparent !important;
+	color: #8ecdf8 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	font-size: 0.92em !important;
+	white-space: break-spaces !important;
+}
+
+pre.code .token.comment,
+pre.code .token.prolog,
+pre.code .token.doctype,
+pre.code .token.cdata {
+	color: #8b949e !important;
+	font-style: italic !important;
+}
+
+pre.code .token.punctuation,
+pre.code .token.operator,
+pre.code .token.entity,
+pre.code .token.url,
+pre.code .token.variable {
+	color: #c9d1d9 !important;
+}
+
+pre.code .token.keyword,
+pre.code .token.atrule,
+pre.code .token.attr-name {
+	color: #ff7b72 !important;
+}
+
+pre.code .token.string,
+pre.code .token.char,
+pre.code .token.attr-value,
+pre.code .token.regex,
+pre.code .token.inserted {
+	color: #a5d6ff !important;
+}
+
+pre.code .token.number,
+pre.code .token.boolean,
+pre.code .token.constant,
+pre.code .token.symbol,
+pre.code .token.deleted {
+	color: #79c0ff !important;
+}
+
+pre.code .token.function,
+pre.code .token.class-name,
+pre.code .token.builtin {
+	color: #d2a8ff !important;
+}
+
+pre.code .token.property,
+pre.code .token.tag,
+pre.code .token.selector,
+pre.code .token.important {
+	color: #7ee787 !important;
+}
+
+pre.code .token.namespace {
+	opacity: 0.9 !important;
+}
+
+
+/* AIOT operator text-only patch */
+.token.operator,
+pre.code .token.operator,
+code .token.operator,
+.code.code-wrap .token.operator {
+	background: transparent !important;
+	background-color: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	color: #c9d1d9 !important;
+}
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')
+/* AIOT instructional material footer */
+.aiot-site-footer {
+  margin-top: 3rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #9ba7b4;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.aiot-site-footer p {
+  margin: 0;
+}
+</style></head><body><article id="99d8fb4d-d8dd-823b-ba34-819c42f88e86" class="page sans" data-notion-page-icon="https://s3-us-west-2.amazonaws.com/public.notion-static.com/3defc37d-4740-45fb-a42d-76c1739bbd3a/800x800.png"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.1.0&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb&amp;w=4800" style="object-position:center 50%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="800x800.png"/></div><h1 class="page-title" dir="auto">07 Python 串列（List）：一維資料的核心容器</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><figure id="d638fb4d-d8dd-8398-a0a4-81b748db5056" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image.png"/></a></figure><h2 id="90f8fb4d-d8dd-8363-aaf2-815778e5160d" style="display:inline-block" dir="auto">課程簡介</h2><p id="4688fb4d-d8dd-8377-a926-814484f579ff" class="" dir="auto">本單元介紹 <code>list</code>，這是 Python 最常用的序列資料結構。你會學會建立串列、存取與更新元素、使用 <code>append()</code> / <code>remove()</code> 等方法，以及如何搭配迴圈處理資料。也會練習 <code>split()</code> 與 <code>join()</code> 在字串與串列之間轉換。</p><figure id="ecf8fb4d-d8dd-8326-9783-010d586076e0" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%201.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%201.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%201.png"/></a></figure><h2 id="6f28fb4d-d8dd-82bb-b194-0173ad5958a2" style="display:inline-block" dir="auto">本講義涵蓋主題</h2><p id="1738fb4d-d8dd-83a2-91ec-81c83b7dd7bd" class="" dir="auto">1. 建立與存取串列</p><p id="e1a8fb4d-d8dd-8243-bf60-813171f0d700" class="" dir="auto">2. 常用串列方法</p><p id="dda8fb4d-d8dd-8369-81e6-81f88b2adaac" class="" dir="auto">3. 迴圈處理串列資料</p><p id="edf8fb4d-d8dd-82fe-92ef-8101c1e9c6b4" class="" dir="auto">4. <code>split()</code>、<code>join()</code> 與 list comprehension（入門）</p><p id="a048fb4d-d8dd-83a2-b73c-017bc5c06f01" class="" dir="auto">5. 綜合實作：待辦清單管理器</p><hr id="5c88fb4d-d8dd-8302-b4cf-81e35bad9f55" dir="auto"/><figure id="dd88fb4d-d8dd-821b-92e3-01774becd2d7" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%202.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%202.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%202.png"/></a></figure><h2 id="8668fb4d-d8dd-8217-a278-0138e56cbf3f" style="display:inline-block" dir="auto">1. 建立與存取串列</h2><h3 id="64f8fb4d-d8dd-82e5-95e4-81c58d20a9c7" style="display:inline-block" dir="auto">A. 建立串列與索引</h3><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" integrity="sha512-AKaNmg8COK0zEbjTdMHJAPJ0z6VeNqvRvH4/d5M4sHJbQQUToMBtodq4HaV4fa+WV2UTfoperElm66c9/8cKmQ==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="6258fb4d-d8dd-83f5-a49b-81ea578c6c90" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [10, 20, 30]
+print(nums)</code></pre><pre id="84f8fb4d-d8dd-82b7-98e6-01c5027d425a" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">names = [&quot;Amy&quot;, &quot;Ben&quot;, &quot;Cody&quot;]
+print(names[0], names[-1])</code></pre><pre id="d188fb4d-d8dd-8329-b4f0-01e932c28b7d" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">mixed = [1, &quot;Python&quot;, True]
+print(mixed[1])</code></pre><figure id="a498fb4d-d8dd-822c-abd8-01f4fb31a6d6" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%203.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%203.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%203.png"/></a></figure><h3 id="4c18fb4d-d8dd-82d8-9f3a-01273e04e133" style="display:inline-block" dir="auto">B. 更新與切片</h3><pre id="1128fb4d-d8dd-82b7-aad3-0133d583e55f" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">scores = [70, 80, 90]
+scores[1] = 85
+print(scores)</code></pre><pre id="4098fb4d-d8dd-82b7-9e2a-81b3cec44e45" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">letters = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;]
+print(letters[1:4])</code></pre><pre id="e9a8fb4d-d8dd-8297-b66d-0101249ca2b4" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">data = [1, 2, 3, 4, 5]
+print(data[::-1])</code></pre><p id="6008fb4d-d8dd-822a-a01d-817232ac2dd7" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="a4c8fb4d-d8dd-823b-a2af-81dd03e2c9f1" class="" dir="auto">- 串列可變（mutable），可直接修改元素。</p><p id="cda8fb4d-d8dd-83bd-946f-01dcbbb0fb14" class="" dir="auto">- 索引越界會造成 <code>IndexError</code>。</p><hr id="4dd8fb4d-d8dd-8375-b9a7-81b509d6f0ba" dir="auto"/><figure id="a978fb4d-d8dd-821e-8d0a-816680f8566e" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%204.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%204.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%204.png"/></a></figure><h2 id="bee8fb4d-d8dd-82d9-8cce-011ccd920632" style="display:inline-block" dir="auto">2. 常用串列方法</h2><h3 id="4118fb4d-d8dd-82e7-8a4f-0191227b3c5b" style="display:inline-block" dir="auto">A. 新增與刪除</h3><pre id="c148fb4d-d8dd-833a-973f-81206d4600e2" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">items = [&quot;pen&quot;, &quot;book&quot;]
+items.append(&quot;eraser&quot;)
+print(items)</code></pre><pre id="5478fb4d-d8dd-823c-960c-0181980ad9e4" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [1, 2, 4]
+nums.insert(2, 3)
+print(nums)</code></pre><pre id="0078fb4d-d8dd-83c6-b5fc-8174d8721abd" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">colors = [&quot;red&quot;, &quot;blue&quot;, &quot;green&quot;]
+colors.remove(&quot;blue&quot;)
+print(colors)</code></pre><figure id="9128fb4d-d8dd-837b-926a-0162c6cb3d45" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%205.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%205.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%205.png"/></a></figure><h3 id="13d8fb4d-d8dd-83db-b2c7-0153f5b9cd46" style="display:inline-block" dir="auto">B. 查詢與整理</h3><pre id="5998fb4d-d8dd-82b4-9aa4-0140ec86bd7e" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [3, 1, 4, 1, 5]
+print(nums.count(1))</code></pre><pre id="e908fb4d-d8dd-8324-9fb9-017aa0218432" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [3, 1, 4, 1, 5]
+print(nums.index(4))</code></pre><pre id="3ae8fb4d-d8dd-82e7-83c5-817a223bf510" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [3, 1, 4, 1, 5]
+nums.sort()
+print(nums)</code></pre><p id="8098fb4d-d8dd-8309-8580-014b2a1c8152" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="5688fb4d-d8dd-83bc-ba9c-01c56b5f1f2c" class="" dir="auto">- <code>remove(value)</code> 刪第一個符合值。</p><p id="3468fb4d-d8dd-83fe-b3fc-01925d709726" class="" dir="auto">- <code>sort()</code> 會原地修改；若要保留原資料可用 <code>sorted()</code>。</p><hr id="d718fb4d-d8dd-83b9-a23c-01d65a7d8cd6" dir="auto"/><figure id="e638fb4d-d8dd-821c-9c0f-8175c86b2c3e" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%206.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%206.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%206.png"/></a></figure><h2 id="db38fb4d-d8dd-8313-b457-8195fe6b713b" style="display:inline-block" dir="auto">3. 用迴圈處理串列</h2><h3 id="2f68fb4d-d8dd-82c3-a948-8127fc41ebe5" style="display:inline-block" dir="auto">A. 逐一走訪</h3><pre id="f6c8fb4d-d8dd-82a1-b02f-0195c4c706e8" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [10, 20, 30]
+for n in nums:
+    print(n)</code></pre><pre id="7be8fb4d-d8dd-8266-bfdc-0191db088049" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">names = [&quot;Amy&quot;, &quot;Ben&quot;, &quot;Cody&quot;]
+for i in range(len(names)):
+    print(i, names[i])</code></pre><pre id="cb08fb4d-d8dd-832f-a28d-014a1d01e54b" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">prices = [99, 120, 35]
+total = 0
+for p in prices:
+    total += p
+print(total)</code></pre><figure id="3458fb4d-d8dd-8247-ba1b-8123b573fab9" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%207.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%207.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%207.png"/></a></figure><h3 id="a198fb4d-d8dd-83ac-a4eb-814f4a5ebb3b" style="display:inline-block" dir="auto">B. 搭配 <code>in</code> 做會員檢查</h3><pre id="0a08fb4d-d8dd-833b-88ad-81a83e0cb06c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">whitelist = [&quot;alice&quot;, &quot;bob&quot;, &quot;charlie&quot;]
+user = &quot;bob&quot;
+print(user in whitelist)</code></pre><pre id="2228fb4d-d8dd-8241-bf32-0109b979111e" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [2, 4, 6, 8]
+if 5 not in nums:
+    print(&quot;5 不在清單中&quot;)</code></pre><pre id="0458fb4d-d8dd-8280-ba79-81d3fe3590ee" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">fruits = [&quot;apple&quot;, &quot;banana&quot;]
+key = input(&quot;輸入水果名稱：&quot;)
+if key in fruits:
+    print(&quot;有庫存&quot;)
+else:
+    print(&quot;缺貨&quot;)</code></pre><p id="db68fb4d-d8dd-831c-b2f5-017628642035" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="7a28fb4d-d8dd-8336-aaf7-812b5e81ad39" class="" dir="auto">- <code>in</code> 在 list 是線性搜尋，資料量大時要注意效能。</p><p id="77c8fb4d-d8dd-829f-9374-813c4e8b9fda" class="" dir="auto">- 累加、計數是最常見的迴圈模式。</p><hr id="21f8fb4d-d8dd-8231-bb86-818346fffd85" dir="auto"/><figure id="28c8fb4d-d8dd-821d-9711-81d6b80c421c" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%208.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%208.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%208.png"/></a></figure><h2 id="4168fb4d-d8dd-839f-ae4f-8155fbe55fc2" style="display:inline-block" dir="auto">4. 字串與串列互轉 + comprehension 入門</h2><h3 id="26f8fb4d-d8dd-83a4-b918-813d2fbb1c63" style="display:inline-block" dir="auto">A. <code>split()</code> 與 <code>join()</code></h3><pre id="b018fb4d-d8dd-82f3-92af-81f5b73b272a" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">line = &quot;10,20,30&quot;
+parts = line.split(&quot;,&quot;)
+print(parts)</code></pre><pre id="da28fb4d-d8dd-83ab-9271-81014ae5ec4f" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">words = &quot;Python is fun&quot;.split()
+print(words)</code></pre><pre id="d5a8fb4d-d8dd-82f8-b0f9-010d3b52a57d" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">arr = [&quot;2026&quot;, &quot;Spring&quot;, &quot;Python&quot;]
+result = &quot;-&quot;.join(arr)
+print(result)</code></pre><figure id="c9d8fb4d-d8dd-836f-9199-01f4af801bcb" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%209.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%209.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%209.png"/></a></figure><h3 id="5d88fb4d-d8dd-8303-917c-012f692d2366" style="display:inline-block" dir="auto">B. list comprehension（入門）</h3><pre id="d5a8fb4d-d8dd-83cf-8037-01b2dbde69d6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [1, 2, 3, 4]
+squares = [x * x for x in nums]
+print(squares)</code></pre><pre id="7ee8fb4d-d8dd-82de-a18e-01fbd2940c8a" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">nums = [1, 2, 3, 4, 5, 6]
+evens = [x for x in nums if x % 2 == 0]
+print(evens)</code></pre><pre id="67a8fb4d-d8dd-83e5-bf44-81593a01acaf" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">names = [&quot;amy&quot;, &quot;ben&quot;, &quot;cody&quot;]
+upper_names = [n.upper() for n in names]
+print(upper_names)</code></pre><p id="3e38fb4d-d8dd-82e8-8e9f-01cede101f79" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="0088fb4d-d8dd-8269-ae59-017bf0f33d27" class="" dir="auto">- <code>split()</code> 後元素預設都是字串，必要時要轉型。</p><p id="d548fb4d-d8dd-839a-b081-01e8cdf0469a" class="" dir="auto">- comprehension 適合簡短轉換，過長條件可改回一般迴圈。</p><hr id="0828fb4d-d8dd-8322-a007-8156f2a7783e" dir="auto"/><figure id="4df8fb4d-d8dd-8337-a1fa-8164d96d8f2d" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2010.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2010.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2010.png"/></a></figure><h2 id="1e08fb4d-d8dd-8392-b014-81c5dc553c86" style="display:inline-block" dir="auto">5. 綜合實作：待辦清單管理器</h2><h3 id="63b8fb4d-d8dd-83e5-b9c1-019111c6cd51" style="display:inline-block" dir="auto">A. 實作目標</h3><p id="15c8fb4d-d8dd-82e2-a4a1-81164c332e92" class="" dir="auto">1. 支援新增、刪除、列出待辦事項。</p><p id="3be8fb4d-d8dd-82fe-b48d-0102c67d9620" class="" dir="auto">2. 使用者輸入 <code>q</code> 可結束。</p><p id="5fb8fb4d-d8dd-8359-8b57-018c1b094797" class="" dir="auto">3. 顯示目前項目數與內容。</p><h3 id="3858fb4d-d8dd-8391-8359-01a6c0c01b34" style="display:inline-block" dir="auto">B. 完整程式碼範例</h3><pre id="b748fb4d-d8dd-8204-bf56-01d74679ccc3" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">todos = []
+
+while True:
+    cmd = input(&quot;指令（add/del/list/q）：&quot;).strip().lower()
+
+    if cmd == &quot;add&quot;:
+        task = input(&quot;輸入待辦事項：&quot;).strip()
+        if task:
+            todos.append(task)
+            print(&quot;已新增&quot;)
+
+    elif cmd == &quot;del&quot;:
+        task = input(&quot;輸入要刪除的事項：&quot;).strip()
+        if task in todos:
+            todos.remove(task)
+            print(&quot;已刪除&quot;)
+        else:
+            print(&quot;找不到該事項&quot;)
+
+    elif cmd == &quot;list&quot;:
+        print(&quot;\n=== 待辦清單 ===&quot;)
+        for i, task in enumerate(todos, start=1):
+            print(f&quot;{i}. {task}&quot;)
+        print(f&quot;總數：{len(todos)}&quot;)
+
+    elif cmd == &quot;q&quot;:
+        break
+
+    else:
+        print(&quot;無效指令&quot;)</code></pre><figure id="5338fb4d-d8dd-82d5-9dfe-81b246ff7fb2" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2011.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2011.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2011.png"/></a></figure><h3 id="9888fb4d-d8dd-83f3-876e-01a46482c270" style="display:inline-block" dir="auto">C. 程式碼亮點解析</h3><h3 id="b028fb4d-d8dd-825a-94bf-81b1d839c1b0" style="display:inline-block" dir="auto">1. <code>in</code> + <code>remove</code> 做安全刪除</h3><pre id="b0f8fb4d-d8dd-8261-8f4d-01780a0d2bac" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">if task in todos:
+    todos.remove(task)</code></pre><h3 id="8e48fb4d-d8dd-82f1-9fa8-016cae363725" style="display:inline-block" dir="auto">2. <code>enumerate</code> 產生清單序號</h3><pre id="e758fb4d-d8dd-834d-8f14-014147ac950b" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">for i, task in enumerate(todos, start=1):</code></pre><h3 id="9c28fb4d-d8dd-820e-9ebf-0149b20aeabb" style="display:inline-block" dir="auto">3. <code>strip().lower()</code> 正規化使用者指令</h3><pre id="ec38fb4d-d8dd-8225-9a75-8144a86501f4" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">cmd = input(...).strip().lower()</code></pre><h3 id="d848fb4d-d8dd-82f5-a225-01d9353238d7" style="display:inline-block" dir="auto">D. 擴展練習</h3><p id="7e38fb4d-d8dd-8284-8fbf-014bcfc37fa9" class="" dir="auto">1. 增加「編號刪除」模式。</p><p id="9ec8fb4d-d8dd-8311-9bb8-0129f888cc15" class="" dir="auto">2. 新增「已完成」標記欄位（可改用 dict）。</p><p id="a8a8fb4d-d8dd-83ea-8c6e-0119abdb74c0" class="" dir="auto">3. 將清單儲存到檔案，下次啟動可讀回。</p><hr id="c0a8fb4d-d8dd-83a0-9176-0170b0312276" dir="auto"/><figure id="aa08fb4d-d8dd-82b0-a878-81cab8f6ccf9" class="image" data-notion-image="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2012.png" dir="ltr"><a href="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2012.png"><img style="width:703.9896240234375px" src="07%20Python%20%E4%B8%B2%E5%88%97%EF%BC%88List%EF%BC%89%EF%BC%9A%E4%B8%80%E7%B6%AD%E8%B3%87%E6%96%99%E7%9A%84%E6%A0%B8%E5%BF%83%E5%AE%B9%E5%99%A8/image%2012.png"/></a></figure><h2 id="8e88fb4d-d8dd-8302-b34b-011b577cc417" style="display:inline-block" dir="auto">結論與下一步</h2><p id="8418fb4d-d8dd-826e-9a66-010802a07e5b" class="" dir="auto">- 你已能用 list 儲存多筆資料並進行增刪查。</p><p id="6ad8fb4d-d8dd-82bb-9153-817533e55286" class="" dir="auto">- 你可透過迴圈與方法完成基礎資料處理工作流。</p><p id="6038fb4d-d8dd-82f4-95a2-817ae6fcd743" class="" dir="auto">- 下一步可學習函式，讓程式模組化並可重複使用。</p><p id="53e8fb4d-d8dd-8295-9130-81ceeda1cdca" class="" dir="auto">
+</p><figure id="bd68fb4d-d8dd-820e-989e-81b098ffe478" class="image" data-notion-image="ending-stust.png" dir="ltr"><a href="ending-stust.png"><img style="width:709.967529296875px" src="ending-stust.png"/></a></figure>
+<hr id="snakify-citation-divider" dir="auto"/>
+<h2 id="snakify-citation" style="display:inline-block" dir="auto">參考資料</h2>
+<p id="snakify-citation-note" class="" dir="auto">本頁部分 Python 練習脈絡參考 <a href="https://snakify.org/en/" target="_blank" rel="noopener noreferrer">Snakify Python Tutorial</a>。</p>
+
+<footer id="aiot-site-footer" class="aiot-site-footer" dir="auto" aria-label="教材製作資訊">
+  <p>本教學材料由南臺科技大學電子工程系 楊榮林教授主導，並由 AI Agent 輔助整理與製作。</p>
+</footer>
+</div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>

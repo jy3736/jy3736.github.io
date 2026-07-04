@@ -1,0 +1,1193 @@
+<html lang="zh-Hant-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>02 Python 的整數與浮點數：精準計算與進階運算</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+/* Override strong tags inside headings to maintain consistent weight */
+h1 strong,
+h2 strong,
+h3 strong {
+	font-weight: 600;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 10px;
+	padding: 1rem;
+}
+
+/* For default-background callouts, render the border outline. */
+.callout.block-color-default_background {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+figure,
+aside,
+details {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+
+	table.collection-content {
+		width: 100%;
+		table-layout: fixed;
+	}
+
+	table.collection-content th,
+	table.collection-content td {
+		overflow-wrap: anywhere;
+	}
+
+	table.collection-content td > .user,
+	table.collection-content td > time {
+		white-space: pre-wrap;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content-wrapper {
+	overflow-x: auto;
+}
+
+@media only print {
+	.collection-content-wrapper {
+		overflow-x: visible;
+	}
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.collection-content td {
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.column-list {
+	display: flex;
+	gap: 46px;
+}
+
+.column {
+	min-width: 0;
+	overflow: hidden;
+}
+
+.column > *:first-child {
+	margin-top: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding-inline: 0.125rem;
+	padding-block: 0.375rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+table {
+	border-collapse: collapse;
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol.numbered-list.numbered-list-digits-2 {
+	padding-inline-start: 2em;
+}
+
+ol.numbered-list.numbered-list-digits-3plus {
+	padding-inline-start: 2.4em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+/*
+ * Render emoji icons using a ::before pseudo-element to keep the glyph
+ * out of the DOM textContent traversal. This avoids double-rendering icons
+ * in callouts and page titles.
+ * NOTE(slim/html-export-pseudo-icons): I can't tagref this because it will
+ * flag as a duplicate tag after codegen.
+ */
+.icon[data-emoji]::before {
+	content: attr(data-emoji);
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.callout img.notion-static-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.callout p {
+	margin: 0;
+}
+
+.callout h1,
+.callout h2,
+.callout h3 {
+	margin: 0 0 0.6rem;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	margin-right: 0.4em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+blockquote.quote-large {
+	font-size: 1.25em;
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.tab {
+	margin: 1.25em 0;
+	padding-inline: 1rem;
+	border: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", "Noto Sans Arabic", "Noto Sans Hebrew", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.highlight-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.highlight-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.highlight-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.highlight-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.highlight-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.highlight-default_background {
+	color: rgba(44, 44, 43, 1);
+}
+.highlight-gray_background {
+	background: rgba(42, 28, 0, 0.07);
+}
+.highlight-brown_background {
+	background: rgba(139, 46, 0, 0.086);
+}
+.highlight-orange_background {
+	background: rgba(224, 101, 1, 0.129);
+}
+.highlight-yellow_background {
+	background: rgba(211, 168, 0, 0.137);
+}
+.highlight-teal_background {
+	background: rgba(0, 100, 45, 0.09);
+}
+.highlight-blue_background {
+	background: rgba(0, 124, 215, 0.094);
+}
+.highlight-purple_background {
+	background: rgba(102, 0, 178, 0.078);
+}
+.highlight-pink_background {
+	background: rgba(197, 0, 93, 0.086);
+}
+.highlight-red_background {
+	background: rgba(223, 22, 0, 0.094);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(125, 122, 117, 1);
+	fill: rgba(125, 122, 117, 1);
+}
+.block-color-brown {
+	color: rgba(159, 118, 90, 1);
+	fill: rgba(159, 118, 90, 1);
+}
+.block-color-orange {
+	color: rgba(210, 123, 45, 1);
+	fill: rgba(210, 123, 45, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 148, 52, 1);
+	fill: rgba(203, 148, 52, 1);
+}
+.block-color-teal {
+	color: rgba(80, 148, 110, 1);
+	fill: rgba(80, 148, 110, 1);
+}
+.block-color-blue {
+	color: rgba(56, 125, 201, 1);
+	fill: rgba(56, 125, 201, 1);
+}
+.block-color-purple {
+	color: rgba(154, 107, 180, 1);
+	fill: rgba(154, 107, 180, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(207, 81, 72, 1);
+	fill: rgba(207, 81, 72, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(240, 239, 237, 1);
+}
+.block-color-brown_background {
+	background: rgba(245, 237, 233, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 235, 222, 1);
+}
+.block-color-yellow_background {
+	background: rgba(249, 243, 220, 1);
+}
+.block-color-teal_background {
+	background: rgba(232, 241, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(229, 242, 252, 1);
+}
+.block-color-purple_background {
+	background: rgba(243, 235, 249, 1);
+}
+.block-color-pink_background {
+	background: rgba(250, 233, 241, 1);
+}
+.block-color-red_background {
+	background: rgba(252, 233, 231, 1);
+}
+.select-value-color-default { background-color: rgba(42, 28, 0, 0.07); }
+.select-value-color-gray { background-color: rgba(28, 19, 1, 0.11); }
+.select-value-color-brown { background-color: rgba(127, 51, 0, 0.156); }
+.select-value-color-orange { background-color: rgba(196, 88, 0, 0.203); }
+.select-value-color-yellow { background-color: rgba(209, 156, 0, 0.282); }
+.select-value-color-green { background-color: rgba(0, 96, 38, 0.156); }
+.select-value-color-blue { background-color: rgba(0, 118, 217, 0.203); }
+.select-value-color-purple { background-color: rgba(92, 0, 163, 0.141); }
+.select-value-color-pink { background-color: rgba(183, 0, 78, 0.152); }
+.select-value-color-red { background-color: rgba(206, 24, 0, 0.164); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+
+
+/* AIOT dark review theme */
+:root {
+	color-scheme: dark;
+	--aiot-bg: #0d1117;
+	--aiot-panel: #111827;
+	--aiot-panel-soft: #161f2c;
+	--aiot-text: #e6edf3;
+	--aiot-muted: #9ba7b4;
+	--aiot-border: rgba(148, 163, 184, 0.24);
+	--aiot-accent: #58a6ff;
+	--aiot-accent-strong: #79c0ff;
+	--aiot-code-bg: #0b1220;
+	--aiot-code-text: #d6e2ff;
+}
+
+html,
+body {
+	background: var(--aiot-bg) !important;
+	color: var(--aiot-text) !important;
+}
+
+@media only screen {
+	body {
+		max-width: 980px;
+		color: var(--aiot-text) !important;
+	}
+}
+
+.page {
+	background: linear-gradient(180deg, rgba(17, 24, 39, 0.94), rgba(13, 17, 23, 0.98)) !important;
+	border: 1px solid var(--aiot-border);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+	padding: 2.25rem;
+	border-radius: 14px;
+}
+
+.page-title,
+h1,
+h2,
+h3,
+strong {
+	color: #f8fafc !important;
+}
+
+p,
+li,
+td,
+th,
+blockquote,
+figcaption,
+.page-description,
+.pdf-relative-link-path {
+	color: var(--aiot-text) !important;
+}
+
+figcaption,
+.pdf-relative-link-path,
+.bookmark-description,
+.bookmark-href,
+.bookmark-text {
+	color: var(--aiot-muted) !important;
+}
+
+a,
+a.visited {
+	color: var(--aiot-accent-strong) !important;
+	text-decoration-color: rgba(121, 192, 255, 0.55) !important;
+}
+
+a:hover {
+	color: #a5d6ff !important;
+}
+
+hr {
+	border-bottom-color: var(--aiot-border) !important;
+}
+
+.page-cover-image {
+	filter: brightness(0.62) saturate(0.92);
+	border-radius: 12px;
+}
+
+.icon,
+.notion-static-icon,
+.notion-emoji {
+	filter: drop-shadow(0 0 6px rgba(88, 166, 255, 0.18));
+}
+
+.callout,
+.source,
+.bookmark,
+.collection-card,
+.block-color-default_background,
+.block-color-gray_background,
+.block-color-brown_background,
+.block-color-orange_background,
+.block-color-yellow_background,
+.block-color-green_background,
+.block-color-blue_background,
+.block-color-purple_background,
+.block-color-pink_background,
+.block-color-red_background {
+	background: var(--aiot-panel-soft) !important;
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table {
+	background: transparent !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.simple-table td,
+.simple-table th {
+	border-color: var(--aiot-border) !important;
+	color: var(--aiot-text) !important;
+}
+
+.simple-table-header-color,
+thead,
+th {
+	background: #1f2937 !important;
+	color: #f8fafc !important;
+}
+
+pre,
+.code,
+code,
+.code > code {
+	background: var(--aiot-code-bg) !important;
+	color: var(--aiot-code-text) !important;
+	border-color: var(--aiot-border) !important;
+}
+
+.code,
+pre {
+	box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+blockquote {
+	border-left-color: var(--aiot-accent) !important;
+	background: rgba(88, 166, 255, 0.08) !important;
+}
+
+mark,
+.highlight-gray,
+.highlight-brown,
+.highlight-orange,
+.highlight-yellow,
+.highlight-green,
+.highlight-blue,
+.highlight-purple,
+.highlight-pink,
+.highlight-red {
+	color: var(--aiot-text) !important;
+}
+
+.highlight-gray_background,
+.highlight-brown_background,
+.highlight-orange_background,
+.highlight-yellow_background,
+.highlight-green_background,
+.highlight-blue_background,
+.highlight-purple_background,
+.highlight-pink_background,
+.highlight-red_background {
+	background: rgba(88, 166, 255, 0.11) !important;
+}
+
+.select-value-color-default,
+.select-value-color-gray,
+.select-value-color-brown,
+.select-value-color-orange,
+.select-value-color-yellow,
+.select-value-color-green,
+.select-value-color-blue,
+.select-value-color-purple,
+.select-value-color-pink,
+.select-value-color-red {
+	background-color: rgba(88, 166, 255, 0.15) !important;
+	color: var(--aiot-text) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8b949e !important;
+}
+
+.token.punctuation,
+.token.operator {
+	color: #c9d1d9 !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #79c0ff !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a5d6ff !important;
+}
+
+.token.function,
+.token.class-name {
+	color: #d2a8ff !important;
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only screen and (max-width: 760px) {
+	body {
+		margin: 0;
+	}
+	.page {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+		padding: 1.25rem;
+	}
+	.page-title {
+		font-size: 2rem;
+	}
+}
+
+
+/* AIOT code block readability patch */
+pre.code,
+pre.code[class*="language-"],
+.code.code-wrap {
+	background: #0b1220 !important;
+	color: #d6e2ff !important;
+	border: 1px solid rgba(148, 163, 184, 0.28) !important;
+	border-radius: 10px !important;
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025), 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+	padding: 1rem 1.125rem !important;
+	overflow-x: auto !important;
+	white-space: pre !important;
+}
+
+pre.code > code,
+pre.code code,
+.code.code-wrap > code,
+.code.code-wrap code {
+	background: transparent !important;
+	color: #d6e2ff !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	font-size: 0.95rem !important;
+	line-height: 1.65 !important;
+	white-space: pre !important;
+	word-break: normal !important;
+	overflow-wrap: normal !important;
+	text-shadow: none !important;
+}
+
+p code,
+li code,
+td code,
+th code,
+h1 code,
+h2 code,
+h3 code {
+	background: transparent !important;
+	color: #8ecdf8 !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+	font-size: 0.92em !important;
+	white-space: break-spaces !important;
+}
+
+pre.code .token.comment,
+pre.code .token.prolog,
+pre.code .token.doctype,
+pre.code .token.cdata {
+	color: #8b949e !important;
+	font-style: italic !important;
+}
+
+pre.code .token.punctuation,
+pre.code .token.operator,
+pre.code .token.entity,
+pre.code .token.url,
+pre.code .token.variable {
+	color: #c9d1d9 !important;
+}
+
+pre.code .token.keyword,
+pre.code .token.atrule,
+pre.code .token.attr-name {
+	color: #ff7b72 !important;
+}
+
+pre.code .token.string,
+pre.code .token.char,
+pre.code .token.attr-value,
+pre.code .token.regex,
+pre.code .token.inserted {
+	color: #a5d6ff !important;
+}
+
+pre.code .token.number,
+pre.code .token.boolean,
+pre.code .token.constant,
+pre.code .token.symbol,
+pre.code .token.deleted {
+	color: #79c0ff !important;
+}
+
+pre.code .token.function,
+pre.code .token.class-name,
+pre.code .token.builtin {
+	color: #d2a8ff !important;
+}
+
+pre.code .token.property,
+pre.code .token.tag,
+pre.code .token.selector,
+pre.code .token.important {
+	color: #7ee787 !important;
+}
+
+pre.code .token.namespace {
+	opacity: 0.9 !important;
+}
+
+
+/* AIOT operator text-only patch */
+.token.operator,
+pre.code .token.operator,
+code .token.operator,
+.code.code-wrap .token.operator {
+	background: transparent !important;
+	background-color: transparent !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	color: #c9d1d9 !important;
+}
+</style><style>@import url('https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex-swap.min.css')
+/* AIOT instructional material footer */
+.aiot-site-footer {
+  margin-top: 3rem;
+  padding: 1.25rem 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.22);
+  color: #9ba7b4;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.aiot-site-footer p {
+  margin: 0;
+}
+</style></head><body><article id="9c08fb4d-d8dd-8296-99e8-01ffd4c609a1" class="page sans" data-notion-page-icon="https://s3-us-west-2.amazonaws.com/public.notion-static.com/3defc37d-4740-45fb-a42d-76c1739bbd3a/800x800.png"><header><img class="page-cover-image" src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.1.0&amp;q=85&amp;fm=jpg&amp;crop=entropy&amp;cs=srgb&amp;w=4800" style="object-position:center 50%"/><div class="page-header-icon page-header-icon-with-cover"><img class="icon" src="800x800.png"/></div><h1 class="page-title" dir="auto">02 Python 的整數與浮點數：精準計算與進階運算</h1><p class="page-description" dir="auto"></p></header><div class="page-body"><figure id="9f68fb4d-d8dd-8269-a2ab-8144f3e0f8b8" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image.png"/></a></figure><h2 id="a9d8fb4d-d8dd-82e0-9e7f-01e7d7761096" style="display:inline-block" dir="auto">課程簡介</h2><p id="9f68fb4d-d8dd-8259-b222-814868da2da4" class="" dir="auto">本單元聚焦 Python 的數值型別：整數（<code>int</code>）與浮點數（<code>float</code>）。你會學會判斷資料型別、正確使用除法相關運算子（<code>/</code>、<code>//</code>、<code>%</code>）、冪次運算（<code>**</code>），以及 <code>math</code> 模組常用函式（如 <code>sqrt()</code>、<code>ceil()</code>）。</p><p id="ad98fb4d-d8dd-833c-b9b1-01707a995538" class="" dir="auto">完成本課後，你可以寫出更可靠的數值計算程式，並避免常見的型別與精度陷阱。</p><figure id="91c8fb4d-d8dd-8315-ad8f-01492d435761" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%201.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%201.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%201.png"/></a></figure><h2 id="1028fb4d-d8dd-8200-bd4c-019d2f817a3f" style="display:inline-block" dir="auto">本講義涵蓋主題</h2><p id="fe28fb4d-d8dd-83a7-9430-01a1df6f33f2" class="" dir="auto">1. <code>int</code> 與 <code>float</code> 的差異</p><p id="1268fb4d-d8dd-8290-9308-0179af9b2d85" class="" dir="auto">2. 除法、整除、餘數運算</p><p id="e128fb4d-d8dd-8300-98bb-816d1f187bc2" class="" dir="auto">3. 指數運算與運算優先順序</p><p id="2a68fb4d-d8dd-8360-9e73-013f4e7cd154" class="" dir="auto">4. <code>math</code> 模組與數學常數</p><p id="ef28fb4d-d8dd-8270-ac65-81f8b992b273" class="" dir="auto">5. 綜合實作：分組與成本估算計算器</p><hr id="b1d8fb4d-d8dd-8356-9afb-81a227480652" dir="auto"/><h2 id="cce8fb4d-d8dd-828d-8efb-81773f197f1d" style="display:inline-block" dir="auto">1. 數值型別：<code>int</code> 與 <code>float</code></h2><figure id="0be8fb4d-d8dd-83a2-a1d4-8170bef15501" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%202.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%202.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%202.png"/></a></figure><h3 id="2508fb4d-d8dd-827e-9e56-012c56883920" style="display:inline-block" dir="auto">A. 什麼時候用整數、什麼時候用浮點數</h3><p id="97b8fb4d-d8dd-8290-838d-8163c5c4c846" class="" dir="auto">整數適合計數（人數、件數），浮點數適合測量（長度、金額平均值、機率）。</p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js" integrity="sha512-AKaNmg8COK0zEbjTdMHJAPJ0z6VeNqvRvH4/d5M4sHJbQQUToMBtodq4HaV4fa+WV2UTfoperElm66c9/8cKmQ==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><pre id="5228fb4d-d8dd-8300-8f03-0168cc48c8dc" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">students = 32
+print(type(students))</code></pre><pre id="e388fb4d-d8dd-82e9-9435-0103ba924941" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">temperature = 26.5
+print(type(temperature))</code></pre><pre id="8b38fb4d-d8dd-82d3-a247-01533bdbd5b4" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">count = 7
+average = 7 / 2
+print(count, type(count))
+print(average, type(average))</code></pre><p id="d008fb4d-d8dd-825f-a78b-01018a4fd2f6" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="4f18fb4d-d8dd-821b-8c38-8150001a2d6a" class="" dir="auto">- <code>7</code> 是 <code>int</code>，<code>7.0</code> 是 <code>float</code>。</p><p id="0558fb4d-d8dd-8329-be8b-813d73039f0f" class="" dir="auto">- 有小數點不代表計算一定更精準，反而可能有浮點誤差。</p><figure id="e438fb4d-d8dd-83f2-9e86-81649ed0350c" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%203.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%203.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%203.png"/></a></figure><h3 id="3448fb4d-d8dd-8324-ac1d-0119de39ec61" style="display:inline-block" dir="auto">B. 型別轉換</h3><pre id="ecf8fb4d-d8dd-8312-a433-01ff8dab8a6a" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">x = 9
+print(float(x))</code></pre><pre id="1988fb4d-d8dd-82a3-aab0-814856210e60" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">y = 3.99
+print(int(y))  # 直接截斷小數，不是四捨五入</code></pre><pre id="8938fb4d-d8dd-827d-935b-81826173c321" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">raw = &quot;42&quot;
+num = int(raw)
+print(num + 8)</code></pre><p id="0b08fb4d-d8dd-83d2-9c38-81da44cada5d" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="3048fb4d-d8dd-835f-bc5f-0162cb84a1bf" class="" dir="auto">- <code>int(3.99)</code> 會得到 <code>3</code>。</p><p id="7808fb4d-d8dd-83d1-865d-019c4c798130" class="" dir="auto">- 轉型前要先確認字串內容是否合法數字。</p><hr id="3fb8fb4d-d8dd-8200-b632-01d5be1b7a63" dir="auto"/><h2 id="b768fb4d-d8dd-820a-a4e9-010fb243827f" style="display:inline-block" dir="auto">2. 除法家族：<code>/</code>、<code>//</code>、<code>%</code></h2><figure id="17c8fb4d-d8dd-8373-8ed6-01303112f223" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%204.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%204.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%204.png"/></a></figure><h3 id="b498fb4d-d8dd-8222-a82f-01b835672393" style="display:inline-block" dir="auto">A. 一般除法與整除</h3><pre id="bfd8fb4d-d8dd-82fd-ab14-01324cbc7fb6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(10 / 3)</code></pre><pre id="ba48fb4d-d8dd-834c-a7f2-8117f92af3b7" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(10 // 3)</code></pre><pre id="7f68fb4d-d8dd-8349-b064-81d7737eeb57" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">price = 550
+people = 4
+print(&quot;每人平均&quot;, price / people)
+print(&quot;每人完整份數&quot;, price // people)</code></pre><p id="75e8fb4d-d8dd-82d3-bb43-01ca05de1db1" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="7098fb4d-d8dd-834b-8122-81480d0af2b3" class="" dir="auto">- <code>/</code> 一律回傳 <code>float</code>。</p><p id="4aa8fb4d-d8dd-82a8-8014-812eb1714309" class="" dir="auto">- <code>//</code> 是向下取整（floor），負數時結果要特別注意。</p><figure id="a4e8fb4d-d8dd-8312-acc8-01cdb42049c5" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%205.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%205.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%205.png"/></a></figure><h3 id="9b98fb4d-d8dd-8315-8f19-81b65bc6483b" style="display:inline-block" dir="auto">B. 餘數 <code>%</code> 的應用</h3><pre id="7fb8fb4d-d8dd-831c-878e-01ec4ccd116c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(10 % 3)</code></pre><pre id="3d78fb4d-d8dd-8215-87f6-81f25cd7e0de" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">minute = 135
+hours = minute // 60
+left = minute % 60
+print(hours, left)</code></pre><pre id="d898fb4d-d8dd-8211-9305-81412964a173" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">n = 27
+print(&quot;是否為偶數：&quot;, n % 2 == 0)</code></pre><p id="b808fb4d-d8dd-82a3-ab0e-0177931de925" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="0cf8fb4d-d8dd-839f-9fe2-0118a64d6f7f" class="" dir="auto">- <code>%</code> 常用於週期問題（時間、輪班、奇偶判斷）。</p><p id="f7b8fb4d-d8dd-8287-aca8-01519ee1c02c" class="" dir="auto">- 請搭配 <code>//</code> 一起使用，能拆解大部分配額與分組問題。</p><hr id="3368fb4d-d8dd-8206-8285-81d3723cbacd" dir="auto"/><h2 id="9d98fb4d-d8dd-83cc-a411-014bf5ff4e64" style="display:inline-block" dir="auto">3. 冪次運算與優先順序</h2><figure id="be78fb4d-d8dd-836e-a14a-816c81a7c08e" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%206.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%206.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%206.png"/></a></figure><h3 id="c9f8fb4d-d8dd-8202-8471-0131047e1423" style="display:inline-block" dir="auto">A. 使用 <code>**</code></h3><pre id="9108fb4d-d8dd-83cd-aa7d-811508f86d4e" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(2 ** 3)</code></pre><pre id="15d8fb4d-d8dd-8336-b289-0110f22d04a2" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">radius = 5
+area = 3.14159 * (radius ** 2)
+print(area)</code></pre><pre id="7f78fb4d-d8dd-821d-b84e-8157953c9c2d" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(9 ** 0.5)  # 平方根的另一種寫法</code></pre><p id="bb28fb4d-d8dd-834e-b8a7-8191df6ad6c4" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="3428fb4d-d8dd-8234-a8f8-015effd5dedd" class="" dir="auto">- <code>**</code> 比 <code>*</code>、<code>+</code> 優先。</p><p id="6278fb4d-d8dd-82e7-a1c2-01c6d011df3c" class="" dir="auto">- 複雜公式建議加括號提升可讀性。</p><h3 id="4ca8fb4d-d8dd-830d-883b-01b0586fe75c" style="display:inline-block" dir="auto">B. 運算順序與括號</h3><pre id="04f8fb4d-d8dd-8332-9f4d-0173ea8b1e8c" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(2 + 3 * 4)</code></pre><pre id="4db8fb4d-d8dd-8268-a8bd-8179f40242bf" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print((2 + 3) * 4)</code></pre><pre id="eda8fb4d-d8dd-82f7-9640-011fbc573f93" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">score = 80
+bonus = 5
+weight = 1.2
+final_score = (score + bonus) * weight
+print(final_score)</code></pre><p id="52f8fb4d-d8dd-83d9-9d01-011050370f53" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="f5d8fb4d-d8dd-824a-a43a-01870e718b94" class="" dir="auto">- 不要靠記憶硬背全部優先順序，遇到混合式就加括號。</p><p id="1bd8fb4d-d8dd-83c5-bafb-81de42e6724f" class="" dir="auto">- 括號同時是「自我註解」，讓維護更容易。</p><hr id="0d58fb4d-d8dd-8301-943a-8196aa844857" dir="auto"/><h2 id="70c8fb4d-d8dd-82b4-acd5-814d862bd47b" style="display:inline-block" dir="auto">4. <code>math</code> 模組：函式與常數</h2><figure id="83c8fb4d-d8dd-8251-a223-819c9ec8ebcc" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%207.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%207.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%207.png"/></a></figure><h3 id="ec08fb4d-d8dd-827e-8291-818f94198619" style="display:inline-block" dir="auto">A. 常用函式</h3><pre id="eb28fb4d-d8dd-835b-b023-81a1c8d143ea" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import math
+print(math.sqrt(81))</code></pre><pre id="4588fb4d-d8dd-8301-b562-819430643510" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import math
+print(math.ceil(7.01))
+print(math.floor(7.99))</code></pre><pre id="5ad8fb4d-d8dd-8313-9dda-0138d201f747" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import math
+angle = math.radians(60)
+print(math.sin(angle))</code></pre><p id="1e28fb4d-d8dd-83ab-b510-81128bf48e68" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="0b98fb4d-d8dd-82c4-af5c-01a3ccdcf3e9" class="" dir="auto">- 使用前要先 <code>import math</code>。</p><p id="d3e8fb4d-d8dd-8235-8d30-811380d56829" class="" dir="auto">- <code>ceil</code> 向上取整、<code>floor</code> 向下取整，請依需求選擇。</p><figure id="0bb8fb4d-d8dd-836b-b449-01eb2148c791" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%208.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%208.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%208.png"/></a></figure><h3 id="6138fb4d-d8dd-824f-a5e8-814766451512" style="display:inline-block" dir="auto">B. 數學常數</h3><pre id="b6e8fb4d-d8dd-821f-a500-8161bbff3c34" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import math
+print(math.pi)</code></pre><pre id="9ca8fb4d-d8dd-83d8-980d-0126cdca1864" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import math
+circle_area = math.pi * (3 ** 2)
+print(circle_area)</code></pre><pre id="7d58fb4d-d8dd-839c-ab4e-81fff0b1c4c6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import math
+print(math.e)</code></pre><p id="f978fb4d-d8dd-8268-a3fd-81c2d60daddb" class="" dir="auto"><strong>重點與常見陷阱：</strong></p><p id="4f18fb4d-d8dd-82b2-b043-015d0935c5ad" class="" dir="auto">- 常數建議使用 <code>math.pi</code>，不要手寫太粗糙近似值。</p><p id="e0c8fb4d-d8dd-83df-bfe5-017030da986c" class="" dir="auto">- 報表輸出可搭配 <code>round()</code> 或格式化控制小數位。</p><hr id="3d48fb4d-d8dd-8236-97cf-017dc6b36b8c" dir="auto"/><h2 id="cf18fb4d-d8dd-82a3-8567-012f54555636" style="display:inline-block" dir="auto">5. 綜合實作：分組與成本估算計算器</h2><figure id="fa88fb4d-d8dd-8345-98b4-0104873c15bf" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%209.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%209.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%209.png"/></a></figure><h3 id="fa08fb4d-d8dd-825b-9a83-8136849c9f59" style="display:inline-block" dir="auto">A. 實作目標</h3><p id="8b28fb4d-d8dd-8307-863d-81dfac13e2a6" class="" dir="auto">1. 接收參加人數與每組上限。</p><p id="97c8fb4d-d8dd-8239-995f-81ff0cd76b4a" class="" dir="auto">2. 計算需要幾組、最後一組幾人。</p><p id="9198fb4d-d8dd-8356-a28e-810d224ef152" class="" dir="auto">3. 輸入總成本後，計算每組平均成本。</p><h3 id="8b48fb4d-d8dd-8346-9c94-01acfcfebfce" style="display:inline-block" dir="auto">B. 完整程式碼範例</h3><pre id="1b38fb4d-d8dd-8276-b02e-81dd14ac7ed6" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">import math
+
+people = int(input(&quot;請輸入總人數：&quot;))
+max_per_group = int(input(&quot;請輸入每組上限人數：&quot;))
+total_cost = float(input(&quot;請輸入總成本：&quot;))
+
+groups = math.ceil(people / max_per_group)
+last_group_people = people % max_per_group
+if last_group_people == 0:
+    last_group_people = max_per_group
+
+avg_cost_per_group = total_cost / groups
+
+print(&quot;\n=== 計算結果 ===&quot;)
+print(f&quot;需要組數：{groups}&quot;)
+print(f&quot;最後一組人數：{last_group_people}&quot;)
+print(f&quot;每組平均成本：{avg_cost_per_group:.2f}&quot;)</code></pre><figure id="8ca8fb4d-d8dd-8273-8525-810a487e1992" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2010.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2010.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2010.png"/></a></figure><h3 id="fc08fb4d-d8dd-8314-ad6f-8123cea6fbef" style="display:inline-block" dir="auto">C. 程式碼亮點解析</h3><h3 id="4808fb4d-d8dd-83d2-8ec3-0136e6e17042" style="display:inline-block" dir="auto">1. 用 <code>ceil</code> 解決「不整除仍要開新組」</h3><pre id="9668fb4d-d8dd-8359-9258-813de5e4c119" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">groups = math.ceil(people / max_per_group)</code></pre><h3 id="b3f8fb4d-d8dd-8275-9340-81d5dfc1dc72" style="display:inline-block" dir="auto">2. 用 <code>%</code> 求最後一組人數</h3><pre id="7158fb4d-d8dd-8318-a5a8-8121dbdc6840" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">last_group_people = people % max_per_group</code></pre><h3 id="8dd8fb4d-d8dd-82bd-9eaf-8127ea537c17" style="display:inline-block" dir="auto">3. 輸出格式化控制小數位</h3><pre id="2b78fb4d-d8dd-8387-987e-8178050d40fe" class="code code-wrap" data-notion-code-syntax="python"><code class="language-python" style="white-space:pre-wrap;word-break:break-all">print(f&quot;每組平均成本：{avg_cost_per_group:.2f}&quot;)</code></pre><figure id="6d98fb4d-d8dd-8313-a95f-01c7ff8c4083" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2011.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2011.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2011.png"/></a></figure><h3 id="dcb8fb4d-d8dd-830c-b5f2-01dac7ebdcf7" style="display:inline-block" dir="auto">D. 擴展練習</h3><p id="cd48fb4d-d8dd-8381-a375-01f9100dcfeb" class="" dir="auto">1. 加入「每人最低收費」限制，若低於門檻自動調整。</p><p id="9b68fb4d-d8dd-829c-907f-8126418e4d51" class="" dir="auto">2. 讓使用者可輸入折扣百分比後再估算成本。</p><p id="bae8fb4d-d8dd-82f6-8849-811bed852874" class="" dir="auto">3. 顯示「每組成本整數化後」與「誤差差額」。</p><hr id="ea18fb4d-d8dd-8216-8a73-013ff29c7960" dir="auto"/><h2 id="b6c8fb4d-d8dd-83da-8d42-01932cbc09c0" style="display:inline-block" dir="auto">結論與下一步</h2><figure id="e028fb4d-d8dd-83e4-be6c-81e98a4e2b8b" class="image" data-notion-image="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2012.png" dir="ltr"><a href="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2012.png"><img style="width:703.9874877929688px" src="02%20Python%20%E7%9A%84%E6%95%B4%E6%95%B8%E8%88%87%E6%B5%AE%E9%BB%9E%E6%95%B8%EF%BC%9A%E7%B2%BE%E6%BA%96%E8%A8%88%E7%AE%97%E8%88%87%E9%80%B2%E9%9A%8E%E9%81%8B%E7%AE%97/image%2012.png"/></a></figure><p id="4738fb4d-d8dd-837e-951d-01a8df42cd12" class="" dir="auto">- 本單元建立了 <code>int</code>、<code>float</code> 與進階運算子的核心能力。</p><p id="dd98fb4d-d8dd-83f2-be4f-81dd5b2a31c8" class="" dir="auto">- 你已能使用 <code>//</code>、<code>%</code>、<code>**</code> 與 <code>math</code> 函式解決實務計算。</p><p id="a788fb4d-d8dd-83a9-9298-811a06fcb597" class="" dir="auto">- 下一步可銜接條件判斷（<code>if/elif/else</code>），讓計算結果能觸發不同決策邏輯。</p><p id="c298fb4d-d8dd-822a-a249-016cb443f496" class="" dir="auto">
+</p><figure id="4218fb4d-d8dd-838b-b57a-01bd65da1c31" class="image" data-notion-image="ending-stust.png" dir="ltr"><a href="ending-stust.png"><img style="width:709.967529296875px" src="ending-stust.png"/></a></figure>
+<hr id="snakify-citation-divider" dir="auto"/>
+<h2 id="snakify-citation" style="display:inline-block" dir="auto">參考資料</h2>
+<p id="snakify-citation-note" class="" dir="auto">本頁部分 Python 練習脈絡參考 <a href="https://snakify.org/en/" target="_blank" rel="noopener noreferrer">Snakify Python Tutorial</a>。</p>
+
+<footer id="aiot-site-footer" class="aiot-site-footer" dir="auto" aria-label="教材製作資訊">
+  <p>本教學材料由南臺科技大學電子工程系 楊榮林教授主導，並由 AI Agent 輔助整理與製作。</p>
+</footer>
+</div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
