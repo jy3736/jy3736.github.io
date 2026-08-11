@@ -1,0 +1,357 @@
+- generic [active] [ref=e1]:
+  - complementary [ref=e2]:
+    - generic [ref=e3]: 考古題下載、切題與清理實作教學
+    - button "☀️ Light" [ref=e5] [cursor=pointer]
+    - link "返回上一層" [ref=e6] [cursor=pointer]:
+      - /url: ../../index.html
+    - navigation [ref=e7]:
+      - button "學習目標" [ref=e8] [cursor=pointer]
+      - button "先備條件" [ref=e9] [cursor=pointer]
+      - button "整體流程總覽" [ref=e10] [cursor=pointer]
+      - button "步驟一：下載 PDF" [ref=e11] [cursor=pointer]
+      - button "步驟二：切成單題圖片" [ref=e12] [cursor=pointer]
+      - button "步驟三：清理圖片" [ref=e13] [cursor=pointer]
+      - button "動手做：換一組資料練習" [ref=e14] [cursor=pointer]
+      - button "常見狀況快速對照表" [ref=e15] [cursor=pointer]
+      - button "下一步" [ref=e16] [cursor=pointer]
+  - generic [ref=e18]:
+    - heading "考古題下載、切題與清理實作教學" [level=1] [ref=e19]
+    - paragraph [ref=e20]: 這份教學帶你跟著做一次「PDF 考古題 → 一題一張乾淨圖片 ＋ 標準答案 JSON」的完整流程。流程本身已經包成三個 Claude Code skill，你不需要自己寫程式，只要在 Claude Code 對話視窗裡用自然語言下指令即可；文中也附上每個步驟對應的指令列指令，給想直接手動執行、或想確認 Claude Code 有沒有跑對的人參考。
+    - paragraph [ref=e21]:
+      - text: 本教學對應
+      - code [ref=e22]: module2/
+      - text: 資料夾，裡面已經有兩組完整跑過的範例資料，你可以隨時打開來對照「正確結果長什麼樣子」。
+    - table [ref=e24]:
+      - rowgroup [ref=e25]:
+        - row [ref=e26]:
+          - columnheader "範例資料" [ref=e27]
+          - columnheader "試題來源" [ref=e28]
+          - columnheader "已下載的 PDF" [ref=e29]
+          - columnheader "已切題＋清理完成的成果" [ref=e30]
+        - row [ref=e31]:
+          - cell "115 學年度 電機與電子群資電類 專業科目(一)(二)，共 100 題" [ref=e32]: 115 學年度電機與電子群資電類專業科目(一)(二)，共 100 題
+          - cell "從零下載示範" [ref=e33]
+          - cell [ref=e34]:
+            - code [ref=e35]: module2/raw/115/
+          - cell [ref=e36]:
+            - code [ref=e37]: module2/repo/115/
+        - row [ref=e38]:
+          - cell "115 學年度 數學(B) 共同科目，共 25 題" [ref=e39]: 115 學年度數學(B)共同科目，共 25 題
+          - cell "PDF 已在手示範（不用下載）" [ref=e40]
+          - cell [ref=e41]:
+            - code [ref=e42]: module2/raw/math-115b/
+          - cell [ref=e43]:
+            - code [ref=e44]: module2/repo/math-115b/
+    - heading "學習目標" [level=2] [ref=e45]
+    - paragraph [ref=e46]: 做完這份教學，你應該能夠：
+    - list [ref=e47]:
+      - listitem [ref=e48]: 用 Claude Code，把技專校院入學測驗中心（統測）的考古題 PDF，轉成一題一張的乾淨圖片，加上一份標準答案 JSON。
+      - listitem [ref=e49]: 知道下載、切題、清理這三個階段各自在做什麼、為什麼要驗收、以及每個階段各自的能力邊界在哪裡。
+      - listitem [ref=e50]: 看得懂「乾跑（dry-run）先確認、沒問題才正式執行」這個安全習慣，並知道為什麼清理階段一定要先乾跑。
+      - listitem [ref=e51]: 自己換一個學年度／科目，獨立重跑一次完整流程。
+    - heading "先備條件" [level=2] [ref=e52]
+    - list [ref=e53]:
+      - listitem [ref=e54]:
+        - text: 已經能開啟並使用 Claude Code。若還沒設定好工作環境，請先參考
+        - link "Module 1：Windows 11 環境建置" [ref=e55] [cursor=pointer]:
+          - /url: ../module1/windows11-vibe-coding-setup.html
+        - text: 。
+      - listitem [ref=e56]:
+        - text: 本機已安裝 Python 3，並安裝好三個 skill 腳本需要的套件：
+        - generic [ref=e57]:
+          - button "📋 複製" [ref=e59] [cursor=pointer]:
+            - generic [ref=e60]: 📋
+            - generic [ref=e61]: 複製
+          - code [ref=e63]: pip install pymupdf pillow numpy
+      - listitem [ref=e64]:
+        - text: 能開啟終端機（Terminal／PowerShell），並且知道如何切換到專案根目錄（也就是能看到
+        - code [ref=e65]: module2/
+        - text: 、
+        - code [ref=e66]: .claude/
+        - text: 這兩個資料夾的那一層）下指令。
+      - listitem [ref=e67]: 下載階段（步驟一）需要網路連線，因為要連到技專校院入學測驗中心的網站。
+    - blockquote [ref=e68]:
+      - text: 這三個工具都已經包成 Claude Code 的 skill，放在
+      - code [ref=e69]: .claude/skills/
+      - text: 資料夾底下。你只要在 Claude Code 對話視窗打自然語言描述你想做的事，Claude Code 會自動判斷該用哪個 skill；如果想更保險、或想離開 Claude Code 直接跑，文中每個步驟都附上對應的指令列指令。
+    - heading "整體流程總覽" [level=2] [ref=e70]
+    - paragraph [ref=e71]: 整個流程分三個階段，前一階段的輸出就是下一階段的輸入：
+    - table [ref=e73]:
+      - rowgroup [ref=e74]:
+        - row [ref=e75]:
+          - columnheader "階段" [ref=e76]
+          - columnheader "在做什麼" [ref=e77]
+          - columnheader "輸入" [ref=e78]
+          - columnheader "輸出" [ref=e79]
+          - columnheader "對應 skill" [ref=e80]
+        - row [ref=e81]:
+          - cell "① 下載" [ref=e82]
+          - cell "抓試題＋標準答案 PDF" [ref=e83]
+          - cell "學年度、群類" [ref=e84]
+          - cell [ref=e85]:
+            - code [ref=e86]: raw/<year>/*.pdf
+          - cell [ref=e87]:
+            - code [ref=e88]: download-exam-pdf
+        - row [ref=e89]:
+          - cell "② 切題" [ref=e90]
+          - cell "把 PDF 切成一題一張圖，配對答案" [ref=e91]
+          - cell "①的 PDF" [ref=e92]
+          - cell [ref=e93]:
+            - code [ref=e94]: repo/<name>/*.png
+            - text: ＋
+            - code [ref=e95]: keys.json
+          - cell [ref=e96]:
+            - code [ref=e97]: slice-exam-pdf
+        - row [ref=e98]:
+          - cell "③ 清理" [ref=e99]
+          - cell "裁掉多餘空白、塗掉題號" [ref=e100]
+          - cell "②的 png" [ref=e101]
+          - cell "原地覆寫、變乾淨的 png" [ref=e102]
+          - cell [ref=e103]:
+            - code [ref=e104]: clean-exam-question-images
+    - paragraph [ref=e105]:
+      - text: 兩組範例資料剛好示範了兩種起點：115 學年度電機與電子群資電類是「從零開始」，三個階段都跑過一次；115 數學(B) 則是「PDF 已經在手上」，直接從步驟二開始 —— 這是因為
+      - code [ref=e106]: download-exam-pdf
+      - text: 目前只認得「專業科目(一)(二)」，抓不到數學這種共同科目，這一點在步驟一會再說明。
+    - heading "步驟一：下載試題與標準答案 PDF" [level=2] [ref=e107]
+    - paragraph [ref=e108]: skill：download-exam-pdf
+    - paragraph [ref=e109]:
+      - text: 這一步的產出，是接下來切題階段要用的原始 PDF。
+      - strong [ref=e110]: 如果你手上已經有 PDF 了（例如老師自己保存的考古題），可以直接跳到步驟二。
+    - blockquote [ref=e111]:
+      - strong [ref=e112]: 目前的能力邊界：
+      - text: 這個 skill 只認得成績單頁面上「專業科目(一)」「專業科目(二)」這兩個列標籤，抓不到「數學(A)/(B)/(C)」這類共同科目 —— 這正是範例資料裡數學(B)直接跳過這一步、從切題開始的原因。如果你要練習的是共同科目，請自行到網站上手動下載 PDF，再從步驟二開始。
+    - heading "用一句話請 Claude Code 做" [level=3] [ref=e113]
+    - generic [ref=e114]:
+      - button "📋 複製" [ref=e116] [cursor=pointer]:
+        - generic [ref=e117]: 📋
+        - generic [ref=e118]: 複製
+      - code [ref=e120]: 請到技專校院入學測驗中心的網站，幫我下載 115 學年度統測「電機與電子群資電類」的資料。 我只需要專業科目(一)、專業科目(二)的試題，還有這兩科的標準答案。 下載好之後存到 module2/raw/115，檔名保留系統原本的命名方式。
+    - heading "或者，自己直接下指令" [level=3] [ref=e121]
+    - paragraph [ref=e122]:
+      - text: 建議先加
+      - code [ref=e123]: "--dry-run"
+      - text: 確認群類名稱有比對到、檔名也對，再正式下載：
+    - generic [ref=e124]:
+      - button "📋 複製" [ref=e126] [cursor=pointer]:
+        - generic [ref=e127]: 📋
+        - generic [ref=e128]: 複製
+      - code [ref=e130]: python3 .claude/skills/download-exam-pdf/scripts/download_exam_pdf.py \ --year 115 --group 電機與電子群資電類 --subjects 1,2 \ --out-dir module2/raw/115 --dry-run python3 .claude/skills/download-exam-pdf/scripts/download_exam_pdf.py \ --year 115 --group 電機與電子群資電類 --subjects 1,2 \ --out-dir module2/raw/115
+    - paragraph [ref=e131]:
+      - strong [ref=e132]: 產出：
+      - code [ref=e133]: module2/raw/115/
+      - text: 底下會出現 4 個檔案：
+      - code [ref=e134]: 115專業一試題.pdf
+      - text: 、
+      - code [ref=e135]: 115專業一答案.pdf
+      - text: 、
+      - code [ref=e136]: 115專業二試題.pdf
+      - text: 、
+      - code [ref=e137]: 115專業二答案.pdf
+      - text: 。
+    - heading "驗收重點" [level=3] [ref=e138]
+    - list [ref=e139]:
+      - listitem [ref=e140]:
+        - text: 4 個檔案都出現，而且執行時每個檔案那一行都印出
+        - code [ref=e141]: verify_pdf() OK
+        - text: （不是
+        - code [ref=e142]: MISMATCH
+        - text: ）。
+      - listitem [ref=e143]: 試題 PDF 大約 12 頁（50 題的專業科目考卷），標準答案 PDF 大約 1 頁 —— 頁數差太多要留意。
+      - listitem [ref=e144]:
+        - text: 如果看到
+        - code [ref=e145]: MISMATCH
+        - text: ，先用 Claude Code 的 Read 工具打開那份 PDF，用肉眼確認群類、科目對不對，不要急著往下一步。
+      - listitem [ref=e146]:
+        - text: 如果答案 PDF 裡有「答案變更為…」這類更正說明，先留意一下，切題階段的答案解析會自動把多重答案（如
+        - code [ref=e147]: "\"AD\""
+        - text: ）收進去，但值得事後對照原文確認有沒有真的收進表格。
+    - heading "步驟二：切成單題圖片＋答案 JSON" [level=2] [ref=e148]
+    - paragraph [ref=e149]: skill：slice-exam-pdf
+    - paragraph [ref=e150]: 這一步把整份 PDF 切成一題一張的 PNG 圖片，並且對照標準答案 PDF，做出一份「圖片檔名 → 正確答案」的 JSON。
+    - heading "用一句話請 Claude Code 做" [level=3] [ref=e151]
+    - generic [ref=e152]:
+      - button "📋 複製" [ref=e154] [cursor=pointer]:
+        - generic [ref=e155]: 📋
+        - generic [ref=e156]: 複製
+      - code [ref=e158]: 請幫我把 module2/raw/115 底下 115 學年度試題 PDF，每一題切成一張圖片， 檔名用 module2/repo/115/115專業<1或2>Q<題號>.png。 再對照標準答案 PDF，做出 module2/repo/115/115keys.json， key 要跟圖片檔名完全一樣（含 .png），value 放正確答案字母。
+    - heading "或者，自己直接下指令" [level=3] [ref=e159]
+    - generic [ref=e160]:
+      - button "📋 複製" [ref=e162] [cursor=pointer]:
+        - generic [ref=e163]: 📋
+        - generic [ref=e164]: 複製
+      - code [ref=e166]: python3 .claude/skills/slice-exam-pdf/scripts/slice_exam_pdf.py \ --year 115 \ --subject "1:module2/raw/115/115專業一試題.pdf:module2/raw/115/115專業一答案.pdf" \ --subject "2:module2/raw/115/115專業二試題.pdf:module2/raw/115/115專業二答案.pdf" \ --out-dir module2/repo/115
+    - paragraph [ref=e167]:
+      - strong [ref=e168]: 產出：
+      - code [ref=e169]: module2/repo/115/115專業1Q1.png
+      - text: ～
+      - code [ref=e170]: 115專業1Q50.png
+      - text: 、
+      - code [ref=e171]: 115專業2Q1.png
+      - text: ～
+      - code [ref=e172]: 115專業2Q50.png
+      - text: ，加上一份
+      - code [ref=e173]: 115keys.json
+      - text: ，內容像這樣：
+    - code [ref=e176]: "{ \"115專業1Q1.png\": \"B\", \"115專業1Q10.png\": \"B\", \"115專業1Q11.png\": \"A\", ... }"
+    - heading "共同科目（例如數學）：題數不是 50 題，且檔名要手動改" [level=3] [ref=e177]
+    - paragraph [ref=e178]:
+      - text: 共同科目考卷通常是 25 題，不是 50 題，要另外加
+      - code [ref=e179]: "--total"
+      - text: ；而且
+      - code [ref=e180]: slice-exam-pdf
+      - text: 的輸出檔名固定寫死「專業」兩個字，即使
+      - code [ref=e181]: "--subject"
+      - text: 標籤換成字母也一樣，所以切完數學卷之後，檔名還是會叫
+      - code [ref=e182]: 115專業BQ<n>.png
+      - text: ，必須手動改名成
+      - code [ref=e183]: 115數學BQ<n>.png
+      - text: ，
+      - code [ref=e184]: keys.json
+      - text: 裡的 key 也要同步改：
+    - generic [ref=e185]:
+      - button "📋 複製" [ref=e187] [cursor=pointer]:
+        - generic [ref=e188]: 📋
+        - generic [ref=e189]: 複製
+      - code [ref=e191]: python3 .claude/skills/slice-exam-pdf/scripts/slice_exam_pdf.py \ --year 115 \ --subject "B:module2/raw/math-115b/115數學B試題.pdf:module2/raw/math-115b/115數學B答案.pdf" \ --total 25 \ --out-dir module2/repo/math-115b
+    - paragraph [ref=e192]: 改名這件事同樣可以直接請 Claude Code 做，不用自己手動一個一個改：
+    - generic [ref=e193]:
+      - button "📋 複製" [ref=e195] [cursor=pointer]:
+        - generic [ref=e196]: 📋
+        - generic [ref=e197]: 複製
+      - code [ref=e199]: 剛剛切出來的檔名是 115專業BQ<n>.png，這其實是數學科， 麻煩幫我全部重新命名成 115數學BQ<n>.png， keys.json 裡對應的 key 也要同步改成新檔名。
+    - heading "驗收重點" [level=3] [ref=e200]
+    - list [ref=e201]:
+      - listitem [ref=e202]:
+        - text: 圖片張數符合預期題數（專業科目通常 50 題、共同科目通常 25 題），
+        - code [ref=e203]: keys.json
+        - text: 的筆數要一樣多。
+      - listitem [ref=e204]: 如果考卷有「▲閱讀下文，回答第 X-Y 題」這種題組，挑題組的第一題和後面某一題各看一次，確認共用的閱讀文章有出現、沒有被截斷或重複貼兩次。
+      - listitem [ref=e205]: 挑一題有電路圖／圖表的題目，確認圖片右邊沒有被切掉。
+      - listitem [ref=e206]: 看最後一題，確認內容完整沒被切斷，如果原本有「【以下空白】」的提示，這裡應該還留著（要等清理階段才會被裁掉）。
+      - listitem [ref=e207]: 隨機抽 2、3 題的答案，跟標準答案 PDF 肉眼核對一次。
+    - heading "步驟三：清理圖片" [level=2] [ref=e208]
+    - paragraph [ref=e209]: skill：clean-exam-question-images
+    - paragraph [ref=e210]: 切出來的圖片下緣常常會多留一小段空白，甚至帶到下一題的一小段殘影；題號（像「50.」「11.」）也還印在題目最前面。這一步做兩件事：
+    - list [ref=e211]:
+      - listitem [ref=e212]:
+        - strong [ref=e213]: Pass 1：
+        - text: 裁掉每張圖下面多餘的空白（包含「【以下空白】」的殘留），但不動真正的內容。
+      - listitem [ref=e214]:
+        - strong [ref=e215]: Pass 2：
+        - text: 把題號（如「50.」「11.」）塗白，但選項 (A)(B)(C)(D) 完全不能動。
+    - paragraph [ref=e216]: 這個 skill 沒有獨立的腳本檔，兩段清理邏輯直接寫在 skill 說明裡，由 Claude Code 讀取後即場執行 —— 也就是說，這一步一定要透過 Claude Code 對話來做。
+    - heading "用一句話請 Claude Code 做" [level=3] [ref=e217]
+    - generic [ref=e218]:
+      - button "📋 複製" [ref=e220] [cursor=pointer]:
+        - generic [ref=e221]: 📋
+        - generic [ref=e222]: 複製
+      - code [ref=e224]: 對 module2/repo/115 資料夾裡的每張 *.png： 1. 裁掉下面多餘的空白（含「以下空白」殘影），但不要裁到真正的內容。 2. 清掉題號（像「50.」「11.」），但 (A)(B)(C)(D) 選項不要動。 執行 Pass 2 之前，先「乾跑」一次，把每張圖偵測到的題號區塊印出來讓我看過， 確認每張圖都剛好抓到 1 個題號區塊之後，才正式塗白存檔。
+    - blockquote [ref=e225]:
+      - strong [ref=e226]: 為什麼一定要先乾跑：
+      - text: Pass 2 判斷「這是不是題號」用的是像素座標的門檻值（例如題號要在 x≤220 開始），這組門檻是針對這個考卷範本量身調校的。萬一某一年、某一科的版面跟預期不同，門檻可能會抓錯 —— 乾跑只印出偵測結果、不會真的動任何像素，讓你能在「真的塗白存檔」之前先發現異常，避免一次做壞整批圖片。
+    - heading "驗收重點" [level=3] [ref=e227]
+    - list [ref=e228]:
+      - listitem [ref=e229]:
+        - text: 乾跑結果：每個檔案都剛好偵測到
+        - strong [ref=e230]: "1"
+        - text: 個題號區塊。0 個代表版面跟預期不同，≥2 個代表誤判 —— 兩種情況都要先停下來人工檢查，不要跳過。
+      - listitem [ref=e231]: 抽查一題個位數題號（如 Q1）、一題兩位數題號（如 Q50），確認題號真的不見了，而且沒有留下半個數字的殘影。
+      - listitem [ref=e232]: 抽查至少一張有 (A)～(D) 選項的圖，確認選項字母都完整保留。
+      - listitem [ref=e233]: 抽查一張原本有「【以下空白】」的圖，確認空白已裁掉、內容緊貼底部並留一點呼吸空間。
+      - listitem [ref=e234]:
+        - text: 整個資料夾掃一次：找找看有沒有圖片底部還留著一整行、跟前後文完全不相關的文字（不是幾個像素的小雜訊）—— 這種情況不是清理階段能安全處理的，代表切題階段的邊界抓錯了，要回頭用
+        - code [ref=e235]: slice-exam-pdf
+        - text: 重新切那一題，而不是在清理階段硬加規則修。
+    - heading "動手做：換一組資料，自己跑一次全流程" [level=2] [ref=e236]
+    - paragraph [ref=e237]: 看懂範例之後，換你自己動手跑一次。建議照下面兩種難度挑一種：
+    - heading "基本版：從切題開始（不需要等網路下載）" [level=3] [ref=e238]
+    - paragraph [ref=e239]:
+      - code [ref=e240]: module3/raw/114/
+      - text: 底下已經有另一組現成的 PDF（114 學年度電機與電子群資電類），可以直接拿來練切題＋清理兩個階段，輸出到一個新資料夾，不會動到
+      - code [ref=e241]: module2/
+      - text: 裡已經驗證過的成果：
+    - generic [ref=e242]:
+      - button "📋 複製" [ref=e244] [cursor=pointer]:
+        - generic [ref=e245]: 📋
+        - generic [ref=e246]: 複製
+      - code [ref=e248]: python3 .claude/skills/slice-exam-pdf/scripts/slice_exam_pdf.py \ --year 114 \ --subject "1:module3/raw/114/114專業一試題.pdf:module3/raw/114/114專業一答案.pdf" \ --subject "2:module3/raw/114/114專業二試題.pdf:module3/raw/114/114專業二答案.pdf" \ --out-dir module2/repo/114-practice
+    - paragraph [ref=e249]:
+      - text: 切完之後，比照步驟三，請 Claude Code 對
+      - code [ref=e250]: module2/repo/114-practice
+      - text: 執行清理（記得先乾跑）。
+    - heading "完整版：從下載開始" [level=3] [ref=e251]
+    - paragraph [ref=e252]:
+      - text: 換一個你自己感興趣的學年度或群類，從步驟一的下載開始，完整跑過三個階段。建議先用
+      - code [ref=e253]: "--dry-run"
+      - text: 確認群類名稱有比對到，再正式下載，避免白跑一次網路請求。
+    - heading "練習時的自我檢查" [level=3] [ref=e254]
+    - list [ref=e255]:
+      - listitem [ref=e256]: 每個階段都做完該階段的「驗收重點」，不要等三個階段都跑完才一次檢查。
+      - listitem [ref=e257]:
+        - text: 如果卡在某個階段，回頭比對本教學開頭表格裡列出的範例資料（
+        - code [ref=e258]: module2/repo/115
+        - text: 、
+        - code [ref=e259]: module2/repo/math-115b
+        - text: ），看看「正確結果」長什麼樣子。
+    - heading "常見狀況快速對照表" [level=2] [ref=e260]
+    - table [ref=e262]:
+      - rowgroup [ref=e263]:
+        - row [ref=e264]:
+          - columnheader "狀況" [ref=e265]
+          - columnheader "代表什麼" [ref=e266]
+          - columnheader "該怎麼做" [ref=e267]
+        - row [ref=e268]:
+          - cell [ref=e269]:
+            - code [ref=e270]: verify_pdf()
+            - text: 印出
+            - code [ref=e271]: MISMATCH
+          - cell "下載到的 PDF 群類或科目跟預期不同" [ref=e272]
+          - cell "用 Read 工具開啟 PDF 肉眼核對，確認無誤才繼續下一步" [ref=e273]
+        - row [ref=e274]:
+          - cell [ref=e275]:
+            - text: 共同科目（數學 A/B/C）沒辦法用
+            - code [ref=e276]: download-exam-pdf
+            - text: 下載
+          - cell "這個 skill 目前只認得「專業科目(一)(二)」的列標籤" [ref=e277]
+          - cell "自行取得 PDF，直接從步驟二切題開始" [ref=e278]
+        - row [ref=e279]:
+          - cell "切完題後檔名裡有「專業」兩字，但其實是數學科" [ref=e280]
+          - cell [ref=e281]:
+            - code [ref=e282]: slice-exam-pdf
+            - text: 的輸出檔名固定寫死「專業」，不受
+            - code [ref=e283]: "--subject"
+            - text: 標籤影響
+          - cell [ref=e284]:
+            - text: 手動改檔名＋同步改
+            - code [ref=e285]: keys.json
+            - text: 的 key，再進清理階段
+        - row [ref=e286]:
+          - cell "Pass 2 乾跑時某張圖出現 0 個或 ≥2 個題號區塊" [ref=e287]
+          - cell "版面跟預期範本不同，或門檻誤判" [ref=e288]
+          - cell "先停下來人工檢查那張圖，不要直接跳過或硬套用" [ref=e289]
+        - row [ref=e290]:
+          - cell "清理完後某張圖底部還留一整行不相關的文字" [ref=e291]
+          - cell "這是切題邊界的殘影，不是單純的空白或雜訊" [ref=e292]
+          - cell [ref=e293]:
+            - text: 回頭用
+            - code [ref=e294]: slice-exam-pdf
+            - text: 重新切那一題，不要在清理階段加規則硬修
+        - row [ref=e295]:
+          - cell "想把 Pass 2 的 gap 門檻從 14 調小一點（例如 10）" [ref=e296]
+          - cell "兩位數題號（如「11.」）本身兩個數字間距就可能到 10px" [ref=e297]
+          - cell "門檻維持 14，往下調會把兩位數題號誤判成只清一半，留下殘影" [ref=e298]
+    - heading "下一步" [level=2] [ref=e299]
+    - paragraph [ref=e300]:
+      - text: 清理乾淨的圖片＋
+      - code [ref=e301]: keys.json
+      - text: ，就是後續「自主練習小工具」要用的原始素材 —— 下一步可以把
+      - code [ref=e302]: module2/repo/<name>/
+      - text: 這個問題集資料夾，交給
+      - code [ref=e303]: build-quiz-app
+      - text: 這個 skill，產生一個不用架站、雙擊就能打開的學生自我測驗網頁與教師端 CSV 彙整頁面。
+    - paragraph [ref=e304]:
+      - text: 想看已經做好的成果長什麼樣子，可以參考
+      - code [ref=e305]: module3/app/
+      - text: 底下用同一套流程產出的測驗頁面。
+    - generic [ref=e306]: 教育部智慧雨林產業創生人才育成計畫（南臺科技大學 電子系 楊榮林 教授）
