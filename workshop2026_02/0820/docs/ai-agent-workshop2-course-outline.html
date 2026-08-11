@@ -5,139 +5,135 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Agent 教學應用工作坊 (二)：從教材到自主練習小工具</title>
 <style>
-  :root {
-    color-scheme: dark;
-    --bg:#f7f8fb; --fg:#171a20; --muted:#596273; --card:#ffffff;
-    --border:#d9dee8; --accent:#0f766e; --accent2:#b45309; --danger:#dc2626;
-    --th-bg:#eef2f7; --shadow:0 16px 40px rgba(15,23,42,.10);
-    --sidebar-w:280px; --content-max:1120px; --content-pad-x:42px; --content-pad-y:42px;
-    --measure:76ch;
-  }
-  [data-theme="dark"] {
-    --bg:#080b12; --fg:#eef3f8; --muted:#a7b1c2; --card:#101722;
-    --border:#243244; --accent:#39d7c6; --accent2:#f5b84b; --danger:#ff6b6b;
-    --th-bg:#172130; --shadow:0 22px 60px rgba(0,0,0,.45);
-  }
-  html { scroll-behavior:smooth; }
-  * { box-sizing:border-box; }
-  body {
-    min-width:0; margin:0;
-    background:radial-gradient(circle at top right, rgba(57,215,198,.14), transparent 34%), var(--bg);
-    color:var(--fg);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",Roboto,Helvetica,Arial,sans-serif;
-    font-size:16px; line-height:1.75; letter-spacing:0;
-    transition:background .25s,color .25s;
-  }
-  .wrap {
-    width:min(var(--content-max), calc(100vw - var(--sidebar-w) - (var(--content-pad-x) * 2)));
-    margin-left:calc(var(--sidebar-w) + max(var(--content-pad-x), (100vw - var(--sidebar-w) - var(--content-max)) / 2));
-    padding:var(--content-pad-y) var(--content-pad-x) 88px;
-  }
-  .sidebar {
-    position:fixed; top:0; left:0; width:var(--sidebar-w); height:100vh; overflow-y:auto;
-    background:color-mix(in srgb, var(--card) 92%, transparent); border-right:1px solid var(--border);
-    display:flex; flex-direction:column; gap:10px; padding:18px 14px; z-index:30; backdrop-filter:blur(12px);
-  }
-  .brand { font-weight:800; font-size:1rem; line-height:1.35; padding:0 6px; color:var(--fg); }
-  .brand small { display:block; margin-top:5px; color:var(--muted); font-weight:600; }
-  .toprow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
-  .nav { display:flex; flex-direction:column; gap:4px; margin-top:6px; }
-  .navbtn, .navhome {
-    cursor:pointer; border:1px solid transparent; background:transparent; color:var(--muted);
-    border-radius:8px; padding:8px 10px; font-size:14px; font-weight:700;
-    text-align:left; width:100%; white-space:normal; line-height:1.35; text-decoration:none;
-  }
-  .navbtn:hover, .navbtn.active, .navhome:hover { color:var(--accent); border-color:var(--border); background:var(--bg); }
-  .navhome { display:block; border-color:var(--border); background:var(--bg); color:var(--fg); }
-  .btn {
-    cursor:pointer; border:1px solid var(--border); background:var(--bg); color:var(--fg);
-    border-radius:8px; padding:6px 12px; font-size:13px; font-weight:700; text-decoration:none;
-  }
-  .btn:hover { border-color:var(--accent); }
-  .menu-toggle {
-    display:none; position:fixed; top:12px; left:12px; z-index:40; cursor:pointer;
-    border:1px solid var(--border); background:var(--card); color:var(--fg);
-    border-radius:8px; padding:6px 12px; font-size:18px; line-height:1;
-  }
-  .backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.52); z-index:20; }
-  h1 { max-width:var(--measure); font-size:2.3rem; line-height:1.22; margin:.2em 0 .35em; letter-spacing:0; }
-  h2 { font-size:1.42rem; margin:2em 0 .7em; padding-bottom:.25em; border-bottom:1px solid var(--border); scroll-margin-top:24px; }
-  h3 { font-size:1.1rem; margin-top:1.4em; color:var(--accent); }
-  p, li, blockquote { max-width:var(--measure); overflow-wrap:break-word; }
-  ul, ol { padding-left:1.3em; }
-  li { margin:.35em 0; }
-  a { color:var(--accent); overflow-wrap:anywhere; }
-  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.92em; padding:.1em .35em; border-radius:6px; background:var(--th-bg); color:var(--fg); }
-  .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-  table { width:100%; border-collapse:collapse; margin:1em 0; font-size:.95rem; box-shadow:var(--shadow); border-radius:8px; overflow:hidden; }
-  th, td { text-align:left; padding:10px 14px; border:1px solid var(--border); vertical-align:top; }
-  th { background:var(--th-bg); font-weight:700; }
-  td:first-child, th:first-child { white-space:nowrap; }
-  tbody tr:nth-child(even) td { background:color-mix(in srgb, var(--card) 82%, var(--th-bg)); }
-  blockquote {
-    max-width:var(--measure); margin:1.1em 0; padding:12px 16px; border-left:4px solid var(--accent2);
-    background:color-mix(in srgb, var(--card) 94%, var(--accent) 6%); color:var(--fg);
-    border-radius:0 8px 8px 0;
-  }
-  .draft-tag {
-    display:inline-block; margin:0 0 1em; padding:4px 12px; border-radius:999px; font-size:.8rem; font-weight:700;
-    color:var(--accent2); border:1px solid var(--accent2); background:color-mix(in srgb, var(--card) 88%, var(--accent2) 12%);
-  }
-  .site-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin:1.2em 0; }
-  .site-card {
-    display:flex; flex-direction:column; gap:6px; padding:14px 16px; border:1px solid var(--border);
-    border-radius:8px; background:var(--card); box-shadow:var(--shadow); text-decoration:none; color:var(--fg);
-    min-height:110px;
-  }
-  .site-card:hover { border-color:var(--accent); }
-  .site-card strong { font-size:1.03rem; color:var(--fg); }
-  .site-card span { color:var(--muted); }
-  table { max-width:100%; }
-  [data-lang="zh"] .en, [data-lang="en"] .zh { display:none; }
-  footer { margin-top:3em; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); padding-top:1em; }
-  @media (min-width:1440px) {
-    :root { --sidebar-w:300px; --content-max:1160px; --content-pad-x:54px; --content-pad-y:48px; }
-  }
-  @media (max-width:1100px) {
-    :root { --sidebar-w:230px; --content-max:820px; --content-pad-x:26px; --content-pad-y:32px; }
-    .sidebar { padding:16px 10px; }
-    .brand { font-size:.95rem; }
-    .navbtn, .navhome { font-size:13px; padding:7px 8px; }
-    table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-  }
-  @media (max-width:860px) {
-    :root { --sidebar-w:min(84vw, 330px); --content-pad-x:18px; --content-pad-y:0px; --measure:100%; }
-    .sidebar { transform:translateX(-100%); transition:transform .25s; }
-    .sidebar.open { transform:none; }
-    .wrap { width:100%; margin-left:0; padding:72px var(--content-pad-x) 80px; }
-    .menu-toggle { display:block; }
-    .backdrop.show { display:block; }
-    table { display:block; overflow-x:auto; }
-    h1 { font-size:1.7rem; }
-    h2 { font-size:1.22rem; }
-    p, li, blockquote { max-width:100%; }
-  }
-  @media (max-width:520px) {
-    :root { --sidebar-w:min(90vw, 310px); --content-pad-x:14px; }
-    .wrap { padding-top:68px; }
-    .menu-toggle { top:10px; left:10px; padding:7px 11px; }
-    .sidebar { padding:14px 10px; }
-    .toprow { gap:6px; }
-    .btn { padding:6px 10px; font-size:12px; }
-    .navbtn, .navhome { font-size:13px; }
-    h1 { font-size:1.48rem; }
-    h2 { font-size:1.1rem; }
-    th, td { padding:8px 10px; }
-  }
+ :root {
+ color-scheme: dark;
+ --bg:#f7f8fb; --fg:#171a20; --muted:#596273; --card:#ffffff;
+ --border:#d9dee8; --accent:#0f766e; --accent2:#b45309; --danger:#dc2626;
+ --th-bg:#eef2f7; --shadow:0 16px 40px rgba(15,23,42,.10);
+ --sidebar-w:280px; --content-max:1120px; --content-pad-x:42px; --content-pad-y:42px;
+ --measure:76ch;
+ }
+ [data-theme="dark"] {
+ --bg:#080b12; --fg:#eef3f8; --muted:#a7b1c2; --card:#101722;
+ --border:#243244; --accent:#39d7c6; --accent2:#f5b84b; --danger:#ff6b6b;
+ --th-bg:#172130; --shadow:0 22px 60px rgba(0,0,0,.45);
+ }
+ html { scroll-behavior:smooth; }
+ * { box-sizing:border-box; }
+ body {
+ min-width:0; margin:0;
+ background:radial-gradient(circle at top right, rgba(57,215,198,.14), transparent 34%), var(--bg);
+ color:var(--fg);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",Roboto,Helvetica,Arial,sans-serif;
+ font-size:16px; line-height:1.75; letter-spacing:0;
+ transition:background .25s,color .25s;
+ }
+ .wrap {
+ width:min(var(--content-max), calc(100vw - var(--sidebar-w) - (var(--content-pad-x) * 2)));
+ margin-left:calc(var(--sidebar-w) + max(var(--content-pad-x), (100vw - var(--sidebar-w) - var(--content-max)) / 2));
+ padding:var(--content-pad-y) var(--content-pad-x) 88px;
+ }
+ .sidebar {
+ position:fixed; top:0; left:0; width:var(--sidebar-w); height:100vh; overflow-y:auto;
+ background:color-mix(in srgb, var(--card) 92%, transparent); border-right:1px solid var(--border);
+ display:flex; flex-direction:column; gap:10px; padding:18px 14px; z-index:30; backdrop-filter:blur(12px);
+ }
+ .brand { font-weight:800; font-size:1rem; line-height:1.35; padding:0 6px; color:var(--fg); }
+ .brand small { display:block; margin-top:5px; color:var(--muted); font-weight:600; }
+ .toprow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+ .nav { display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+ .navbtn, .navhome {
+ cursor:pointer; border:1px solid transparent; background:transparent; color:var(--muted);
+ border-radius:8px; padding:8px 10px; font-size:14px; font-weight:700;
+ text-align:left; width:100%; white-space:normal; line-height:1.35; text-decoration:none;
+ }
+ .navbtn:hover, .navbtn.active, .navhome:hover { color:var(--accent); border-color:var(--border); background:var(--bg); }
+ .navhome { display:block; border-color:var(--border); background:var(--bg); color:var(--fg); }
+ .btn {
+ cursor:pointer; border:1px solid var(--border); background:var(--bg); color:var(--fg);
+ border-radius:8px; padding:6px 12px; font-size:13px; font-weight:700; text-decoration:none;
+ }
+ .btn:hover { border-color:var(--accent); }
+ .menu-toggle {
+ display:none; position:fixed; top:12px; left:12px; z-index:40; cursor:pointer;
+ border:1px solid var(--border); background:var(--card); color:var(--fg);
+ border-radius:8px; padding:6px 12px; font-size:18px; line-height:1;
+ }
+ .backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.52); z-index:20; }
+ h1 { max-width:var(--measure); font-size:2.3rem; line-height:1.22; margin:.2em 0 .35em; letter-spacing:0; }
+ h2 { font-size:1.42rem; margin:2em 0 .7em; padding-bottom:.25em; border-bottom:1px solid var(--border); scroll-margin-top:24px; }
+ h3 { font-size:1.1rem; margin-top:1.4em; color:var(--accent); }
+ p, li, blockquote { max-width:var(--measure); overflow-wrap:break-word; }
+ ul, ol { padding-left:1.3em; }
+ li { margin:.35em 0; }
+ a { color:var(--accent); overflow-wrap:anywhere; }
+ code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.92em; padding:.1em .35em; border-radius:6px; background:var(--th-bg); color:var(--fg); }
+ .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+ table { width:100%; border-collapse:collapse; margin:1em 0; font-size:.95rem; box-shadow:var(--shadow); border-radius:8px; overflow:hidden; }
+ th, td { text-align:left; padding:10px 14px; border:1px solid var(--border); vertical-align:top; }
+ th { background:var(--th-bg); font-weight:700; }
+ td:first-child, th:first-child { white-space:nowrap; }
+ tbody tr:nth-child(even) td { background:color-mix(in srgb, var(--card) 82%, var(--th-bg)); }
+ blockquote {
+ max-width:var(--measure); margin:1.1em 0; padding:12px 16px; border-left:4px solid var(--accent2);
+ background:color-mix(in srgb, var(--card) 94%, var(--accent) 6%); color:var(--fg);
+ border-radius:0 8px 8px 0;
+ }
+ .site-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin:1.2em 0; }
+ .site-card {
+ display:flex; flex-direction:column; gap:6px; padding:14px 16px; border:1px solid var(--border);
+ border-radius:8px; background:var(--card); box-shadow:var(--shadow); text-decoration:none; color:var(--fg);
+ min-height:110px;
+ }
+ .site-card:hover { border-color:var(--accent); }
+ .site-card strong { font-size:1.03rem; color:var(--fg); }
+ .site-card span { color:var(--muted); }
+ table { max-width:100%; }
+ [data-lang="zh"] .en, [data-lang="en"] .zh { display:none; }
+ footer { margin-top:3em; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); padding-top:1em; }
+ @media (min-width:1440px) {
+ :root { --sidebar-w:300px; --content-max:1160px; --content-pad-x:54px; --content-pad-y:48px; }
+ }
+ @media (max-width:1100px) {
+ :root { --sidebar-w:230px; --content-max:820px; --content-pad-x:26px; --content-pad-y:32px; }
+ .sidebar { padding:16px 10px; }
+ .brand { font-size:.95rem; }
+ .navbtn, .navhome { font-size:13px; padding:7px 8px; }
+ table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+ }
+ @media (max-width:860px) {
+ :root { --sidebar-w:min(84vw, 330px); --content-pad-x:18px; --content-pad-y:0px; --measure:100%; }
+ .sidebar { transform:translateX(-100%); transition:transform .25s; }
+ .sidebar.open { transform:none; }
+ .wrap { width:100%; margin-left:0; padding:72px var(--content-pad-x) 80px; }
+ .menu-toggle { display:block; }
+ .backdrop.show { display:block; }
+ table { display:block; overflow-x:auto; }
+ h1 { font-size:1.7rem; }
+ h2 { font-size:1.22rem; }
+ p, li, blockquote { max-width:100%; }
+ }
+ @media (max-width:520px) {
+ :root { --sidebar-w:min(90vw, 310px); --content-pad-x:14px; }
+ .wrap { padding-top:68px; }
+ .menu-toggle { top:10px; left:10px; padding:7px 11px; }
+ .sidebar { padding:14px 10px; }
+ .toprow { gap:6px; }
+ .btn { padding:6px 10px; font-size:12px; }
+ .navbtn, .navhome { font-size:13px; }
+ h1 { font-size:1.48rem; }
+ h2 { font-size:1.1rem; }
+ th, td { padding:8px 10px; }
+ }
 </style>
 </head>
 <body>
 <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()" type="button">☰</button>
 <aside class="sidebar" id="sidebar">
-  <div class="brand"><span class="zh">AI Agent 教學應用工作坊 (二)</span><span class="en">AI Agent Teaching Applications Workshop (2)</span><small><span class="zh">從教材到自主練習小工具</span><span class="en">From Teaching Materials to a Self-Practice Tool</span></small></div>
-  <div class="toprow"><button class="btn" id="langBtn" onclick="toggleLang()" type="button">English</button><button class="btn" id="themeBtn" onclick="toggleTheme()" type="button">☀️ Light</button></div>
-  <a class="navhome return-control" href="../index.html" aria-label="返回上一層 / Back to parent"><span class="zh">返回上一層</span><span class="en">Back to parent</span></a>
-  <nav class="nav">
+ <div class="brand"><span class="zh">AI Agent 教學應用工作坊 (二)</span><span class="en">AI Agent Teaching Applications Workshop (2)</span><small><span class="zh">從教材到自主練習小工具</span><span class="en">From Teaching Materials to a Self-Practice Tool</span></small></div>
+ <div class="toprow"><button class="btn" id="langBtn" onclick="toggleLang()" type="button">English</button><button class="btn" id="themeBtn" onclick="toggleTheme()" type="button">☀️ Light</button></div>
+ <a class="navhome return-control" href="../index.html" aria-label="返回上一層 / Back to parent"><span class="zh">返回上一層</span><span class="en">Back to parent</span></a>
+ <nav class="nav">
 <button class="navbtn" onclick="gotoSection(0)" type="button"><span class="zh">課程資訊</span><span class="en">Course Information</span></button>
 <button class="navbtn" onclick="gotoSection(1)" type="button"><span class="zh">一、系列定位與脈絡</span><span class="en">1. Series Positioning and Context</span></button>
 <button class="navbtn" onclick="gotoSection(2)" type="button"><span class="zh">二、工作坊簡介</span><span class="en">2. Workshop Overview</span></button>
@@ -148,25 +144,21 @@
 <button class="navbtn" onclick="gotoSection(7)" type="button"><span class="zh">七、使用定位與範圍</span><span class="en">7. Scope, Positioning, and Limitations</span></button>
 <button class="navbtn" onclick="gotoSection(8)" type="button"><span class="zh">八、預期帶走的成果</span><span class="en">8. Expected Takeaways</span></button>
 <button class="navbtn" onclick="gotoSection(9)" type="button"><span class="zh">九、銜接工作坊（三）</span><span class="en">9. Bridge to Workshop (3)</span></button>
-<button class="navbtn" onclick="gotoSection(10)" type="button"><span class="zh">十、報名資訊</span><span class="en">10. Registration</span></button>
-  </nav>
+ </nav>
 </aside>
 <div class="backdrop" id="backdrop" onclick="toggleMenu()"></div>
 <div class="wrap">
-  <section class="zh">
+ <section class="zh">
 <h1>AI Agent 教學應用工作坊 (二)：從教材到自主練習小工具</h1>
-<p class="draft-tag">草稿講義／場次日期依梯次公告</p>
-<p>智慧雨林產業創生人才育成計畫｜本頁為工作坊（二）的課程講義草稿，內容整理自籌備文件，尚未定稿，實際場次以正式公告為準。</p>
+<p>智慧雨林產業創生人才育成計畫｜本頁為工作坊（二）的課程講義，內容整理自籌備文件；實際場次以正式公告為準。</p>
 
 <h2 id="course-info">課程資訊</h2>
 <div class="table-wrap"><table>
 <thead><tr><th>項目</th><th>內容</th></tr></thead>
 <tbody>
-<tr><td>日期</td><td>〔依梯次公告〕（〔星期〕）</td></tr>
 <tr><td>時間</td><td>13:00-17:30（12:30 開始報到）</td></tr>
 <tr><td>地點</td><td>南臺科技大學 J棟 J301教室</td></tr>
 <tr><td>講師</td><td>南臺科大 電子系 楊榮林 教授</td></tr>
-<tr><td>報名</td><td>〔報名連結／QR Code〕</td></tr>
 <tr><td>對象</td><td>想將 AI Agent 應用於教材轉化、學生自主練習或形成性回饋的大專校院教師；不需具備程式背景。</td></tr>
 </tbody>
 </table></div>
@@ -197,10 +189,11 @@
 </tbody>
 </table></div>
 <p>本場承接工作坊（一）建立的 AI 協作方法，把教師的教學內容轉化為學生可在課後自主練習的題組與小工具；完成的題組格式與作答／回饋邏輯，會在工作坊（三）延伸為課堂形成性評量原型。</p>
+<blockquote><strong>為什麼底層工具是用 Claude Code 開發的，教材卻請你用 Codex 操作：</strong>這份工作坊教的是「怎麼跟 AI Agent 協作、把需求說清楚、迭代出一個靜態網頁小工具」這件事本身，不限定於任何特定產品。<code>.claude/skills/</code> 底下那幾個 custom skill（<code>download-exam-pdf</code>、<code>slice-exam-pdf</code>、<code>clean-exam-question-images</code>、<code>build-quiz-app</code>），是講師當初用 Claude Code 開發出來的；但正式工作坊現場，以及 Module 1 到 Module 4 逐步操作的部分，都是請學員改用 Codex，不是用 Claude Code。這個安排是刻意的：同一套工具、同一條學習路徑，換一個操作時用的 AI Agent（從 Claude Code 換成 Codex）也能順利做出一樣的成果，這正是「核心方法可遷移到不同 AI 工具」最直接的證據，不是一句空話。如果你想反過來驗證，也歡迎自己改用 Claude Code 走一次同一條路徑，看看是不是一樣能做出來；也不限於這兩個工具 任何具備類似能力的 AI Agent（例如 GitHub Copilot Workspace、Spark 等）理論上都應該可行，只是講師目前實際驗證過的是 Claude Code 與 Codex 這兩種。</blockquote>
 
 <h2 id="overview">二、工作坊簡介</h2>
 <p>上一場工作坊，我們練習把教學需求說清楚，並與 AI Agent 協作完成可檢查、可修正的小任務。這一場將把這個能力真正做成一個可用的教學工具：教師帶著自己正在教授的主題、教材、講義或簡報進場，與 AI Agent 協作產生一份多題式選擇題題組（例如 10、20 或 30 題），再以 vibe coding 的方式，把題組與功能需求交給 AI，製作一個可在個人電腦本機開啟的靜態 HTML 自主練習小工具。</p>
-<p>選擇題作為起點，是因為規則清楚、容易批閱，對初次嘗試的教師與學生都較友善。AI 可協助教師整理與初步產生題組，但題目是否符合學習目標、答案是否正確、題幹是否清楚、選項是否合理，仍必須由教師檢核——這個過程正是在練習把教學專業轉為可以交給 AI 協助處理、但仍由人負責驗收的內容。</p>
+<p>選擇題作為起點，是因為規則清楚、容易批閱，對初次嘗試的教師與學生都較友善。AI 可協助教師整理與初步產生題組，但題目是否符合學習目標、答案是否正確、題幹是否清楚、選項是否合理，仍必須由教師檢核這個過程正是在練習把教學專業轉為可以交給 AI 協助處理、但仍由人負責驗收的內容。</p>
 <p>學生開啟網站時只看得到題目與選項，作答期間不會看到答案；完成作答並按下「送出並查看結果」後，網站才根據題組中的答案自動批閱，顯示答對題數、總分與逐題對錯，並可重新作答，反覆練習。學生也能把答錯的題目帶去與 AI 對話，追問為什麼答錯、正確概念是什麼、可能誤解了哪裡，形成「教材 → 題組 → 自主作答 → 自動回饋 → AI 釐清迷思 → 再次練習」的學習循環。</p>
 <p>本場的目標不是做出一套正式考試系統，而是完成一個可實際試用的自主學習原型。教師將親手體驗：只要能把需求說清楚，AI Agent 就能協助把教學想法逐步做成工具，也能在日後持續依自己的教學需要延伸與修改。</p>
 
@@ -254,9 +247,9 @@
 <a class="site-card" href="codex-app-settings-guide.html"><strong>ChatGPT Work 與 Codex 設定指南</strong><span>先選擇 Chat、ChatGPT Work 或 Codex；使用 Codex 時，先限制工作區並採用先要求核准。</span></a>
 <a class="site-card" href="module1/windows11-vibe-coding-setup.html"><strong>Module 1：Windows 11 環境建置</strong><span>Vibe coding 與 AI Agent 工作環境的一鍵安裝、手動安裝與驗證任務。</span></a>
 </div>
-<p>本場兩個核心階段——從教材到題組、vibe coding 建置自主練習小工具——也各自備有逐步操作的實作教學，可作為現場節奏之外的自學參考或會後複習：</p>
+<p>本場兩個核心階段從教材到題組、vibe coding 建置自主練習小工具也各自備有逐步操作的實作教學，可作為現場節奏之外的自學參考或會後複習：</p>
 <div class="site-grid">
-<a class="site-card" href="module2/exam-paper-pipeline-tutorial.html"><strong>Module 2：考古題下載、切題與清理實作教學</strong><span>對應「從教材到題組」階段：用 Claude Code 的三個 skill，把 PDF 考古題轉為一題一張乾淨圖片與標準答案 JSON。</span></a>
+<a class="site-card" href="module2/exam-paper-pipeline-tutorial.html"><strong>Module 2：考古題下載、切題與清理實作教學</strong><span>對應「從教材到題組」階段：用工作坊講師寫好的三個 custom skill，把 PDF 考古題轉為一題一張乾淨圖片與標準答案 JSON。</span></a>
 <a class="site-card" href="module3/quiz-app-tutorial.html"><strong>Module 3：從問題集資料夾產生自主測驗網頁實作教學</strong><span>對應「vibe coding 建置」階段：用 build-quiz-app skill，把問題集資料夾變成雙擊即用的學生自測網頁與教師端成績彙整頁。</span></a>
 </div>
 
@@ -282,26 +275,18 @@
 <p>工作坊（三）「從自主練習到課堂形成性評量」會延續本場的題組格式與學生作答介面，把課後自主練習帶回教室：學生在課堂中透過教師提供的網址載入指定題庫，填寫班級座號或匿名代碼等最小必要識別資料後完成作答；交卷後系統自動批閱並回傳個人結果。教師端會有一個刻意維持最低必要功能的 Dashboard，只在學生登入開始作答與交卷後顯示必要資訊，全班交卷後可查看各題答對率、錯誤率與常見錯誤分布，並可交給 AI 協助整理成簡單的學習分析。</p>
 <p>因此，本場完成的題組資料格式、送出前不顯示答案、送出後自動批閱與逐題回饋等設計，會直接沿用到下一場，請妥善保留當次產出的題庫檔案與小工具程式碼。</p>
 
-<h2 id="registration">十、報名資訊</h2>
-<p>請由〔報名連結／QR Code〕完成報名。活動日期、時間與場地以本頁公告為準；如有準備上的問題，請於報名後依主辦單位通知辦理。</p>
-<div class="site-grid">
-<a class="site-card" href="../index.html"><strong>回到工作坊（二）首頁</strong><span>查看講義入口與延伸參考資料。</span></a>
-</div>
-  </section>
-  <section class="en">
+ </section>
+ <section class="en">
 <h1>AI Agent Teaching Applications Workshop (2): From Teaching Materials to a Self-Practice Tool</h1>
-<p class="draft-tag">Draft handout — session date to be announced</p>
-<p>Smart Rainforest Industry Talent Development Program | This page is a draft handout for Workshop (2), compiled from planning documents. Content is not final; the official announcement for each cohort governs actual dates.</p>
+<p>Smart Rainforest Industry Talent Development Program | This page is the handout for Workshop (2), compiled from planning documents; the official announcement for each cohort governs actual dates.</p>
 
 <h2 id="course-info-en">Course Information</h2>
 <div class="table-wrap"><table>
 <thead><tr><th>Item</th><th>Details</th></tr></thead>
 <tbody>
-<tr><td>Date</td><td>[Announced per cohort] ([Weekday])</td></tr>
 <tr><td>Time</td><td>13:00-17:30 (check-in starts at 12:30)</td></tr>
 <tr><td>Venue</td><td>Room J301, Building J, Southern Taiwan University of Science and Technology</td></tr>
 <tr><td>Instructor</td><td>Prof. Rong-Lin Yang, Department of Electronic Engineering, STUST</td></tr>
-<tr><td>Registration</td><td>[Registration link / QR code]</td></tr>
 <tr><td>Audience</td><td>College faculty who want to apply AI Agents to turn teaching materials into student self-practice tools or formative feedback; no programming background required.</td></tr>
 </tbody>
 </table></div>
@@ -332,6 +317,7 @@
 </tbody>
 </table></div>
 <p>This session builds on the AI collaboration method from Workshop (1), turning a teacher's teaching content into a question set and tool that students can practice with after class. The question-set format and the submit/feedback logic completed here carry forward directly into the classroom formative-assessment prototype in Workshop (3).</p>
+<blockquote><strong>Why the underlying tools were built with Claude Code, yet the materials ask you to use Codex:</strong> This workshop teaches how to collaborate with an AI Agent — stating requirements clearly and iterating your way to a static web tool — not tied to any specific product. The custom skills under <code>.claude/skills/</code> (<code>download-exam-pdf</code>, <code>slice-exam-pdf</code>, <code>clean-exam-question-images</code>, <code>build-quiz-app</code>) were originally built by the instructor using Claude Code; but the live workshop, and the step-by-step Module 1–4 materials, all ask participants to use Codex instead of Claude Code. That's a deliberate choice: the same tools and the same learning path produce the same working result even after swapping the AI Agent used to operate them, from Claude Code to Codex — direct evidence that "the core method transfers across AI tools" isn't just a slogan. If you want to verify it the other way around, you're welcome to redo the same path with Claude Code and see if you land on the same result. It isn't limited to these two tools either: any AI Agent with comparable capabilities (GitHub Copilot Workspace, Spark, etc.) should in principle work too; the instructor has just only concretely verified Claude Code and Codex so far.</blockquote>
 
 <h2 id="overview-en">2. Workshop Overview</h2>
 <p>In the previous workshop, we practiced stating teaching needs clearly and collaborating with an AI Agent on small, checkable, correctable tasks. This session turns that skill into an actual usable teaching tool: teachers bring a topic, teaching material, handout, or slide deck they are currently teaching, collaborate with an AI Agent to produce a multiple-choice question set (for example 10, 20, or 30 questions), and then use vibe coding to hand the question set and feature requirements to the AI to build a static HTML self-practice tool that runs locally on a personal computer.</p>
@@ -391,7 +377,7 @@
 </div>
 <p>This session's two core phases — from materials to a question set, and the vibe coding build — also each have a step-by-step hands-on tutorial, useful as self-paced reference outside the live session's pace or for review afterward:</p>
 <div class="site-grid">
-<a class="site-card" href="module2/exam-paper-pipeline-tutorial.html"><strong>Module 2: Exam Paper Download, Slice &amp; Cleanup Tutorial</strong><span>Covers the "from materials to a question set" phase: three chained Claude Code skills turn a PDF exam paper into clean per-question images and an answer-key JSON.</span></a>
+<a class="site-card" href="module2/exam-paper-pipeline-tutorial.html"><strong>Module 2: Exam Paper Download, Slice &amp; Cleanup Tutorial</strong><span>Covers the "from materials to a question set" phase: three chained custom skills written for this workshop turn a PDF exam paper into clean per-question images and an answer-key JSON.</span></a>
 <a class="site-card" href="module3/quiz-app-tutorial.html"><strong>Module 3: Quiz App Generation Tutorial</strong><span>Covers the "vibe coding build" phase: the build-quiz-app skill turns a problem-set folder into a double-click student quiz page and a teacher CSV-aggregator page.</span></a>
 </div>
 
@@ -417,13 +403,8 @@
 <p>Workshop (3), "From Self-Practice to Classroom Formative Assessment," continues this session's question-set format and student answering interface, bringing after-class self-practice back into the classroom: students load an assigned question bank via a URL the teacher provides during class, enter minimal necessary identifying information such as a class seat number or an anonymous code, and complete the answers; the system auto-grades on submission and returns individual results. Teachers get a dashboard that deliberately keeps to the minimum necessary features, surfacing information only when students log in to start and after they submit; once the whole class has submitted, teachers can view per-question accuracy, error rates, and common-mistake patterns, and hand that to AI for a simple learning analysis.</p>
 <p>The question-set data format, the "no answers before submission," and the "auto-grade and give per-question feedback after submission" design completed in this session carry forward directly into the next one — please keep the question-bank files and tool code you produce today.</p>
 
-<h2 id="registration-en">10. Registration</h2>
-<p>Please complete registration via [registration link / QR code]. The event date, time, and venue follow this page's announcement; if you have questions about preparation, please follow the organizer's instructions after registering.</p>
-<div class="site-grid">
-<a class="site-card" href="../index.html"><strong>Back to the Workshop (2) home page</strong><span>Find the handout entry point and supporting reference material.</span></a>
-</div>
-  </section>
-  <footer>教育部智慧雨林產業創生人才育成計畫 (南臺科技大學 電子系 楊榮林 教授)</footer>
+ </section>
+ <footer>教育部智慧雨林產業創生人才育成計畫 (南臺科技大學 電子系 楊榮林 教授)</footer>
 </div>
 <script>function currentSection(){const lang=document.documentElement.getAttribute('data-lang');return document.querySelector('section.'+lang)}function navTargets(){const section=currentSection();if(!section)return[];return[...section.querySelectorAll('h2')]}function gotoSection(i){const targets=navTargets();if(targets[i])targets[i].scrollIntoView({behavior:'smooth',block:'start'});closeMenu()}function toggleMenu(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('backdrop').classList.toggle('show')}function closeMenu(){document.getElementById('sidebar').classList.remove('open');document.getElementById('backdrop').classList.remove('show')}let spy;function buildSpy(){if(spy)spy.disconnect();const targets=navTargets();const btns=[...document.querySelectorAll('.nav .navbtn')];spy=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){const idx=targets.indexOf(e.target);btns.forEach((b,i)=>b.classList.toggle('active',i===idx))}})},{rootMargin:'0px 0px -75% 0px',threshold:0});targets.forEach(t=>spy.observe(t))}document.addEventListener('DOMContentLoaded',buildSpy);function toggleTheme(){const html=document.documentElement;const goingDark=html.getAttribute('data-theme')==='light';html.setAttribute('data-theme',goingDark?'dark':'light');document.getElementById('themeBtn').textContent=goingDark?'☀️ Light':'🌙 Dark'}function toggleLang(){const html=document.documentElement;const goingEn=html.getAttribute('data-lang')==='zh';html.setAttribute('data-lang',goingEn?'en':'zh');html.setAttribute('lang',goingEn?'en':'zh-Hant');document.getElementById('langBtn').textContent=goingEn?'中文':'English';buildSpy()}</script>
 </body>
