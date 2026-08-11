@@ -1,0 +1,739 @@
+- generic [active] [ref=e1]:
+  - complementary [ref=e2]:
+    - generic [ref=e3]: 從問題集資料夾產生自主測驗網頁實作教學
+    - button "☀️ Light" [ref=e5] [cursor=pointer]
+    - link "返回上一層" [ref=e6] [cursor=pointer]:
+      - /url: ../../index.html
+    - navigation [ref=e7]:
+      - button "學習目標" [ref=e8] [cursor=pointer]
+      - button "先備條件" [ref=e9] [cursor=pointer]
+      - button "整體設計總覽" [ref=e10] [cursor=pointer]
+      - button "步驟一：決定 app/ 放在哪" [ref=e11] [cursor=pointer]
+      - button "步驟二：分析問題集資料夾" [ref=e12] [cursor=pointer]
+      - button "步驟三：設計 config.json" [ref=e13] [cursor=pointer]
+      - button "步驟四：打造測驗網頁樣板" [ref=e14] [cursor=pointer]
+      - button "步驟五：寫打包程式" [ref=e15] [cursor=pointer]
+      - button "步驟六：驗收成果" [ref=e16] [cursor=pointer]
+      - button "步驟七：教師端成績彙整頁" [ref=e17] [cursor=pointer]
+      - button "動手做：套用在全新資料上" [ref=e18] [cursor=pointer]
+      - button "常見狀況快速對照表" [ref=e19] [cursor=pointer]
+      - button "下一步" [ref=e20] [cursor=pointer]
+  - generic [ref=e22]:
+    - heading "從問題集資料夾產生自主測驗網頁實作教學" [level=1] [ref=e23]
+    - paragraph [ref=e24]:
+      - text: Module 2 教學帶你把考古題 PDF 變成「一題一張乾淨圖片 ＋ 標準答案 JSON」的問題集資料夾。這份教學接著往下一步走：從零開始，跟 Claude Code 一起
+      - strong [ref=e25]: 設計並打造
+      - text: 一個小工具，把這種問題集資料夾轉成一個不用架站、雙擊就能打開的學生自我測驗網頁，外加一個老師用來彙整全班成績的頁面。
+    - paragraph [ref=e26]:
+      - text: 工作坊講師其實已經事先寫好一個叫
+      - code [ref=e27]: build-quiz-app
+      - text: 的 custom skill，放在這個專案的
+      - code [ref=e28]: .claude/skills/
+      - text: 資料夾底下，一句話就能請 Claude Code 用它把這整件事做完 那是
+      - link "Module 4" [ref=e29] [cursor=pointer]:
+        - /url: ../module4/quiz-app-quickstart-tutorial.html
+      - text: 教的捷徑。這份教學刻意
+      - strong [ref=e30]: 不直接套用那個 skill
+      - text: ，而是從只有「問題集資料夾」這個起點出發，一步一步請 Claude Code 幫你分析需求、設計資料結構、寫出網頁樣板跟打包程式 目的是讓你搞懂這整套工具背後在做什麼，而不是只會下一句咒語。等你做完這份教學，會發現自己造出來的東西，其實就是在重新發明
+      - code [ref=e31]: build-quiz-app
+      - text: 已經做好的那個輪子；那時候再回頭用 Module 4 的捷徑，你會很清楚每一步在幫你省掉什麼。
+    - paragraph [ref=e32]:
+      - text: 本教學對應
+      - code [ref=e33]: module3/
+      - text: 資料夾，裡面目前
+      - strong [ref=e34]: 只有
+      - text: 兩組問題集資料夾（圖片 ＋
+      - code [ref=e35]: keys.json
+      - text: ），沒有任何預先做好的
+      - code [ref=e36]: app/
+      - text: 引擎或成品 這是刻意維持的乾淨起點：這份教學的重點是你（跟 Claude Code）從這兩組資料夾出發，自己設計、生出等效的做法，沒有現成答案可以抄，過程比結果更重要。
+    - table [ref=e38]:
+      - rowgroup [ref=e39]:
+        - row [ref=e40]:
+          - columnheader "範例測驗" [ref=e41]
+          - columnheader "問題集資料夾（輸入，目前唯一存在的東西）" [ref=e42]
+          - columnheader "examLabel（建議命名）" [ref=e43]
+          - columnheader "雙擊即用成品（輸出目標，預期大小）" [ref=e44]
+        - row [ref=e45]:
+          - cell "114 學年度 電機與電子群資電類 專業科目(一)(二)，共 100 題" [ref=e46]: 114 學年度電機與電子群資電類專業科目(一)(二)，共 100 題
+          - cell [ref=e47]:
+            - code [ref=e48]: module3/repo/114/
+          - cell [ref=e49]:
+            - code [ref=e50]: Formative_Assessment_114
+          - cell [ref=e51]:
+            - code [ref=e52]: app/dist/Formative_Assessment_114_quiz.html
+            - text: （預估約 15 MB）
+        - row [ref=e53]:
+          - cell "115 學年度 數學(A) 共同科目，共 25 題" [ref=e54]: 115 學年度數學(A)共同科目，共 25 題
+          - cell [ref=e55]:
+            - code [ref=e56]: module3/repo/math-115a/
+          - cell [ref=e57]:
+            - code [ref=e58]: Formative_Assessment_115_MathA
+          - cell [ref=e59]:
+            - code [ref=e60]: app/dist/Formative_Assessment_115_MathA_quiz.html
+            - text: （預估約 2.6 MB）
+    - paragraph [ref=e61]:
+      - text: 這兩份問題集資料夾，其實就是 Module 2 教學做出來的東西 只是換了一組資料，重跑一次「下載／切題／清理」流程而已。
+      - code [ref=e62]: module3/
+      - text: 底下沒有留原始 PDF、也沒有第三組待處理的資料 「動手做」單元會告訴你怎麼自己準備一組全新資料，驗證你打造的工具是不是真的可以重複使用，不用每換一組資料就重新設計一次。
+    - heading "學習目標" [level=2] [ref=e63]
+    - paragraph [ref=e64]: 做完這份教學，你應該能夠：
+    - list [ref=e65]:
+      - listitem [ref=e66]:
+        - text: 從一個「圖片 ＋
+        - code [ref=e67]: keys.json
+        - text: 」的問題集資料夾出發，自己想清楚需要蒐集哪些資訊，才能生成一份能正常運作的測驗網頁 而不是套用一個現成工具幫你想好的答案。
+      - listitem [ref=e68]:
+        - text: 跟 Claude Code 一起設計一份
+        - code [ref=e69]: config.json
+        - text: 的資料結構，讓同一套工具之後可以疊加好幾份測驗，每週只要多加一筆設定、不用重新設計。
+      - listitem [ref=e70]:
+        - text: 跟 Claude Code 一起打造一個「不需要伺服器、雙擊即開」的自我測驗網頁樣板，以及一支把圖片轉成 base64、塞進樣板的打包程式，並說得出為什麼最終交付的檔案不能用
+        - code [ref=e71]: fetch()
+        - text: 讀外部檔案。
+      - listitem [ref=e72]:
+        - text: 看懂自己（跟 Claude Code）造出來的這套工具，跟講師事先寫好的
+        - code [ref=e73]: build-quiz-app
+        - text: custom skill 其實是同一件事的兩種做法 一個是自己設計、一個是直接套用現成的。
+      - listitem [ref=e74]: 自己動手準備一組全新的問題集資料，走一次「切題 → 清理 → 用自己造的工具建立測驗」全流程，驗證這套工具真的能重複使用。
+    - heading "先備條件" [level=2] [ref=e75]
+    - list [ref=e76]:
+      - listitem [ref=e77]:
+        - text: 已經完成
+        - link "Module 2：考古題下載、切題與清理實作教學" [ref=e78] [cursor=pointer]:
+          - /url: ../module2/exam-paper-pipeline-tutorial.html
+        - text: ，手上至少有一組「
+        - code [ref=e79]: "*.png"
+        - text: 圖片 ＋
+        - code [ref=e80]: keys.json
+        - text: 」的問題集資料夾。本教學直接沿用
+        - code [ref=e81]: module3/repo/114
+        - text: 、
+        - code [ref=e82]: module3/repo/math-115a
+        - text: 這兩組已經做好的資料當範例，你也可以換成自己練習做出來的資料夾。
+      - listitem [ref=e83]:
+        - text: 已經能開啟並使用 Claude Code。若還沒設定好工作環境，請先參考
+        - link "Module 1：Windows 11 環境建置" [ref=e84] [cursor=pointer]:
+          - /url: ../module1/windows11-vibe-coding-setup.html
+        - text: 。
+      - listitem [ref=e85]: 本機已安裝 Python 3。請 Claude Code 寫分析跟打包用的腳本時，明確要求只用 Python 標準函式庫、不額外安裝套件 這樣的工具環境相依最少，也方便你之後檢查腳本內容時不用先搞懂一堆第三方套件在做什麼。
+      - listitem [ref=e86]:
+        - text: 能開啟終端機（Terminal／PowerShell），並且知道如何切換到專案根目錄（也就是能看到
+        - code [ref=e87]: module3/
+        - text: 、
+        - code [ref=e88]: .claude/
+        - text: 這兩個資料夾的那一層）下指令，用來執行自己請 Claude Code 寫出來的腳本、驗證結果。
+      - listitem [ref=e89]: 這一整套流程都是離線的、不需要網路連線（Module 2 的下載階段才需要網路）。
+    - blockquote [ref=e90]:
+      - strong [ref=e91]:
+        - text: 關於
+        - code [ref=e92]: build-quiz-app
+        - text: 這個現成 skill：
+      - text: 這個專案的
+      - code [ref=e93]: .claude/skills/build-quiz-app/
+      - text: 資料夾底下，工作坊講師已經事先寫好一個包好的版本 這是講師為這個課程準備的 custom skill，不是 Claude Code 原生內建的功能。一句話就能請 Claude Code 用它把整件事做完，那是
+      - link "Module 4" [ref=e94] [cursor=pointer]:
+        - /url: ../module4/quiz-app-quickstart-tutorial.html
+      - text: 的內容。這份教學刻意不呼叫那個 skill，全程只描述「我想要一個做到 X 的工具」這種需求，讓 Claude Code 從問題集資料夾本身出發幫你設計、實作 目的是理解原理，不是抄捷徑。
+    - heading "整體設計總覽" [level=2] [ref=e95]
+    - paragraph [ref=e96]:
+      - text: 先講結論，用一句話說清楚我們要跟 Claude Code 提出什麼要求：
+      - strong [ref=e97]: 「我手上有一份題目跟正確答案，麻煩幫我做成一個學生可以自己打開作答、我事後可以收學生成績的網頁。」
+      - text: 不用先弄懂任何技術名詞，就跟你平常請人幫忙做事一樣 把「我想要什麼」講清楚，剩下技術上怎麼做，交給 Claude Code。
+    - paragraph [ref=e98]: 接下來會照下面這個順序，一步一步跟 Claude Code 討論、確認：
+    - list [ref=e99]:
+      - listitem [ref=e100]:
+        - strong [ref=e101]: 先講好東西要放在哪裡：
+        - text: 之後做出來的這些檔案，放在跟你題目資料夾另外分開的一個資料夾，不要混在一起，以後比較不會亂。
+      - listitem [ref=e102]:
+        - strong [ref=e103]: 請 Claude Code 先看一下你的題目資料夾：
+        - text: 確認題目跟答案對得起來、總共有幾題、圖片有沒有缺，心裡有個底再往下做。
+      - listitem [ref=e104]:
+        - strong [ref=e105]: 講清楚「一份測驗」要記住什麼：
+        - text: 像是這份測驗叫什麼名字、題目跟答案放在哪 這樣以後想再加一份新的測驗給另一班用，才知道要告訴 Claude Code 什麼資訊。
+      - listitem [ref=e106]:
+        - strong [ref=e107]: 做出學生實際看到的作答畫面：
+        - text: 輸入姓名、選一次要寫幾題、作答、按送出看分數，還有一顆下載成績單的按鈕。
+      - listitem [ref=e108]:
+        - strong [ref=e109]: 把題目、圖片跟畫面「包」成一個檔案：
+        - text: 做出來的是一個單獨的網頁檔案，雙擊就能打開，不用架網站、不用連網路。
+      - listitem [ref=e110]:
+        - strong [ref=e111]: 自己先打開來試用一次：
+        - text: 不是「Claude Code 說做完了」就代表真的沒問題，一定要自己實際打開、作答一次看看。
+      - listitem [ref=e112]:
+        - strong [ref=e113]: 做一個給你自己看全班成績的頁面：
+        - text: 把學生各自下載下來的成績單收集起來，一次看到全班的情況。
+    - paragraph [ref=e114]: 這整套東西只要跟 Claude Code 一起做過一次，以後每多一份新的題目（例如換一個班級、換一份考題），大部分只需要重複第 2 到第 5 步，不用從頭再來一次；而且同一個網頁工具之後可以陸續裝進好幾份不同的測驗，不用每份測驗都各自做一個新網頁。
+    - heading "步驟一：決定 app/ 要放在哪" [level=2] [ref=e115]
+    - paragraph [ref=e116]: 設計決策：輸出位置
+    - paragraph [ref=e117]:
+      - text: 先想清楚一個問題：工具產生出來的東西（設定檔、樣板、打包程式、最終成品）該放在哪裡，才不會跟問題集資料夾攪在一起、之後也方便換資料？合理的做法是固定放在問題集資料夾的
+      - strong [ref=e118]: 同層（sibling）
+      - text: ，不是塞進問題集資料夾裡面。以
+      - code [ref=e119]: module3/
+      - text: 為例，問題集資料夾是
+      - code [ref=e120]: module3/repo/<name>/
+      - text: ，工具的輸出就放在
+      - code [ref=e121]: module3/app/
+      - text: ，跟
+      - code [ref=e122]: module3/repo/
+      - text: 平級 這樣以後問題集資料夾即使被整理、封存或換掉，
+      - code [ref=e123]: app/
+      - text: 這個「引擎」也不會受影響。
+    - blockquote [ref=e124]:
+      - strong [ref=e125]:
+        - text: 如果
+        - code [ref=e126]: app/
+        - text: 已經存在：
+      - text: 代表你之前已經對同一層底下的另一組問題集資料夾設計過這套工具（例如做完這份教學的步驟一到步驟七之後，回頭對第二組資料重跑一次）。這是正常情況，不是衝突 之後每加一份新測驗，做法是在既有
+      - code [ref=e127]: config.json
+      - text: 的
+      - code [ref=e128]: assessments
+      - text: 陣列裡
+      - strong [ref=e129]: 再加一筆
+      - text: ，而不是整套工具重新設計一遍。
+      - code [ref=e130]: quiz.html
+      - text: 、打包程式、教師端頁面這三個檔案是共用引擎，改進的時候可以直接覆蓋，不會影響已經疊進去的其他測驗設定。
+    - heading "先跟 Claude Code 討論設計，再動手" [level=3] [ref=e131]
+    - generic [ref=e132]:
+      - button "📋 複製" [ref=e134] [cursor=pointer]:
+        - generic [ref=e135]: 📋
+        - generic [ref=e136]: 複製
+      - code [ref=e138]: 我手上有一個問題集資料夾 module3/repo/114（一題一張圖片 + keys.json）。 我想自己設計一個小工具，把這種問題集資料夾轉成一個雙擊就能打開的自我測驗網頁， 而不是直接套用現有的 build-quiz-app skill。 先不要動手寫程式，跟我討論一下：這個工具產出的東西（設定檔、樣板、打包程式） 應該放在哪個資料夾比較合理？為什麼？
+    - paragraph [ref=e139]: 把這一步當成跟 Claude Code 一起做架構設計，而不是丟一句指令就期待它自動生出整套東西 討論清楚位置規則之後，才進入下一步的分析。
+    - heading "步驟二：分析問題集資料夾的形狀" [level=2] [ref=e140]
+    - paragraph [ref=e141]: 交付物：一支你自己的分析腳本
+    - paragraph [ref=e142]:
+      - text: 在動手設計
+      - code [ref=e143]: config.json
+      - text: 、寫網頁樣板之前，得先知道這個問題集資料夾實際長什麼樣子
+      - code [ref=e144]: keys.json
+      - text: 在哪、有幾題、圖片放在哪個子資料夾、檔名有沒有規律。這一步的交付物是一支你（跟 Claude Code）自己寫出來的分析腳本，只讀取、不寫入任何檔案。
+    - heading "請 Claude Code 寫一支分析工具" [level=3] [ref=e145]
+    - generic [ref=e146]:
+      - button "📋 複製" [ref=e148] [cursor=pointer]:
+        - generic [ref=e149]: 📋
+        - generic [ref=e150]: 複製
+      - code [ref=e152]: 幫我寫一支 Python 分析工具 module3/app/analyze_folder.py， 只用標準函式庫，輸入一個問題集資料夾路徑，掃描之後印出一份 JSON 報告，內容至少要有： - 找到的答案 JSON 檔名、裡面有幾題 - 圖片放在哪個子資料夾（如果跟 keys.json 同一層就寫 "."） - keys.json 裡有寫但找不到對應圖片的題目（缺圖清單） - 從圖片檔名試著推論出規律（例如題號、科目代號），抓不出規律就別硬湊 這支腳本不能修改任何檔案，只能讀取跟印出報告。 寫完之後，用 module3/repo/114 實際跑一次給我看結果。
+    - paragraph [ref=e153]:
+      - text: 對
+      - code [ref=e154]: module3/repo/114
+      - text: 跑起來，合理的報告會長得像這樣（field 名稱你可以跟 Claude Code 討論調整，重點是資訊要齊全）：
+    - code [ref=e157]: "{ \"folder\": \"module3/repo/114\", \"keysFile\": \"114keys.json\", \"questionCount\": 100, \"answerLetters\": [\"A\", \"B\", \"C\", \"D\"], \"multiAnswerCount\": 0, \"multiAnswerSample\": [], \"repoDir\": \".\", \"missingImages\": [], \"missingImageCount\": 0, \"extraImageFiles\": [\"114keys.json\"], \"extraImageFileCount\": 1, \"filenamePattern\": \"^114專業(?<group>[12])Q(?<number>\\\\d+)\\\\.png$\", \"filenamePatternNote\": \"group token candidates: ['1', '2']\" }"
+    - heading "每個欄位在講什麼、為什麼要設計成這樣" [level=3] [ref=e158]
+    - table [ref=e160]:
+      - rowgroup [ref=e161]:
+        - row [ref=e162]:
+          - columnheader "欄位" [ref=e163]
+          - columnheader "怎麼解讀" [ref=e164]
+        - row [ref=e165]:
+          - cell [ref=e166]:
+            - code [ref=e167]: keysFile
+            - text: /
+            - code [ref=e168]: questionCount
+          - cell "找到的答案 JSON 檔名、裡面有幾題。跟你預期的題數（例如專業科目 50 題 × 2 科 = 100）對一下，不一致代表分析腳本可能找錯檔案。" [ref=e169]
+        - row [ref=e170]:
+          - cell [ref=e171]:
+            - code [ref=e172]: repoDir
+          - cell [ref=e173]:
+            - text: 圖片放在哪個子資料夾。
+            - strong [ref=e174]:
+              - text: 如果是
+              - code [ref=e175]: "\".\""
+              - text: ，代表圖片跟
+              - code [ref=e176]: keys.json
+              - text: 直接放在同一層，沒有再包一層子資料夾
+            - code [ref=e177]: module3/repo/114
+            - text: 、
+            - code [ref=e178]: module3/repo/math-115a
+            - text: 都是這種情況。這個欄位之所以要獨立設計出來，是因為下一步
+            - code [ref=e179]: config.json
+            - text: 需要明確記下這個值，不能靠猜。
+        - row [ref=e180]:
+          - cell [ref=e181]:
+            - code [ref=e182]: missingImages
+            - text: /
+            - code [ref=e183]: missingImageCount
+          - cell [ref=e184]:
+            - code [ref=e185]: keys.json
+            - text: 裡有寫、但找不到對應圖片檔的題目。這裡是 0，代表 Module 2 的清理成果沒有缺檔；如果不是 0，之後打包時這些題目該怎麼處理（跳過？報錯？），是你設計打包程式時要先決定的規則。
+        - row [ref=e186]:
+          - cell [ref=e187]:
+            - code [ref=e188]: extraImageFiles
+            - text: /
+            - code [ref=e189]: extraImageFileCount
+          - cell [ref=e190]:
+            - text: 資料夾裡有、但
+            - code [ref=e191]: keys.json
+            - text: 沒提到的檔案。這裡列出
+            - code [ref=e192]: 114keys.json
+            - text: 自己 這是正常現象：因為
+            - code [ref=e193]: repoDir
+            - text: 是
+            - code [ref=e194]: "\".\""
+            - text: ，分析腳本把整個資料夾掃過一輪，keys 檔本身當然不會出現在 keys 的內容裡，可以放心忽略，跟圖片缺漏無關。
+        - row [ref=e195]:
+          - cell [ref=e196]:
+            - code [ref=e197]: multiAnswerCount
+            - text: /
+            - code [ref=e198]: multiAnswerSample
+          - cell "答案有一個字母以上的複選題數量。這裡是 0；如果不是 0，代表你設計計分邏輯時要決定「整組答案完全相同才算對」還是其他規則，值得在報告裡先提醒自己。" [ref=e199]
+        - row [ref=e200]:
+          - cell [ref=e201]:
+            - code [ref=e202]: filenamePattern
+            - text: /
+            - code [ref=e203]: filenamePatternNote
+          - cell [ref=e204]:
+            - text: 從檔名推論出來的規則，建議用具名捕獲群組的正規表達式表示。
+            - code [ref=e205]: "114"
+            - text: 這組因為檔名裡有「專業
+            - strong [ref=e206]: "1"
+            - text: 」跟「專業
+            - strong [ref=e207]: "2"
+            - text: 」兩種，可以抓出一個
+            - code [ref=e208]: group
+            - text: （分科目）加一個
+            - code [ref=e209]: number
+            - text: （題號）；
+            - code [ref=e210]: math-115a
+            - text: 檔名只有題號沒有科目差異，所以只有
+            - code [ref=e211]: number
+            - text: 、沒有
+            - code [ref=e212]: group
+            - text: （見下方）。
+            - strong [ref=e213]: 如果抓不出規律，不是分析腳本的失敗
+            - text: 代表這組檔名沒有清楚規律，這個欄位直接留空，後面設計網頁樣板時要有「退回逐題顯示原始檔名」的備案，一樣能正常運作，只是不能按科目平均分配抽題。
+    - paragraph [ref=e214]:
+      - code [ref=e215]: module3/repo/math-115a
+      - text: 跑出來的報告比較單純，可以對照著看兩者的差別：
+    - code [ref=e218]: "{ \"folder\": \"module3/repo/math-115a\", \"keysFile\": \"115keys.json\", \"questionCount\": 25, \"answerLetters\": [\"A\", \"B\", \"C\", \"D\"], \"repoDir\": \".\", \"missingImageCount\": 0, \"extraImageFiles\": [\"115keys.json\"], \"filenamePattern\": \"^115數學AQ(?<number>\\\\d+)\\\\.png$\", \"filenamePatternNote\": \"single template — number-only pattern\" }"
+    - heading "驗收重點" [level=3] [ref=e219]
+    - list [ref=e220]:
+      - listitem [ref=e221]:
+        - code [ref=e222]: questionCount
+        - text: 跟你預期的題數一致。
+      - listitem [ref=e223]:
+        - code [ref=e224]: missingImageCount
+        - text: 是 0（如果不是，先決定要不要接受這些題目被跳過，不要直接無視）。
+      - listitem [ref=e225]:
+        - code [ref=e226]: answerLetters
+        - text: 如果超出
+        - code [ref=e227]: A
+        - text: ～
+        - code [ref=e228]: D
+        - text: ，記得下一步設計
+        - code [ref=e229]: config.json
+        - text: 時要有對應的欄位讓這些字母選項能出現在作答畫面上。
+      - listitem [ref=e230]:
+        - code [ref=e231]: filenamePatternNote
+        - text: 裡如果列出 group 候選字元，肉眼確認一下這些字元真的代表有意義的分類（例如「1」「2」對應兩個不同科目），不是湊巧撞到的雜訊；如果看起來不合理，寧可不寫這個欄位。
+    - heading "步驟三：設計 config.json 的資料結構" [level=2] [ref=e232]
+    - paragraph [ref=e233]: 交付物：一份你自己設計的設定檔格式
+    - paragraph [ref=e234]:
+      - text: 這一步要決定：怎麼用一份設定檔描述「一份測驗」，還要讓同一套工具之後能疊加好幾份測驗，不用每加一份就重新設計格式。合理的做法是設計一個
+      - code [ref=e235]: assessments
+      - text: 陣列，每一筆對應一份測驗。跟 Claude Code 討論之後，把
+      - code [ref=e236]: module3/repo/114
+      - text: 、
+      - code [ref=e237]: module3/repo/math-115a
+      - text: 兩組分析結果，各自對應成一筆設定：
+    - generic [ref=e238]:
+      - button "📋 複製" [ref=e240] [cursor=pointer]:
+        - generic [ref=e241]: 📋
+        - generic [ref=e242]: 複製
+      - code [ref=e244]: 根據步驟二的分析報告，幫我設計一份 module3/app/config.json 的資料結構： 用一個 assessments 陣列，每一筆代表一份測驗，讓同一個工具之後可以疊加多份、 不用重新設計格式。每一筆至少要能描述：測驗名稱（會變成輸出檔名的一部分）、 問題集資料夾的相對路徑、答案 key 檔名、圖片子資料夾、 這份測驗預設要抽幾題、可選的答案字母、檔名規律（可以省略）。 先幫我把 114 這組資料寫成第一筆，math-115a 寫成第二筆。
+    - paragraph [ref=e245]: 合理設計出來的結果會類似：
+    - code [ref=e248]: "{ \"assessments\": [ { \"examLabel\": \"Formative_Assessment_115_MathA\", \"assetsDir\": \"../repo/math-115a\", \"keysFile\": \"115keys.json\", \"repoDir\": \".\", \"questionCount\": 20, \"choiceLetters\": \"ABCD\", \"filenamePattern\": \"^115數學AQ(?<number>\\\\d+)\\\\.png$\" }, { \"examLabel\": \"Formative_Assessment_114\", \"assetsDir\": \"../repo/114\", \"keysFile\": \"114keys.json\", \"repoDir\": \".\", \"questionCount\": 20, \"choiceLetters\": \"ABCD\", \"filenamePattern\": \"^114專業(?<group>[12])Q(?<number>\\\\d+)\\\\.png$\" } ] }"
+    - heading "每個欄位怎麼設計、怎麼填" [level=3] [ref=e249]
+    - table [ref=e251]:
+      - rowgroup [ref=e252]:
+        - row [ref=e253]:
+          - columnheader "欄位" [ref=e254]
+          - columnheader "設計考量／怎麼填" [ref=e255]
+        - row [ref=e256]:
+          - cell [ref=e257]:
+            - code [ref=e258]: examLabel
+          - cell [ref=e259]:
+            - text: 這份測驗的名字，會變成輸出檔名的一部分。設計時務必確保
+            - strong [ref=e260]: 陣列裡每一筆都不一樣
+            - text: ，因為它同時決定輸出檔名，撞名會互相覆蓋 加新的一筆之前，先看一眼既有陣列裡已經用過哪些名字。
+        - row [ref=e261]:
+          - cell [ref=e262]:
+            - code [ref=e263]: assetsDir
+          - cell [ref=e264]:
+            - text: 從
+            - code [ref=e265]: app/
+            - text: 這個資料夾出發，走到問題集資料夾的相對路徑。這是唯一一個分析報告不會直接告訴你的欄位，要自己算 例如問題集資料夾是
+            - code [ref=e266]: module3/repo/114
+            - text: 、
+            - code [ref=e267]: app/
+            - text: 是
+            - code [ref=e268]: module3/app/
+            - text: ，相對路徑就是
+            - code [ref=e269]: ../repo/114
+            - text: 。
+        - row [ref=e270]:
+          - cell [ref=e271]:
+            - code [ref=e272]: keysFile
+            - text: /
+            - code [ref=e273]: repoDir
+            - text: /
+            - code [ref=e274]: questionCount
+            - text: （原始題數）/
+            - code [ref=e275]: filenamePattern
+          - cell [ref=e276]:
+            - text: 直接照抄步驟二分析報告的對應欄位。
+            - code [ref=e277]: filenamePattern
+            - text: 抓不出來時，設計上要允許整個欄位不寫。
+        - row [ref=e278]:
+          - cell [ref=e279]:
+            - code [ref=e280]: questionCount
+            - text: （
+            - code [ref=e281]: config.json
+            - text: 裡實際寫的值）
+          - cell [ref=e282]:
+            - text: 不是原始題數，是「每次作答預設抽幾題」，可以設計成
+            - code [ref=e283]: min(20, 分析報告的 questionCount)
+            - text: 這類上限公式，避免一次抽太多題拖慢作答。
+            - code [ref=e284]: "114"
+            - text: 有 100 題、
+            - code [ref=e285]: math-115a
+            - text: 只有 25 題，兩筆卻都寫 20，就是因為兩者都超過或等於 20。學生開始作答時仍然可以自己把題數改成 1～全部題數之間的任何數字，這裡只是預設值 這個「使用者仍可覆蓋預設值」的彈性，要在設計網頁樣板（步驟四）時一併考慮進去。
+        - row [ref=e286]:
+          - cell [ref=e287]:
+            - code [ref=e288]: choiceLetters
+          - cell [ref=e289]:
+            - text: 沒特殊情況固定寫
+            - code [ref=e290]: "\"ABCD\""
+            - text: ；只有分析報告的
+            - code [ref=e291]: answerLetters
+            - text: 超出 A～D 才需要換成對應字母組合。
+    - paragraph [ref=e292]:
+      - text: 如果是對已經有內容的
+      - code [ref=e293]: app/config.json
+      - text: 疊加新測驗（就像
+      - code [ref=e294]: module3/app/
+      - text: 現在的狀態），記得先讀出既有內容，用陣列
+      - code [ref=e295]: push
+      - text: 的方式加一筆，不要整個檔案覆蓋掉，不然會把之前疊上去的測驗設定弄丟 這也是「設計成陣列」而不是「單一物件」的原因。
+    - heading "步驟四：打造測驗網頁樣板（quiz.html）" [level=2] [ref=e296]
+    - paragraph [ref=e297]: 交付物：學生作答用的網頁樣板
+    - paragraph [ref=e298]:
+      - text: 這一步要設計、寫出學生實際會打開的那個頁面。核心設計限制是：
+      - strong [ref=e299]: 最終交付的檔案必須能直接雙擊開啟，不能依賴任何伺服器
+      - text: ；瀏覽器基於安全性，會擋掉
+      - code [ref=e300]: file://
+      - text: 路徑底下用
+      - code [ref=e301]: fetch()
+      - text: 讀外部檔案的行為，所以最終版本不能用
+      - code [ref=e302]: fetch()
+      - text: 讀取
+      - code [ref=e303]: config.json
+      - text: 或圖片，資料必須直接內嵌在 HTML 裡。
+    - heading "請 Claude Code 設計並寫出樣板" [level=3] [ref=e304]
+    - generic [ref=e305]:
+      - button "📋 複製" [ref=e307] [cursor=pointer]:
+        - generic [ref=e308]: 📋
+        - generic [ref=e309]: 複製
+      - code [ref=e311]: 幫我設計並寫出 module3/app/quiz.html，這是學生作答用的自我測驗網頁樣板。 先假設測驗資料會被放進一個叫 window.QUIZ_DATA 的全域變數（之後由另一支打包程式塞進去）， 這個頁面要做到： 1. 讓學生輸入姓名，選擇這次要抽幾題（1 到全部題數之間，預設用設定裡的題數上限）。 2. 隨機抽題、依序顯示每題的圖片跟 (A)(B)(C)(D)... 選項（選項字母跟隨設定）。 3. 全部作答完送出後，顯示總分跟每一題的對錯。 4. 提供一顆按鈕，把這次作答的逐題結果下載成 CSV（檔名要帶學生姓名跟時間戳記， 方便老師之後合併多份成績單）。 整個網頁本身完成後不能用 fetch() 讀任何外部檔案 ，最終要能直接雙擊 file:// 路徑開啟就正常運作。先開發階段可以讓它改用 fetch() 讀一份假的 config.json + 假圖片測試畫面，之後再決定要不要保留這個「原始碼／可編輯」版本。
+    - paragraph [ref=e312]:
+      - text: 把這一步的產物想成兩種版本並存的設計：一份是
+      - strong [ref=e313]: 可編輯原始碼
+      - text: 版本（
+      - code [ref=e314]: quiz.html
+      - text: 本身，可能還是用
+      - code [ref=e315]: fetch()
+      - text: 讀
+      - code [ref=e316]: config.json
+      - text: 方便你邊改邊測，本機測試時需要另外開伺服器）；另一份是下一步打包出來的
+      - strong [ref=e317]: 雙擊即用成品
+      - text: （
+      - code [ref=e318]: dist/*.html
+      - text: ，資料已經內嵌，不需要伺服器）。分清楚這兩種版本的差別，是這一步最重要的設計決定。
+    - heading "驗收重點" [level=3] [ref=e319]
+    - list [ref=e320]:
+      - listitem [ref=e321]: 拿假資料測試時，畫面能正常跑完「輸入姓名 → 選題數 → 作答 → 送出 → 看到分數」整個流程。
+      - listitem [ref=e322]:
+        - text: 選項字母、題數上限這些行為都是讀設定值決定的，不是寫死在程式裡 換一組
+        - code [ref=e323]: choiceLetters
+        - text: 或
+        - code [ref=e324]: questionCount
+        - text: 應該不用改這支樣板的程式碼。
+      - listitem [ref=e325]: 下載出來的 CSV 檔名裡有學生姓名跟時間戳記，內容至少包含每題的作答、正確答案、對錯。
+    - heading "步驟五：寫打包程式，產出雙擊即用檔案" [level=2] [ref=e326]
+    - paragraph [ref=e327]: 交付物：一支你自己的打包腳本
+    - paragraph [ref=e328]:
+      - text: 這一步要把
+      - code [ref=e329]: config.json
+      - text: 裡每一筆設定指到的圖片，逐一轉成 base64 字串，塞進步驟四的樣板裡，輸出成一個完全自包含、不需要
+      - code [ref=e330]: fetch()
+      - text: 、不需要網路的 HTML 檔。
+    - heading "請 Claude Code 寫一支打包工具" [level=3] [ref=e331]
+    - generic [ref=e332]:
+      - button "📋 複製" [ref=e334] [cursor=pointer]:
+        - generic [ref=e335]: 📋
+        - generic [ref=e336]: 複製
+      - code [ref=e338]: 幫我寫一支 Python 打包工具 module3/app/build_bundle.py，只用標準函式庫， 讀取 module3/app/config.json 裡 assessments 陣列的每一筆設定， 把對應圖片轉成 base64，塞進 module3/app/quiz.html 樣板裡的 window.QUIZ_DATA， 輸出成 module3/app/dist/<examLabel>_quiz.html。 不加參數時預設重建全部；加 --only <examLabel> 時只重建指定那一筆， 其他已經是最新的檔案不要動。 每一筆處理完印出檔名、題數、檔案大小；如果有圖片缺檔，印出警告但不要讓整個 打包程序中斷，最後印出「Built N/M assessments」總結。
+    - heading "指令" [level=3] [ref=e339]
+    - generic [ref=e340]:
+      - button "📋 複製" [ref=e342] [cursor=pointer]:
+        - generic [ref=e343]: 📋
+        - generic [ref=e344]: 複製
+      - code [ref=e346]: cd module3/app python3 build_bundle.py
+    - paragraph [ref=e347]: 只想重建剛剛新加的那一筆時（例如另外兩份都已經是最新的，重新打包全部只是浪費時間、每份都可能是好幾十 MB）：
+    - generic [ref=e348]:
+      - button "📋 複製" [ref=e350] [cursor=pointer]:
+        - generic [ref=e351]: 📋
+        - generic [ref=e352]: 複製
+      - code [ref=e354]: python3 build_bundle.py --only Formative_Assessment_114
+    - paragraph [ref=e355]:
+      - strong [ref=e356]: 產出：
+      - text: 每一筆測驗對應
+      - code [ref=e357]: module3/app/dist/<examLabel>_quiz.html
+      - text: 一個檔案。終端機應該會印出類似：
+    - code [ref=e360]: Wrote module3/app/dist/Formative_Assessment_115_MathA_quiz.html (25 questions, 2.6 MB) Wrote module3/app/dist/Formative_Assessment_114_quiz.html (100 questions, 15.1 MB) Built 2/2 assessments
+    - heading "驗收重點" [level=3] [ref=e361]
+    - list [ref=e362]:
+      - listitem [ref=e363]:
+        - text: 最後一行「Built N/M assessments」的
+        - code [ref=e364]: "N"
+        - text: 要等於
+        - code [ref=e365]: M
+        - text: 。如果不相等，代表某一筆被跳過了，往上看那一筆對應的警告訊息，通常是路徑設定寫錯。
+      - listitem [ref=e366]:
+        - text: 如果某一筆印出圖片缺檔的警告，代表這一批圖片有缺，那幾題會被跳過、不會出現在測驗裡 回頭跟步驟二的
+        - code [ref=e367]: missingImageCount
+        - text: 對一下，數字應該一致。
+      - listitem [ref=e368]: 輸出檔案大小大約是「來源圖片總大小 × 1.37」（base64 編碼會讓檔案膨脹約 37%）；明顯小很多通常代表大部分圖片沒被塞進去。
+    - heading "步驟六：驗收成果" [level=2] [ref=e369]
+    - paragraph [ref=e370]: 不要只信任「腳本沒報錯」
+    - list [ref=e371]:
+      - listitem [ref=e372]:
+        - text: 確認
+        - code [ref=e373]: dist/
+        - text: 底下每份預期的檔案都存在，檔案大小落在合理範圍（見步驟五的 1.37 倍估算）。以
+        - code [ref=e374]: "114"
+        - text: 為例，
+        - code [ref=e375]: module3/repo/114
+        - text: 底下所有 PNG 加起來約 11 MB，11 × 1.37 ≈ 15.1 MB，跟實際輸出的大小吻合。
+      - listitem [ref=e376]:
+        - text: 直接
+        - strong [ref=e377]: 雙擊
+        - text: （或用瀏覽器開啟本機檔案路徑）打開
+        - code [ref=e378]: dist/
+        - text: 裡的檔案，不要另外開伺服器 整個重點就是驗證「不架站也能用」。輸入姓名、選一個較小的題數、作答幾題、按送出，確認會出現分數跟逐題對錯畫面。
+      - listitem [ref=e379]:
+        - text: 如果暫時沒辦法用瀏覽器操作，至少打開檔案搜尋
+        - code [ref=e380]: window.QUIZ_DATA
+        - text: 有沒有出現，並抽查幾筆
+        - code [ref=e381]: data:image/png;base64,
+        - text: 開頭的內容是不是非空字串。
+    - heading "步驟七：打造教師端成績彙整頁" [level=2] [ref=e382]
+    - paragraph [ref=e383]: 交付物：老師用的彙整工具
+    - paragraph [ref=e384]: 學生在測驗頁面送出作答後會下載一份 CSV。這一步要設計一個給老師用的頁面，把全班這些 CSV 檔合併起來看 一樣要能雙擊開啟、不需要架站，也不能把任何資料上傳到網路上。
+    - generic [ref=e385]:
+      - button "📋 複製" [ref=e387] [cursor=pointer]:
+        - generic [ref=e388]: 📋
+        - generic [ref=e389]: 複製
+      - code [ref=e391]: 幫我設計並寫出 module3/app/report-aggregator.html，是老師用來彙整全班成績的頁面： 1. 可以把多個 CSV 檔拖曳（或點擊選取）到頁面上。 2. 依考試名稱自動分組，列出「每位學生答對／總題數／正確率」， 跟「每一題的出現次數／答對次數／答對率」兩張表。 3. 提供「匯出合併 CSV」跟「列印／存成 PDF」兩個功能。 全部在瀏覽器裡處理，不能把任何檔案內容送到網路上；一樣要能直接雙擊 file:// 路徑開啟就正常運作，不需要伺服器。
+    - paragraph [ref=e392]: 「每一題的答對率」這張表特別適合用來看哪幾題全班普遍答錯，回頭檢討教學重點。這個頁面設計上是通用的，複製一份就能重複用在任何一份測驗、任何一個班級，不需要為了不同考試另外設定。
+    - heading "驗收重點" [level=3] [ref=e393]
+    - list [ref=e394]:
+      - listitem [ref=e395]: 把步驟六作答產生的 CSV 拖進頁面，確認兩張表都正確出現，數字跟自己手動核對的結果一致。
+      - listitem [ref=e396]: 試著同時載入好幾份 CSV（模擬全班交回來的成績單），確認統計結果是正確加總、不是只顯示最後一份。
+    - heading "動手做：套用在一組全新資料上" [level=2] [ref=e397]
+    - paragraph [ref=e398]:
+      - code [ref=e399]: module3/
+      - text: 目前只有
+      - code [ref=e400]: repo/114
+      - text: 、
+      - code [ref=e401]: repo/math-115a
+      - text: 這兩組資料，沒有預先準備第三組。這個空白正好是驗證「自己造的工具是否真的可以重複使用」最直接的方式：找一組全新的問題集資料，看看步驟二到步驟五做出來的分析腳本、
+      - code [ref=e402]: config.json
+      - text: 設計、打包程式，能不能不修改、原封不動地套用上去。如果可以，代表這套工具的設計是對的；如果每換一組資料就要改工具本身的程式碼，代表某個環節設計得不夠通用，值得回頭檢討。
+    - heading "第一步：準備一組新的問題集資料夾" [level=3] [ref=e403]
+    - paragraph [ref=e404]:
+      - text: 資料來源不重要，挑一種你方便的方式就好：拿你自己手邊已經有的任何一份考古題 PDF；或回到
+      - link "Module 2" [ref=e405] [cursor=pointer]:
+        - /url: ../module2/exam-paper-pipeline-tutorial.html
+      - text: ，換一個你感興趣的學年度或科目，照「下載 → 切題 → 清理」完整流程重新走一次。做完之後，你會得到一組新的「圖片 ＋
+      - code [ref=e406]: keys.json
+      - text: 」資料夾，存到
+      - code [ref=e407]: module3/repo/<新資料夾名稱>/
+      - text: （跟現有的
+      - code [ref=e408]: "114"
+      - text: 、
+      - code [ref=e409]: math-115a
+      - text: 平級）。如果換到的是共同科目，記得比照 Module 2 處理數學科的方式，注意題數跟檔名裡的科目代號、以及切題完檔名裡殘留的「專業」字樣要改名。
+    - heading "第二步：套用自己的分析腳本" [level=3] [ref=e410]
+    - generic [ref=e411]:
+      - button "📋 複製" [ref=e413] [cursor=pointer]:
+        - generic [ref=e414]: 📋
+        - generic [ref=e415]: 複製
+      - code [ref=e417]: python3 module3/app/analyze_folder.py module3/repo/<新資料夾名稱>
+    - paragraph [ref=e418]:
+      - text: 如果這支腳本是步驟二設計得夠通用，不需要為了這組新資料改任何程式碼，就應該能印出一份格式一致的分析報告（
+      - code [ref=e419]: questionCount
+      - text: 、
+      - code [ref=e420]: repoDir
+      - text: 、
+      - code [ref=e421]: filenamePattern
+      - text: 等欄位都齊全）。
+    - heading "第三步：疊加進 config.json、重新打包" [level=3] [ref=e422]
+    - paragraph [ref=e423]:
+      - text: 可以直接拿
+      - code [ref=e424]: config.json
+      - text: 裡既有的任何一筆設定當模板改。把新的一筆加進
+      - code [ref=e425]: module3/app/config.json
+      - text: 的陣列（記得
+      - code [ref=e426]: examLabel
+      - text: 要跟既有的不一樣），然後只重建這一筆：
+    - generic [ref=e427]:
+      - button "📋 複製" [ref=e429] [cursor=pointer]:
+        - generic [ref=e430]: 📋
+        - generic [ref=e431]: 複製
+      - code [ref=e433]: cd module3/app python3 build_bundle.py --only <你設定的 examLabel>
+    - paragraph [ref=e434]:
+      - text: 最後照步驟六驗收：檔案存在、大小合理、雙擊打開能正常作答送出。完成後
+      - code [ref=e435]: module3/app/config.json
+      - text: 應該多一筆
+      - code [ref=e436]: assessments
+      - text: ，
+      - code [ref=e437]: module3/app/dist/
+      - text: 也應該多一個檔案，另外已經做好的測驗完全不受影響 這正好證明「疊加新測驗不需要重新設計工具」這個目標達成了。
+    - heading "常見狀況快速對照表" [level=2] [ref=e438]
+    - table [ref=e440]:
+      - rowgroup [ref=e441]:
+        - row [ref=e442]:
+          - columnheader "狀況" [ref=e443]
+          - columnheader "代表什麼" [ref=e444]
+          - columnheader "該怎麼做" [ref=e445]
+        - row [ref=e446]:
+          - cell [ref=e447]:
+            - text: 分析腳本找不到
+            - code [ref=e448]: keys.json
+            - text: ，或找到不只一個
+            - code [ref=e449]: .json
+            - text: 檔
+          - cell "資料夾裡的 JSON 檔不只一個、或完全沒有，腳本猜不出哪個是答案 key" [ref=e450]
+          - cell "回頭跟 Claude Code 討論，讓分析腳本支援明確指定檔名的參數，再重跑" [ref=e451]
+        - row [ref=e452]:
+          - cell [ref=e453]:
+            - code [ref=e454]: repoDir
+            - text: 分析不出來，或找不到圖片資料夾
+          - cell "腳本的圖片位置偵測邏輯不夠周全" [ref=e455]
+          - cell "確認圖片實際路徑後，讓分析腳本支援明確指定資料夾的參數，再重跑" [ref=e456]
+        - row [ref=e457]:
+          - cell [ref=e458]:
+            - code [ref=e459]: repoDir
+            - text: 是
+            - code [ref=e460]: "\".\""
+            - text: ，但
+            - code [ref=e461]: config.json
+            - text: 裡漏寫了這個欄位
+          - cell [ref=e462]:
+            - text: 如果設計上把
+            - code [ref=e463]: repoDir
+            - text: 省略時的預設值定成
+            - code [ref=e464]: "\"repo\""
+            - text: ，跟
+            - code [ref=e465]: "\".\""
+            - text: 不一樣，打包時會去找不存在的
+            - code [ref=e466]: repo/
+            - text: 子資料夾
+          - cell [ref=e467]:
+            - code [ref=e468]: "\"repoDir\": \".\""
+            - text: 一定要明確寫進
+            - code [ref=e469]: config.json
+            - text: ，不能省略；或索性把設計改成沒有預設值、缺欄位就報錯，逼自己每次都寫清楚
+        - row [ref=e470]:
+          - cell [ref=e471]:
+            - code [ref=e472]: filenamePattern
+            - text: 找出來了，但 group 候選字元看起來是雜訊
+          - cell "檔名剛好符合腳本的推論規則，但那個「差異」其實不代表任何有意義的分類" [ref=e473]
+          - cell [ref=e474]:
+            - text: 不要硬寫進
+            - code [ref=e475]: config.json
+            - text: ，直接省略這個欄位，確認網頁樣板有「退回逐題顯示原始檔名」的備案
+        - row [ref=e476]:
+          - cell [ref=e477]:
+            - text: 打包程式印出「Built N/M assessments」，
+            - code [ref=e478]: N < M
+          - cell "至少一筆 assessment 打包失敗" [ref=e479]
+          - cell "往上找對應的警告訊息，通常是路徑欄位寫錯" [ref=e480]
+        - row [ref=e481]:
+          - cell [ref=e482]:
+            - text: 新加的
+            - code [ref=e483]: examLabel
+            - text: 跟既有某一筆撞名
+          - cell [ref=e484]:
+            - code [ref=e485]: examLabel
+            - text: 同時決定輸出檔名，撞名會互相覆蓋
+          - cell [ref=e486]:
+            - text: 加新的一筆之前，先看一眼
+            - code [ref=e487]: config.json
+            - text: 既有陣列用過哪些名字
+        - row [ref=e488]:
+          - cell [ref=e489]:
+            - text: 直接雙擊
+            - code [ref=e490]: app/quiz.html
+            - text: （不是
+            - code [ref=e491]: dist/
+            - text: 裡的檔案），畫面空白或作答按鈕沒反應
+          - cell [ref=e492]:
+            - code [ref=e493]: quiz.html
+            - text: 是「可編輯原始碼」版本，如果設計上還是用
+            - code [ref=e494]: fetch()
+            - text: 讀取設定跟圖片，瀏覽器基於安全性會擋掉
+            - code [ref=e495]: file://
+            - text: 底下的
+            - code [ref=e496]: fetch()
+          - cell [ref=e497]:
+            - text: 要測原始碼版本，在
+            - code [ref=e498]: app/
+            - text: 資料夾下開一個本機伺服器再開瀏覽器：
+            - code [ref=e499]: python3 -m http.server
+            - text: ；真正要交給學生的是
+            - code [ref=e500]: dist/*.html
+            - text: ，不需要伺服器
+        - row [ref=e501]:
+          - cell [ref=e502]:
+            - text: 改了
+            - code [ref=e503]: config.json
+            - text: 之後，
+            - code [ref=e504]: dist/
+            - text: 裡的檔案內容沒變
+          - cell [ref=e505]:
+            - code [ref=e506]: dist/*.html
+            - text: 是打包當下的快照，不會隨
+            - code [ref=e507]: config.json
+            - text: 即時更新
+          - cell [ref=e508]:
+            - text: 改完
+            - code [ref=e509]: config.json
+            - text: 一定要重跑一次打包程式（可以只加
+            - code [ref=e510]: "--only"
+            - text: 那一筆）
+    - heading "下一步" [level=2] [ref=e511]
+    - paragraph [ref=e512]: 疊加更多測驗，只要重複「Module 2 切題清理 → 套用自己的分析腳本 → 疊加設定 → 重新打包」這個循環，工具本身不需要重新設計。
+    - paragraph [ref=e513]:
+      - text: 做到這裡，你應該會發現自己（跟 Claude Code）從頭設計出來的這套小工具，跟講師事先寫好的
+      - code [ref=e514]: build-quiz-app
+      - text: custom skill 想解決的其實是同一個問題，只是一個是你自己設計的、一個是現成包好的。如果之後只是想快速拿到成品、不想每次都自己維護這套工具，可以直接改用
+      - link "Module 4：一句話產生自主測驗網頁快速教學" [ref=e515] [cursor=pointer]:
+        - /url: ../module4/quiz-app-quickstart-tutorial.html
+      - text: 裡教的捷徑；也可以把這份教學做出來的腳本留著，之後比較看看跟現成 skill 的設計有什麼不一樣，會更清楚每一句「一句話」背後幫你省掉了什麼。
+    - paragraph [ref=e516]:
+      - text: 正式交給學生前，記得分清楚兩種產出：
+      - code [ref=e517]: dist/*.html
+      - text: 是要交出去的成品，雙擊即用、不需要伺服器、不需要網路；
+      - code [ref=e518]: quiz.html
+      - text: ／
+      - code [ref=e519]: config.json
+      - text: ／打包程式是留著未來自己修改用的可編輯原始碼，測試這一份才需要本機伺服器。
+      - code [ref=e520]: report-aggregator.html
+      - text: 另外單獨交給老師，跟學生端的
+      - code [ref=e521]: dist/*.html
+      - text: 是不同用途的檔案。
+    - paragraph [ref=e522]: 如果問題集內容是有版權疑慮的考古題（例如技專校院入學測驗中心的試題），交付雙擊即用的 HTML 之前，記得再次確認自己有沒有合法散布這些內容的權利。
+    - generic [ref=e523]: 教育部智慧雨林產業創生人才育成計畫（南臺科技大學 電子系 楊榮林 教授）
