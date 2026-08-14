@@ -40,12 +40,12 @@ html:not([data-portable-source-tooltips-ready]) .portable-chart-summary>.portabl
 #report-catalog-sidebar ul{display:grid;gap:4px;margin:0;padding:0;list-style:none}
 #report-catalog-sidebar a{display:block;padding:7px 8px;border-radius:6px;color:var(--portable-muted);font-size:13px;line-height:1.35;text-decoration:none}
 #report-catalog-sidebar a:hover,#report-catalog-sidebar a:focus-visible{color:var(--portable-ink);background:var(--portable-surface-subtle);outline:none}
-[data-artifact-block-id],#data-analytics-portable-reader h2{scroll-margin-top:76px}
+[data-artifact-block-id],#data-analytics-portable-reader h2,#report-audio-summary,#report-audio-summary-live{scroll-margin-top:76px}
 #report-audio-summary,#report-audio-summary-live{max-width:768px;margin:24px auto 0;padding:16px 18px;border:1px solid var(--portable-border);border-radius:12px;background:var(--portable-surface-subtle)}
 #report-audio-summary .report-audio-label,#report-audio-summary-live .report-audio-label{margin:0 0 4px;color:var(--portable-ink);font-size:15px;font-weight:600}
 #report-audio-summary .report-audio-note,#report-audio-summary-live .report-audio-note{margin:0 0 12px;color:var(--portable-muted);font-size:13px}
 #report-audio-summary audio,#report-audio-summary-live audio{display:block;width:100%}
-@media(max-width:1199px){#report-catalog-sidebar{position:sticky;top:48px;z-index:59;width:auto;max-width:none;max-height:none;margin:0;padding:8px 16px;overflow-x:auto;border-width:0 0 1px;border-radius:0;box-shadow:0 2px 6px rgba(0,0,0,.06)}#report-catalog-sidebar .report-catalog-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}#report-catalog-sidebar ul{display:flex;width:max-content;gap:6px}#report-catalog-sidebar a{padding:6px 9px;white-space:nowrap;background:var(--portable-surface-subtle)}[data-artifact-block-id],#data-analytics-portable-reader h2{scroll-margin-top:120px}}
+@media(max-width:1199px){#report-catalog-sidebar{position:sticky;top:48px;z-index:59;width:auto;max-width:none;max-height:none;margin:0;padding:8px 16px;overflow-x:auto;border-width:0 0 1px;border-radius:0;box-shadow:0 2px 6px rgba(0,0,0,.06)}#report-catalog-sidebar .report-catalog-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}#report-catalog-sidebar ul{display:flex;width:max-content;gap:6px}#report-catalog-sidebar a{padding:6px 9px;white-space:nowrap;background:var(--portable-surface-subtle)}[data-artifact-block-id],#data-analytics-portable-reader h2,#report-audio-summary,#report-audio-summary-live{scroll-margin-top:120px}}
 @media print{#report-catalog-sidebar{display:none!important}}
 </style>
 <!-- report-catalog-style:end -->
@@ -55,6 +55,7 @@ html:not([data-portable-source-tooltips-ready]) .portable-chart-summary>.portabl
 <nav id="report-catalog-sidebar" aria-label="報告目錄" hidden>
   <p class="report-catalog-title">報告目錄</p>
   <ul>
+    <li><a href="#report-audio-summary">三分鐘語音執行摘要</a></li>
     <li><a href="#report-executive_summary">工作坊綜合效益</a></li>
     <li><a href="#report-readiness_takeaway">實務支援能力提升</a></li>
     <li><a href="#report-delivery_fit">課程需求與後續瓶頸</a></li>
@@ -5006,6 +5007,7 @@ ivjnSXcQcPO4VDeP11//6YMY0j/djL9+/c1r5Wd7K9J981q+hKj/JZX3rXpy+Ga5+lCtltKjUmg2
 <script id="report-catalog-script">
 (() => {
   const sections = {
+    "audio-summary": "三分鐘語音執行摘要",
     executive_summary: "工作坊執行效益綜合分析（執行摘要）",
     readiness_takeaway: "實務支援能力的提升情形",
     delivery_fit: "課程內容與參與者需求相符",
@@ -5030,7 +5032,9 @@ ivjnSXcQcPO4VDeP11//6YMY0j/djL9+/c1r5Wd7K9J981q+hKj/JZX3rXpy+Ga5+lCtltKjUmg2
   }
 
   function sectionTarget(blockId) {
-    return visibleReaderTarget(blockId) || document.getElementById("report-" + blockId);
+    return visibleReaderTarget(blockId)
+      || document.getElementById("report-" + blockId + "-live")
+      || document.getElementById("report-" + blockId);
   }
 
   function addLiveAudioSummary() {
