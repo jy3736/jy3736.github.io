@@ -5061,13 +5061,13 @@ ivjnSXcQcPO4VDeP11//6YMY0j/djL9+/c1r5Wd7K9J981q+hKj/JZX3rXpy+Ga5+lCtltKjUmg2
   }
 
   function relocateCatalogBelowHeader() {
-    if (!catalog || catalog.dataset.catalogRelocated) return;
+    if (!catalog) return;
     const header = document.querySelector(".analytics-top-bar") ||
-      document.querySelector(".portable-page-header:not([style*='display: none'])");
-    if (header && header.parentElement && header.getBoundingClientRect().height > 0) {
-      header.insertAdjacentElement("afterend", catalog);
-      catalog.dataset.catalogRelocated = "true";
-    }
+      document.querySelector(".portable-page-header");
+    if (!header || !header.parentElement) return;
+    if (header.nextElementSibling === catalog) return;
+    if (header.getBoundingClientRect().height <= 0) return;
+    header.insertAdjacentElement("afterend", catalog);
   }
 
   function prepareCatalog() {
