@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3章 運算子｜自我檢測 — C語言統測自主學習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-alt: #334155;
+  --bg-code: #0b1120;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #0ea5e9;
+  --accent-light: #38bdf8;
+  --accent-glow: rgba(14, 165, 233, 0.18);
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.35);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --font-body: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', Consolas, 'SF Mono', Monaco, monospace;
+}
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f5f9;
+  --bg-code: #0f172a;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent: #0284c7;
+  --accent-light: #0ea5e9;
+  --accent-glow: rgba(2, 132, 199, 0.12);
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.8;
+  letter-spacing: 0.015em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+.top-header {
+  position: sticky; top: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 900;
+  padding: 10px 24px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  transition: background 0.3s ease;
+}
+[data-theme="light"] .top-header { background: rgba(255, 255, 255, 0.88); }
+.header-brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand-badge {
+  background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent);
+  padding: 4px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em;
+}
+[data-theme="light"] .brand-badge { color: var(--accent); }
+.brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-control {
+  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
+  padding: 6px 14px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+}
+.btn-control:hover { border-color: var(--accent); color: var(--accent-light); transform: translateY(-1px); }
+[data-theme="light"] .btn-control:hover { color: var(--accent); }
+.btn-control.primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+.btn-control.primary:hover { background: var(--accent-light); }
+
+.main-content { max-width: 900px; margin: 0 auto; padding: 32px 20px 100px; }
+
+.hero-banner {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px 28px 28px 32px; margin-bottom: 24px;
+  position: relative; overflow: hidden; box-shadow: var(--shadow);
+}
+.hero-banner::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%;
+  background: linear-gradient(180deg, var(--accent), #6366f1);
+}
+.hero-tag {
+  display: inline-block; background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent); padding: 4px 12px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 700; margin-bottom: 12px;
+}
+[data-theme="light"] .hero-tag { color: var(--accent); }
+.hero-banner h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); }
+.hero-banner p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.75; margin-bottom: 6px; }
+.hero-banner p:last-child { margin-bottom: 0; }
+.hero-banner strong { color: var(--warning, #f59e0b); }
+
+.score-bar {
+  position: sticky; top: 54px; z-index: 800;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
+  padding: 14px 20px; margin-bottom: 28px; box-shadow: var(--shadow-sm);
+}
+.score-items { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.score-item { font-size: 0.92rem; color: var(--text-secondary); font-weight: 600; }
+.score-item strong { font-size: 1.15rem; color: var(--accent-light); font-weight: 900; }
+[data-theme="light"] .score-item strong { color: var(--accent); }
+.score-item.is-correct strong { color: var(--success); }
+
+pre.code-content {
+  font-family: var(--font-code); font-size: 0.9rem; line-height: 1.65;
+  padding: 16px 20px; color: #e2e8f0; overflow-x: auto; margin: 0;
+  background: var(--bg-code); border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+}
+pre.code-content code { font-family: inherit; }
+code.inline {
+  font-family: var(--font-code); font-size: 0.88em;
+  background: var(--bg-card-alt); color: var(--accent-light);
+  padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color);
+}
+[data-theme="light"] code.inline { color: var(--accent); }
+.q-code-wrap { margin: 14px 0 18px; }
+.q-opt-code { margin: 6px 0 14px; }
+
+.question-card {
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px; margin: 28px 0; box-shadow: var(--shadow); transition: border-color 0.2s ease;
+}
+.question-card:hover { border-color: var(--accent); }
+.q-meta {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
+}
+.q-title-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.q-badge { background: var(--accent); color: #ffffff; padding: 4px 12px; border-radius: 6px; font-size: 0.88rem; font-weight: 800; }
+.q-concept { font-size: 0.88rem; color: var(--text-secondary); font-weight: 600; }
+.q-body { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.6; }
+
+.options-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.option-btn {
+  background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  padding: 12px 18px; color: var(--text-primary); font-size: 0.95rem; font-weight: 500;
+  text-align: left; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;
+  transition: all 0.15s ease; width: 100%;
+}
+.option-btn:hover { border-color: var(--accent); background: var(--accent-glow); transform: translateX(4px); }
+.opt-label {
+  background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--accent-light);
+  width: 28px; height: 28px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+}
+[data-theme="light"] .opt-label { color: var(--accent); }
+.option-btn.selected-correct { background: var(--success-bg) !important; border-color: var(--success) !important; color: var(--text-primary) !important; }
+.option-btn.selected-correct .opt-label { background: var(--success) !important; color: #ffffff !important; }
+.option-btn.selected-wrong { background: var(--danger-bg) !important; border-color: var(--danger) !important; color: var(--text-primary) !important; }
+.option-btn.selected-wrong .opt-label { background: var(--danger) !important; color: #ffffff !important; }
+.opt-text-code { font-family: var(--font-code); font-size: 0.92em; }
+
+.explanation-toggle-btn {
+  width: 100%; background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent-light);
+  padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  margin-top: 14px; transition: all 0.2s ease;
+}
+[data-theme="light"] .explanation-toggle-btn { color: var(--accent); }
+.explanation-toggle-btn:hover { background: var(--accent); color: #ffffff; }
+.toggle-icon { transition: transform 0.3s ease; }
+.explanation-toggle-btn.open .toggle-icon { transform: rotate(180deg); }
+
+.explanation-box {
+  display: none; background: var(--bg-primary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); padding: 24px; margin-top: 14px; animation: fadeIn 0.3s ease;
+}
+.explanation-box.show { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.ans-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--success-bg); border: 1px solid var(--success-border);
+  padding: 12px 18px; border-radius: var(--radius-sm); margin-bottom: 20px;
+}
+.ans-label { font-size: 0.9rem; font-weight: 700; color: var(--success); }
+.ans-value { font-size: 1.25rem; font-weight: 900; color: var(--success); }
+
+.opt-breakdown-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.opt-analysis-card { border-radius: var(--radius-sm); padding: 14px 18px; border: 1px solid var(--border-color); background: var(--bg-card); }
+.opt-analysis-card.is-correct { border-color: var(--success-border); background: var(--success-bg); }
+.opt-analysis-card.is-wrong { border-color: var(--border-color); }
+.opt-card-header { display: flex; align-items: center; gap: 10px; font-weight: 800; margin-bottom: 6px; flex-wrap: wrap; }
+.badge-correct { background: var(--success); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.badge-wrong { background: var(--danger); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.opt-analysis-text { font-size: 0.93rem; line-height: 1.65; color: var(--text-primary); }
+
+footer.page-footer {
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color);
+  color: var(--text-muted); font-size: 0.85rem; text-align: center; line-height: 1.8;
+}
+
+@media (max-width: 640px) {
+  .main-content { padding: 20px 14px 80px; }
+  .question-card { padding: 18px; }
+  .score-bar { top: 90px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-brand">
+    <span class="brand-badge">CH.3 自我檢測</span>
+    <span class="brand-title">⚙️ 運算子</span>
+  </div>
+  <div class="header-actions">
+    <a class="btn-control" href="index.html" style="text-decoration: none;"><span>📋</span> <span>返回章節選單</span></a>
+    <button class="btn-control" onclick="toggleAllExplanations()"><span id="toggle-all-text">全部展開詳解</span></button>
+    <button class="btn-control" id="btn-theme" onclick="toggleTheme()">🌙 深色模式</button>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="hero-banner">
+    <span class="hero-tag">⚠️ 模擬練習題說明</span>
+    <h1>第 3 章：運算子｜自我檢測（20 題）</h1>
+    <p>以下 20 題為依據第 3 章教材內容自行編寫的<strong>模擬練習題</strong>，出題風格參考了歷屆統測（技專校院入學測驗中心）試題的命題習慣，但<strong>並非</strong>任何一年的歷屆真題，內容僅供學習自我檢測參考，不代表正式考試之題型、難度或配分。</p>
+    <p>每題單選、4 個選項。點選任一選項即可立即看到對錯標示，並自動展開該題的逐項詳解；上方「全部展開詳解」可一次展開或收合所有題目的說明；重新測驗會重新載入頁面，清空所有作答紀錄。</p>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-items">
+      <div class="score-item">已作答 <strong id="answered-count">0</strong> / 20</div>
+      <div class="score-item is-correct">答對 <strong id="correct-count">0</strong> 題</div>
+    </div>
+    <button class="btn-control primary" onclick="location.reload()">🔄 重新測驗</button>
+  </div>
+
+  <div class="question-card" id="q-ch3q01">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 01</span>
+        <span class="q-concept">📌 概念：運算子優先順序（算術＋關係）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 2, b = 3, c = 4;
+4      int result = a + b * c &gt; 10;
+5      printf(&quot;%d\n&quot;, result);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q01" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q01')"><span class="opt-label">A</span><span>1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q01')"><span class="opt-label">B</span><span>0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q01')"><span class="opt-label">C</span><span>14</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q01')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q01', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q01">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">b*c 因為乘法優先順序比加法高，會先算 3*4=12；再算 a+12=2+12=14；最後 14>10 成立，結果為 1（在 C 語言中，關係運算式為真時的值是 1）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">若照優先順序正確計算，14>10 成立，結果應為 1（真），不是 0（假）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">14 只是 a+b*c 這個子運算式的中間結果，而 result 儲存的是整個 a+b*c>10 關係運算式的真假值（0或1），不是 14 本身。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">這是完全合法的算術與關係運算混合運算式，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q02">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 02</span>
+        <span class="q-concept">📌 概念：優先順序與結合性總表</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言運算子的優先順序（Precedence）與結合性（Associativity），下列敘述何者正確？</div>
+    <div class="options-grid" data-qid="ch3q02" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q02')"><span class="opt-label">A</span><span>邏輯或 || 的優先順序比邏輯且 &amp;&amp; 高，因此 a || b &amp;&amp; c 會被解讀成 (a || b) &amp;&amp; c，而不是 a || (b &amp;&amp; c)</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q02')"><span class="opt-label">B</span><span>賦值運算子（如 =）的結合性是「由左而右」，所以像 a = b = c; 這種連續賦值，會先計算 a = b，再把結果賦值給 c</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q02')"><span class="opt-label">C</span><span>關係運算子（如 &gt;、&lt;）的優先順序比算術運算子（如 +、-）高，所以 a + b &gt; c 會被解讀成 a + (b &gt; c)</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q02')"><span class="opt-label">D</span><span>乘法 * 與除法 / 的優先順序相同，且結合性是「由左而右」，所以 a / b * c 會先計算 a / b，再把結果乘以 c</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q02', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q02">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">|| 的優先順序其實比 && 低，所以 a || b && c 會被解讀成 a || (b && c)，而不是 (a || b) && c，這個選項把優先順序描述反了。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">賦值運算子的結合性是「由右而左」，所以 a = b = c; 會先計算 b = c（把 c 的值存入 b），再把這個結果賦值給 a，並不是「先算 a=b 再賦值給 c」。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">關係運算子（如 >、<）的優先順序其實比算術運算子（如 +、-）低，所以 a + b > c 會被解讀成 (a + b) > c，而不是 a + (b > c)，這個選項也把優先順序描述反了。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">* 與 / 優先順序相同，結合性為「由左而右」，因此 a / b * c 會先計算 a / b，再把結果乘以 c，也就是 (a / b) * c。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q03">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 03</span>
+        <span class="q-concept">📌 概念：陷阱：& 與 == 的優先順序</span>
+      </div>
+    </div>
+    <div class="q-body">撰寫者原本的意圖，可能是想要判斷「(a &amp; b) 的結果是否等於 c」，但 C 語言運算子的優先順序，讓行號 4 的判斷式實際上並不是這樣被解讀的。請問實際執行後會印出什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 6, b = 3, c = 2;
+4      if (a &amp; b == c)
+5          printf(&quot;YES\n&quot;);
+6      else
+7          printf(&quot;NO\n&quot;);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q03" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q03')"><span class="opt-label">A</span><span>YES，因為 (a &amp; b) 計算出來是 2，剛好等於 c</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q03')"><span class="opt-label">B</span><span>NO，因為 == 的優先順序比 &amp; 高，行號 4 實際上被解讀成 a &amp; (b == c)，而 b == c 為假（0），a &amp; 0 的結果也是 0（假），所以執行 else 分支</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q03')"><span class="opt-label">C</span><span>YES，因為 &amp; 的優先順序比 == 高，行號 4 會先計算 a &amp; b 再與 c 比較，與撰寫者原意相符</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q03')"><span class="opt-label">D</span><span>編譯錯誤，因為 if 判斷式中不可以同時使用 &amp; 與 == 兩種運算子</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q03', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q03">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">若真的是先計算 (a & b) 再與 c 比較，結果確實會是 YES，但這並不是 C 語言實際採用的運算順序（見選項 B 的說明）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">在 C 語言中，== 的優先順序比 & 高，因此行號 4 實際上被解讀成 a & (b == c)：b == c（3==2）為假（0），a & 0 的結果一定是 0（假），所以會執行 else 分支，印出 NO。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">事實正好相反，& 的優先順序比 == 低，不是比較高，因此不會先計算 a & b。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">在同一個 if 判斷式中同時使用 & 與 == 是完全合法的 C 語法，不會造成編譯錯誤，只是結果可能不符合直覺（甚至部分編譯器會針對這種寫法提出警告）。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q04">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 04</span>
+        <span class="q-concept">📌 概念：陷阱：<< 與 + 的優先順序</span>
+      </div>
+    </div>
+    <div class="q-body">撰寫者原本可能想要計算「先把 x 左移 2 位，再加 1」（也就是 (x &lt;&lt; 2) + 1），但 C 語言運算子的優先順序，讓行號 4 實際計算的並不是這樣。請問 result 印出的值是多少？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int x = 1;
+4      int result = x &lt;&lt; 2 + 1;
+5      printf(&quot;%d\n&quot;, result);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q04" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q04')"><span class="opt-label">A</span><span>5（撰寫者原本預期的結果）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q04')"><span class="opt-label">B</span><span>8（因為 + 的優先順序比 &lt;&lt; 高，實際上是 x &lt;&lt; (2 + 1)）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q04')"><span class="opt-label">C</span><span>4</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q04')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q04', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q04">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">若真的先算 (x<<2) 再加 1，結果會是 5；但 C 語言實際運算順序並非如此。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">位移運算子 << 的優先順序其實比加法 + 低，因此行號 4 實際上被解讀成 x << (2 + 1)，也就是 1 << 3，等於 8。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">4 既不是 (x<<2)+1 的結果（應為5），也不是 x<<(2+1) 的結果（應為8），不符合任何一種計算方式。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">這是合法的位移與算術混合運算式，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q05">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 05</span>
+        <span class="q-concept">📌 概念：陷阱：= 與 == 的混淆</span>
+      </div>
+    </div>
+    <div class="q-body">此程式的撰寫者原本可能想要判斷「score 是否等於 60」，但實際執行後卻印出「及格」，即使 score 原本是 0。請問原因為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int score = 0;
+4      if (score = 60)
+5          printf(&quot;及格\n&quot;);
+6      else
+7          printf(&quot;不及格\n&quot;);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q05" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q05')"><span class="opt-label">A</span><span>這是編譯器的 bug，score = 60 應該要被編譯器擋下來，正常編譯器都不會讓這種寫法通過</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q05')"><span class="opt-label">B</span><span>if 判斷式中，= 與 == 其實是完全相同的運算子，只是寫法不同，兩者效果一樣</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q05')"><span class="opt-label">C</span><span>因為 score 原本被宣告為 0，0 在 C 語言中被視為「真」，所以才會進入 if 分支</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q05')"><span class="opt-label">D</span><span>行號 4 的 score = 60 是「賦值運算」而不是「等於判斷」，這個運算式會把 60 存入 score，而賦值運算式本身的值就是 60（非 0），在 if 判斷中被視為真，因此一定會執行 if 分支</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q05', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q05">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">這不是編譯器的 bug，score = 60 放在 if 判斷式中是完全合法的 C 語法，一般編譯器不會擋下這種寫法（有些會給出提醒性的警告，但不會拒絕編譯）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">= （賦值）與 == （等於判斷）是意義完全不同的兩個運算子，= 會改變變數的值，== 只是比較兩個值是否相等而不會改變任何變數，兩者不能互相取代。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">0 在 C 語言中被視為「假」而不是「真」；而且此程式的重點在於 score 在判斷之前就已經被 score = 60 重新賦值成 60，並不是用原本的 0 去判斷。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">行號 4 的 score = 60 是「賦值運算」而不是「等於判斷」，這個運算式會把 60 存入 score，而賦值運算式本身的值就是右邊被賦的值（60，非 0），在 if 判斷中被視為真，因此一定會執行 if 分支，印出「及格」。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q06">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 06</span>
+        <span class="q-concept">📌 概念：前置遞增 ++a vs 後置遞增 a++</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 5;
+4      int b = ++a;
+5      int c = 5;
+6      int d = c++;
+7      printf(&quot;%d %d %d %d\n&quot;, a, b, c, d);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q06" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q06')"><span class="opt-label">A</span><span>6 6 5 6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q06')"><span class="opt-label">B</span><span>6 5 6 5</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q06')"><span class="opt-label">C</span><span>6 6 6 5</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q06')"><span class="opt-label">D</span><span>5 6 6 5</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q06', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q06">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">c 在 c++ 這個運算式執行完之後就已經遞增為 6（副作用一定會發生），第三個值應該印出遞增後的 c（6），不是遞增前的值（5）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">b 應該等於遞增後的 a（也就是 6），不是遞增前的值（5）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">++a 是前置遞增：先把 a 遞增為 6，再把這個新值指定給 b，所以 a=6, b=6；c++ 是後置遞增：先把 c 目前的值（5）指定給 d，再把 c 遞增為 6，所以 c=6, d=5。四個值依序是 6 6 6 5。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">a 是被前置遞增，指定給 b 之前就已經變成 6，所以第一個值應該是 6，不是 5。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q07">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 07</span>
+        <span class="q-concept">📌 概念：未定義行為：同一運算式中重複遞增同一變數</span>
+      </div>
+    </div>
+    <div class="q-body">關於此程式行號 4 的敘述，下列何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int i = 5;
+4      int result = i++ + i++;
+5      printf(&quot;%d\n&quot;, result);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q07" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q07')"><span class="opt-label">A</span><span>result 一定是 10，因為 i++ 會先使用 i 目前的值（5），再遞增，兩次相加剛好是 5+5=10</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q07')"><span class="opt-label">B</span><span>result 一定是 11，因為第一個 i++ 用 5，第二個 i++ 因為 i 已經變成 6，所以用 6，5+6=11</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q07')"><span class="opt-label">C</span><span>這是未定義行為（Undefined Behavior）：在同一個運算式中，對同一個變數 i 使用了兩次沒有中間「序列點（Sequence Point）」隔開的遞增運算，C 語言標準並未規定這種寫法的結果，不同編譯器（甚至同一編譯器的不同最佳化設定）可能得到不同的數值</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q07')"><span class="opt-label">D</span><span>編譯錯誤，因為同一個變數不能在同一個運算式中出現兩次</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q07', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q07">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">這種「先用後加、依序視為 5+5」的假設，忽略了同一運算式中對同一變數做兩次無序列點隔開的遞增，其結果在 C 語言標準中並未被定義，不能保證一定是 10。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">這種「先用 5、第二次用 6」的假設，是把運算元求值順序自行腦補成「由左而右」，但 C 語言標準並未保證 + 兩側運算元的求值順序，也未規定這種寫法的結果，不能保證一定是 11。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">在同一個運算式中，對同一個變數 i 使用了兩次沒有中間序列點（Sequence Point）隔開的遞增運算，這是典型的未定義行為，C 語言標準並未規定其結果，不同編譯器（甚至同一編譯器的不同最佳化設定）可能得到不同的數值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">同一個變數在同一個運算式中出現兩次，在語法上是合法的（能通過編譯），問題出在其「語意」是未定義行為，而不是語法錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q08">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 08</span>
+        <span class="q-concept">📌 概念：後置遞增用於陣列索引</span>
+      </div>
+    </div>
+    <div class="q-body">執行後兩行輸出分別是什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int arr[5] = {10, 20, 30, 40, 50};
+4      int i = 1;
+5      printf(&quot;%d\n&quot;, arr[i++]);
+6      printf(&quot;%d\n&quot;, i);
+7      return 0;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q08" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q08')"><span class="opt-label">A</span><span>10 然後 1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q08')"><span class="opt-label">B</span><span>20 然後 1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q08')"><span class="opt-label">C</span><span>30 然後 2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q08')"><span class="opt-label">D</span><span>20 然後 2</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q08', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q08">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">arr[i++] 使用的是 i 遞增前的值（1）而不是遞增後的值（2）來做索引，所以第一個值不是 arr[0]（10）；而且 i++ 的副作用一定會發生，i 最終一定會變成 2，不會停留在 1。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">i++ 的遞增副作用一定會發生，執行完 arr[i++] 這整個運算式（或這一整行陳述式）之後，i 一定已經變成 2，第二行不會印出未遞增的 1。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">30 是 arr[2] 的值，只有在使用「前置遞增」arr[++i] 時，才會先把 i 遞增成 2 再當作索引；此處使用的是後置遞增 i++，索引用的仍是遞增前的 i（1），所以印出的是 arr[1]（20），不是 arr[2]（30）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">arr[i++] 會先用 i 目前的值（1）當作陣列索引，所以印出 arr[1]，也就是 20；而這個運算式執行完之後，i 的副作用（遞增）已經發生，i 變成 2，所以第二行印出 2。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q09">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 09</span>
+        <span class="q-concept">📌 概念：位元運算子 & 與 |</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      unsigned char a = 12;   // 0000 1100
+4      unsigned char b = 10;   // 0000 1010
+5      printf(&quot;%d %d\n&quot;, a &amp; b, a | b);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q09" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q09')"><span class="opt-label">A</span><span>8 14</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q09')"><span class="opt-label">B</span><span>22 2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q09')"><span class="opt-label">C</span><span>2 8</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q09')"><span class="opt-label">D</span><span>14 8</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q09', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q09">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">a=12（0000 1100），b=10（0000 1010）。逐位元做 AND：0000 1100 & 0000 1010 = 0000 1000 = 8；逐位元做 OR：0000 1100 | 0000 1010 = 0000 1110 = 14。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">22 與 2 並不是 a、b 逐位元做 AND、OR 運算後的正確結果，比較接近把 a、b 直接相加或相減得到的數字，與位元運算的規則不符。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">2 與 8 並非 a & b 與 a | b 依位元運算規則計算出的正確結果組合。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">這個選項把 AND 與 OR 的結果順序對調了：a & b 應該是 8（較小），a | b 應該是 14（較大），不是反過來的 14 與 8。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q10">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 10</span>
+        <span class="q-concept">📌 概念：位元運算子 ^ 與 ~</span>
+      </div>
+    </div>
+    <div class="q-body">（假設 unsigned char 占 1 個位元組）執行後兩行輸出分別是什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      unsigned char a = 5;    // 0000 0101
+4      printf(&quot;%d\n&quot;, a ^ a);
+5      printf(&quot;%d\n&quot;, (unsigned char)(~a));
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q10" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q10')"><span class="opt-label">A</span><span>5 然後 250</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q10')"><span class="opt-label">B</span><span>10 然後 245</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q10')"><span class="opt-label">C</span><span>0 然後 250</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q10')"><span class="opt-label">D</span><span>0 然後 -6</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q10', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q10">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">a ^ a 對任何 a 而言都一定是 0，不會是 5；這個選項的兩個數字都不符合實際的位元運算結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">a ^ a 恆為 0，不會是 10；245 也不是 ~a（轉成 unsigned char）的正確結果（正確應為 250）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">任何值與自己做 XOR（^）運算，結果一定是 0；~a 是把 0000 0101 每一位元取反，得到 1111 1010，因為題目指定轉型為 unsigned char（無號 8 位元），這個位元樣式對應的無號整數值是 250。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">-6 是把 ~a 的位元樣式解讀成「有號」char 時才會得到的值（二補數 1111 1010 當作有號數即為 -6）；但題目明確要求轉型為 unsigned char，因此應該解讀成無號數 250，不是 -6。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q11">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 11</span>
+        <span class="q-concept">📌 概念：位移運算子 << 與 >> 的性質</span>
+      </div>
+    </div>
+    <div class="q-body">關於位元運算子 &lt;&lt; （左移）與 &gt;&gt; （右移）的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch3q11" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q11')"><span class="opt-label">A</span><span>x &lt;&lt; n 對一個非負整數 x 而言，效果相當於把 x 乘以 2 的 n 次方（在不溢位的前提下）；x &gt;&gt; n 則相當於把 x 除以 2 的 n 次方並捨去小數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q11')"><span class="opt-label">B</span><span>左移與右移運算子只能用在 unsigned 型態的變數上，對 signed（有號）整數使用一定會產生編譯錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q11')"><span class="opt-label">C</span><span>x &lt;&lt; n 與 x &gt;&gt; n 的執行結果，與 x 的資料型態（char、short、int、long）完全無關，任何型態左移或右移 n 位後的位元組數都會維持不變</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q11')"><span class="opt-label">D</span><span>右移運算子 &gt;&gt; 一定是「補 0」的邏輯右移（Logical Shift），不論 x 是正數還是負數，結果都一樣</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q11', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q11">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">對非負整數而言，左移 n 位相當於乘以 2 的 n 次方（在不溢位的前提下），右移 n 位相當於除以 2 的 n 次方並捨去小數，這是位移運算最基本也最常被利用的性質。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">位移運算子完全可以用在 signed（有號）整數上，這是非常常見且合法的寫法，不會產生編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">不同資料型態的位元寬度不同（例如 char 8 位元、int 32 位元），移出去的位元數量與能保留的結果範圍會因型態而異，並非「與型態完全無關」。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">對「負數」進行右移時，實際行為是實作定義（Implementation-defined），許多編譯器會採用「算術右移」（Arithmetic Shift，以符號位元補位而不是一律補 0），並非保證一律是邏輯右移。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q12">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 12</span>
+        <span class="q-concept">📌 概念：位移＋OR 組合：設定特定位元</span>
+      </div>
+    </div>
+    <div class="q-body">（位元編號由最右邊（最低位）第 0 位開始計算）執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      unsigned char flags = 0;      // 0000 0000
+4      flags = flags | (1 &lt;&lt; 2);     // 設定第 2 個位元
+5      flags = flags | (1 &lt;&lt; 4);     // 設定第 4 個位元
+6      printf(&quot;%d\n&quot;, flags);
+7      return 0;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q12" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q12')"><span class="opt-label">A</span><span>6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q12')"><span class="opt-label">B</span><span>24</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q12')"><span class="opt-label">C</span><span>12</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q12')"><span class="opt-label">D</span><span>20</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q12', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q12">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">6 不符合 flags | (1<<2) | (1<<4) 依位元運算規則計算出的結果（應為 20），比較像是把位元編號或運算方式搞混所得到的錯誤數字。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">24（0001 1000）代表同時設定了第 3 與第 4 個位元，並不符合題目中設定第 2 與第 4 個位元後應該得到的 0001 0100（20）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">12（0000 1100）代表同時設定了第 2 與第 3 個位元，並不符合題目中第二次設定的其實是第 4 個位元（1<<4），而不是第 3 個位元（1<<3）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">1 << 2 得到 0000 0100（4），與 flags（0）做 OR 後 flags 變成 0000 0100（4）；接著 1 << 4 得到 0001 0000（16），再與 flags（4）做 OR，得到 0001 0100，也就是 20。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q13">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 13</span>
+        <span class="q-concept">📌 概念：位元運算 & vs 邏輯運算 &&</span>
+      </div>
+    </div>
+    <div class="q-body">執行後兩行輸出分別是什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 4, b = 8;
+4      printf(&quot;%d\n&quot;, a &amp; b);
+5      printf(&quot;%d\n&quot;, a &amp;&amp; b);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q13" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q13')"><span class="opt-label">A</span><span>0 然後 1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q13')"><span class="opt-label">B</span><span>12 然後 1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q13')"><span class="opt-label">C</span><span>0 然後 0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q13')"><span class="opt-label">D</span><span>12 然後 32</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q13', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q13">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">a=4（0100），b=8（1000），逐位元做 AND：0100 & 1000 = 0000，結果為 0；邏輯 AND && 只關心兩個運算元「是否為真（非 0）」，a 與 b 都是非 0（皆為真），所以 a && b 的結果為 1（真）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">12 是 a+b 的結果，並不是 a & b（位元 AND）依位元運算規則計算出的值；a & b 應該是 0，不是 12。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">a 與 b 都是非 0（真），依邏輯 AND 的定義，a && b 的結果應該是 1（真），不是 0（假）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">12 與 32 都不是 a & b 或 a && b 依各自運算規則所得到的正確結果，32 比較像是 a*b 的計算方式，與邏輯運算的「非 0 即真」規則不符。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q14">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 14</span>
+        <span class="q-concept">📌 概念：&& 短路求值</span>
+      </div>
+    </div>
+    <div class="q-body">執行後總共會印出幾行文字？其中會不會出現 &quot;called&quot;？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int sideEffect(void) {
+3      printf(&quot;called\n&quot;);
+4      return 1;
+5  }
+6  int main(void) {
+7      int a = 0;
+8      if (a != 0 &amp;&amp; sideEffect())
+9          printf(&quot;true branch\n&quot;);
+10     printf(&quot;done\n&quot;);
+11     return 0;
+12 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q14" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q14')"><span class="opt-label">A</span><span>總共印出 2 行：&quot;called&quot; 與 &quot;done&quot;，因為 &amp;&amp; 兩邊的運算式都一定會被求值</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q14')"><span class="opt-label">B</span><span>總共印出 1 行，只有 &quot;done&quot;，因為 a != 0 已經是假，依 &amp;&amp; 的短路求值（Short-Circuit Evaluation）特性，右邊的 sideEffect() 根本不會被呼叫，所以不會印出 &quot;called&quot;，也不會進入 if 分支印出 &quot;true branch&quot;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q14')"><span class="opt-label">C</span><span>總共印出 3 行：&quot;called&quot;、&quot;true branch&quot; 與 &quot;done&quot;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q14')"><span class="opt-label">D</span><span>程式會編譯錯誤，因為 if 判斷式中不可以呼叫函式</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q14', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q14">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">&& 具有短路求值特性，並非「兩邊的運算式都一定會被求值」；當左邊已經足以決定整個運算式的真假時（此處左邊為假），右邊根本不會被求值，因此 sideEffect() 不會被呼叫，也就不會印出 "called"。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">a != 0（0 != 0）為假，依 && 的短路求值特性，右邊的 sideEffect() 完全不會被呼叫（因此不印出 "called"），if 判斷整體為假，也不會進入 if 分支印出 "true branch"；程式最後只會印出一行 "done"。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">若三行都印出，代表 sideEffect() 被呼叫且 if 分支被執行，這與 && 的短路求值特性（左邊為假時右邊不求值）矛盾，不會發生。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">在 if 判斷式中呼叫函式是完全合法且常見的寫法，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q15">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 15</span>
+        <span class="q-concept">📌 概念：位元運算 vs 邏輯運算的差異</span>
+      </div>
+    </div>
+    <div class="q-body">關於位元運算子（&amp;、|）與邏輯運算子（&amp;&amp;、||）的差異，下列敘述何者正確？</div>
+    <div class="options-grid" data-qid="ch3q15" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q15')"><span class="opt-label">A</span><span>位元運算子（&amp;、|）與邏輯運算子（&amp;&amp;、||）的運算結果永遠相同，只是寫法不同、可以完全互相取代</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q15')"><span class="opt-label">B</span><span>邏輯運算子（&amp;&amp;、||）具有短路求值（Short-Circuit Evaluation）的特性，運算元不一定都會被求值；位元運算子（&amp;、|）則不具有短路求值特性，兩個運算元一定都會被求值</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q15')"><span class="opt-label">C</span><span>位元運算子只能用在 int 型態的變數上，不能用在 char 或 short 型態的變數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q15')"><span class="opt-label">D</span><span>邏輯運算子 &amp;&amp; 與 || 的運算結果，型態與運算元相同（例如兩個 char 做 &amp;&amp; 運算，結果也是 char）</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q15', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q15">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">如第 13 題所示，位元運算子（&）與邏輯運算子（&&）在同樣的運算元（a=4, b=8）下可以得到不同的結果（0 與 1），兩者運算結果並不永遠相同，也不能完全互相取代。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">邏輯運算子（&&、||）具有短路求值特性：只要左邊運算元已經能決定整個運算式的真假，右邊運算元就不會被求值；而位元運算子（&、|）不具備這種特性，兩個運算元一定都會先被求值，再進行逐位元運算。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">位元運算子可以用在任何整數型態上（包括 char、short、int 等，運算前會先進行整數提升），並不限定只能用於 int。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">&&、|| 等邏輯／關係運算子的運算結果，型態固定是 int（值只會是 0 或 1），與運算元本身的型態無關，不會因為運算元是 char 就讓結果也變成 char。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q16">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 16</span>
+        <span class="q-concept">📌 概念：三元運算子：巢狀條件</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int score = 75;
+4      char grade = (score &gt;= 90) ? &#x27;A&#x27; : (score &gt;= 80) ? &#x27;B&#x27; : (score &gt;= 70) ? &#x27;C&#x27; : &#x27;D&#x27;;
+5      printf(&quot;%c\n&quot;, grade);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q16" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q16')"><span class="opt-label">A</span><span>A</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q16')"><span class="opt-label">B</span><span>B</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q16')"><span class="opt-label">C</span><span>C</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q16')"><span class="opt-label">D</span><span>D</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q16', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q16">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">score=75 並未大於等於 90，所以第一個條件 score >= 90 為假，不會進入這個分支，grade 不會是 'A'。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">score=75 也未大於等於 80，所以 score >= 80 這個條件同樣為假，grade 不會是 'B'。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">依序判斷：score>=90 為假，score>=80 為假，score>=70（75>=70）為真，因此 grade 被設為 'C'。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">只有當前三個條件都為假時，才會走到最後的預設值 'D'；但 score>=70 這個條件已經成立，所以不會走到 'D' 這個分支。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q17">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 17</span>
+        <span class="q-concept">📌 概念：三元運算子相對於 + 與 > 的優先順序</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 5, b = 10;
+4      int result = 1 + a &gt; b ? a : b;
+5      printf(&quot;%d\n&quot;, result);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q17" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q17')"><span class="opt-label">A</span><span>10</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q17')"><span class="opt-label">B</span><span>6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q17')"><span class="opt-label">C</span><span>5</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q17')"><span class="opt-label">D</span><span>11</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q17', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q17">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">算術運算子 + 與關係運算子 > 的優先順序都比三元運算子 ?: 高，因此行號 4 實際上被解讀成 ((1 + a) > b) ? a : b：先算 1+a=6，再判斷 6>b（6>10）為假，所以取 : 後面的 b，也就是 10。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">6 只是 1+a 這個子運算式的中間結果，並不是整個三元運算式 (1+a>b) ? a : b 最終應該回傳的值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">5 是 a 的值，只有當 (1+a) > b 這個條件成立時，三元運算式才會回傳 a；但此處條件為假（6 不大於 10），所以不會回傳 5。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">11 是誤以為運算式被解讀成 1 + (a>b?a:b)（也就是誤以為三元運算子的優先順序比 + 還高）才會得到的結果；但實際上 + 的優先順序比三元運算子高，所以不是這樣計算。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q18">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 18</span>
+        <span class="q-concept">📌 概念：餘數運算子 % 與負數（C99 規則）</span>
+      </div>
+    </div>
+    <div class="q-body">（自 C99 起，整數的除法與餘數規則明確規定為「向零捨去」）執行後三行輸出分別是什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      printf(&quot;%d\n&quot;, 7 % 3);
+4      printf(&quot;%d\n&quot;, -7 % 3);
+5      printf(&quot;%d\n&quot;, 7 % -3);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q18" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q18')"><span class="opt-label">A</span><span>1、2、-2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q18')"><span class="opt-label">B</span><span>1、-1、-2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q18')"><span class="opt-label">C</span><span>1、-1、1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q18')"><span class="opt-label">D</span><span>1、-1、-1</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q18', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q18">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">第二、三行的數字（2、-2）都不是依 C99 規則（餘數正負號跟著被除數）計算出的正確結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">第三行應該是 1 而不是 -2；-2 比較接近誤把餘數規則當成「跟著除數」，或是與商（quotient）搞混所得到的錯誤數字。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">7%3：7=2*3+1，餘數為 1。-7%3：C99 起除法向零捨去，-7/3 捨去小數後為 -2，餘數 = -7-(3*-2) = -7+6 = -1（負號跟著被除數 -7）。7%-3：7/-3 捨去小數後為 -2，餘數 = 7-(-3*-2) = 7-6 = 1（正號跟著被除數 7）。三行依序為 1、-1、1。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">第三行 7 % -3 的正確結果是 1（正號跟著被除數 7，而被除數是正的），不是 -1；把正負號誤判成跟著除數（-3）而不是被除數。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q19">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 19</span>
+        <span class="q-concept">📌 概念：除法／餘數的 C99 規則（概念）</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C99 標準以後，C 語言整數除法 / 與餘數運算子 % 的規則，下列敘述何者正確？</div>
+    <div class="options-grid" data-qid="ch3q19" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q19')"><span class="opt-label">A</span><span>整數除法一律採用「無條件捨去（向下取整，Floor）」的規則，因此 -7 / 3 的結果會是 -3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q19')"><span class="opt-label">B</span><span>餘數運算子 % 計算出來的結果，正負號一定與「被除數」（% 左邊的運算元）相同，這是 C99 標準明確規定的行為</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q19')"><span class="opt-label">C</span><span>% 運算子可以直接用在 float 或 double 這類浮點數型態上，計算方式與整數 % 完全相同</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q19')"><span class="opt-label">D</span><span>對任意兩個整數 a、b 而言，(a / b) * b + a % b 不一定等於 a，這個等式只在 a、b 都是正整數時才成立</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q19', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q19">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">C99 標準明確規定整數除法是「向零捨去（Truncate Toward Zero）」，不是「無條件捨去（向下取整，Floor）」；-7/3 向零捨去的結果是 -2，不是 -3（floor 才會得到 -3）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">這是 C99 標準明確規定的行為：% 運算子的結果，正負號一定與被除數（% 左邊的運算元）相同，這也是「7%-3=1（正號跟著正的 7）」「-7%3=-1（負號跟著負的 -7）」這類結果的理論依據。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">C 語言內建的 % 運算子只能用於整數運算元，不能直接用於 float 或 double；若要對浮點數取餘數，需改用數學函式庫的 fmod()。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">(a/b)*b + a%b == a 這個等式對「任意」整數 a、b（b 不為 0）都成立，這是 C99 標準保證的不變性質，並不限定只有 a、b 都是正整數時才成立。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch3q20">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 20</span>
+        <span class="q-concept">📌 概念：實務應用：以 % 判斷負偶數</span>
+      </div>
+    </div>
+    <div class="q-body">小明想要寫一個 C 函式，判斷一個整數 n 是否為偶數（Even Number），並且這個函式必須對「負的偶數」（例如 -4）也能正確判斷為偶數。執行後兩行輸出分別是什麼？這個判斷偶數的寫法對負數是否仍然正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int isEven(int n) {
+3      return n % 2 == 0;
+4  }
+5  int main(void) {
+6      printf(&quot;%d\n&quot;, isEven(-4));
+7      printf(&quot;%d\n&quot;, isEven(-7));
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch3q20" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch3q20')"><span class="opt-label">A</span><span>1 然後 0，但這只是巧合，% 運算子對負數的行為在 C 語言中完全未定義（Undefined Behavior），這個函式其實隨時可能出錯</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch3q20')"><span class="opt-label">B</span><span>0 然後 1，因為負數對 2 取餘數的結果一定是負的偶數本身</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch3q20')"><span class="opt-label">C</span><span>編譯錯誤，因為 % 運算子不能用在負數上</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch3q20')"><span class="opt-label">D</span><span>1 然後 0，這個寫法對負數依然正確，因為 -4 % 2 得到 0（-4 確實是偶數），-7 % 2 得到 -1（不等於 0，-7 確實是奇數），程式的判斷邏輯仍然成立</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch3q20', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch3q20">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">自 C99 起，整數 % 運算子對負數運算元的行為是明確定義的（餘數正負號跟著被除數），並不是未定義行為；這個函式的正確性並非巧合，而是有明確的數學與標準依據。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">-4 % 2 的結果是 0（-4 確實整除 2），isEven(-4) 應該回傳 1（真）而不是 0；且「負數對 2 取餘數一定是負的偶數本身」這個說法也不成立（例如 -4%2=0，不是負的偶數本身）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">% 運算子完全可以用在負數運算元上，這是合法且常見的寫法，不會造成編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">-4 % 2：-4 可以被 2 整除，商為 -2，餘數為 0，所以 isEven(-4) 為真（1）；-7 % 2：向零捨去商為 -3，餘數為 -7-2*(-3)=-1，不等於 0，所以 isEven(-7) 為假（0）。這個以「% 2 == 0」判斷偶數的寫法，對負偶數依然正確，因為偶數除以 2 一定整除，餘數必為 0，與正負號無關。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <p>第 3 章：運算子｜自我檢測　共 20 題　自編模擬練習題，非歷屆真題　·　C語言統測自主學習系列　·　assessments/chapter3-operators-assessment.html</p>
+  </footer>
+
+</main>
+
+<script>
+let answeredState = {};
+
+function checkOption(btn, optionLetter, qid) {
+  const parentGrid = btn.closest('.options-grid');
+  const correctOption = parentGrid.getAttribute('data-correct');
+
+  parentGrid.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('selected-correct', 'selected-wrong');
+  });
+
+  const isCorrect = optionLetter === correctOption;
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+  } else {
+    btn.classList.add('selected-wrong');
+  }
+
+  answeredState[qid] = isCorrect;
+  updateScoreBar();
+
+  const expBox = document.getElementById('exp-' + qid);
+  const toggleBtn = expBox ? expBox.previousElementSibling : null;
+  if (expBox && !expBox.classList.contains('show')) {
+    expBox.classList.add('show');
+    if (toggleBtn) toggleBtn.classList.add('open');
+  }
+}
+
+function updateScoreBar() {
+  const keys = Object.keys(answeredState);
+  const answered = keys.length;
+  const correct = keys.filter(k => answeredState[k]).length;
+  const answeredEl = document.getElementById('answered-count');
+  const correctEl = document.getElementById('correct-count');
+  if (answeredEl) answeredEl.textContent = answered;
+  if (correctEl) correctEl.textContent = correct;
+}
+
+function toggleExplanation(boxId, btn) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  box.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+
+let allExpanded = false;
+function toggleAllExplanations() {
+  allExpanded = !allExpanded;
+  const boxes = document.querySelectorAll('.explanation-box');
+  const btns = document.querySelectorAll('.explanation-toggle-btn');
+  const toggleAllText = document.getElementById('toggle-all-text');
+
+  boxes.forEach(box => { if (allExpanded) box.classList.add('show'); else box.classList.remove('show'); });
+  btns.forEach(btn => { if (allExpanded) btn.classList.add('open'); else btn.classList.remove('open'); });
+  if (toggleAllText) toggleAllText.textContent = allExpanded ? '全部收合詳解' : '全部展開詳解';
+}
+
+function toggleTheme() {
+  const htmlEl = document.documentElement;
+  const currentTheme = htmlEl.getAttribute('data-theme');
+  const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+  htmlEl.setAttribute('data-theme', nextTheme);
+  const themeBtn = document.getElementById('btn-theme');
+  if (themeBtn) themeBtn.textContent = nextTheme === 'light' ? '☀️ 淺色模式' : '🌙 深色模式';
+}
+</script>
+
+</body>
+</html>

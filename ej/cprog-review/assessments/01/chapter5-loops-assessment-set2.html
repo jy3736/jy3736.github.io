@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第5章 迴圈結構｜自我檢測 Set 2 — C語言統測自主學習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-alt: #334155;
+  --bg-code: #0b1120;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #0ea5e9;
+  --accent-light: #38bdf8;
+  --accent-glow: rgba(14, 165, 233, 0.18);
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.35);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --font-body: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', Consolas, 'SF Mono', Monaco, monospace;
+}
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f5f9;
+  --bg-code: #0f172a;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent: #0284c7;
+  --accent-light: #0ea5e9;
+  --accent-glow: rgba(2, 132, 199, 0.12);
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.8;
+  letter-spacing: 0.015em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+.top-header {
+  position: sticky; top: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 900;
+  padding: 10px 24px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  transition: background 0.3s ease;
+}
+[data-theme="light"] .top-header { background: rgba(255, 255, 255, 0.88); }
+.header-brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand-badge {
+  background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent);
+  padding: 4px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em;
+}
+[data-theme="light"] .brand-badge { color: var(--accent); }
+.brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-control {
+  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
+  padding: 6px 14px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+}
+.btn-control:hover { border-color: var(--accent); color: var(--accent-light); transform: translateY(-1px); }
+[data-theme="light"] .btn-control:hover { color: var(--accent); }
+.btn-control.primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+.btn-control.primary:hover { background: var(--accent-light); }
+
+.main-content { max-width: 900px; margin: 0 auto; padding: 32px 20px 100px; }
+
+.hero-banner {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px 28px 28px 32px; margin-bottom: 24px;
+  position: relative; overflow: hidden; box-shadow: var(--shadow);
+}
+.hero-banner::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%;
+  background: linear-gradient(180deg, var(--accent), #6366f1);
+}
+.hero-tag {
+  display: inline-block; background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent); padding: 4px 12px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 700; margin-bottom: 12px;
+}
+[data-theme="light"] .hero-tag { color: var(--accent); }
+.hero-banner h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); }
+.hero-banner p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.75; margin-bottom: 6px; }
+.hero-banner p:last-child { margin-bottom: 0; }
+.hero-banner strong { color: var(--warning, #f59e0b); }
+
+.score-bar {
+  position: sticky; top: 54px; z-index: 800;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
+  padding: 14px 20px; margin-bottom: 28px; box-shadow: var(--shadow-sm);
+}
+.score-items { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.score-item { font-size: 0.92rem; color: var(--text-secondary); font-weight: 600; }
+.score-item strong { font-size: 1.15rem; color: var(--accent-light); font-weight: 900; }
+[data-theme="light"] .score-item strong { color: var(--accent); }
+.score-item.is-correct strong { color: var(--success); }
+
+pre.code-content {
+  font-family: var(--font-code); font-size: 0.9rem; line-height: 1.65;
+  padding: 16px 20px; color: #e2e8f0; overflow-x: auto; margin: 0;
+  background: var(--bg-code); border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+}
+pre.code-content code { font-family: inherit; }
+code.inline {
+  font-family: var(--font-code); font-size: 0.88em;
+  background: var(--bg-card-alt); color: var(--accent-light);
+  padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color);
+}
+[data-theme="light"] code.inline { color: var(--accent); }
+.q-code-wrap { margin: 14px 0 18px; }
+.q-opt-code { margin: 6px 0 14px; }
+
+.question-card {
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px; margin: 28px 0; box-shadow: var(--shadow); transition: border-color 0.2s ease;
+}
+.question-card:hover { border-color: var(--accent); }
+.q-meta {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
+}
+.q-title-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.q-badge { background: var(--accent); color: #ffffff; padding: 4px 12px; border-radius: 6px; font-size: 0.88rem; font-weight: 800; }
+.q-concept { font-size: 0.88rem; color: var(--text-secondary); font-weight: 600; }
+.q-body { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.6; }
+
+.options-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.option-btn {
+  background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  padding: 12px 18px; color: var(--text-primary); font-size: 0.95rem; font-weight: 500;
+  text-align: left; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;
+  transition: all 0.15s ease; width: 100%;
+}
+.option-btn:hover { border-color: var(--accent); background: var(--accent-glow); transform: translateX(4px); }
+.opt-label {
+  background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--accent-light);
+  width: 28px; height: 28px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+}
+[data-theme="light"] .opt-label { color: var(--accent); }
+.option-btn.selected-correct { background: var(--success-bg) !important; border-color: var(--success) !important; color: var(--text-primary) !important; }
+.option-btn.selected-correct .opt-label { background: var(--success) !important; color: #ffffff !important; }
+.option-btn.selected-wrong { background: var(--danger-bg) !important; border-color: var(--danger) !important; color: var(--text-primary) !important; }
+.option-btn.selected-wrong .opt-label { background: var(--danger) !important; color: #ffffff !important; }
+.opt-text-code { font-family: var(--font-code); font-size: 0.92em; }
+
+.explanation-toggle-btn {
+  width: 100%; background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent-light);
+  padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  margin-top: 14px; transition: all 0.2s ease;
+}
+[data-theme="light"] .explanation-toggle-btn { color: var(--accent); }
+.explanation-toggle-btn:hover { background: var(--accent); color: #ffffff; }
+.toggle-icon { transition: transform 0.3s ease; }
+.explanation-toggle-btn.open .toggle-icon { transform: rotate(180deg); }
+
+.explanation-box {
+  display: none; background: var(--bg-primary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); padding: 24px; margin-top: 14px; animation: fadeIn 0.3s ease;
+}
+.explanation-box.show { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.ans-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--success-bg); border: 1px solid var(--success-border);
+  padding: 12px 18px; border-radius: var(--radius-sm); margin-bottom: 20px;
+}
+.ans-label { font-size: 0.9rem; font-weight: 700; color: var(--success); }
+.ans-value { font-size: 1.25rem; font-weight: 900; color: var(--success); }
+
+.opt-breakdown-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.opt-analysis-card { border-radius: var(--radius-sm); padding: 14px 18px; border: 1px solid var(--border-color); background: var(--bg-card); }
+.opt-analysis-card.is-correct { border-color: var(--success-border); background: var(--success-bg); }
+.opt-analysis-card.is-wrong { border-color: var(--border-color); }
+.opt-card-header { display: flex; align-items: center; gap: 10px; font-weight: 800; margin-bottom: 6px; flex-wrap: wrap; }
+.badge-correct { background: var(--success); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.badge-wrong { background: var(--danger); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.opt-analysis-text { font-size: 0.93rem; line-height: 1.65; color: var(--text-primary); }
+
+footer.page-footer {
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color);
+  color: var(--text-muted); font-size: 0.85rem; text-align: center; line-height: 1.8;
+}
+
+@media (max-width: 640px) {
+  .main-content { padding: 20px 14px 80px; }
+  .question-card { padding: 18px; }
+  .score-bar { top: 90px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-brand">
+    <span class="brand-badge">CH.5 自我檢測 · Set 2</span>
+    <span class="brand-title">🔁 迴圈結構</span>
+  </div>
+  <div class="header-actions">
+    <a class="btn-control" href="index.html" style="text-decoration: none;"><span>📋</span> <span>返回章節選單</span></a>
+    <button class="btn-control" onclick="toggleAllExplanations()"><span id="toggle-all-text">全部展開詳解</span></button>
+    <button class="btn-control" id="btn-theme" onclick="toggleTheme()">🌙 深色模式</button>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="hero-banner">
+    <span class="hero-tag">⚠️ 模擬練習題說明</span>
+    <h1>第 5 章：迴圈結構｜自我檢測 Set 2（20 題）</h1>
+    <p>以下 20 題為依據第 5 章教材內容自行編寫的<strong>模擬練習題</strong>（Set 2），出題風格參考了歷屆統測（技專校院入學測驗中心）試題的命題習慣，但<strong>並非</strong>任何一年的歷屆真題，內容僅供學習自我檢測參考，不代表正式考試之題型、難度或配分。</p>
+    <p>本測驗與另一份「Set 1」為兩份各自獨立、題目完全不重複的 20 題測驗，涵蓋範圍相同（同樣涵蓋第 5 章全部子主題），可交替練習使用。</p>
+    <p>每題單選、4 個選項。點選任一選項即可立即看到對錯標示，並自動展開該題的逐項詳解；上方「全部展開詳解」可一次展開或收合所有題目的說明；重新測驗會重新載入頁面，清空所有作答紀錄。</p>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-items">
+      <div class="score-item">已作答 <strong id="answered-count">0</strong> / 20</div>
+      <div class="score-item is-correct">答對 <strong id="correct-count">0</strong> 題</div>
+    </div>
+    <button class="btn-control primary" onclick="location.reload()">🔄 重新測驗</button>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q01">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 01</span>
+        <span class="q-concept">📌 概念：迴圈選用時機：不確定次數的情境</span>
+      </div>
+    </div>
+    <div class="q-body">下列何種情境最適合使用 while 迴圈（而不是一開始就知道確切次數的 for 迴圈）？</div>
+    <div class="options-grid" data-qid="ch5set2q01" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q01')"><span class="opt-label">A</span><span>不斷讀取使用者輸入的整數，直到使用者輸入 -1 為止（無法事先知道使用者會輸入幾次）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q01')"><span class="opt-label">B</span><span>計算 1 加到 100 的總和（次數在寫程式時就已經確定是 100 次）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q01')"><span class="opt-label">C</span><span>印出九九乘法表（次數固定是 9×9=81 次）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q01')"><span class="opt-label">D</span><span>把陣列中前 10 個元素的值印出來（次數固定是 10 次）</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q01', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q01">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">使用者會輸入幾次是執行時才會知道的，事先無法確定次數，這正是最適合用 while（依條件持續執行）的情境。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">1 加到 100 的次數在寫程式的當下就已經確定是 100 次，用 for 迴圈更直覺。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">九九乘法表的次數固定是 81 次，屬於次數已知的情境，適合用 for 迴圈（甚至巢狀 for）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">印出前 10 個元素的次數也是固定已知的 10 次，適合用 for 迴圈。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q02">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 02</span>
+        <span class="q-concept">📌 概念：三種迴圈功能上可互相轉換</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言 for、while、do-while 三種迴圈的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch5set2q02" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q02')"><span class="opt-label">A</span><span>for 迴圈能做到的事情，while 與 do-while 迴圈都無法達成相同的效果</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q02')"><span class="opt-label">B</span><span>三種迴圈在功能上是可以互相轉換的：任何一個 for 迴圈都可以改寫成功能相同的 while 迴圈（只要正確搬移初始化、條件、更新三個部分），差別主要在於撰寫習慣與可讀性，而不是能力上的差異</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q02')"><span class="opt-label">C</span><span>do-while 迴圈不能搭配 break 與 continue 使用</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q02')"><span class="opt-label">D</span><span>while 迴圈與 for 迴圈都必須在宣告時就指定迴圈會執行的確切次數，否則無法通過編譯</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q02', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q02">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">只要把初始化、條件、更新三個部分正確搬移，for 迴圈幾乎都能改寫成功能相同的 while 迴圈，並非「無法達成相同效果」。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">三種迴圈在能力上是等價的，差異主要在於程式碼的撰寫習慣與可讀性（例如已知次數用 for 較直覺），而不是某一種迴圈能做到、其他迴圈做不到的事。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">do-while 迴圈完全可以搭配 break 與 continue，用法與其他迴圈相同。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">while 與 for 迴圈都可以依賴一個在執行時才確定真假的條件持續執行，不需要在宣告時就指定確切次數。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q03">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 03</span>
+        <span class="q-concept">📌 概念：for 迴圈語法（倒數階乘）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int product = 1;
+4      for (int i = 5; i &gt;= 1; i--) {
+5          product *= i;
+6      }
+7      printf(&quot;%d\n&quot;, product);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q03" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q03')"><span class="opt-label">A</span><span>15</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q03')"><span class="opt-label">B</span><span>20</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q03')"><span class="opt-label">C</span><span>120</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q03')"><span class="opt-label">D</span><span>24</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q03', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q03">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">15 是 1 到 5 的總和，不是這個迴圈計算的乘積。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">20 不符合 5×4×3×2×1 依序相乘的結果。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">迴圈從 i=5 倒數到 i=1，product 依序累乘 5×4×3×2×1，結果為 120，也就是 5 的階乘。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">24 是 4 的階乘（4×3×2×1），並不是這個迴圈（從 5 開始）計算出的結果。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q04">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 04</span>
+        <span class="q-concept">📌 概念：陷阱：for 迴圈後多打分號造成空迴圈主體</span>
+      </div>
+    </div>
+    <div class="q-body">撰寫者原本想要讓迴圈把 1 加到 5 的總和存入 sum，但行號 5 多打了一個分號。關於這個程式，下列敘述何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int sum = 0;
+4      int i;
+5      for (i = 1; i &lt;= 5; i++);
+6      {
+7          sum += i;
+8      }
+9      printf(&quot;%d\n&quot;, sum);
+10     return 0;
+11 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q04" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q04')"><span class="opt-label">A</span><span>編譯錯誤，因為 for 迴圈後面不可以直接接分號</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q04')"><span class="opt-label">B</span><span>印出 0，因為多出來的分號讓整個 for 迴圈與後面的區塊都被跳過，完全不會執行</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q04')"><span class="opt-label">C</span><span>印出 15，因為 1+2+3+4+5=15，這正是撰寫者原本想要的結果，多出來的分號不影響程式邏輯</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q04')"><span class="opt-label">D</span><span>印出 6，因為行號 5 的分號讓 for 迴圈的主體變成一個「空敘述」，迴圈實際上只是把 i 從 1 遞增到 6（讓條件失敗）卻什麼事都沒做；而行號 6-8 的 { sum += i; } 其實已經不屬於 for 迴圈的範圍，只是緊接在後面、只會執行一次的獨立敘述，使用的是迴圈結束後 i 的最終值 6，所以 sum = 0 + 6 = 6</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q04', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q04">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">`for(...);` 讓分號本身成為一個合法的「空敘述」，這是完全合法的 C 語法（雖然通常是不小心造成的），不會產生編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">for 迴圈本身仍然會照常執行（把 i 從 1 遞增到讓條件失敗為止），行號 6-8 的區塊也仍然會執行一次，並不是整段都被跳過。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">多出來的分號讓 for 迴圈的主體變成空敘述，sum += i 這一行其實已經不在迴圈控制範圍內，並不會被重複執行 5 次，所以不會是 15。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">分號讓 for 的主體變成空敘述，迴圈只是不斷把 i 遞增直到 6（此時 6<=5 為假才結束），中途什麼都沒做；行號 6-8 的區塊是獨立於迴圈之外、只會執行一次的敘述，用的是迴圈結束後 i 的值 6，因此 sum 只被加了一次 6，結果是 6。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q05">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 05</span>
+        <span class="q-concept">📌 概念：陷阱：在迴圈主體內額外修改迴圈變數</span>
+      </div>
+    </div>
+    <div class="q-body">此迴圈的主體內，除了 for 迴圈本身的更新部分 i++ 之外，又額外在行號 6 手動對 i 做了一次遞增。執行後 count 印出的值是多少？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int count = 0;
+4      for (int i = 0; i &lt; 5; i++) {
+5          count++;
+6          i++;
+7      }
+8      printf(&quot;%d\n&quot;, count);
+9      return 0;
+10 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q05" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q05')"><span class="opt-label">A</span><span>3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q05')"><span class="opt-label">B</span><span>5</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q05')"><span class="opt-label">C</span><span>2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q05')"><span class="opt-label">D</span><span>編譯錯誤，因為迴圈主體內不能修改迴圈變數 i</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q05', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q05">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">每一輪主體內，i 除了 for 本身的更新（i++）外，又被手動多加了 1，等於每輪 i 實際上增加了 2：i=0→(手動)1→(for更新)2；i=2→(手動)3→(for更新)4；i=4→(手動)5→(for更新)6，此時 6<5 為假而結束。主體總共只執行了 3 次，count 印出 3。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">5 是假設沒有行號 6 這行手動遞增、只靠 for 本身更新時的執行次數，但此程式因為多了一次手動遞增，實際執行次數比 5 少。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">2 低估了主體實際被執行的次數。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">在迴圈主體內修改迴圈變數是完全合法的 C 語法（雖然通常會讓邏輯變得難以理解，不建議這樣寫），不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q06">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 06</span>
+        <span class="q-concept">📌 概念：while 與 do-while：條件一開始就成立</span>
+      </div>
+    </div>
+    <div class="q-body">n 與 m 的初始值都是 3，條件也都是「大於 0」。執行後兩行輸出分別是什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int n = 3;
+4      while (n &gt; 0) {
+5          printf(&quot;%d &quot;, n);
+6          n--;
+7      }
+8      printf(&quot;\n&quot;);
+9      int m = 3;
+10     do {
+11         printf(&quot;%d &quot;, m);
+12         m--;
+13     } while (m &gt; 0);
+14     printf(&quot;\n&quot;);
+15     return 0;
+16 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q06" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q06')"><span class="opt-label">A</span><span>兩行輸出不同：while 印出 &quot;3 2 1&quot;，do-while 印出 &quot;2 1&quot;，因為 do-while 會多執行一次而少印出最後一個數字</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q06')"><span class="opt-label">B</span><span>兩行輸出完全相同，都是 &quot;3 2 1&quot;：因為 n 與 m 一開始都滿足「大於 0」的條件，while 迴圈的「先判斷」與 do-while 的「先執行」在此情況下不會造成任何差異，只有當條件一開始就不成立時，兩者的行為才會不同（如同 do-while 至少會執行一次主體）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q06')"><span class="opt-label">C</span><span>兩行輸出不同：while 印出 &quot;3 2 1 0&quot;，do-while 印出 &quot;3 2 1&quot;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q06')"><span class="opt-label">D</span><span>這兩個迴圈都會是無窮迴圈，因為 n 與 m 永遠不會真正變成 0 以下</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q06', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q06">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">do-while 並不會因此「少印出」任何數字；當條件一開始就成立時，do-while 的行為與 while 完全相同。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">n 與 m 一開始都滿足大於 0 的條件，因此 while 的「先判斷才執行」與 do-while 的「先執行才判斷」在這種情況下不會造成差異：兩者都會依序印出 3、2、1，然後才因為條件不成立而結束。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">while 迴圈在 n 變成 0 時，條件 n>0 已經為假，不會再印出 0，因此不會印出 "3 2 1 0"。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">n 與 m 在主體中都有遞減動作，最終都會讓條件變成假而正常結束，不會是無窮迴圈。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q07">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 07</span>
+        <span class="q-concept">📌 概念：do-while 適用情境：輸入驗證</span>
+      </div>
+    </div>
+    <div class="q-body">小明想要寫一個「輸入驗證」程式：不斷要求使用者輸入一個 1 到 5 之間的數字，直到輸入正確為止；而且無論如何，程式一開始至少要先詢問使用者一次。下列何種迴圈結構最適合用來實作這個需求？</div>
+    <div class="options-grid" data-qid="ch5set2q07" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q07')"><span class="opt-label">A</span><span class="opt-text-code">while (input &lt; 1 || input &gt; 5) { /* 詢問並讀取 input */ }</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q07')"><span class="opt-label">B</span><span class="opt-text-code">for (int i = 0; input &lt; 1 || input &gt; 5; i++) { /* 詢問並讀取 input */ }</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q07')"><span class="opt-label">C</span><span class="opt-text-code">do { /* 詢問並讀取 input */ } while (input &lt; 1 || input &gt; 5);</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q07')"><span class="opt-label">D</span><span>三種迴圈的效果完全相同，選哪一種都沒有差別</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q07', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q07">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">使用 while 時，在第一次檢查條件之前，input 必須已經有一個值可以判斷；但此時使用者根本還沒被詢問過，input 的初始值只能是一個沒有實際意義的暫定值，邏輯上不乾淨。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">與 while 版本有相同的問題：條件式在第一次檢查時就需要用到 input，但這時使用者還沒有被詢問過。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">do-while 保證主體（詢問並讀取）至少會先執行一次，才去檢查輸入是否在範圍內，這正好符合「一開始至少要先詢問一次」的需求，不需要為 input 準備一個沒有意義的初始值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">如選項 A、B、C 的分析所示，針對「必須先執行至少一次」這個需求，do-while 的寫法明顯比另外兩者更自然、更乾淨，三者並非完全沒有差別。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q08">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 08</span>
+        <span class="q-concept">📌 概念：while 與 do-while：何時結果相同、何時不同</span>
+      </div>
+    </div>
+    <div class="q-body">關於 while 與 do-while 迴圈的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch5set2q08" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q08')"><span class="opt-label">A</span><span>do-while 迴圈比 while 迴圈更常用、更推薦優先使用，因為它一定會執行至少一次</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q08')"><span class="opt-label">B</span><span>while 迴圈可以搭配 break 提前跳出，但 do-while 迴圈不行</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q08')"><span class="opt-label">C</span><span>只要迴圈條件在「進入迴圈前」與「執行完一次主體後」的真假值相同，while 與 do-while 就會產生不同的執行次數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q08')"><span class="opt-label">D</span><span>若迴圈條件一開始就成立，while 與 do-while 的執行結果通常相同（如第 6 題）；但若條件一開始就不成立，兩者才會出現明顯差異——while 完全不執行，do-while 仍會執行一次（如第 7 題的情境）</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q08', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q08">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">選擇哪一種迴圈應該依照「是否需要至少執行一次」的實際需求來決定，並沒有哪一種是普遍上更推薦優先使用的。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">do-while 迴圈完全可以搭配 break 提前跳出，用法與 while、for 相同。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">這個描述並不是判斷兩者是否會產生不同執行次數的正確依據；真正的關鍵在於「條件一開始（進入迴圈前）是真是假」。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">當條件一開始就成立時，兩者行為相同（如第 6 題）；當條件一開始就不成立時，while 完全不執行主體，do-while 仍會先執行一次（如第 7 題的情境），這是兩者唯一會造成差異的情況。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q09">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 09</span>
+        <span class="q-concept">📌 概念：break：搜尋陣列找到即停止</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int arr[5] = {3, 7, 2, 9, 5};
+4      int target = 2;
+5      int foundIndex = -1;
+6      for (int i = 0; i &lt; 5; i++) {
+7          if (arr[i] == target) {
+8              foundIndex = i;
+9              break;
+10         }
+11     }
+12     printf(&quot;%d\n&quot;, foundIndex);
+13     return 0;
+14 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q09" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q09')"><span class="opt-label">A</span><span>2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q09')"><span class="opt-label">B</span><span>-1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q09')"><span class="opt-label">C</span><span>0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q09')"><span class="opt-label">D</span><span>5</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q09', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q09">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">陣列依序比對 arr[0]=3、arr[1]=7 都不等於 target=2；arr[2]=2 剛好相符，foundIndex 被設為 2，接著 break 跳出迴圈，因此印出 2。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">-1 是 foundIndex 找不到時的預設值；但此陣列中確實有元素 2（索引 2），會被找到並更新 foundIndex，不會維持在 -1。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">0 並不是 target 被找到時的索引；arr[0]=3，並不等於 target=2。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">5 已經超出陣列的合法索引範圍（0 到 4），也不是 target 被找到的位置。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q10">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 10</span>
+        <span class="q-concept">📌 概念：continue：跳過負數只加總正數</span>
+      </div>
+    </div>
+    <div class="q-body">執行後 sum 印出的值是多少？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int arr[5] = {4, -2, 6, -8, 3};
+4      int sum = 0;
+5      for (int i = 0; i &lt; 5; i++) {
+6          if (arr[i] &lt; 0)
+7              continue;
+8          sum += arr[i];
+9      }
+10     printf(&quot;%d\n&quot;, sum);
+11     return 0;
+12 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q10" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q10')"><span class="opt-label">A</span><span>3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q10')"><span class="opt-label">B</span><span>13</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q10')"><span class="opt-label">C</span><span>-3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q10')"><span class="opt-label">D</span><span>5</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q10', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q10">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">3 只計算了最後一個非負元素，並沒有把 4、6 一起加總進去。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">陣列中 -2 與 -8 是負數，會被 continue 跳過（不執行 sum += arr[i]）；其餘的 4、6、3 會被加總：4+6+3=13。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">-3 完全不符合把非負元素相加後應該得到的結果，可能是誤把負數也加了進去。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">5 沒有正確反映 4+6+3 的加總結果。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q11">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 11</span>
+        <span class="q-concept">📌 概念：continue 只影響最內層迴圈</span>
+      </div>
+    </div>
+    <div class="q-body">關於此巢狀迴圈的執行結果，下列敘述何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int count = 0;
+4      for (int i = 1; i &lt;= 2; i++) {
+5          for (int j = 1; j &lt;= 3; j++) {
+6              if (j == 2)
+7                  continue;
+8              count++;
+9          }
+10     }
+11     printf(&quot;%d\n&quot;, count);
+12     return 0;
+13 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q11" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q11')"><span class="opt-label">A</span><span>count 印出 6，因為 continue 只是跳過該次的 count++，但迴圈總共還是執行了 2×3=6 次</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q11')"><span class="opt-label">B</span><span>count 印出 2，因為 continue 會讓外層迴圈也跳過該次的所有動作</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q11')"><span class="opt-label">C</span><span>count 印出 4：continue 只會跳過「本次內層迴圈」剩下的程式碼、直接進入內層迴圈的下一輪（此處是 j=3），並不會影響外層的 i 迴圈；因此每一輪外層迴圈中，j=1 與 j=3 都會讓 count++（j=2 被跳過），兩輪外層迴圈總共讓 count 增加 4 次</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q11')"><span class="opt-label">D</span><span>編譯錯誤，因為 continue 不能用在巢狀迴圈的內層</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q11', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q11">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">j=2 時 count++ 確實會被跳過，因此 count 增加的次數並不等於總迭代次數 6，而是比 6 少（只有 4 次真正執行了 count++）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">continue 只會影響它所在的那一層（內層 j 迴圈），並不會讓外層 i 迴圈跳過任何動作。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">每一輪外層迴圈中，內層 j=1 讓 count++，j=2 被 continue 跳過，j=3 又讓 count++，所以每輪外層貢獻 2 次；外層跑 2 輪，總共讓 count 增加 4 次。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">continue 完全可以用在巢狀迴圈的任何一層內部，這是非常常見且合法的寫法。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q12">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 12</span>
+        <span class="q-concept">📌 概念：巢狀迴圈執行次數計算（不同次數）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後 count 印出的值是多少？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int count = 0;
+4      for (int i = 0; i &lt; 5; i++) {
+5          for (int j = 0; j &lt; 4; j++) {
+6              count++;
+7          }
+8      }
+9      printf(&quot;%d\n&quot;, count);
+10     return 0;
+11 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q12" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q12')"><span class="opt-label">A</span><span>5</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q12')"><span class="opt-label">B</span><span>4</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q12')"><span class="opt-label">C</span><span>9</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q12')"><span class="opt-label">D</span><span>20</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q12', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q12">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">5 只是外層迴圈的執行次數。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">4 只是內層迴圈單獨一輪的執行次數。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">9 是 5 與 4 相加的結果，但巢狀迴圈的總執行次數應該是相乘，不是相加。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">外層迴圈執行 5 次，每次外層迭代內層都會完整執行 4 次，總執行次數是 5×4=20。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q13">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 13</span>
+        <span class="q-concept">📌 概念：巢狀迴圈中 break 只跳出內層（不同次數）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後 count 印出的值是多少？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int count = 0;
+4      for (int i = 1; i &lt;= 4; i++) {
+5          for (int j = 1; j &lt;= 4; j++) {
+6              if (j == 2)
+7                  break;
+8              count++;
+9          }
+10     }
+11     printf(&quot;%d\n&quot;, count);
+12     return 0;
+13 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q13" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q13')"><span class="opt-label">A</span><span>4</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q13')"><span class="opt-label">B</span><span>16</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q13')"><span class="opt-label">C</span><span>8</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q13')"><span class="opt-label">D</span><span>1</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q13', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q13">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">每一輪外層迴圈中，內層只有 j=1 會讓 count++，j=2 時就 break 跳出內層；外層總共跑 4 輪，因此 count 總共增加 4×1=4。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">16（4×4）是假設完全不受 break 影響、內層每輪都跑滿 4 次才會得到的結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">8 並不符合每輪外層只讓 count 增加 1 次的實際情況。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">1 只反映了單一一輪的貢獻，忽略了外層迴圈總共跑了 4 輪。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q14">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 14</span>
+        <span class="q-concept">📌 概念：巢狀迴圈逐輪追蹤：內層邊界依賴外層變數（三角形圖案）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後會印出幾行星號圖案？每一行分別有幾個星號？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      for (int i = 1; i &lt;= 3; i++) {
+4          for (int j = 1; j &lt;= i; j++) {
+5              printf(&quot;*&quot;);
+6          }
+7          printf(&quot;\n&quot;);
+8      }
+9      return 0;
+10 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q14" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q14')"><span class="opt-label">A</span><span>印出 3 行，每一行都是 3 個星號（因為外層迴圈跑 3 次，內層迴圈固定跑 3 次）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q14')"><span class="opt-label">B</span><span>印出 3 行，星號數量分別是 1、2、3 個，因為內層迴圈的終止條件 j &lt;= i 會隨著外層變數 i 的變化而改變，形成逐漸變長的三角形圖案</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q14')"><span class="opt-label">C</span><span>印出 1 行，總共 6 個星號（1+2+3=6）連續印在一起，因為所有星號都會擠在同一行</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q14')"><span class="opt-label">D</span><span>印出 9 行，因為外層與內層迴圈各跑 3 次，3×3=9</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q14', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q14">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">內層迴圈的終止條件是 `j <= i`，並不是固定的 3，而是會隨著外層的 i 一起變化，因此每一行的星號數量並不相同。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">當 i=1 時，內層只跑 j=1（1 個星號）；i=2 時內層跑 j=1,2（2 個星號）；i=3 時內層跑 j=1,2,3（3 個星號），配合每輪外層結束後的換行，形成 3 行、星號數依序為 1、2、3 的三角形圖案。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">行號 7 的換行是寫在外層迴圈內部、內層迴圈結束之後，每跑完一輪外層就會換一次行，因此不會全部擠在同一行。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">此程式的內層迴圈次數並不是固定的 3，而是依 i 而變（1、2、3 次），並不是簡單的 3×3=9。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q15">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 15</span>
+        <span class="q-concept">📌 概念：陷阱：unsigned 計數器用於反向陣列走訪</span>
+      </div>
+    </div>
+    <div class="q-body">撰寫者原本想要反向印出陣列的所有元素（從索引 4 印到索引 0）。執行後，這個程式最可能發生什麼問題？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int arr[5] = {10, 20, 30, 40, 50};
+4      for (unsigned int i = 4; i &gt;= 0; i--) {
+5          printf(&quot;%d &quot;, arr[i]);
+6      }
+7      printf(&quot;\n&quot;);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q15" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q15')"><span class="opt-label">A</span><span>程式會正確印出 &quot;50 40 30 20 10&quot;，完全沒有問題</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q15')"><span class="opt-label">B</span><span>迴圈只會印出 5 個數字就正常結束，不會有任何額外的問題</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q15')"><span class="opt-label">C</span><span>因為 i 宣告為 unsigned int，當 i 遞減到 0 之後再減 1 會環繞成一個非常大的正整數，使得 i &gt;= 0 恆為真，迴圈不會正常結束；程式會繼續嘗試存取 arr[一個超出陣列範圍很多的索引]，這是不合法的陣列存取（Out of Bounds），實際執行時很可能造成程式當掉或印出無意義的亂數垃圾值，而不是乾淨地停止</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q15')"><span class="opt-label">D</span><span>編譯器會自動偵測到這個陷阱，並且在編譯時期發出錯誤，拒絕產生執行檔</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q15', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q15">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">確實會先正確印出 50 40 30 20 10，但迴圈並不會就此停止，i 遞減到 0 之後還會繼續減 1 而環繞，導致後續存取超出陣列範圍。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">迴圈在印出 5 個數字後，i 會從 0 再被減 1，因為型態是 unsigned int，並不會變成 -1 而讓 `i >= 0` 判斷為假，所以不會正常結束。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">i 遞減到 0 之後再減 1，會環繞成一個極大的正整數，使得 `i >= 0` 恆為真；此後程式會不斷嘗試存取像 arr[極大的數字] 這種遠遠超出陣列範圍的記憶體位置，這是未定義行為，實際執行時很可能造成當機或印出亂數垃圾值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">編譯器（在一般設定下）並不會自動偵測並擋下這種執行期才會發生問題的陷阱，這種寫法通常可以正常通過編譯。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q16">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 16</span>
+        <span class="q-concept">📌 概念：辨識 unsigned 計數器陷阱的特徵</span>
+      </div>
+    </div>
+    <div class="q-body">在檢查別人撰寫的 C 語言迴圈程式碼、找出潛在的 unsigned 計數器陷阱時，下列何種特徵最值得特別留意？</div>
+    <div class="options-grid" data-qid="ch5set2q16" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q16')"><span class="opt-label">A</span><span>迴圈的計數器變數名稱是否為 i、j 或 k</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q16')"><span class="opt-label">B</span><span>迴圈主體內是否呼叫了 printf</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q16')"><span class="opt-label">C</span><span>迴圈的執行次數是否超過 1000 次</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q16')"><span class="opt-label">D</span><span>迴圈計數器被宣告為 unsigned（或 size_t 等無號型態），且迴圈中有可能讓計數器遞減到 0 以下（例如反向走訪、倒數計算等），這種組合是造成環繞（wrap around）陷阱最主要的成因，應該特別留意計數器是否可能減到 0 以下</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q16', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q16">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">變數命名只是慣例上的習慣，與是否會發生 unsigned 環繞陷阱完全無關。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">迴圈內是否呼叫 printf 只是印出結果的動作，與計數器本身是否會溢位沒有直接關係。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">執行次數的多寡本身不是判斷是否有 unsigned 陷阱的依據，次數少的迴圈一樣可能踩到這個陷阱（如第 15 題只有 5 個元素）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">unsigned（或 size_t）計數器搭配「可能遞減到 0 以下」的邏輯（例如反向走訪、倒數），正是造成環繞陷阱最典型也最需要特別檢查的組合。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q17">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 17</span>
+        <span class="q-concept">📌 概念：修正 unsigned 反向走訪陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">承第 15 題，若想要修正該程式，讓它能夠正確且安全地反向印出陣列所有元素（從索引 4 到索引 0），下列哪一種修改方式最恰當？</div>
+    <div class="options-grid" data-qid="ch5set2q17" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q17')"><span class="opt-label">A</span><span class="opt-text-code">for (int i = 4; i &gt;= 0; i--)  // 把 i 的型態改成 int</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q17')"><span class="opt-label">B</span><span class="opt-text-code">for (unsigned int i = 4; i &gt; 0; i--)  // 條件改成 i &gt; 0（會漏掉索引 0）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q17')"><span class="opt-label">C</span><span class="opt-text-code">for (unsigned int i = 4; i &gt;= 0; i -= 1)  // i-- 改成 i -= 1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q17')"><span class="opt-label">D</span><span class="opt-text-code">for (unsigned int i = 4; i &gt;= 0; i--) { if (i &lt; 0) break; ... }  // 額外加上 if (i &lt; 0) break;</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q17', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q17">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">把 i 的型態從 unsigned int 改成一般的 int，可以讓 i 正確表示到 -1，迴圈就能在 i 遞減到 -1 時正常讓條件 `i >= 0` 判斷為假並結束，正確且安全地走訪索引 4 到 0。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">把條件改成 `i > 0` 雖然能避免環繞造成的無窮迴圈，但會在 i=0 時就提前結束，導致索引 0（陣列的第一個元素）沒有被印出，並沒有完整達成需求。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">`i -= 1` 與 `i--` 效果完全相同，並不能解決 unsigned 環繞的根本問題。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">i 仍然是 unsigned int，`i < 0` 這個判斷式對 unsigned 變數而言永遠不可能為真（unsigned 沒有負數），這個保護完全不會被觸發，無法真正解決問題。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q18">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 18</span>
+        <span class="q-concept">📌 概念：陣列走訪步伐（不同起點與步伐）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int arr[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
+4      for (int i = 1; i &lt; 12; i += 4) {
+5          printf(&quot;%d &quot;, arr[i]);
+6      }
+7      printf(&quot;\n&quot;);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q18" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q18')"><span class="opt-label">A</span><span>0 1 2 3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q18')"><span class="opt-label">B</span><span>1 5 9</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q18')"><span class="opt-label">C</span><span>1 4 8 12</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q18')"><span class="opt-label">D</span><span>4 8</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q18', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q18">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">此迴圈從 i=1 開始，並不是從 0 開始逐一走訪。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">i 依序為 1、5、9（下一次會是 13，因為 13<12 為假而停止），對應印出 arr[1]、arr[5]、arr[9]，也就是 1、5、9。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">4、8、12 這組數字並不是此迴圈實際走訪到的索引；12 也已經超出合法索引範圍（0 到 11）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">此選項只列出部分結果，且與 i 從 1 開始、步伐為 4 的實際走訪順序不符。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q19">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 19</span>
+        <span class="q-concept">📌 概念：字串走訪終止條件：空字串邊界情況</span>
+      </div>
+    </div>
+    <div class="q-body">執行後兩行輸出分別是什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int myStrlen(char s[]) {
+3      int len = 0;
+4      while (s[len] != &#x27;\0&#x27;) {
+5          len++;
+6      }
+7      return len;
+8  }
+9  int main(void) {
+10     printf(&quot;%d\n&quot;, myStrlen(&quot;&quot;));
+11     printf(&quot;%d\n&quot;, myStrlen(&quot;Cat&quot;));
+12     return 0;
+13 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q19" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q19')"><span class="opt-label">A</span><span>空字串會讓程式編譯錯誤，因為 &quot;&quot; 沒有內容</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q19')"><span class="opt-label">B</span><span>1 然後 3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q19')"><span class="opt-label">C</span><span>0 然後 3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q19')"><span class="opt-label">D</span><span>0 然後 4</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q19', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q19">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">空字串常值 "" 是完全合法的 C 語法，它在記憶體中就是單獨一個 '\0' 字元，不會造成編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">空字串的長度應該是 0（沒有任何實際字元），s[0] 就是 '\0'，迴圈主體完全不會執行，不會是 1。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">myStrlen("") 中 s[0] 就是 '\0'，迴圈條件立刻為假，len 維持 0；myStrlen("Cat") 依序遇到 'C'、'a'、't' 讓 len 累加到 3，接著遇到 s[3]='\0' 而停止，回傳 3。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">"Cat" 的長度是 3（C、a、t 三個字元），結尾的 '\0' 是終止符號，不應該被算進字串長度，因此不會是 4。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch5set2q20">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 20</span>
+        <span class="q-concept">📌 概念：迴圈實務應用：初始值錯誤的找最大值 bug</span>
+      </div>
+    </div>
+    <div class="q-body">若呼叫 findMax(arr, 4)，其中 arr = {-5, -2, -8, -1}（陣列中所有元素都是負數），這個函式的回傳值會是多少？程式碼本身有沒有問題？<div class="q-code-wrap"><pre class="code-content"><code>1  int findMax(int arr[], int size) {
+2      int max = 0;
+3      for (int i = 0; i &lt; size; i++) {
+4          if (arr[i] &gt; max)
+5              max = arr[i];
+6      }
+7      return max;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch5set2q20" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch5set2q20')"><span class="opt-label">A</span><span>回傳值是 -1（陣列中真正的最大值），程式完全正確</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch5set2q20')"><span class="opt-label">B</span><span>回傳值是 -8（陣列中的最小值），因為迴圈邏輯把最大值誤判成最小值</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch5set2q20')"><span class="opt-label">C</span><span>這段程式會產生編譯錯誤，因為 max 不能被宣告為 0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch5set2q20')"><span class="opt-label">D</span><span>回傳值是 0，但這是錯誤的結果：程式碼有 bug，因為 max 被初始化為 0，而陣列中所有元素都比 0 小，導致迴圈中的 arr[i] &gt; max 永遠不成立、max 永遠不會被更新，回傳的 0 甚至不是陣列中真正存在的元素；正確的寫法應該把 max 初始化為 arr[0]（或第一個元素），而不是寫死成 0</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch5set2q20', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch5set2q20">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">程式實際上並不會回傳 -1；因為 max 從 0 開始，陣列中所有元素都比 0 小，`arr[i] > max` 永遠不成立，max 從頭到尾都不會被更新。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">迴圈中並沒有任何會把 max 更新成陣列最小值的邏輯；max 只會維持在初始值 0，不會變成 -8。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">把 max 宣告並初始化為 0 是完全合法的 C 語法，不會造成編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">max 被寫死初始化為 0，但陣列中所有元素都是負數（都比 0 小），導致 `arr[i] > max` 永遠不成立，max 永遠不會更新，最後回傳的 0 甚至不是陣列裡真正存在的數字；正確做法應該把 max 初始化為陣列的第一個元素 arr[0]，才能正確處理「全部都是負數」這種情況。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <p>第 5 章：迴圈結構｜自我檢測 Set 2　共 20 題　自編模擬練習題，非歷屆真題　·　C語言統測自主學習系列　·　chapter5-loops-assessment-set2.html</p>
+  </footer>
+
+</main>
+
+<script>
+let answeredState = {};
+
+function checkOption(btn, optionLetter, qid) {
+  const parentGrid = btn.closest('.options-grid');
+  const correctOption = parentGrid.getAttribute('data-correct');
+
+  parentGrid.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('selected-correct', 'selected-wrong');
+  });
+
+  const isCorrect = optionLetter === correctOption;
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+  } else {
+    btn.classList.add('selected-wrong');
+  }
+
+  answeredState[qid] = isCorrect;
+  updateScoreBar();
+
+  const expBox = document.getElementById('exp-' + qid);
+  const toggleBtn = expBox ? expBox.previousElementSibling : null;
+  if (expBox && !expBox.classList.contains('show')) {
+    expBox.classList.add('show');
+    if (toggleBtn) toggleBtn.classList.add('open');
+  }
+}
+
+function updateScoreBar() {
+  const keys = Object.keys(answeredState);
+  const answered = keys.length;
+  const correct = keys.filter(k => answeredState[k]).length;
+  const answeredEl = document.getElementById('answered-count');
+  const correctEl = document.getElementById('correct-count');
+  if (answeredEl) answeredEl.textContent = answered;
+  if (correctEl) correctEl.textContent = correct;
+}
+
+function toggleExplanation(boxId, btn) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  box.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+
+let allExpanded = false;
+function toggleAllExplanations() {
+  allExpanded = !allExpanded;
+  const boxes = document.querySelectorAll('.explanation-box');
+  const btns = document.querySelectorAll('.explanation-toggle-btn');
+  const toggleAllText = document.getElementById('toggle-all-text');
+
+  boxes.forEach(box => { if (allExpanded) box.classList.add('show'); else box.classList.remove('show'); });
+  btns.forEach(btn => { if (allExpanded) btn.classList.add('open'); else btn.classList.remove('open'); });
+  if (toggleAllText) toggleAllText.textContent = allExpanded ? '全部收合詳解' : '全部展開詳解';
+}
+
+function toggleTheme() {
+  const htmlEl = document.documentElement;
+  const currentTheme = htmlEl.getAttribute('data-theme');
+  const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+  htmlEl.setAttribute('data-theme', nextTheme);
+  const themeBtn = document.getElementById('btn-theme');
+  if (themeBtn) themeBtn.textContent = nextTheme === 'light' ? '☀️ 淺色模式' : '🌙 深色模式';
+}
+</script>
+
+</body>
+</html>

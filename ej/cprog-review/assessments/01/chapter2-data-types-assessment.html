@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2章 資料型態｜自我檢測 — C語言統測自主學習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-alt: #334155;
+  --bg-code: #0b1120;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #0ea5e9;
+  --accent-light: #38bdf8;
+  --accent-glow: rgba(14, 165, 233, 0.18);
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.35);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --font-body: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', Consolas, 'SF Mono', Monaco, monospace;
+}
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f5f9;
+  --bg-code: #0f172a;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent: #0284c7;
+  --accent-light: #0ea5e9;
+  --accent-glow: rgba(2, 132, 199, 0.12);
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.8;
+  letter-spacing: 0.015em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+.top-header {
+  position: sticky; top: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 900;
+  padding: 10px 24px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  transition: background 0.3s ease;
+}
+[data-theme="light"] .top-header { background: rgba(255, 255, 255, 0.88); }
+.header-brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand-badge {
+  background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent);
+  padding: 4px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em;
+}
+[data-theme="light"] .brand-badge { color: var(--accent); }
+.brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-control {
+  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
+  padding: 6px 14px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+}
+.btn-control:hover { border-color: var(--accent); color: var(--accent-light); transform: translateY(-1px); }
+[data-theme="light"] .btn-control:hover { color: var(--accent); }
+.btn-control.primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+.btn-control.primary:hover { background: var(--accent-light); }
+
+.main-content { max-width: 900px; margin: 0 auto; padding: 32px 20px 100px; }
+
+.hero-banner {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px 28px 28px 32px; margin-bottom: 24px;
+  position: relative; overflow: hidden; box-shadow: var(--shadow);
+}
+.hero-banner::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%;
+  background: linear-gradient(180deg, var(--accent), #6366f1);
+}
+.hero-tag {
+  display: inline-block; background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent); padding: 4px 12px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 700; margin-bottom: 12px;
+}
+[data-theme="light"] .hero-tag { color: var(--accent); }
+.hero-banner h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); }
+.hero-banner p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.75; margin-bottom: 6px; }
+.hero-banner p:last-child { margin-bottom: 0; }
+.hero-banner strong { color: var(--warning, #f59e0b); }
+
+.score-bar {
+  position: sticky; top: 54px; z-index: 800;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
+  padding: 14px 20px; margin-bottom: 28px; box-shadow: var(--shadow-sm);
+}
+.score-items { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.score-item { font-size: 0.92rem; color: var(--text-secondary); font-weight: 600; }
+.score-item strong { font-size: 1.15rem; color: var(--accent-light); font-weight: 900; }
+[data-theme="light"] .score-item strong { color: var(--accent); }
+.score-item.is-correct strong { color: var(--success); }
+
+pre.code-content {
+  font-family: var(--font-code); font-size: 0.9rem; line-height: 1.65;
+  padding: 16px 20px; color: #e2e8f0; overflow-x: auto; margin: 0;
+  background: var(--bg-code); border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+}
+pre.code-content code { font-family: inherit; }
+code.inline {
+  font-family: var(--font-code); font-size: 0.88em;
+  background: var(--bg-card-alt); color: var(--accent-light);
+  padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color);
+}
+[data-theme="light"] code.inline { color: var(--accent); }
+.q-code-wrap { margin: 14px 0 18px; }
+.q-opt-code { margin: 6px 0 14px; }
+
+.question-card {
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px; margin: 28px 0; box-shadow: var(--shadow); transition: border-color 0.2s ease;
+}
+.question-card:hover { border-color: var(--accent); }
+.q-meta {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
+}
+.q-title-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.q-badge { background: var(--accent); color: #ffffff; padding: 4px 12px; border-radius: 6px; font-size: 0.88rem; font-weight: 800; }
+.q-concept { font-size: 0.88rem; color: var(--text-secondary); font-weight: 600; }
+.q-body { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.6; }
+
+.options-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.option-btn {
+  background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  padding: 12px 18px; color: var(--text-primary); font-size: 0.95rem; font-weight: 500;
+  text-align: left; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;
+  transition: all 0.15s ease; width: 100%;
+}
+.option-btn:hover { border-color: var(--accent); background: var(--accent-glow); transform: translateX(4px); }
+.opt-label {
+  background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--accent-light);
+  width: 28px; height: 28px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+}
+[data-theme="light"] .opt-label { color: var(--accent); }
+.option-btn.selected-correct { background: var(--success-bg) !important; border-color: var(--success) !important; color: var(--text-primary) !important; }
+.option-btn.selected-correct .opt-label { background: var(--success) !important; color: #ffffff !important; }
+.option-btn.selected-wrong { background: var(--danger-bg) !important; border-color: var(--danger) !important; color: var(--text-primary) !important; }
+.option-btn.selected-wrong .opt-label { background: var(--danger) !important; color: #ffffff !important; }
+.opt-text-code { font-family: var(--font-code); font-size: 0.92em; }
+
+.explanation-toggle-btn {
+  width: 100%; background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent-light);
+  padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  margin-top: 14px; transition: all 0.2s ease;
+}
+[data-theme="light"] .explanation-toggle-btn { color: var(--accent); }
+.explanation-toggle-btn:hover { background: var(--accent); color: #ffffff; }
+.toggle-icon { transition: transform 0.3s ease; }
+.explanation-toggle-btn.open .toggle-icon { transform: rotate(180deg); }
+
+.explanation-box {
+  display: none; background: var(--bg-primary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); padding: 24px; margin-top: 14px; animation: fadeIn 0.3s ease;
+}
+.explanation-box.show { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.ans-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--success-bg); border: 1px solid var(--success-border);
+  padding: 12px 18px; border-radius: var(--radius-sm); margin-bottom: 20px;
+}
+.ans-label { font-size: 0.9rem; font-weight: 700; color: var(--success); }
+.ans-value { font-size: 1.25rem; font-weight: 900; color: var(--success); }
+
+.opt-breakdown-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.opt-analysis-card { border-radius: var(--radius-sm); padding: 14px 18px; border: 1px solid var(--border-color); background: var(--bg-card); }
+.opt-analysis-card.is-correct { border-color: var(--success-border); background: var(--success-bg); }
+.opt-analysis-card.is-wrong { border-color: var(--border-color); }
+.opt-card-header { display: flex; align-items: center; gap: 10px; font-weight: 800; margin-bottom: 6px; flex-wrap: wrap; }
+.badge-correct { background: var(--success); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.badge-wrong { background: var(--danger); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.opt-analysis-text { font-size: 0.93rem; line-height: 1.65; color: var(--text-primary); }
+
+footer.page-footer {
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color);
+  color: var(--text-muted); font-size: 0.85rem; text-align: center; line-height: 1.8;
+}
+
+@media (max-width: 640px) {
+  .main-content { padding: 20px 14px 80px; }
+  .question-card { padding: 18px; }
+  .score-bar { top: 90px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-brand">
+    <span class="brand-badge">CH.2 自我檢測</span>
+    <span class="brand-title">🔢 資料型態</span>
+  </div>
+  <div class="header-actions">
+    <a class="btn-control" href="index.html" style="text-decoration: none;"><span>📋</span> <span>返回章節選單</span></a>
+    <button class="btn-control" onclick="toggleAllExplanations()"><span id="toggle-all-text">全部展開詳解</span></button>
+    <button class="btn-control" id="btn-theme" onclick="toggleTheme()">🌙 深色模式</button>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="hero-banner">
+    <span class="hero-tag">⚠️ 模擬練習題說明</span>
+    <h1>第 2 章：資料型態｜自我檢測（20 題）</h1>
+    <p>以下 20 題為依據第 2 章教材內容自行編寫的<strong>模擬練習題</strong>，出題風格參考了歷屆統測（技專校院入學測驗中心）試題的命題習慣，但<strong>並非</strong>任何一年的歷屆真題，內容僅供學習自我檢測參考，不代表正式考試之題型、難度或配分。</p>
+    <p>每題單選、4 個選項。點選任一選項即可立即看到對錯標示，並自動展開該題的逐項詳解；上方「全部展開詳解」可一次展開或收合所有題目的說明；重新測驗會重新載入頁面，清空所有作答紀錄。</p>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-items">
+      <div class="score-item">已作答 <strong id="answered-count">0</strong> / 20</div>
+      <div class="score-item is-correct">答對 <strong id="correct-count">0</strong> 題</div>
+    </div>
+    <button class="btn-control primary" onclick="location.reload()">🔄 重新測驗</button>
+  </div>
+
+  <div class="question-card" id="q-ch2q01">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 01</span>
+        <span class="q-concept">📌 概念：基本資料型態與記憶體大小</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言中 int 與 char 兩種資料型態，下列敘述何者正確？（假設本測驗環境中 sizeof(int)=4、sizeof(char)=1）</div>
+    <div class="options-grid" data-qid="ch2q01" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q01')"><span class="opt-label">A</span><span>int 型態一定可以儲存所有 float 型態能表示的數值範圍</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q01')"><span class="opt-label">B</span><span>char 型態雖然只占用 1 個位元組（byte），但本質上仍是一種整數型態，可以直接參與加減運算</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q01')"><span class="opt-label">C</span><span>同一份原始碼在任何作業系統與編譯器下，int 的位元組數都保證完全相同</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q01')"><span class="opt-label">D</span><span>使用 sizeof(int) 得到的結果型態是 int，可以直接與負整數比較而不會有任何潛在問題</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q01', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q01">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">int 無法涵蓋 float 能表示的所有數值範圍（例如極大值、極小值或帶有小數的數值），兩者能表示的「值的種類」本來就不同，不是誰包含誰的關係。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">char 只是名稱聽起來像「字元」，本質上仍是占 1 個位元組的整數型態，可以直接參與加減乘除等算術運算，這也是為什麼字元可以直接做 ASCII 運算。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">C 語言標準只規定各整數型態之間的相對大小關係與最小表示範圍，並未強制規定 int 一定要是幾個位元組，實際大小會因編譯器與平台而異。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">sizeof 運算子回傳的型態是 size_t，是一種無號整數型態，與負整數直接比較時，負數會被轉換成一個極大的正整數，可能得到不符合直覺的結果，並非「不會有任何潛在問題」。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q02">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 02</span>
+        <span class="q-concept">📌 概念：資料型態選用（範圍與記憶體效率）</span>
+      </div>
+    </div>
+    <div class="q-body">小華想要撰寫一個 C 程式紀錄全校學生人數（已知全校學生人數不會超過 3000 人，且依邏輯上這個人數不可能是負數）。已知在此測驗環境中，char 占 1 個位元組（可表示 -128~127 或 0~255），short 占 2 個位元組（可表示 -32768~32767），unsigned short 占 2 個位元組（可表示 0~65535），long long 占 8 個位元組。若小華希望選出記憶體用量最省、範圍又最貼切（不浪費表示負數的空間）的宣告方式，下列何者最合適？</div>
+    <div class="options-grid" data-qid="ch2q02" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q02')"><span class="opt-label">A</span><span class="opt-text-code">char studentCount;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q02')"><span class="opt-label">B</span><span class="opt-text-code">short studentCount;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q02')"><span class="opt-label">C</span><span class="opt-text-code">unsigned short studentCount;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q02')"><span class="opt-label">D</span><span class="opt-text-code">long long studentCount;</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q02', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q02">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">char（即使是 unsigned char）最大也只能表示到 255，遠不足以容納最多 3000 人的需求，會直接溢位。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">short 的範圍（-32768~32767）雖然足夠容納 3000，記憶體用量也與 unsigned short 相同（2 個位元組），但多保留了一段人數不可能用到的負數範圍，不符合題目要求的「範圍最貼切」。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">unsigned short 同樣只占 2 個位元組，範圍 0~65535 剛好完整涵蓋 0~3000，且完全不浪費任何表示負數的空間，是題目條件下最合適的選擇。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">long long 占 8 個位元組，用來儲存一個最大只到 3000 的數值明顯是記憶體的浪費，不符合「用量最省」的要求。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q03">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 03</span>
+        <span class="q-concept">📌 概念：資料型態表示範圍與溢位</span>
+      </div>
+    </div>
+    <div class="q-body">（假設本測驗環境中 short 為 2 個位元組，表示範圍約為 -32768 ~ 32767）此程式在編譯與執行上，下列敘述何者最合理？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      short s = 40000;
+4      printf(&quot;%d\n&quot;, s);
+5      return 0;
+6  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q03" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q03')"><span class="opt-label">A</span><span>此行為在 C 語言中一定會造成程式當掉（Crash），無法執行到 printf</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q03')"><span class="opt-label">B</span><span>一定會產生編譯錯誤，因為 40000 這個數值本身不合法</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q03')"><span class="opt-label">C</span><span>可以正常編譯，但因為 40000 超出 short 的表示範圍，指定給 s 時會發生溢位，實際印出的值通常不會是 40000，而是根據二補數規則環繞後的結果</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q03')"><span class="opt-label">D</span><span>編譯器會自動把 s 的型態提升為 int，讓 40000 可以正確儲存</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q03', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q03">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">這種窄化轉換（narrowing conversion）並不會讓程式當掉，只會讓儲存的數值不符合預期，是一種安靜發生（silent）的問題，而不是執行期崩潰。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">40000 本身是合法的整數字面值，把它指定給 short 型態的變數在語法上完全合法，不會造成編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">40000 超出 short 的表示範圍（-32768~32767），指定時會依二補數規則發生溢位／環繞，實際存入 s 的位元組樣式並不等於 40000 這個數學上的值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">C 語言不會因為指定的數值超出範圍，就自動把變數的宣告型態「升級」成更大的型態，s 的型態仍然是 short。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q04">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 04</span>
+        <span class="q-concept">📌 概念：有號數與無號數比較（int vs unsigned int）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = -1;
+4      unsigned int b = 1;
+5      if (a &lt; b)
+6          printf(&quot;a is smaller\n&quot;);
+7      else
+8          printf(&quot;a is NOT smaller\n&quot;);
+9      return 0;
+10 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q04" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q04')"><span class="opt-label">A</span><span>a is NOT smaller</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q04')"><span class="opt-label">B</span><span>兩行都會印出</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q04')"><span class="opt-label">C</span><span>編譯錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q04')"><span class="opt-label">D</span><span>a is smaller</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q04', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q04">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">int 與 unsigned int 比較時，較小範圍/有號的一方（a）會被轉換成 unsigned int，-1 轉換後變成一個非常大的正整數（約 4294967295），遠大於 b=1，因此判斷為「不小於」。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">此程式只會執行其中一個分支（if 或 else 擇一），不會兩行都印出。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">這是完全合法的比較運算，型態轉換是隱性且被允許的，不會造成編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">若單純以數學角度看 -1 確實比 1 小，但 C 語言的比較運算會先套用型態轉換規則，不能只憑數學直覺判斷。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q05">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 05</span>
+        <span class="q-concept">📌 概念：二補數表示法</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言中有號數（signed）與無號數（unsigned）的二補數（Two&#x27;s Complement）表示法，下列敘述何者正確？</div>
+    <div class="options-grid" data-qid="ch2q05" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q05')"><span class="opt-label">A</span><span>無號整數與有號整數在記憶體中所占的位元組數一定不同，因為無號整數不需要儲存正負號</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q05')"><span class="opt-label">B</span><span>一個負數的二補數表示法，是把該數的絕對值二進位表示「每一位元取反後再加 1」的結果，這個規則只適用於正數轉負數，不適用於負數轉正數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q05')"><span class="opt-label">C</span><span>有號整數在記憶體中，最高位元（MSB）固定用來單獨儲存正負號，其餘位元才用來表示數值大小</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q05')"><span class="opt-label">D</span><span>在 32 位元的有號整數中，二補數表示法可以表示的負數範圍，比正數範圍多一個（例如 int 最小值是 -2147483648，最大值是 2147483647）</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q05', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q05">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">相同底層大小的有號與無號型態（例如 int 與 unsigned int）占用的位元組數是相同的，差別只在於同一組位元樣式被「解讀」的方式不同。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">「每一位元取反再加 1」是一個自身的反運算，無論是要把正數轉成對應的負數表示法，或是把負數的位元樣式還原成正數，套用同一套規則都成立，並不是只能單向使用。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">這描述的是「符號-數值表示法（sign-magnitude）」，不是二補數表示法；在二補數中，最高位元本身帶有負的位值，直接參與數值的計算，並不是獨立於其餘位元之外的符號旗標。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">這是二補數表示法的經典特性：32 位元有號整數可以表示的負數比正數多一個，最小值 -2147483648 沒有對應的正數最大值與之對稱（正數最大只到 2147483647）。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q06">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 06</span>
+        <span class="q-concept">📌 概念：unsigned 遞減環繞陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">上述程式加入了 if (count &gt; 20) break; 這一行來避免無窮迴圈，若沒有這一行保護，此迴圈原本會發生什麼問題？執行後 count 印出的值又會是多少？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      unsigned int i;
+4      int count = 0;
+5      for (i = 5; i &gt;= 0; i--) {
+6          count++;
+7          if (count &gt; 20) break;
+8      }
+9      printf(&quot;%d\n&quot;, count);
+10     return 0;
+11 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q06" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q06')"><span class="opt-label">A</span><span>迴圈只會執行 6 次（i 從 5 數到 0），count 會印出 6；不會有無窮迴圈問題</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q06')"><span class="opt-label">B</span><span>因為 i 宣告為 unsigned int，當 i 遞減到 0 之後再減 1，不會變成 -1，而是環繞（wrap around）成一個非常大的正整數，使得 i &gt;= 0 恆為真，原本會造成無窮迴圈；加了保護後 count 印出 21</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q06')"><span class="opt-label">C</span><span>編譯器會發現 unsigned int 不可能小於 0，因此判斷 i &gt;= 0 一定是多餘的語法錯誤，直接編譯失敗</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q06')"><span class="opt-label">D</span><span>i 遞減到 0 之後再減 1 會變成 -1，i &gt;= 0 判斷為假，迴圈正常結束，count 印出 6</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q06', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q06">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">若沒有 count>20 的保護，迴圈並不會只執行 6 次就自然結束，而是會因為 i 的型態是 unsigned int 而持續下去。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">unsigned int 沒有負數，i 從 0 再減 1 時會環繞成一個極大的正整數，使得 i >= 0 永遠成立，原本會造成無窮迴圈；因為 count++ 與 break 判斷每次迭代都會執行，與 i 目前的值無關，所以在第 21 次迭代時 count 變成 21 並觸發跳出，最終印出 21。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">unsigned int 變數 >= 0 在語法上完全合法（雖然邏輯上恆為真），編譯器不會因此判定為語法錯誤而拒絕編譯，通常只會給出一個「恆真比較」的警告（甚至有些編譯器預設不警告）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">i 是 unsigned int，遞減到 0 之後再減 1 絕對不會變成數學上的 -1，而是環繞成一個極大的正整數，這正是本題陷阱的核心。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q07">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 07</span>
+        <span class="q-concept">📌 概念：整數溢位與時鐘環繞（char）</span>
+      </div>
+    </div>
+    <div class="q-body">（假設本測驗環境中 char 為有號 (signed) 型態，占 1 個位元組，表示範圍為 -128 ~ 127）執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      char c = 127;
+4      c = c + 1;
+5      printf(&quot;%d\n&quot;, c);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q07" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q07')"><span class="opt-label">A</span><span>0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q07')"><span class="opt-label">B</span><span>未定義行為，程式一定會當掉</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q07')"><span class="opt-label">C</span><span>128</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q07')"><span class="opt-label">D</span><span>-128</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q07', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q07">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">0 不是二補數環繞規則下會得到的結果，127+1 環繞後對應的是最小值而不是 0。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">這種在小範圍整數型態上發生的溢位，在一般教學與實務編譯器環境下屬於安靜的環繞行為，並不會讓程式當掉；「一定會當掉」的說法過於武斷。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">char 的表示範圍是 -128~127，128 已經超出這個範圍，不會是實際印出的值。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">127 加 1 超出 char 的最大值，依二補數規則環繞回表示範圍的最小值 -128，這正是「整數溢位與時鐘環繞機制」的典型例子。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q08">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 08</span>
+        <span class="q-concept">📌 概念：unsigned 減法環繞陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">上述程式執行後，c 印出的結果最可能是下列何者？其原因為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      unsigned int a = 3;
+4      unsigned int b = 5;
+5      unsigned int c = a - b;
+6      printf(&quot;%u\n&quot;, c);
+7      return 0;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q08" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q08')"><span class="opt-label">A</span><span>編譯錯誤，因為 unsigned int 不可以拿較小的數字減去較大的數字</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q08')"><span class="opt-label">B</span><span>-2，因為 3 減 5 在數學上就是負 2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q08')"><span class="opt-label">C</span><span>一個非常大的正整數（在 32 位元環境中約為 4294967294），因為 unsigned int 沒有負數，3-5 的結果會環繞（wrap around）成對應的極大正整數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q08')"><span class="opt-label">D</span><span>0，因為 unsigned int 相減若結果為負，C 語言會自動把它修正為 0</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q08', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q08">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">a - b 只是普通的算術運算，語法上完全合法，不會因為 a 比 b 小就產生編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">3-5 在數學上確實是 -2，但 c 的型態是 unsigned int，沒有辦法儲存負數，並且是以 %u 印出，因此不會印出 -2。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">unsigned int 相減若結果在數學上為負，會依無號數環繞規則變成 2 的 32 次方加上該負值，也就是約 4294967294，這是一個非常大的正整數，%u 會如實印出這個值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">C 語言的 unsigned 運算並不會自動把負的結果「修正」成 0，而是老實地依環繞規則計算出對應的極大正整數。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q09">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 09</span>
+        <span class="q-concept">📌 概念：整數溢位的因應方式</span>
+      </div>
+    </div>
+    <div class="q-body">關於整數溢位（Integer Overflow）的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch2q09" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q09')"><span class="opt-label">A</span><span>若已知兩個 int 相加可能超出 int 的表示範圍，常見的因應方式之一是改用範圍更大的型態（如 long long）來儲存運算結果，或是在運算前後加入範圍檢查</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q09')"><span class="opt-label">B</span><span>只要變數宣告為 unsigned，就完全不可能發生任何形式的溢位或環繞問題</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q09')"><span class="opt-label">C</span><span>整數溢位只會發生在加法運算中，減法與乘法運算不會有溢位問題</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q09')"><span class="opt-label">D</span><span>C 語言在整數運算發生溢位時，預設會自動拋出例外（Exception）並中止程式，開發者不需要額外處理</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q09', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q09">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">常見且實用的因應方式包括改用範圍更大的型態儲存運算結果，或是在運算前後加入邊界檢查，避免溢位造成的錯誤結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">unsigned 只是不能表示負數，並不代表完全不會發生任何形式的溢位，如第 6、8 題所示，unsigned 一樣可能因為環繞而得到出乎意料的極大值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">溢位並非加法專屬的問題，減法（如第 8 題）與乘法同樣可能讓運算結果超出型態的表示範圍。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">C 語言的整數運算在溢位時預設並不會拋出例外或中止程式，而是安靜地依環繞規則（或對有號數而言屬於未定義行為）繼續執行下去。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q10">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 10</span>
+        <span class="q-concept">📌 概念：char 的整數本質與 ASCII 運算</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      char ch = &#x27;A&#x27;;
+4      ch = ch + 2;
+5      printf(&quot;%c\n&quot;, ch);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q10" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q10')"><span class="opt-label">A</span><span>A2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q10')"><span class="opt-label">B</span><span>C</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q10')"><span class="opt-label">C</span><span>67</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q10')"><span class="opt-label">D</span><span>編譯錯誤，因為字元不能與整數相加</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q10', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q10">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">printf 使用 %c 格式化字元輸出，只會印出對應 ASCII 值的「單一字元」，不會把數字 2 原樣附加在後面變成 "A2"。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">'A' 的 ASCII 值是 65，65+2=67，而 67 正是字元 'C' 的 ASCII 值，用 %c 印出即為字元 'C'。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">若要印出數值 67 本身，應該使用 %d，但此處用的是 %c，所以印出的是對應的字元而不是數字。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">char 本質上是整數型態，可以直接與整數相加，這是完全合法且常見的寫法，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q11">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 11</span>
+        <span class="q-concept">📌 概念：字元轉數字（char→int）慣用寫法</span>
+      </div>
+    </div>
+    <div class="q-body">若程式執行後希望印出 7（也就是把字元 &#x27;7&#x27; 轉換成對應的整數值 7），則行號 5 的【1】最可能是下列何者？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      char digit = &#x27;7&#x27;;
+4      int value;
+5      【1】
+6      printf(&quot;%d\n&quot;, value);
+7      return 0;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q11" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q11')"><span class="opt-label">A</span><span class="opt-text-code">value = digit + &#x27;0&#x27;;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q11')"><span class="opt-label">B</span><span class="opt-text-code">value = (int)&#x27;7&#x27;;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q11')"><span class="opt-label">C</span><span class="opt-text-code">value = digit;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q11')"><span class="opt-label">D</span><span class="opt-text-code">value = digit - &#x27;0&#x27;;</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q11', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q11">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">digit + '0' 是把兩個 ASCII 值相加（55+48=103），在語意上與「轉換成對應數值」完全無關。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">(int)'7' 只是把字元常數 '7' 的 ASCII 值（55）做型態轉換，數值仍然是 55，並不會變成 7。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">value = digit; 只是把 digit 的 ASCII 值（55）原封不動存進 value，並不會變成 7。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">數字字元的 ASCII 值減去字元 '0' 的 ASCII 值，恰好等於該字元代表的數值：'7'（55）減 '0'（48）等於 7，這是把數字字元轉換成對應整數值的標準寫法。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q12">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 12</span>
+        <span class="q-concept">📌 概念：sizeof() 回傳型態為無號數的陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？其原因為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int arr[5];
+4      int n = -1;
+5      if (n &lt; sizeof(arr))
+6          printf(&quot;n is smaller\n&quot;);
+7      else
+8          printf(&quot;n is NOT smaller\n&quot;);
+9      return 0;
+10 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q12" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q12')"><span class="opt-label">A</span><span>n is smaller，因為 sizeof(arr) 只會回傳陣列的元素個數 5，而不是位元組數，5 遠大於 -1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q12')"><span class="opt-label">B</span><span>n is smaller，因為 -1 在數學上確實比任何正數都小</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q12')"><span class="opt-label">C</span><span>n is NOT smaller，因為 sizeof 運算子的回傳型態是 size_t（一種無號整數型態），比較時 n 會被轉換成無號數，-1 轉換後會變成一個非常大的正整數，因此判斷為「不小於」</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q12')"><span class="opt-label">D</span><span>編譯錯誤，因為 int 不可以和 sizeof 的結果比較</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q12', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q12">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">sizeof(arr) 回傳的是陣列所占的「位元組數」，不是元素個數；在此環境中 sizeof(int)=4，所以 sizeof(arr) 應為 20，而不是 5。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">雖然 -1 在數學上確實比任何正數小，但 C 語言的比較運算會先依型態轉換規則處理運算元，不能只憑數學上的直覺判斷結果。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">sizeof 的回傳型態是 size_t（無號整數型態），n（int, -1）與其比較時會被轉換成無號數，-1 轉換後變成一個非常大的正整數，因此判斷為「不小於」，執行 else 分支。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">int 與 sizeof 的回傳結果（size_t）可以直接比較，這是合法的運算，只是可能因為型態轉換而得到不符合直覺的結果，並不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q13">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 13</span>
+        <span class="q-concept">📌 概念：陣列傳入函式退化為指標的 sizeof 陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">（假設本測驗環境中 sizeof(int)=4、sizeof(int*)=8）此程式執行後，行號 7 與行號 3 印出的兩個數值，下列敘述何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  void printSize(int arr[]) {
+3      printf(&quot;%d\n&quot;, (int)sizeof(arr));
+4  }
+5  int main(void) {
+6      int numbers[10];
+7      printf(&quot;%d\n&quot;, (int)sizeof(numbers));
+8      printSize(numbers);
+9      return 0;
+10 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q13" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q13')"><span class="opt-label">A</span><span>兩者印出的數值一定相同，都是 40（10 個 int 元素 × 每個 4 位元組）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q13')"><span class="opt-label">B</span><span>行號 7 印出 40（整個陣列在 main 中所占的位元組數），但行號 3 印出 8，因為陣列作為參數傳入函式時會「退化（decay）」成指標，sizeof(arr) 求的其實是指標的大小，而不是原陣列的大小</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q13')"><span class="opt-label">C</span><span>行號 7 與行號 3 都會印出 8，因為只要牽涉到陣列，sizeof 一律回傳指標大小</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q13')"><span class="opt-label">D</span><span>這兩行程式碼都會產生編譯錯誤，因為函式參數不可以宣告為 int arr[]</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q13', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q13">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">行號 7 與行號 3 印出的數值並不相同：行號 7 是在 main() 中對真正的陣列取 sizeof，行號 3 則是對函式參數（實際上已退化為指標）取 sizeof，兩者所求的對象不同。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">numbers 在 main() 中是真正的陣列，sizeof(numbers) 得到整個陣列的位元組數（10×4=40）；但陣列作為函式參數傳遞時會退化成指標，int arr[] 等同於 int *arr，因此 sizeof(arr) 求的是指標的大小（8），而不是原本陣列的大小。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">行號 7 是對真正的陣列取 sizeof，結果是整個陣列的位元組數（40），而不是指標大小（8）；只有行號 3（函式內的參數）才會得到指標大小。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">以陣列型態（不指定大小）作為函式參數是完全合法的 C 語法，編譯器會自動將其視為指標型態的參數，不會產生編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q14">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 14</span>
+        <span class="q-concept">📌 概念：整數除法 vs 浮點數除法</span>
+      </div>
+    </div>
+    <div class="q-body">執行後兩行分別輸出什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 7, b = 2;
+4      printf(&quot;%d\n&quot;, a / b);
+5      printf(&quot;%.2f\n&quot;, (float)a / b);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q14" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q14')"><span class="opt-label">A</span><span>3 與 3.50</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q14')"><span class="opt-label">B</span><span>3.5 與 3.50</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q14')"><span class="opt-label">C</span><span>3 與 3.00</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q14')"><span class="opt-label">D</span><span>4 與 3.50</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q14', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q14">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">a / b（7/2）兩個運算元皆為 int，屬於整數除法，無條件捨去小數得到 3；(float)a / b 先把 a 轉型成 float，再與 b 相除，屬於浮點數除法，得到 3.5，以 %.2f 印出為 "3.50"。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">第一行 a / b 兩個運算元都是 int，是整數除法，結果會被截斷成整數 3，而不是帶有小數的 3.5，且第一行使用的格式化字串是 %d，不會印出小數。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">第二行 (float)a / b 確實透過型態提升進行了浮點數除法，會得到 3.5 而不是被截斷的 3.0，因此第二行不會印出 "3.00"。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">7/2 的整數除法是無條件捨去小數（truncate），結果是 3，不是四捨五入後的 4。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q15">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 15</span>
+        <span class="q-concept">📌 概念：強制轉型位置錯誤的除法陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">此程式的撰寫目的，原本應該是想要得到 7 除以 2 的精確浮點數結果 3.5，但實際執行後卻不是這樣。請問問題出在哪裡？印出的結果又會是多少？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 7, b = 2;
+4      float result = (float)(a / b);
+5      printf(&quot;%.2f\n&quot;, result);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q15" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q15')"><span class="opt-label">A</span><span>printf 的格式化字串 %.2f 寫錯了，應該改成 %d 才能正確顯示</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q15')"><span class="opt-label">B</span><span>這是編譯器的錯誤（bug），與程式碼寫法無關</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q15')"><span class="opt-label">C</span><span>沒有問題，程式會正確印出 3.50</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q15')"><span class="opt-label">D</span><span>行號 4 的括號位置放錯：(float) 是套用在 a / b 這個「已經完成的整數除法結果」上，此時 a/b 已經因為整數除法被截斷為 3，再轉型成 float 也只會得到 3.00，無法救回原本被截斷掉的小數部分</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q15', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q15">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">問題出在轉型的位置寫錯，而不是格式化字串寫錯；%.2f 本身是正確、合理的浮點數輸出格式。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">這是程式碼撰寫方式（轉型位置）造成的邏輯問題，是一個廣為人知、可預期的行為，並不是編譯器的錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">此程式確實有問題：括號放錯位置，導致轉型發生在整數除法「之後」，救不回已經被捨去的小數部分，因此不會印出 3.50。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">(float)(a / b) 是先完成 a / b 的整數除法運算（得到已被截斷的 3），才把這個結果轉型成 float（3.00），此時原本的小數部分早已在整數除法階段遺失，無法靠事後轉型救回來。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q16">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 16</span>
+        <span class="q-concept">📌 概念：除法運算子 / 與 % 的規則</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言中整數除法與浮點數除法的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch2q16" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q16')"><span class="opt-label">A</span><span>整數除法與浮點數除法在 C 語言中的運算速度、記憶體使用方式完全相同，沒有任何差異，只分別只在於印出的格式不同</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q16')"><span class="opt-label">B</span><span>只要程式中出現除法運算子 /，結果一定是浮點數，因為除法本來就會產生小數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q16')"><span class="opt-label">C</span><span>當 / 運算子的兩個運算元都是整數型態時，結果會是整數除法，直接捨去小數部分（無條件捨去，不是四捨五入）；只要有一個運算元是浮點數型態，才會進行浮點數除法</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q16')"><span class="opt-label">D</span><span>%（取餘數）運算子可以用在整數與浮點數之間，作用與 / 完全相同，只是取小數部分</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q16', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q16">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">整數除法與浮點數除法在底層運算方式、所得的實際數值上本質不同（一個會捨去小數，一個保留小數），並不是只有印出格式上的差異。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">只要 / 運算子的兩個運算元都是整數型態，結果就會是整數除法並捨去小數，並不是「只要出現除法就一定是浮點數」。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">兩個運算元皆為整數時進行整數除法（無條件捨去小數），只要有一方是浮點數型態，就會進行浮點數除法，得到帶有小數的精確結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">C 語言的內建 % 運算子只能用於整數運算元，不能直接用於 float 或 double（若要對浮點數取餘數，需改用數學函式庫的 fmod()），與 / 的行為並不相同。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q17">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 17</span>
+        <span class="q-concept">📌 概念：隱性型態提升（Implicit Promotion）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      char c = 10;
+4      int i = 300;
+5      double d = 2.5;
+6      double result = c + i * d;
+7      printf(&quot;%.1f\n&quot;, result);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q17" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q17')"><span class="opt-label">A</span><span>760.0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q17')"><span class="opt-label">B</span><span>310.0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q17')"><span class="opt-label">C</span><span>750.0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q17')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q17', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q17">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">i * d（int 300 與 double 2.5 相乘）依隱性型態提升，i 先轉成 double 再相乘，得到 750.0；c + (i*d)：c（char, 10）也會提升為 double（10.0）再相加，最終得到 760.0，以 %.1f 印出為 "760.0"。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">310.0 只是把 c 與 i 相加（10+300）而忽略了乘法的優先順序與 d 的作用，不符合實際的運算子優先順序（* 優先於 +）與型態提升結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">750.0 只計算了 i * d 的部分，漏掉了加上 c（10.0）之後的結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">char、int、double 之間的隱性型態提升與混合運算是完全合法的 C 語法，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q18">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 18</span>
+        <span class="q-concept">📌 概念：強制轉型截斷（非四捨五入）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      double d = -3.9;
+4      int i = (int)d;
+5      printf(&quot;%d\n&quot;, i);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q18" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q18')"><span class="opt-label">A</span><span>-4（因為強制轉型會四捨五入到最接近的整數）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q18')"><span class="opt-label">B</span><span>-3（因為 double 轉 int 時，小數部分會被直接捨去，也就是朝 0 的方向截斷，而不是四捨五入）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q18')"><span class="opt-label">C</span><span>-3.9（強制轉型不會改變數值，只會改變型態標記）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q18')"><span class="opt-label">D</span><span>3（強制轉型會先取絕對值，再捨去小數）</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q18', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q18">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">強制轉型（explicit cast）從浮點數轉整數，並不是採用四捨五入的規則，而是直接捨去小數部分。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">double 轉 int 的規則是「朝 0 的方向截斷（truncate toward zero）」，-3.9 朝 0 方向截斷後得到 -3，這與無條件捨去（floor，會得到 -4）不同，是經常被混淆的重點。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">強制轉型確實會改變數值：型態從 double 變成 int 之後，小數部分會被捨去，數值不再是 -3.9，而是 -3。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">強制轉型並不會先取絕對值再捨去小數，而是直接朝 0 的方向截斷，保留原本的正負號。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q19">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 19</span>
+        <span class="q-concept">📌 概念：格式化輸出規格符與進位制換算</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int num = 26;
+4      printf(&quot;%d %o %x\n&quot;, num, num, num);
+5      return 0;
+6  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q19" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q19')"><span class="opt-label">A</span><span>26 32 1a</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q19')"><span class="opt-label">B</span><span>26 26 26</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q19')"><span class="opt-label">C</span><span>11010 32 1a</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q19')"><span class="opt-label">D</span><span>26 33 1b</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q19', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q19">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">26 的十進位表示直接印出為 "26"；換算成八進位（%o）是 "32"（3×8+2=26）；換算成十六進位（%x，小寫）是 "1a"（1×16+10=26）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">%o 與 %x 會依各自的進位制重新表示數值，並不會單純重複印出與 %d 相同的十進位數字 "26"。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">%d 印出的是十進位表示，不是二進位表示，26 不會被印成二進位的 "11010"。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">26 換算成八進位是 32（不是 33），換算成十六進位是 1a（不是 1b），這兩個選項的換算結果都不正確。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch2q20">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 20</span>
+        <span class="q-concept">📌 概念：printf 格式化字串型態不匹配的風險</span>
+      </div>
+    </div>
+    <div class="q-body">上述程式碼中，printf 的格式化字串使用了 %d，但引數 pi 卻是 float 型態。下列敘述何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      float pi = 3.14f;
+4      printf(&quot;%d\n&quot;, pi);
+5      return 0;
+6  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch2q20" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch2q20')"><span class="opt-label">A</span><span>編譯器一定會擋下這個錯誤，直接拒絕編譯</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch2q20')"><span class="opt-label">B</span><span>印出的結果一定是 0，因為型態不匹配時 C 語言會自動把引數歸零</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch2q20')"><span class="opt-label">C</span><span>這是完全合法且安全的用法，C 語言會自動把 float 轉換成對應的整數再印出 3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch2q20')"><span class="opt-label">D</span><span>這種型態不匹配的用法是未定義行為（Undefined Behavior），printf 會依照 %d 的規則去讀取應該傳入的整數大小的資料，但實際傳入的卻是 float 的位元表示法，因此很可能印出一個看起來毫無意義的數字，而不是 3 或 3.14</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch2q20', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch2q20">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">C 語言標準的編譯器並未強制在編譯期對 printf 的格式化字串與引數型態做嚴格檢查（部分編譯器在開啟特定警告選項時會提出警告，但通常不是「一定拒絕編譯」的硬性錯誤）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">C 語言並沒有「型態不匹配時自動把引數歸零」這種行為，印出的結果是不可預期的位元誤讀結果，不會保證是 0。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">這並不是合法且安全的用法；C 語言的 printf 並不會在格式化字串與引數型態不符時，自動幫忙做正確的型態轉換。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">printf 的格式化字串與實際引數型態不符，屬於未定義行為：%d 預期讀取一個整數大小的資料，但實際傳入的是 float（依預設引數提升會變成 double）的位元表示法，printf 會誤讀這些位元，因此很可能印出一個看似無意義、無法預期的數字。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <p>第 2 章：資料型態｜自我檢測　共 20 題　自編模擬練習題，非歷屆真題　·　C語言統測自主學習系列　·　assessments/chapter2-data-types-assessment.html</p>
+  </footer>
+
+</main>
+
+<script>
+let answeredState = {};
+
+function checkOption(btn, optionLetter, qid) {
+  const parentGrid = btn.closest('.options-grid');
+  const correctOption = parentGrid.getAttribute('data-correct');
+
+  parentGrid.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('selected-correct', 'selected-wrong');
+  });
+
+  const isCorrect = optionLetter === correctOption;
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+  } else {
+    btn.classList.add('selected-wrong');
+  }
+
+  answeredState[qid] = isCorrect;
+  updateScoreBar();
+
+  const expBox = document.getElementById('exp-' + qid);
+  const toggleBtn = expBox ? expBox.previousElementSibling : null;
+  if (expBox && !expBox.classList.contains('show')) {
+    expBox.classList.add('show');
+    if (toggleBtn) toggleBtn.classList.add('open');
+  }
+}
+
+function updateScoreBar() {
+  const keys = Object.keys(answeredState);
+  const answered = keys.length;
+  const correct = keys.filter(k => answeredState[k]).length;
+  const answeredEl = document.getElementById('answered-count');
+  const correctEl = document.getElementById('correct-count');
+  if (answeredEl) answeredEl.textContent = answered;
+  if (correctEl) correctEl.textContent = correct;
+}
+
+function toggleExplanation(boxId, btn) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  box.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+
+let allExpanded = false;
+function toggleAllExplanations() {
+  allExpanded = !allExpanded;
+  const boxes = document.querySelectorAll('.explanation-box');
+  const btns = document.querySelectorAll('.explanation-toggle-btn');
+  const toggleAllText = document.getElementById('toggle-all-text');
+
+  boxes.forEach(box => { if (allExpanded) box.classList.add('show'); else box.classList.remove('show'); });
+  btns.forEach(btn => { if (allExpanded) btn.classList.add('open'); else btn.classList.remove('open'); });
+  if (toggleAllText) toggleAllText.textContent = allExpanded ? '全部收合詳解' : '全部展開詳解';
+}
+
+function toggleTheme() {
+  const htmlEl = document.documentElement;
+  const currentTheme = htmlEl.getAttribute('data-theme');
+  const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+  htmlEl.setAttribute('data-theme', nextTheme);
+  const themeBtn = document.getElementById('btn-theme');
+  if (themeBtn) themeBtn.textContent = nextTheme === 'light' ? '☀️ 淺色模式' : '🌙 深色模式';
+}
+</script>
+
+</body>
+</html>
