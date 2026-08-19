@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 1～3 章：前處理器、資料型態與運算子自我檢測</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-alt: #334155;
+  --bg-code: #0b1120;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #0ea5e9;
+  --accent-light: #38bdf8;
+  --accent-glow: rgba(14, 165, 233, 0.18);
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.35);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --font-body: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', Consolas, 'SF Mono', Monaco, monospace;
+}
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f5f9;
+  --bg-code: #0f172a;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent: #0284c7;
+  --accent-light: #0ea5e9;
+  --accent-glow: rgba(2, 132, 199, 0.12);
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 18px; }
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.8;
+  letter-spacing: 0.015em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+.top-header {
+  position: sticky; top: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 900;
+  padding: 10px 24px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  transition: background 0.3s ease;
+}
+[data-theme="light"] .top-header { background: rgba(255, 255, 255, 0.88); }
+.header-brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand-badge {
+  background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent);
+  padding: 4px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em;
+}
+[data-theme="light"] .brand-badge { color: var(--accent); }
+.brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-control {
+  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
+  padding: 6px 14px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+}
+.btn-control:hover { border-color: var(--accent); color: var(--accent-light); transform: translateY(-1px); }
+[data-theme="light"] .btn-control:hover { color: var(--accent); }
+.btn-control.primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+.btn-control.primary:hover { background: var(--accent-light); }
+
+.main-content { width: min(1600px, 80%); margin: 0 auto; padding: 32px 20px 100px; }
+
+.hero-banner {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px 28px 28px 32px; margin-bottom: 24px;
+  position: relative; overflow: hidden; box-shadow: var(--shadow);
+}
+.hero-banner::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%;
+  background: linear-gradient(180deg, var(--accent), #6366f1);
+}
+.hero-tag {
+  display: inline-block; background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent); padding: 4px 12px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 700; margin-bottom: 12px;
+}
+[data-theme="light"] .hero-tag { color: var(--accent); }
+.hero-banner h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); }
+.hero-banner p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.75; margin-bottom: 6px; }
+.hero-banner p:last-child { margin-bottom: 0; }
+.hero-banner strong { color: var(--warning, #f59e0b); }
+
+.score-bar {
+  position: sticky; top: 54px; z-index: 800;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
+  padding: 14px 20px; margin-bottom: 28px; box-shadow: var(--shadow-sm);
+}
+.score-items { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.score-item { font-size: 0.92rem; color: var(--text-secondary); font-weight: 600; }
+.score-item strong { font-size: 1.15rem; color: var(--accent-light); font-weight: 900; }
+[data-theme="light"] .score-item strong { color: var(--accent); }
+.score-item.is-correct strong { color: var(--success); }
+
+pre.code-content {
+  font-family: var(--font-code); font-size: 0.9rem; line-height: 1.65;
+  padding: 16px 20px; color: #e2e8f0; overflow-x: auto; margin: 0;
+  background: var(--bg-code); border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+}
+pre.code-content code { font-family: inherit; }
+code.inline {
+  font-family: var(--font-code); font-size: 0.88em;
+  background: var(--bg-card-alt); color: var(--accent-light);
+  padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color);
+}
+[data-theme="light"] code.inline { color: var(--accent); }
+.q-code-wrap { margin: 14px 0 18px; }
+.q-opt-code { margin: 6px 0 14px; }
+
+.question-card {
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px; margin: 28px 0; box-shadow: var(--shadow); transition: border-color 0.2s ease;
+}
+.question-card:hover { border-color: var(--accent); }
+.q-meta {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
+}
+.q-title-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.q-badge { background: var(--accent); color: #ffffff; padding: 4px 12px; border-radius: 6px; font-size: 0.88rem; font-weight: 800; }
+.q-concept { font-size: 0.88rem; color: var(--text-secondary); font-weight: 600; }
+.q-body { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.6; }
+
+.options-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.option-btn {
+  background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  padding: 12px 18px; color: var(--text-primary); font-size: 0.95rem; font-weight: 500;
+  text-align: left; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;
+  transition: all 0.15s ease; width: 100%;
+}
+.option-btn:hover { border-color: var(--accent); background: var(--accent-glow); transform: translateX(4px); }
+.opt-label {
+  background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--accent-light);
+  width: 28px; height: 28px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+}
+[data-theme="light"] .opt-label { color: var(--accent); }
+.option-btn.selected-correct { background: var(--success-bg) !important; border-color: var(--success) !important; color: var(--text-primary) !important; }
+.option-btn.selected-correct .opt-label { background: var(--success) !important; color: #ffffff !important; }
+.option-btn.selected-wrong { background: var(--danger-bg) !important; border-color: var(--danger) !important; color: var(--text-primary) !important; }
+.option-btn.selected-wrong .opt-label { background: var(--danger) !important; color: #ffffff !important; }
+.opt-text-code { font-family: var(--font-code); font-size: 0.92em; }
+
+.explanation-toggle-btn {
+  width: 100%; background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent-light);
+  padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  margin-top: 14px; transition: all 0.2s ease;
+}
+[data-theme="light"] .explanation-toggle-btn { color: var(--accent); }
+.explanation-toggle-btn:hover { background: var(--accent); color: #ffffff; }
+.toggle-icon { transition: transform 0.3s ease; }
+.explanation-toggle-btn.open .toggle-icon { transform: rotate(180deg); }
+
+.explanation-box {
+  display: none; background: var(--bg-primary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); padding: 24px; margin-top: 14px; animation: fadeIn 0.3s ease;
+}
+.explanation-box.show { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.ans-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--success-bg); border: 1px solid var(--success-border);
+  padding: 12px 18px; border-radius: var(--radius-sm); margin-bottom: 20px;
+}
+.ans-label { font-size: 0.9rem; font-weight: 700; color: var(--success); }
+.ans-value { font-size: 1.25rem; font-weight: 900; color: var(--success); }
+
+.opt-breakdown-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.opt-analysis-card { border-radius: var(--radius-sm); padding: 14px 18px; border: 1px solid var(--border-color); background: var(--bg-card); }
+.opt-analysis-card.is-correct { border-color: var(--success-border); background: var(--success-bg); }
+.opt-analysis-card.is-wrong { border-color: var(--border-color); }
+.opt-card-header { display: flex; align-items: center; gap: 10px; font-weight: 800; margin-bottom: 6px; flex-wrap: wrap; }
+.badge-correct { background: var(--success); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.badge-wrong { background: var(--danger); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.opt-analysis-text { font-size: 0.93rem; line-height: 1.65; color: var(--text-primary); }
+
+footer.page-footer {
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color);
+  color: var(--text-muted); font-size: 0.85rem; text-align: center; line-height: 1.8;
+}
+
+@media (max-width: 640px) {
+  .main-content { width: min(1600px, calc(100% - 24px)); padding: 20px 14px 80px; }
+  .question-card { padding: 18px; }
+  .score-bar { top: 90px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-brand">
+    <span class="brand-badge">C 程式設計自我檢測</span>
+    <span class="brand-title">📘 第 1～3 章：前處理器、資料型態與運算子</span>
+  </div>
+  <div class="header-actions">
+    <a class="btn-control" href="index.html" style="text-decoration: none;"><span>📋</span> <span>返回章節選單</span></a>
+    <button class="btn-control" onclick="toggleAllExplanations()"><span id="toggle-all-text">全部展開詳解</span></button>
+    <button class="btn-control" id="btn-theme" onclick="toggleTheme()">🌙 深色模式</button>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="hero-banner">
+    <span class="hero-tag">自編模擬練習題．共 20 題</span>
+    <h1>第 1～3 章綜合自我檢測：前處理器、資料型態與運算子</h1>
+    <p>⚠️ <strong>重要說明</strong>：以下 20 題為依據第 1 章「前處理器與編譯基礎」、第 2 章「資料型態」、第 3 章「運算子」教材內容自行編寫的<strong>模擬練習題</strong>，出題風格與敘述方式參考了歷屆統測（技專校院入學測驗中心）試題的命題習慣，但<strong>並非</strong>任何一年的歷屆真題，內容僅供學習自我檢測參考，不代表正式考試之題型、難度或配分。</p>
+    <p>共 20 題單選題（第 1 章 7 題、第 2 章 7 題、第 3 章 6 題），每題 4 個選項。點擊任一選項即可立即檢查對錯並顯示詳解；也可以用右上角「全部展開詳解」一次查看所有題目的完整解析。若想重新作答，點擊右上角的「🔄 重新測驗」即可，作答紀錄不會被保存。</p>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-items">
+      <div class="score-item">已作答 <strong id="answered-count">0</strong> / 20</div>
+      <div class="score-item is-correct">答對 <strong id="correct-count">0</strong> 題</div>
+    </div>
+    <button class="btn-control primary" onclick="location.reload()">🔄 重新測驗</button>
+  </div>
+
+  <div class="question-card" id="q-01">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 01（第 1 章）</span>
+        <span class="q-concept">📌 概念：C 程式四階段生命週期</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 程式從原始碼到可執行檔案的建置流程，下列敘述何者正確？</div>
+    <div class="options-grid" data-qid="01" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', '01')"><span class="opt-label">A</span><span>前處理階段的輸出檔案（.i）已經是機器可以直接執行的二進位碼</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '01')"><span class="opt-label">B</span><span>編譯階段主要負責語法分析，並將前處理後的程式碼轉換為組合語言，若有語法錯誤會在此階段被偵測出來</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '01')"><span class="opt-label">C</span><span>組譯階段的工作是將多個目的檔與函式庫連結成單一執行檔</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '01')"><span class="opt-label">D</span><span>連結階段會展開程式中所有的 #include 與 #define 指令</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-01', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-01">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">前處理階段輸出的 .i 檔仍然是文字形式的原始碼（只是把 #include、#define 展開、註解移除），並不是可執行的二進位機器碼，機器碼要到組譯與連結階段才會產生。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">編譯器會對前處理後的原始碼進行語法分析，若有拼字錯誤或漏打分號等問題，就是在這個階段被偵測出來並報出 Syntax Error；語法完全正確才會轉換成組合語言（.s 檔）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">把多個目的檔（.o）與函式庫合併、解決外部符號參照，是「連結」階段的工作，不是組譯階段。組譯階段是把組合語言轉成機器碼的目的檔。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">展開 #include 與替換 #define 都是「前處理」階段的工作，發生在最前面，而不是最後的連結階段。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-02">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 02（第 1 章）</span>
+        <span class="q-concept">📌 概念：前處理器三大鐵律（分號陷阱）</span>
+      </div>
+    </div>
+    <div class="q-body">上述程式編譯時會發生錯誤，最主要的原因是下列何者？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define RATE 0.9;
+3  int main(void) {
+4      int price = 100;
+5      double tax = price * RATE * 1.05;
+6      printf(&quot;%.2f\n&quot;, tax);
+7      return 0;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="02" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', '02')"><span class="opt-label">A</span><span>行號 4 的 price 變數沒有加上型別轉換</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '02')"><span class="opt-label">B</span><span>RATE 這個巨集名稱與系統保留字衝突</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '02')"><span class="opt-label">C</span><span>行號 5 同時使用兩個乘號 *，C 語言不允許一行內出現兩個乘法運算</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '02')"><span class="opt-label">D</span><span>行號 2 的巨集定義結尾多加了分號，展開後行號 5 變成 double tax = price * 0.9; * 1.05; ，多出的 * 1.05; 不是合法的敘述</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-02', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-02">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">price 是 int，乘上 double 的 0.9 會自動隱性提升為 double 運算，這裡不需要額外的顯式轉型，也不是本題編譯失敗的原因。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">RATE 是使用者自訂的巨集名稱，並非 C 語言保留字，也沒有任何命名衝突。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">一行程式碼中本來就可以出現多個乘號，例如 a * b * c 完全合法，這不是錯誤原因。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">#define RATE 0.9; 把結尾的分號也一起定義進巨集內容。展開後第 5 行變成 double tax = price * 0.9; * 1.05; ，前半段成為一個完整敘述，後面多出的「* 1.05;」不是合法的 C 敘述，造成編譯錯誤（實際以 gcc 測試會出現如「indirection requires pointer operand」之類的錯誤訊息）。這正是「巨集定義結尾不可加分號」鐵律的經典陷阱。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-03">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 03（第 1 章）</span>
+        <span class="q-concept">📌 概念：#include 與 Include Guard</span>
+      </div>
+    </div>
+    <div class="q-body">下列關於 #include 標頭檔引入與防重複引用機制的敘述，何者正確？</div>
+    <div class="options-grid" data-qid="03" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', '03')"><span class="opt-label">A</span><span>#include &quot;myheader.h&quot; 只能用來引入系統標準函式庫，不能引入自訂標頭檔</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '03')"><span class="opt-label">B</span><span>無論使用 &lt;&gt; 或 &quot;&quot; 哪一種寫法，前處理器都會實際把該檔案的完整內容貼入原始碼對應位置，而不是僅僅記錄檔名</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '03')"><span class="opt-label">C</span><span>Include Guard（#ifndef／#define／#endif）的用途是避免程式在執行階段重複呼叫同一個函式</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '03')"><span class="opt-label">D</span><span>只要標頭檔內容不含函式定義，就一定不需要加上 Include Guard，因為不會發生重複定義問題</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-03', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-03">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">&quot;&quot;形式的慣例用法通常是用來引入使用者自訂的標頭檔（會優先搜尋原始檔所在目錄），並非「只能」引入系統函式庫；語法上其實也可以用來引入系統標頭檔，只是不符慣例。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">不論 &lt;&gt; 或 &quot;&quot;，#include 指令都是前處理器在前處理階段真正把該檔案的完整內容原封不動貼到指令所在的位置，兩者差別只在搜尋路徑順序不同，而不是只記錄檔名讓編譯器另外處理。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">Include Guard 防的是「編譯期」同一個標頭檔內容被重複展開，導致 struct、typedef 等重複定義而編譯失敗，與程式執行階段呼叫函式的行為無關。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">標頭檔內即使沒有函式定義，仍可能包含 struct、typedef、全域變數定義等內容，若被重複展開一樣可能發生重複定義的編譯錯誤，因此不能一概而論說不需要 Include Guard。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-04">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 04（第 1 章）</span>
+        <span class="q-concept">📌 概念：帶參數巨集無括號陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define CUBE(x) x*x*x
+3  int main(void) {
+4      int a = 1;
+5      printf(&quot;%d\n&quot;, CUBE(a + 1));
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="04" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', '04')"><span class="opt-label">A</span><span>8</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '04')"><span class="opt-label">B</span><span>3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '04')"><span class="opt-label">C</span><span>4</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '04')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-04', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-04">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">8 是「假設參數與整體都有括號保護」時 (a+1)^3 = 2^3 = 8 的結果，但 CUBE 巨集完全沒有加任何括號，實際不會得到這個值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">3 並非任何正確或常見誤解路徑會得到的結果，實際展開計算後的值是 4。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">CUBE(x) 定義為 x*x*x（沒有任何括號保護），CUBE(a + 1) 是純文字代換，逐字展開後變成 a + 1*a + 1*a + 1。依照運算子優先順序（* 先於 +），等於 a + (1*a) + (1*a) + 1；代入 a = 1 得 1 + 1 + 1 + 1 = 4（已用 gcc 實測驗證）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">這段程式在語法上完全合法（只是巨集展開後的運算結果不符合直覺），可以正常編譯與執行，不會產生編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-05">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 05（第 1 章）</span>
+        <span class="q-concept">📌 概念：巨集參數括號 vs 整體括號</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define DOUBLE(x) (x) + (x)
+3  int main(void) {
+4      int result = 10 / DOUBLE(2 + 3);
+5      printf(&quot;%d\n&quot;, result);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="05" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', '05')"><span class="opt-label">A</span><span>1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '05')"><span class="opt-label">B</span><span>編譯錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '05')"><span class="opt-label">C</span><span>2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '05')"><span class="opt-label">D</span><span>7</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-05', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-05">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">1 是「假設整個巨集展開結果也有外層括號保護」時 10 / ((2+3)+(2+3)) = 10 / 10 = 1 的結果，但 DOUBLE 巨集本體外層並沒有加括號，實際不會得到這個值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">這段程式語法上完全合法，可以正常編譯與執行，只是運算結果因括號保護不完整而不符合直覺，不會產生編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">2 只是 10/(2+3) 這一部分的結果，忽略了展開後多出來的 + (2+3) 這一段，並非完整的最終運算結果。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">DOUBLE(x) 雖然把參數 x 用括號保護成 (x) + (x)，但整個替換結果外層沒有再加一層括號。10 / DOUBLE(2 + 3) 展開後變成 10 / (2 + 3) + (2 + 3)，因為 / 優先權高於 +，等於 (10 / 5) + 5 = 2 + 5 = 7（已用 gcc 實測驗證），而不是把整個 DOUBLE(...) 當成一個完整的數值來除。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-06">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 06（第 1 章）</span>
+        <span class="q-concept">📌 概念：const 與 #define 比較</span>
+      </div>
+    </div>
+    <div class="q-body">關於 const double TAX_RATE = 0.05; 與 #define TAX_RATE 0.05 兩種寫法的比較，下列敘述何者正確？</div>
+    <div class="options-grid" data-qid="06" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', '06')"><span class="opt-label">A</span><span>兩者都不會佔用任何執行時的記憶體空間，因為都只是常數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '06')"><span class="opt-label">B</span><span>#define TAX_RATE 0.05 是在前處理階段以純文字取代完成，編譯器看到的原始碼中已經沒有 TAX_RATE 這個名稱；const double TAX_RATE = 0.05; 則是一個具備型別與記憶體位址、由編譯器管理的唯讀變數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '06')"><span class="opt-label">C</span><span>若在函式內部使用 const double TAX_RATE = 0.05;，其作用域會和 #define 一樣，從宣告處開始一直有效到檔案結尾</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '06')"><span class="opt-label">D</span><span>#define TAX_RATE 0.05 比 const double TAX_RATE = 0.05; 更具有型別安全，因為巨集在替換時會先檢查數值型態是否正確</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-06', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-06">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">const 變數是編譯器管理的真正變數，具有實體記憶體位址，會佔用記憶體空間；只有 #define 巨集才不佔用記憶體（它只是程式碼中的即值常數）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">#define 是前處理階段完成的純文字取代，編譯器根本看不到 TAX_RATE 這個識別字（早已被換成 0.05）；const 變數則是正常參與編譯、具備型別檢查、擁有記憶體位址的唯讀變數，兩者處理階段與本質完全不同。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">函式內部宣告的 const 變數，作用域遵循一般區域變數規則，只在該函式（區塊）內有效，離開區塊就會消失；#define 巨集則是從定義處開始一路有效到檔尾或遇到 #undef，兩者作用域規則並不相同。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">#define 是純文字取代，完全沒有型別的概念，前處理器不會做任何型別檢查；具備型別安全檢查的其實是 const 變數，這個選項把兩者的特性說反了。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-07">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 07（第 1 章）</span>
+        <span class="q-concept">📌 概念：程式除錯四大錯誤型態（陣列越界）</span>
+      </div>
+    </div>
+    <div class="q-body">小明寫了以下程式，編譯與連結都順利通過，產生了執行檔，但程式運行到一半就當機中斷。上述程式發生當機的原因與錯誤型態屬於下列何者？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int scores[5] = {90, 85, 77, 88, 95};
+4      int i;
+5      for (i = 0; i &lt;= 5; i++) {
+6          printf(&quot;%d\n&quot;, scores[i]);
+7      }
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="07" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', '07')"><span class="opt-label">A</span><span>語法錯誤（Syntax Error），因為 for 迴圈的條件式 i &lt;= 5 寫法不合法</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '07')"><span class="opt-label">B</span><span>連結錯誤（Link-Time Error），因為找不到 scores 陣列的宣告</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '07')"><span class="opt-label">C</span><span>執行期錯誤（Run-Time Error），因為迴圈條件讓 i 跑到 5，造成陣列 scores[5] 索引超出宣告範圍（合法索引僅 0～4），屬於陣列越界存取</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '07')"><span class="opt-label">D</span><span>邏輯錯誤（Logic Error），因為程式仍會順利執行完畢，只是印出的總和數值不正確</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-07', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-07">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">i &lt;= 5 在語法上完全合法（迴圈條件本來就可以自由設定比較條件），編譯器不會因此報錯，題目也已明確說明編譯順利通過。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">scores 陣列有在同一個檔案中正確宣告並初始化，連結器不會找不到它；連結錯誤通常發生在呼叫了沒有實作本體的函式，與這裡的情境不符。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">scores 陣列宣告大小為 5，合法索引只有 0～4，但迴圈條件 i &lt;= 5 讓 i 多跑一次到 5，導致 scores[5] 存取到陣列邊界之外的記憶體。這種錯誤在編譯、連結階段完全偵測不到，只有程式實際執行到該行時才會顯現（可能印出垃圾值甚至讓程式當機），是典型的執行期錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">題目描述的是程式「運行到一半就當機中斷」，並非順利執行完畢但結果數值錯誤，因此不屬於邏輯錯誤，而是會造成當機的執行期錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-08">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 08（第 2 章）</span>
+        <span class="q-concept">📌 概念：基本資料型態大小與範圍</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言基本資料型態的記憶體大小與數值表示範圍，下列敘述何者正確？（假設為標準 32 位元 int 之系統環境）</div>
+    <div class="options-grid" data-qid="08" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', '08')"><span class="opt-label">A</span><span>short 在多數系統中佔用 4 Bytes，數值範圍與 int 完全相同</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '08')"><span class="opt-label">B</span><span>unsigned int 由於全部 32 個位元都用來表示數值大小，其可表示的最大正整數比同為 32 位元的 int 還要大</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '08')"><span class="opt-label">C</span><span>char 一定只能用來存放字元，不能存放數值型態的資料，也不能與整數進行加減運算</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '08')"><span class="opt-label">D</span><span>float 使用 8 Bytes 記憶體，有效位數與精確度皆高於 double</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-08', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-08">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">short 標準大小是 2 Bytes（16 bits），範圍約 -32768～32767，比 4 Bytes 的 int（32 bits）小得多，並不相同。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">int 是有號整數，最高位元要保留給正負號，最大值為 2^31 - 1；unsigned int 沒有符號位元，全部 32 個位元都用來表示大小，最大值可達 2^32 - 1，明顯比 int 的最大值大。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">char 的本質就是一個 1 Byte 的小型整數，內部儲存的其實就是 ASCII 碼數值，完全可以與整數直接進行加減運算（例如常見的大小寫轉換、數字字元轉數值）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">float 標準大小是 4 Bytes，有效位數約 6～7 位；double 才是 8 Bytes、有效位數約 15～17 位，精確度比 float 高，這個選項把兩者說反了。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-09">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 09（第 2 章）</span>
+        <span class="q-concept">📌 概念：無號數溢位環繞</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      unsigned char uc = 250;
+4      uc = uc + 10;
+5      printf(&quot;%u\n&quot;, uc);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="09" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', '09')"><span class="opt-label">A</span><span>260</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '09')"><span class="opt-label">B</span><span>-6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '09')"><span class="opt-label">C</span><span>4</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '09')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-09', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-09">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">260 是 uc 提升為 int 之後、尚未存回 unsigned char 之前的中間計算結果，但這個值超出 unsigned char 0～255 的範圍，存回去時會被截斷，不會是最終輸出。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">unsigned char 是無號型態，不會表示負數，%u 格式化輸出也一定是非負整數，不可能印出 -6。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">uc + 10 運算時，uc 會先整數提升為 int（250 + 10 = 260），但結果要存回 8 位元的 unsigned char 時只保留低 8 位元，發生「時鐘環繞」：260 mod 256 = 4（已用 gcc 實測驗證），編譯器不會對這種溢位主動發出警告或錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">unsigned char 加法運算完全合法，這行程式不會產生任何編譯錯誤，只是結果因型態範圍限制而環繞。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-10">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 10（第 2 章）</span>
+        <span class="q-concept">📌 概念：char 與 ASCII 碼運算</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      char grade = &#x27;C&#x27;;
+4      char upgraded = grade - 2;
+5      printf(&quot;%c\n&quot;, upgraded);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="10" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', '10')"><span class="opt-label">A</span><span>A</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '10')"><span class="opt-label">B</span><span>B</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '10')"><span class="opt-label">C</span><span>c</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '10')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-10', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-10">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">char 的本質是儲存 ASCII 碼的小型整數，字元 &#x27;C&#x27; 的 ASCII 碼是 67，67 - 2 = 65，對照 ASCII 表，65 正是字元 &#x27;A&#x27;（已用 gcc 實測驗證）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">&#x27;B&#x27; 的 ASCII 碼是 66，若要從 &#x27;C&#x27;（67）算到 66 應該是減 1，而不是題目中的減 2，因此結果不會是 &#x27;B&#x27;。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">小寫 &#x27;c&#x27; 的 ASCII 碼是 99，與 &#x27;C&#x27; - 2 = 65 差距很大，char 的算術運算不會自動在大小寫之間轉換，只有數值上的加減。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">char 與整數常數的加減運算完全合法，這是 C 語言允許的標準操作，不會產生編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-11">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 11（第 2 章）</span>
+        <span class="q-concept">📌 概念：sizeof 指標與陣列陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">在 64 位元系統上，依序輸出的三個數值為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      double *dptr;
+4      int arr[5];
+5      printf(&quot;%zu\n&quot;, sizeof(dptr));
+6      printf(&quot;%zu\n&quot;, sizeof(*dptr));
+7      printf(&quot;%zu\n&quot;, sizeof(arr));
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="11" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', '11')"><span class="opt-label">A</span><span>8, 8, 20</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '11')"><span class="opt-label">B</span><span>8, 4, 20</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '11')"><span class="opt-label">C</span><span>8, 8, 8</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '11')"><span class="opt-label">D</span><span>4, 8, 20</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-11', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-11">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">sizeof(dptr) 計算的是指標變數本身的大小，在 64 位元系統上任何型態的指標都是 8 Bytes；sizeof(*dptr) 對指標取值後計算的是它所指向的 double 型態大小，同樣是 8 Bytes；sizeof(arr) 因為 arr 是在同一個作用域中宣告的真正陣列（沒有當作函式參數傳遞而退化成指標），計算的是整個陣列的大小 5 × sizeof(int) = 20 Bytes（已用 gcc 實測驗證）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">sizeof(*dptr) 算的是 double 型態的大小（8 Bytes），不是 int 的 4 Bytes，這個選項誤把取值後的型態當成了 int。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">這是常見誤解：把陣列 arr 誤當成指標來計算 sizeof，得到 8。但 arr 是宣告在本地的實際陣列，sizeof(arr) 算的是整個陣列佔用的位元組數 20，而不是指標大小 8。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">sizeof(dptr) 算的是指標本身的大小，在 64 位元系統上是 8 Bytes，不是 4 Bytes；這個選項把第一與第二個數值弄反了。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-12">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 12（第 2 章）</span>
+        <span class="q-concept">📌 概念：整數除法 vs 強制轉型</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int total = 17, count = 5;
+4      double avg1 = total / count;
+5      double avg2 = (double)total / count;
+6      printf(&quot;%.1f %.1f\n&quot;, avg1, avg2);
+7      return 0;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="12" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', '12')"><span class="opt-label">A</span><span>3.0 3.4</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '12')"><span class="opt-label">B</span><span>3.4 3.4</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '12')"><span class="opt-label">C</span><span>3.0 3.0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '12')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-12', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-12">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">avg1：total / count 是 int / int（17 / 5），先做整數除法無條件捨去小數得到 3，之後才把這個整數 3 轉型存入 double avg1，因此是 3.0；avg2：(double)total 先把 total 強制轉型成 17.0，再與 count 做浮點除法得到 3.4（已用 gcc 實測驗證）。「先截斷、後轉型」與「先轉型、後除法」得到完全不同的結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">avg1 的關鍵是先做 int / int 的整數除法（會捨去小數），小數點在轉型成 double 之前就已經遺失了，並不會得到 3.4。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">avg2 因為在除法之前就把 total 轉型成 double，是貨真價實的浮點除法 17.0 / 5，結果保留小數為 3.4，不會捨去成 3.0。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">兩行程式碼的型態轉換與除法運算都完全合法，可以正常編譯與執行，不會產生編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-13">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 13（第 2 章）</span>
+        <span class="q-concept">📌 概念：隱性型態提升規則</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言中不同資料型態混合運算時的隱性型態轉換（Implicit Promotion）規則，下列敘述何者&lt;u&gt;錯誤&lt;/u&gt;？</div>
+    <div class="options-grid" data-qid="13" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', '13')"><span class="opt-label">A</span><span>char 與 short 型態的變數在參與任何算術運算前，會先自動提升為 int</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '13')"><span class="opt-label">B</span><span>若運算式中同時出現 int 與 double，int 會自動轉換為 double 再進行運算，整個運算式結果為 double</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '13')"><span class="opt-label">C</span><span>若運算式中同時出現 float 與 double，float 會被自動轉為 int 後再與 double 運算</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '13')"><span class="opt-label">D</span><span>隱性型態提升遵循「容量小的型態自動轉為容量大的型態」的原則，不會反向發生</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-13', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-13">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">這是正確的敘述：char 與 short 在進行算術運算前，都會先經過整數提升（Integral Promotion）轉為 int，這也是隱性型態提升規則的一部分，並非本題要找的錯誤敘述。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">這也是正確的敘述：int 與 double 混合運算時，int 會被自動轉為 double，讓整個運算式以 double 精度計算，符合「小容量轉大容量」原則，並非本題要找的錯誤敘述。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">這是本題要找的錯誤敘述：float 與 double 混合運算時，float 會直接被提升為 double（同樣是浮點數家族內的升級），而不會先轉成 int。若真的先轉成 int，小數部分會完全消失，明顯違反「保留精度、小轉大」的隱性提升原則。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">這是正確的敘述：隱性型態提升的方向永遠是「容量或精度較小的型態自動轉為較大的型態」，例如 char/short → int → float → double，不會有大轉小的隱性提升，並非本題要找的錯誤敘述。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-14">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 14（第 2 章）</span>
+        <span class="q-concept">📌 概念：格式化輸出 %o / %x</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int num = 26;
+4      printf(&quot;%o %x\n&quot;, num, num);
+5      return 0;
+6  }</code></pre></div></div>
+    <div class="options-grid" data-qid="14" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', '14')"><span class="opt-label">A</span><span>32 1A</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '14')"><span class="opt-label">B</span><span>26 26</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '14')"><span class="opt-label">C</span><span>33 1A</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '14')"><span class="opt-label">D</span><span>32 1a</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-14', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-14">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">八進位部分 32 正確，但 %x 是小寫格式指定字，只會輸出小寫的 &quot;1a&quot;，不會輸出大寫的 &quot;1A&quot;（大寫需要使用 %X），這是本題設計的陷阱選項。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">%o 與 %x 分別會把數值轉換成八進位與十六進位表示，不會直接照十進位原樣輸出 26，這個選項忽略了進位制轉換。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">26 換算八進位是 32 而不是 33（3×8+2=26，並非 3×8+3=27）；且 %x 輸出的是小寫字母，不會自動變成大寫 1A，除非改用 %X。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">num = 26，換算成八進位是 3×8 + 2 = 26，寫作 &quot;32&quot;；換算成十六進位是 1×16 + 10 = 26，寫作 &quot;1A&quot;，而 %x 是小寫格式指定字，因此輸出小寫 &quot;1a&quot;（已用 gcc 實測驗證）。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-15">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 15（第 3 章）</span>
+        <span class="q-concept">📌 概念：運算子優先序陷阱（位移 vs 減法）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 3, b = 5;
+4      int result = a &lt;&lt; b - 2;
+5      printf(&quot;%d\n&quot;, result);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="15" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', '15')"><span class="opt-label">A</span><span>編譯錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '15')"><span class="opt-label">B</span><span>94</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '15')"><span class="opt-label">C</span><span>9</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '15')"><span class="opt-label">D</span><span>24</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-15', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-15">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">這段程式語法上完全合法，位移運算子搭配變數運算是常見寫法，可以正常編譯與執行，不會產生編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">94 是誤以為 &lt;&lt; 優先權比 - 高、先算 (a &lt;&lt; b) 再減 2 的結果：(3 &lt;&lt; 5) - 2 = 96 - 2 = 94，但實際上減法優先權更高，並非這樣的運算順序。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">9 是誤把位移運算當成「直接乘以次方數本身」而非「乘以 2 的次方數」所得到的錯誤結果（3 × (5-2) = 9），忽略了位移是以 2 為底數的次方關係。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">減法 - 的優先權（第 4 級）高於位移運算子 &lt;&lt; 的優先權（第 5 級），因此 a &lt;&lt; b - 2 會先算 b - 2 = 3，再執行 a &lt;&lt; 3。位移運算的意義是乘以 2 的次方數：3 &lt;&lt; 3 = 3 × 2³ = 24（已用 gcc 實測驗證）。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-16">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 16（第 3 章）</span>
+        <span class="q-concept">📌 概念：前置／後置遞增混合運算</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果依序為 result、a、b、c，下列何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 4, b = 2, c = 6;
+4      int result = ++a * b-- + c;
+5      printf(&quot;%d %d %d %d\n&quot;, result, a, b, c);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="16" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', '16')"><span class="opt-label">A</span><span>11 5 1 6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '16')"><span class="opt-label">B</span><span>14 5 1 6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '16')"><span class="opt-label">C</span><span>16 5 1 6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '16')"><span class="opt-label">D</span><span>16 4 2 6</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-16', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-16">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">11 是誤把 b-- 當成前置遞增、用新值 1 參與運算所得到的結果（5 * 1 + 6 = 11），但 b-- 是後置遞增，運算時應該使用尚未遞減的舊值 2。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">14 是誤把 ++a 當成後置遞增、用舊值 4 參與運算所得到的結果（4 * 2 + 6 = 14），但 ++a 是前置遞增，運算時應該已經使用新值 5。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">++a 是前置遞增：先讓 a 變成 5，再用新值 5 參與運算；b-- 是後置遞增：先用 b 的舊值 2 參與運算，運算結束後 b 才變成 1；c 全程不變為 6。因此 result = 5 * 2 + 6 = 16，運算後 a = 5、b = 1、c = 6（已用 gcc 實測驗證）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">result 的數值 16 是正確的，但這個選項誤以為 a、b 在運算後仍維持原始值 4 與 2；實際上 ++a 與 b-- 都會確實改變變數本身的值，運算後 a 應為 5、b 應為 1。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-17">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 17（第 3 章）</span>
+        <span class="q-concept">📌 概念：位元運算子 AND／OR／XOR</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果依序為 a &amp; b、a | b、a ^ b，下列何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 12; // 1100
+4      int b = 10; // 1010
+5      printf(&quot;%d %d %d\n&quot;, a &amp; b, a | b, a ^ b);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="17" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', '17')"><span class="opt-label">A</span><span>8 14 6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '17')"><span class="opt-label">B</span><span>8 14 22</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '17')"><span class="opt-label">C</span><span>22 14 6</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '17')"><span class="opt-label">D</span><span>8 6 14</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-17', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-17">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">a = 12（二進位 1100），b = 10（二進位 1010）。逐位元計算：AND 只有兩邊都是 1 才為 1，1100 &amp; 1010 = 1000 = 8；OR 只要其中一邊是 1 就為 1，1100 | 1010 = 1110 = 14；XOR 相異為 1、相同為 0，1100 ^ 1010 = 0110 = 6（已用 gcc 實測驗證）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">22 是誤把 XOR 當成「兩數相加」所得到的結果（12+10=22），但位元 XOR 是逐位元判斷相異與否，正確結果應為 6。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">22 同樣是把 AND 誤算成「兩數相加」的結果，位元 AND 應為逐位元皆為 1 才為 1，1100 &amp; 1010 = 1000 = 8，而不是相加後的 22。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">這個選項把 OR 與 XOR 的結果對調了：a | b 應為 14，a ^ b 應為 6，並非反過來的 6 與 14。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-18">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 18（第 3 章）</span>
+        <span class="q-concept">📌 概念：邏輯運算短路求值</span>
+      </div>
+    </div>
+    <div class="q-body">執行後的輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int getValue(int x) {
+3      printf(&quot;call getValue(%d)\n&quot;, x);
+4      return x;
+5  }
+6  int main(void) {
+7      int a = 0;
+8      if (a != 0 &amp;&amp; getValue(5) &gt; 0) {
+9          printf(&quot;true branch\n&quot;);
+10     } else {
+11         printf(&quot;false branch\n&quot;);
+12     }
+13     return 0;
+14 }</code></pre></div></div>
+    <div class="options-grid" data-qid="18" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', '18')"><span class="opt-label">A</span><span>只印出 false branch，getValue 完全不會被呼叫，因為 &amp;&amp; 具有短路求值特性，左邊 a != 0 已經為假，右邊不會再執行</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '18')"><span class="opt-label">B</span><span>先印出 call getValue(5)，再印出 false branch</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '18')"><span class="opt-label">C</span><span>先印出 call getValue(5)，再印出 true branch</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '18')"><span class="opt-label">D</span><span>編譯錯誤，因為 if 條件式不能呼叫函式</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-18', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-18">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">邏輯 AND（&amp;&amp;）具有短路求值（Short-circuit Evaluation）特性：當左運算元 a != 0（此處 a = 0，結果為假）已經可以確定整個 &amp;&amp; 運算式為假時，右運算元 getValue(5) &gt; 0 就完全不會被求值，因此 getValue 函式不會被呼叫，程式直接執行 else 分支，只印出 false branch。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">這個選項誤以為 &amp;&amp; 兩邊一定都會被完整計算（如同位元 &amp; 運算子那樣），但邏輯 &amp;&amp; 具有短路特性，左邊為假時右邊的 getValue(5) 根本不會被呼叫，因此不會印出 call getValue(5)。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">即使誤以為 getValue 會被呼叫，由於左邊 a != 0 為假，整個 &amp;&amp; 運算式最終結果一定是假，不可能進入 true branch。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">在 if 條件式中呼叫函式（只要該函式回傳可用於判斷真假的數值）是完全合法且常見的寫法，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-19">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 19（第 3 章）</span>
+        <span class="q-concept">📌 概念：三元運算子與位元運算結合</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      unsigned char x = 12; // 00001100
+4      unsigned char y = 10; // 00001010
+5      int result = (x &amp; y) == 0 ? x | y : x ^ y;
+6      printf(&quot;%d\n&quot;, result);
+7      return 0;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="19" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', '19')"><span class="opt-label">A</span><span>14</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '19')"><span class="opt-label">B</span><span>編譯錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '19')"><span class="opt-label">C</span><span>8</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '19')"><span class="opt-label">D</span><span>6</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-19', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-19">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">14 是條件為真時 x | y 的值（1100 | 1010 = 1110 = 14）。但先算出 x &amp; y = 1000 = 8 後，判斷條件 (x &amp; y) == 0 即 8 == 0，結果為假，因此並不會走到這個分支。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">unsigned char 與位元運算、三元運算子的混合使用完全合法，可以正常編譯與執行，不會產生編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">8 只是條件判斷用到的中間值 x &amp; y，並不是三元運算子最終要回傳的結果；三元運算子回傳的是條件為假時冒號後方 x ^ y 的值 6。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">先計算 x &amp; y：00001100 &amp; 00001010 = 00001000 = 8。判斷條件 (x &amp; y) == 0 即 8 == 0，結果為假，因此執行冒號後方的 x ^ y：00001100 ^ 00001010 = 00000110 = 6（已用 gcc 實測驗證）。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-20">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 20（第 3 章）</span>
+        <span class="q-concept">📌 概念：運算子優先序與結合性總論</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言運算子優先順序與結合性，下列敘述何者正確？</div>
+    <div class="options-grid" data-qid="20" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', '20')"><span class="opt-label">A</span><span>關係運算子（如 ==、!=）的優先權高於位元運算子（如 &amp;、^、|），因此 a ^ b == c 會先算 a ^ b，再與 c 比較</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', '20')"><span class="opt-label">B</span><span>條件運算子（三元 ? :）與賦值運算子（=）都採用「由右至左」結合，且賦值運算子的優先權低於條件運算子</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', '20')"><span class="opt-label">C</span><span>位移運算子（&lt;&lt;、&gt;&gt;）的優先權高於加減運算子（+、-），因此 a + b &lt;&lt; 1 會先算 b &lt;&lt; 1，再與 a 相加</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', '20')"><span class="opt-label">D</span><span>邏輯 AND（&amp;&amp;）的優先權高於位元 AND（&amp;），因此 x &amp; y &amp;&amp; z 會先算 y &amp;&amp; z，再與 x 做位元 AND</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-20', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-20">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">前半句「關係／相等運算子優先權高於位元運算子」是對的，但這代表 == 會先被結合、先被算，正確解析應是 a ^ (b == c)，而不是這個選項所說的「先算 a ^ b，再與 c 比較」，結論方向恰好相反。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">依照運算子優先順序表，三元運算子 ? : 與各種賦值運算子（=、+=…）都是「由右至左」結合；同時賦值運算子的優先權（數字較大、較低）確實低於條件運算子（數字較小、較高），因此這句敘述完全正確。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">實際情況相反：加減運算子 +、- 的優先權其實高於位移運算子 &lt;&lt;、&gt;&gt;，因此 a + b &lt;&lt; 1 應該先算 (a + b)，再整體左移 1 位，而不是這個選項所說的「先算 b &lt;&lt; 1」。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">實際情況相反：位元 AND（&amp;）的優先權其實高於邏輯 AND（&amp;&amp;），因此 x &amp; y &amp;&amp; z 應該先算 (x &amp; y)，再與 z 做邏輯 AND，而不是這個選項所說的「先算 y &amp;&amp; z」。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <p>本頁面所有題目皆為自編模擬練習題，僅供學習自我檢測使用，並非歷屆統測真題。</p>
+  </footer>
+
+</main>
+
+<script>
+let answeredState = {};
+
+function checkOption(btn, optionLetter, qid) {
+  const parentGrid = btn.closest('.options-grid');
+  const correctOption = parentGrid.getAttribute('data-correct');
+
+  parentGrid.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('selected-correct', 'selected-wrong');
+  });
+
+  const isCorrect = optionLetter === correctOption;
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+  } else {
+    btn.classList.add('selected-wrong');
+  }
+
+  answeredState[qid] = isCorrect;
+  updateScoreBar();
+
+  const expBox = document.getElementById('exp-' + qid);
+  const toggleBtn = expBox ? expBox.previousElementSibling : null;
+  if (expBox && !expBox.classList.contains('show')) {
+    expBox.classList.add('show');
+    if (toggleBtn) toggleBtn.classList.add('open');
+  }
+}
+
+function updateScoreBar() {
+  const keys = Object.keys(answeredState);
+  const answered = keys.length;
+  const correct = keys.filter(k => answeredState[k]).length;
+  const answeredEl = document.getElementById('answered-count');
+  const correctEl = document.getElementById('correct-count');
+  if (answeredEl) answeredEl.textContent = answered;
+  if (correctEl) correctEl.textContent = correct;
+}
+
+function toggleExplanation(boxId, btn) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  box.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+
+let allExpanded = false;
+function toggleAllExplanations() {
+  allExpanded = !allExpanded;
+  const boxes = document.querySelectorAll('.explanation-box');
+  const btns = document.querySelectorAll('.explanation-toggle-btn');
+  const toggleAllText = document.getElementById('toggle-all-text');
+
+  boxes.forEach(box => { if (allExpanded) box.classList.add('show'); else box.classList.remove('show'); });
+  btns.forEach(btn => { if (allExpanded) btn.classList.add('open'); else btn.classList.remove('open'); });
+  if (toggleAllText) toggleAllText.textContent = allExpanded ? '全部收合詳解' : '全部展開詳解';
+}
+
+function toggleTheme() {
+  const htmlEl = document.documentElement;
+  const currentTheme = htmlEl.getAttribute('data-theme');
+  const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+  htmlEl.setAttribute('data-theme', nextTheme);
+  const themeBtn = document.getElementById('btn-theme');
+  if (themeBtn) themeBtn.textContent = nextTheme === 'light' ? '☀️ 淺色模式' : '🌙 深色模式';
+}
+</script>
+
+</body>
+</html>
