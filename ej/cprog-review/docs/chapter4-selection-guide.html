@@ -2299,25 +2299,34 @@ function copyCode(btn) {
   });
 }
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const id = entry.target.getAttribute('id');
-      document.querySelectorAll('.toc-link').forEach(link => {
-        if (link.getAttribute('href') === '#' + id) {
-          link.classList.add('active');
-        } else {
-          link.classList.remove('active');
-        }
-      });
+function updateActiveTocLink() {
+  const sections = document.querySelectorAll('section[id], .question-card[id]');
+  const tocLinks = document.querySelectorAll('.toc-link');
+  let currentId = null;
+  sections.forEach(sec => {
+    if (sec.getBoundingClientRect().top - 90 <= 0) {
+      currentId = sec.id;
     }
   });
-}, { rootMargin: '0px 0px -60% 0px', threshold: 0.1 });
-
-document.querySelectorAll('section[id], .question-card[id]').forEach(el => {
-  observer.observe(el);
+  if (!currentId && sections.length) {
+    currentId = sections[0].id;
+  }
+  tocLinks.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+  });
+}
+let tocSpyTicking = false;
+window.addEventListener('scroll', () => {
+  if (tocSpyTicking) return;
+  tocSpyTicking = true;
+  requestAnimationFrame(() => {
+    updateActiveTocLink();
+    tocSpyTicking = false;
+  });
 });
+updateActiveTocLink();
 
+// Automatic Client-Side Syntax Highlighting
 function highlightAllCodeBlocks() {
   const keywords = new Set(["if", "else", "while", "for", "do", "return", "break", "continue", "switch", "case", "default", "struct", "typedef", "sizeof", "static", "extern", "volatile", "enum", "class", "public", "private", "new", "delete"]);
   const types = new Set(["int", "char", "float", "double", "long", "short", "unsigned", "signed", "bool", "size_t", "void", "const"]);
