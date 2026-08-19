@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant-TW" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,6 +19,27 @@
       --accent-soft: #173d42;
       --tag: #22334b;
     }
+    [data-theme="light"] {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --panel-2: #eef1f6;
+      --line: #dbe2ea;
+      --heading: #16212f;
+      --text: #2c3a4d;
+      --muted: #5b6b80;
+      --accent: #0f9c8c;
+      --accent-soft: #e3f7f4;
+      --tag: #e7ecf3;
+    }
+    [data-theme="light"] body { background: radial-gradient(circle at 85% 0, #eaf2fb 0, var(--bg) 38rem); }
+    [data-theme="light"] .tag { color: #3c4a5e; }
+    [data-theme="light"] .material-card { --card-accent: #0f9c8c; --card-border: #8fd6cc; --card-bg: #e3f7f4; }
+    [data-theme="light"] .material-card:nth-child(4n + 2) { --card-accent: #a3690a; --card-border: #e8c98a; --card-bg: #fbeed9; }
+    [data-theme="light"] .material-card:nth-child(4n + 3) { --card-accent: #2f6fb0; --card-border: #a9cdf0; --card-bg: #e8f2fd; }
+    [data-theme="light"] .material-card:nth-child(4n) { --card-accent: #a8467f; --card-border: #eec3de; --card-bg: #fbe9f4; }
+    [data-theme="light"] .material-card.featured { --card-accent: #0f9c8c; --card-border: #8fd6cc; --card-bg: #e3f7f4; }
+    [data-theme="light"] .material-card.coming-soon { --card-accent: #94a3b8; --card-border: #dbe2ea; }
 
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; font-size: 18px; }
@@ -32,7 +53,9 @@
     }
 
     main { width: min(1600px, 80%); margin: 0 auto; padding: 32px 0 56px; }
-    .topbar { margin-bottom: 24px; }
+    .topbar { margin-bottom: 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .theme-toggle { display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: .85rem; font-weight: 700; font-family: inherit; color: var(--text); cursor: pointer; flex-shrink: 0; }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
     h1, h2, h3, p { margin-top: 0; }
     .back-link { color: var(--accent); font-weight: 700; text-decoration: none; display: inline-block; margin-bottom: 10px; }
     .back-link:hover, .back-link:focus-visible { text-decoration: underline; outline: none; }
@@ -109,6 +132,7 @@
         <h1>自我檢測系列</h1>
         <p class="subtitle">測驗以「輯」為單位發布，每一輯收錄數個章節的互動測驗。選擇一輯即可進入該輯的章節選單。</p>
       </div>
+      <button class="theme-toggle" id="btn-theme" onclick="toggleTheme()" type="button">🌙 深色模式</button>
     </header>
 
     <article>
@@ -129,5 +153,14 @@
 
     <footer class="footer">目前共 2 輯上線（7 份測驗），更多系列陸續增加中。</footer>
   </main>
+<script>
+function toggleTheme() {
+  var html = document.documentElement;
+  var next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  var btn = document.getElementById('btn-theme');
+  if (btn) btn.textContent = next === 'light' ? '☀️ 淺色模式' : '🌙 深色模式';
+}
+</script>
 </body>
 </html>
