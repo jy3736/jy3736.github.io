@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第1章 前處理器與編譯基礎｜自我檢測 — C語言統測自主學習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-alt: #334155;
+  --bg-code: #0b1120;
+  --border-color: #334155;
+  --border-subtle: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #0ea5e9;
+  --accent-light: #38bdf8;
+  --accent-glow: rgba(14, 165, 233, 0.18);
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.35);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --warning-border: rgba(245, 158, 11, 0.35);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --info: #6366f1;
+  --info-bg: rgba(99, 102, 241, 0.12);
+  --info-border: rgba(99, 102, 241, 0.35);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 30px -4px rgba(0, 0, 0, 0.6);
+  --font-body: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', Consolas, 'SF Mono', Monaco, monospace;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f5f9;
+  --bg-code: #0f172a;
+  --border-color: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent: #0284c7;
+  --accent-light: #0ea5e9;
+  --accent-glow: rgba(2, 132, 199, 0.12);
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --warning-border: #fde68a;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --info: #4f46e5;
+  --info-bg: #eef2ff;
+  --info-border: #c7d2fe;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 30px -4px rgba(0, 0, 0, 0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 18px; }
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.8;
+  letter-spacing: 0.015em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+.top-header {
+  position: sticky;
+  top: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 900;
+  padding: 10px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  transition: background 0.3s ease;
+}
+[data-theme="light"] .top-header {
+  background: rgba(255, 255, 255, 0.88);
+}
+.header-brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand-badge {
+  background: var(--accent-glow);
+  color: var(--accent-light);
+  border: 1px solid var(--accent);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+[data-theme="light"] .brand-badge { color: var(--accent); }
+.brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-control {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.btn-control:hover { border-color: var(--accent); color: var(--accent-light); transform: translateY(-1px); }
+[data-theme="light"] .btn-control:hover { color: var(--accent); }
+.btn-control.primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+.btn-control.primary:hover { background: var(--accent-light); }
+
+.main-content { width: min(1600px, 80%); margin: 0 auto; padding: 32px 20px 100px; }
+
+.hero-banner {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px 28px 28px 32px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.hero-banner::before {
+  content: '';
+  position: absolute; top: 0; left: 0; width: 6px; height: 100%;
+  background: linear-gradient(180deg, var(--accent), #6366f1);
+}
+.hero-tag {
+  display: inline-block;
+  background: var(--accent-glow);
+  color: var(--accent-light);
+  border: 1px solid var(--accent);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+[data-theme="light"] .hero-tag { color: var(--accent); }
+.hero-banner h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); }
+.hero-banner p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.75; margin-bottom: 6px; }
+.hero-banner p:last-child { margin-bottom: 0; }
+.hero-banner strong { color: var(--warning); }
+
+.score-bar {
+  position: sticky;
+  top: 54px;
+  z-index: 800;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-sm);
+}
+.score-items { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.score-item { font-size: 0.92rem; color: var(--text-secondary); font-weight: 600; }
+.score-item strong { font-size: 1.15rem; color: var(--accent-light); font-weight: 900; }
+[data-theme="light"] .score-item strong { color: var(--accent); }
+.score-item.is-correct strong { color: var(--success); }
+
+pre.code-content {
+  font-family: var(--font-code);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  padding: 16px 20px;
+  color: #e2e8f0;
+  overflow-x: auto;
+  margin: 0;
+  background: var(--bg-code);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+pre.code-content code { font-family: inherit; }
+code.inline {
+  font-family: var(--font-code);
+  font-size: 0.88em;
+  background: var(--bg-card-alt);
+  color: var(--accent-light);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+[data-theme="light"] code.inline { color: var(--accent); }
+
+.q-code-wrap { margin: 14px 0 18px; }
+.q-opt-code { margin: 6px 0 14px; }
+.opt-code-label { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+
+/* Question Cards (reused from chapter guide design system) */
+.question-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin: 28px 0;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease;
+}
+.question-card:hover { border-color: var(--accent); }
+.q-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+.q-title-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.q-badge { background: var(--accent); color: #ffffff; padding: 4px 12px; border-radius: 6px; font-size: 0.88rem; font-weight: 800; }
+.q-concept { font-size: 0.88rem; color: var(--text-secondary); font-weight: 600; }
+.q-body { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.6; }
+
+.options-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.option-btn {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 18px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+.option-btn:hover { border-color: var(--accent); background: var(--accent-glow); transform: translateX(4px); }
+.opt-label {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--accent-light);
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+[data-theme="light"] .opt-label { color: var(--accent); }
+.option-btn.selected-correct { background: var(--success-bg) !important; border-color: var(--success) !important; color: var(--text-primary) !important; }
+.option-btn.selected-correct .opt-label { background: var(--success) !important; color: #ffffff !important; }
+.option-btn.selected-wrong { background: var(--danger-bg) !important; border-color: var(--danger) !important; color: var(--text-primary) !important; }
+.option-btn.selected-wrong .opt-label { background: var(--danger) !important; color: #ffffff !important; }
+.option-btn .opt-text-code { font-family: var(--font-code); font-size: 0.92em; }
+
+.explanation-toggle-btn {
+  width: 100%;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  color: var(--accent-light);
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  transition: all 0.2s ease;
+}
+[data-theme="light"] .explanation-toggle-btn { color: var(--accent); }
+.explanation-toggle-btn:hover { background: var(--accent); color: #ffffff; }
+.toggle-icon { transition: transform 0.3s ease; }
+.explanation-toggle-btn.open .toggle-icon { transform: rotate(180deg); }
+
+.explanation-box {
+  display: none;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 24px;
+  margin-top: 14px;
+  animation: fadeIn 0.3s ease;
+}
+.explanation-box.show { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.ans-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+}
+.ans-label { font-size: 0.9rem; font-weight: 700; color: var(--success); }
+.ans-value { font-size: 1.25rem; font-weight: 900; color: var(--success); }
+
+.opt-breakdown-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.opt-analysis-card { border-radius: var(--radius-sm); padding: 14px 18px; border: 1px solid var(--border-color); background: var(--bg-card); }
+.opt-analysis-card.is-correct { border-color: var(--success-border); background: var(--success-bg); }
+.opt-analysis-card.is-wrong { border-color: var(--border-color); }
+.opt-card-header { display: flex; align-items: center; gap: 10px; font-weight: 800; margin-bottom: 6px; flex-wrap: wrap; }
+.badge-correct { background: var(--success); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.badge-wrong { background: var(--danger); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.opt-analysis-text { font-size: 0.93rem; line-height: 1.65; color: var(--text-primary); }
+
+.section-divider {
+  text-align: center;
+  color: var(--text-muted);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  margin: 44px 0 4px;
+}
+
+footer.page-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  line-height: 1.8;
+}
+
+@media (max-width: 640px) {
+  .main-content { width: min(1600px, calc(100% - 24px)); padding: 20px 14px 80px; }
+  .question-card { padding: 18px; }
+  .score-bar { top: 90px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-brand">
+    <span class="brand-badge">CH.1 自我檢測</span>
+    <span class="brand-title">🧪 前處理器與編譯基礎</span>
+  </div>
+  <div class="header-actions">
+    <a class="btn-control" href="index.html" style="text-decoration: none;"><span>📋</span> <span>返回章節選單</span></a>
+    <button class="btn-control" onclick="toggleAllExplanations()"><span id="toggle-all-text">全部展開詳解</span></button>
+    <button class="btn-control" id="btn-theme" onclick="toggleTheme()">🌙 深色模式</button>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="hero-banner">
+    <span class="hero-tag">⚠️ 模擬練習題說明</span>
+    <h1>第 1 章：前處理器與編譯基礎｜自我檢測（20 題）</h1>
+    <p>以下 20 題為依據第 1 章教材內容自行編寫的<strong>模擬練習題</strong>，出題風格參考了歷屆統測（技專校院入學測驗中心）試題的命題習慣，但<strong>並非</strong>任何一年的歷屆真題，內容僅供學習自我檢測參考，不代表正式考試之題型、難度或配分。</p>
+    <p>每題單選、4 個選項。點選任一選項即可立即看到對錯標示，並自動展開該題的逐項詳解；上方「全部展開詳解」可一次展開或收合所有題目的說明。</p>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-items">
+      <div class="score-item">已作答 <strong id="answered-count">0</strong> / 20</div>
+      <div class="score-item is-correct">答對 <strong id="correct-count">0</strong> 題</div>
+    </div>
+    <button class="btn-control primary" onclick="location.reload()">🔄 重新測驗</button>
+  </div>
+
+  <!-- ===================== 第 1 題 ===================== -->
+  <div class="question-card" id="q-ch1-01">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 01</span>
+        <span class="q-concept">📌 概念：編譯四階段生命週期</span>
+      </div>
+    </div>
+    <div class="q-body">下列關於 C 程式編譯流程（前處理 → 編譯 → 組譯 → 連結）的敘述，何者正確？</div>
+    <div class="options-grid" data-qid="ch1q01" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q01')"><span class="opt-label">A</span><span>原始碼（.c）經過前處理器處理後，會直接產生副檔名為 .obj 的目的檔</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q01')"><span class="opt-label">B</span><span>編譯（Compilation）階段的工作是把組合語言檔轉換為機器碼的目的檔</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q01')"><span class="opt-label">C</span><span>前處理器（Preprocessor）的工作包括展開 #include 標頭檔內容，以及替換 #define 定義的巨集</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q01')"><span class="opt-label">D</span><span>連結器（Linker）的工作是把高階語言原始碼轉換為組合語言</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q01', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q01">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">前處理器輸出的是展開後的原始碼（副檔名 .i），並不是目的檔（.obj）；.obj 要等到組譯階段才會產生。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">「把組合語言轉換為機器碼」是組譯（Assembly）階段的工作，不是編譯（Compilation）階段。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">前處理器的主要工作正是展開 #include 標頭檔、替換 #define 巨集，以及處理條件式編譯等指令。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">「把高階語言原始碼轉換為組合語言」是編譯器（Compiler）的工作，不是連結器（Linker）。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 2 題 ===================== -->
+  <div class="question-card" id="q-ch1-02">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 02</span>
+        <span class="q-concept">📌 概念：前處理器與 -E／.i 中間檔</span>
+      </div>
+    </div>
+    <div class="q-body">小華在命令列輸入 <code class="inline">gcc -E main.c -o main.i</code> 後，打開 main.i 檢視內容。下列何者最可能出現在 main.i 中，卻不會以相同形式出現在原始的 main.c 中？</div>
+    <div class="options-grid" data-qid="ch1q02" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q02')"><span class="opt-label">A</span><span>巨集展開前的 #define PI 3.14 這一行文字</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q02')"><span class="opt-label">B</span><span>&lt;stdio.h&gt; 標頭檔中函式原型（如 printf 的宣告）被展開後的內容</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q02')"><span class="opt-label">C</span><span>main() 函式的完整程式邏輯全部被刪除</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q02')"><span class="opt-label">D</span><span>編譯器產生的目的碼記憶體位址標籤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q02', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q02">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">#define 那一行「指令」本身會被前處理器消耗掉，不會以原始文字形式留在 .i 檔中，真正出現的是它所影響的巨集展開結果。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">-E 只執行到前處理階段為止，此階段會把 #include 的標頭檔內容整個貼入，因此 .i 檔中會看到 stdio.h 展開後的函式原型等內容。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">前處理器不會刪除程式邏輯，main() 的程式碼會完整保留在 .i 中。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">記憶體位址標籤是組譯或連結階段才會產生的資訊，不會出現在前處理階段的輸出。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 3 題 ===================== -->
+  <div class="question-card" id="q-ch1-03">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 03</span>
+        <span class="q-concept">📌 概念：巨集定義誤用等號 (=)</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define MAX = 100
+3  int main(void) {
+4      int arr[MAX];
+5      printf("%d\n", MAX);
+6      return 0;
+7  }</code></pre></div>
+      上述程式編譯時會發生錯誤，最主要的原因是下列何者？
+    </div>
+    <div class="options-grid" data-qid="ch1q03" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q03')"><span class="opt-label">A</span><span>行號 1 的 #include 少了分號</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q03')"><span class="opt-label">B</span><span>行號 2 的巨集定義多加了一個等號，導致 MAX 被展開成 = 100，使行號 4 變成不合法的陣列宣告</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q03')"><span class="opt-label">C</span><span>行號 4 的陣列宣告 arr[MAX] 語法錯誤，陣列大小不可以使用巨集常數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q03')"><span class="opt-label">D</span><span>行號 5 的 printf 少了型別轉換</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q03', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q03">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">#include 不需要加分號，這與此程式的錯誤原因無關。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">#define MAX = 100 讓 MAX 被逐字取代成「= 100」，於是 int arr[MAX]; 展開後變成不合法的 int arr[= 100];，這是誤用等號的典型陷阱。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">陣列大小本來就可以使用巨集常數，只要巨集展開後是合法的整數運算式即可，這不是本題出錯的原因。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">此程式甚至不會通過編譯，不會執行到 printf；錯誤發生在陣列宣告，而不是型別轉換。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 4 題 ===================== -->
+  <div class="question-card" id="q-ch1-04">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 04</span>
+        <span class="q-concept">📌 概念：巨集定義誤加分號</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define SIZE 10;
+3  int main(void) {
+4      int scores[SIZE];
+5      return 0;
+6  }</code></pre></div>
+      此程式片段編譯失敗，原因為何？
+    </div>
+    <div class="options-grid" data-qid="ch1q04" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q04')"><span class="opt-label">A</span><span>#define 巨集名稱後面不可以直接接數字</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q04')"><span class="opt-label">B</span><span>SIZE 在行號 2 被定義為 10;，代入行號 4 後陣列宣告變成 int scores[10;];，多了一個分號而造成語法錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q04')"><span class="opt-label">C</span><span>陣列大小必須用 const 宣告，不能使用巨集常數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q04')"><span class="opt-label">D</span><span>#include 必須放在所有 #define 之後才正確</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q04', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q04">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">巨集名稱與其後接的內容無關，此敘述不成立，也不是本題錯誤原因。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">#define SIZE 10; 把分號也定義進去，SIZE 展開後含分號，代入 int scores[SIZE]; 就變成 int scores[10;];，多了一個分號造成語法錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">陣列大小可以使用一般的巨集常數（在沒有多餘分號的情況下是合法的），問題出在多加的分號，不是巨集常數本身不能用。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">#include 與 #define 的先後順序在此與錯誤原因無關。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 5 題 ===================== -->
+  <div class="question-card" id="q-ch1-05">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 05</span>
+        <span class="q-concept">📌 概念：#include &lt;&gt; 與 "" 搜尋順序</span>
+      </div>
+    </div>
+    <div class="q-body">下列關於 #include 標頭檔引入方式的敘述，何者正確？</div>
+    <div class="options-grid" data-qid="ch1q05" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q05')"><span class="opt-label">A</span><span>#include &lt;file.h&gt; 與 #include "file.h" 的搜尋順序完全相同，沒有任何差異</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q05')"><span class="opt-label">B</span><span>#include "file.h" 通常會先搜尋原始檔所在的目錄，找不到才轉向系統標頭檔目錄搜尋</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q05')"><span class="opt-label">C</span><span>#include &lt;file.h&gt; 只能用來引入使用者自訂的標頭檔，不能引入標準函式庫</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q05')"><span class="opt-label">D</span><span>使用 #include 時，前處理器只會檢查副檔名是否為 .h，不會真的把檔案內容貼入原始碼</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q05', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q05">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">兩者搜尋順序並不相同，這正是使用 "" 或 &lt;&gt; 的主要差異。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">使用 "" 時，前處理器通常會先在原始檔所在目錄尋找該標頭檔，找不到才會轉向系統標頭檔的搜尋路徑，讓自訂標頭檔優先被找到。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">&lt;&gt; 慣例上多用於標準函式庫或系統標頭檔，但語法上並沒有限制它不能用來引入自訂標頭檔。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">#include 是真的把整個標頭檔內容貼入原始碼進行展開，並不只是檢查副檔名。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 6 題 ===================== -->
+  <div class="question-card" id="q-ch1-06">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 06</span>
+        <span class="q-concept">📌 概念：Include Guard 防止重複定義</span>
+      </div>
+    </div>
+    <div class="q-body">
+      point.h 的內容如下：
+      <div class="q-code-wrap"><pre class="code-content"><code>struct Point {
+    int x, y;
+};</code></pre></div>
+      shape.c 的內容如下：
+      <div class="q-code-wrap"><pre class="code-content"><code>#include "point.h"
+#include "point.h"
+
+int main(void) {
+    struct Point p;
+    return 0;
+}</code></pre></div>
+      編譯 shape.c 時，因為重複 #include 了兩次 point.h，出現 struct Point 重複定義的錯誤。若只能修改 point.h，最適當的做法是下列何者？
+    </div>
+    <div class="options-grid" data-qid="ch1q06" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q06')"><span class="opt-label">A</span><span>在 point.h 檔尾加上分號</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q06')"><span class="opt-label">B</span><span>在 point.h 開頭加上 #ifndef POINT_H、#define POINT_H，並在檔尾加上 #endif</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q06')"><span class="opt-label">C</span><span>把 shape.c 中第二個 #include "point.h" 改成 #include &lt;point.h&gt;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q06')"><span class="opt-label">D</span><span>在 struct Point 前面加上 static 關鍵字</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q06', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q06">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">加分號無法解決 struct 重複定義的問題，與此錯誤無關。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">這正是標準的 Include Guard 寫法：第二次 #include 進來時，因為 POINT_H 已被定義過，#ifndef 判斷為假，內容就不會再展開第二次，因此不會重複定義 struct Point。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">換成 &lt;point.h&gt; 只是改變搜尋路徑，並不會避免同一個檔案被展開兩次，問題依然存在。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">static 是用來限制變數或函式的連結範圍，並不能解決同一個原始檔中結構重複宣告的問題。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 7 題 ===================== -->
+  <div class="question-card" id="q-ch1-07">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 07</span>
+        <span class="q-concept">📌 概念：#pragma once 與 Include Guard 比較</span>
+      </div>
+    </div>
+    <div class="q-body">關於防止標頭檔重複引入的技巧，下列敘述何者<u>錯誤</u>？</div>
+    <div class="options-grid" data-qid="ch1q07" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q07')"><span class="opt-label">A</span><span>#pragma once 與傳統的 Include Guard（#ifndef／#define／#endif）目的相同，都是避免同一個標頭檔內容被重複展開</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q07')"><span class="opt-label">B</span><span>Include Guard 使用的巨集名稱通常需要在整個專案中保持獨一無二，避免不同標頭檔互相衝突</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q07')"><span class="opt-label">C</span><span>#pragma once 是 ANSI C 標準明文規定必須支援的語法，所有 C 編譯器都保證相容</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q07')"><span class="opt-label">D</span><span>若某個標頭檔在整個專案中只會被 #include 一次，即使沒有加上 Include Guard，通常也不會發生重複定義的問題</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q07', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q07">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 正確敘述（非本題答案）</span></div><div class="opt-analysis-text">兩者確實都是為了避免同一個標頭檔內容被前處理器重複展開而設計的機制，目的相同。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 正確敘述（非本題答案）</span></div><div class="opt-analysis-text">為了避免不同標頭檔剛好取了相同的保護巨集名稱而互相干擾，實務上建議 Include Guard 的巨集名稱在專案中保持獨一無二。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 錯誤（★ 本題標準答案，敘述本身是錯的）</span></div><div class="opt-analysis-text">#pragma once 雖然幾乎所有主流編譯器都支援，但它並不是 ISO/ANSI C 標準正式規定的語法，而是編譯器擴充功能，不能保證所有編譯器都相容。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 正確敘述（非本題答案）</span></div><div class="opt-analysis-text">如果一個標頭檔在整個專案中確定只會被 #include 一次，理論上不加 Include Guard 也不會發生重複定義，只是這種假設在實務上通常不夠可靠。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 8 題 ===================== -->
+  <div class="question-card" id="q-ch1-08">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 08</span>
+        <span class="q-concept">📌 概念：無括號巨集函式的運算優先權</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define SQUARE(x) x*x
+3  int main(void) {
+4      int a = 3;
+5      printf("%d\n", SQUARE(a + 1));
+6      return 0;
+7  }</code></pre></div>
+      執行後輸出結果為何？
+    </div>
+    <div class="options-grid" data-qid="ch1q08" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q08')"><span class="opt-label">A</span><span>16</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q08')"><span class="opt-label">B</span><span>7</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q08')"><span class="opt-label">C</span><span>8</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q08')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q08', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q08">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">16 是假設 SQUARE(x) 會先把整個引數 (a+1) 當成一個單位再平方，但巨集只是文字替換，並不是這樣運算的。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">SQUARE(x) 定義為 x*x（沒有括號），SQUARE(a+1) 逐字代換後變成 a+1*a+1，依運算子優先順序為 a + (1*a) + 1，代入 a=3 得 3+3+1=7。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">8 並非依照實際的巨集文字代換與運算子優先順序計算出來的正確結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">此程式在語法上完全合法（只是計算結果不符合直覺），並不會產生編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 9 題 ===================== -->
+  <div class="question-card" id="q-ch1-09">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 09</span>
+        <span class="q-concept">📌 概念：巨集不會替換字串常值內容</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define NUM 5
+3  int main(void) {
+4      printf("NUM = %d\n", NUM);
+5      printf("The word NUM should not change\n");
+6      return 0;
+7  }</code></pre></div>
+      執行後的結果，下列敘述何者正確？
+    </div>
+    <div class="options-grid" data-qid="ch1q09" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q09')"><span class="opt-label">A</span><span>行號 4 與行號 5 的兩個 NUM 都會被巨集展開成 5</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q09')"><span class="opt-label">B</span><span>行號 4 的 NUM 會被展開成 5，但行號 5 雙引號字串內的 NUM 屬於字串常值的一部分，不會被巨集替換</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q09')"><span class="opt-label">C</span><span>因為字串內出現與巨集同名的識別字，前處理器會判定錯誤而編譯失敗</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q09')"><span class="opt-label">D</span><span>行號 4 的 NUM 不會被替換，只有行號 5 字串內的 NUM 才會被替換</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q09', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q09">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">巨集替換不會進入字串常值內部，因此行號 5 的 NUM 不會被替換成 5。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">巨集替換只作用在原始碼中的識別字（token）上；雙引號字串屬於字串常值，其內容會被前處理器視為不可分割的整體，NUM 字樣會原封不動保留。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">字串中出現與巨集同名的文字並不會造成前處理器錯誤，前處理器只是單純不去處理字串內部。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">剛好相反：行號 4 的 NUM（作為獨立識別字）才會被替換成 5，行號 5 字串內的 NUM 才是不會被替換的那一個。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 10 題 ===================== -->
+  <div class="question-card" id="q-ch1-10">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 10</span>
+        <span class="q-concept">📌 概念：巨集常數沒有左值 (lvalue)</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define MAX 100
+3  int main(void) {
+4      int score = 90;
+5      if (score &gt; MAX) {
+6          MAX = score;
+7      }
+8      printf("%d\n", MAX);
+9      return 0;
+10 }</code></pre></div>
+      上述程式編譯時會產生錯誤，最可能的原因是下列何者？
+    </div>
+    <div class="options-grid" data-qid="ch1q10" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q10')"><span class="opt-label">A</span><span>行號 5 的 if 條件式不能使用巨集常數做比較</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q10')"><span class="opt-label">B</span><span>行號 6 的 MAX 展開後等同於對數值常數賦值，即 100 = score;，因為左側不是合法的左值（lvalue）而編譯錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q10')"><span class="opt-label">C</span><span>行號 2 的巨集定義後面必須加上分號才合法</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q10')"><span class="opt-label">D</span><span>行號 8 的 printf 格式化字串與引數型別不符</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q10', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q10">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">用巨集常數做比較（如 score &gt; MAX）完全合法，這不是錯誤原因。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">MAX 展開後是純數值 100，MAX = score; 逐字代換後等同於 100 = score;，等號左邊必須是合法的左值（可被賦值的儲存位置），數值常數不是左值，因此編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">#define 定義不需要加分號，這與本題的錯誤原因無關（加了分號反而會製造新的問題）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">此程式在到達 printf 之前就已經因為行號 6 而編譯失敗，不會是型別不符的問題。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 11 題 ===================== -->
+  <div class="question-card" id="q-ch1-11">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 11</span>
+        <span class="q-concept">📌 概念：帶參數巨集的參數未加括號</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define MUL(a, b) a * b
+3  int main(void) {
+4      int result = MUL(2 + 3, 4);
+5      printf("%d\n", result);
+6      return 0;
+7  }</code></pre></div>
+      執行後輸出結果為何？
+    </div>
+    <div class="options-grid" data-qid="ch1q11" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q11')"><span class="opt-label">A</span><span>20</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q11')"><span class="opt-label">B</span><span>14</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q11')"><span class="opt-label">C</span><span>24</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q11')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q11', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q11">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">20 是假設 MUL 會先把 (2+3) 當成一個整體再乘以 4，但巨集只是逐字代換，並不會自動幫引數加上括號。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">MUL(a,b) 定義為 a*b（沒有括號），MUL(2+3,4) 逐字代換後變成 2+3*4，依運算子優先順序（* 先於 +）等於 2+12=14。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">24 不是依照實際的文字代換規則與運算子優先順序所得到的結果。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">此程式語法合法，可以正常編譯執行，不會產生編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 12 題 ===================== -->
+  <div class="question-card" id="q-ch1-12">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 12</span>
+        <span class="q-concept">📌 概念：安全巨集函式的括號寫法</span>
+      </div>
+    </div>
+    <div class="q-body">承第 11 題，若希望 MUL(2 + 3, 4) 能夠正確計算出 (2 + 3) * 4 = 20 的結果，下列哪一個巨集定義方式最為安全正確？</div>
+    <div class="options-grid" data-qid="ch1q12" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q12')"><span class="opt-label">A</span><span class="opt-text-code">#define MUL(a, b) a * b</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q12')"><span class="opt-label">B</span><span class="opt-text-code">#define MUL(a, b) (a * b)</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q12')"><span class="opt-label">C</span><span class="opt-text-code">#define MUL(a, b) (a) * (b)</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q12')"><span class="opt-label">D</span><span class="opt-text-code">#define MUL(a, b) ((a) * (b))</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q12', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q12">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">完全沒有加括號，如第 11 題所示，遇到含運算子的引數就會出錯。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">只在整個替換結果外加括號，內部引數仍未受保護，若引數本身是像 2+3 這種運算式，仍可能因為引數沒加括號而出錯。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">只在個別引數加括號，但整個替換結果沒有加括號保護，若巨集呼叫結果被放入更大的運算式中，仍可能因為缺少外層括號而被其他運算子影響。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">同時把每個參數個別加上括號、並把整個替換結果也加上括號，也就是 ((a)*(b))，這是撰寫安全帶參數巨集的標準做法，能避免絕大多數的運算子優先權問題。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 13 題 ===================== -->
+  <div class="question-card" id="q-ch1-13">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 13</span>
+        <span class="q-concept">📌 概念：巨集整體運算式加括號的重要性</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  【1】
+3  int main(void) {
+4      int x = 10 - MAX2(3, 5);
+5      printf("%d\n", x);
+6      return 0;
+7  }</code></pre></div>
+      若程式希望輸出的結果是 5（也就是 10 減去 3 與 5 兩者中較大的那一個），則行號 2 的巨集定義【1】最可能是下列何者？
+    </div>
+    <div class="options-grid" data-qid="ch1q13" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q13')"><span class="opt-label">A</span><span class="opt-text-code">#define MAX2(a, b) a &gt; b ? a : b</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q13')"><span class="opt-label">B</span><span class="opt-text-code">#define MAX2(a, b) (a &gt; b ? a : b)</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q13')"><span class="opt-label">C</span><span class="opt-text-code">#define MAX2(a, b) a + b</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q13')"><span class="opt-label">D</span><span class="opt-text-code">#define MAX2(a, b) a * b</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q13', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q13">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">MAX2(a,b) 沒有整體加括號，10 - MAX2(3,5) 展開後為 10 - 3 &gt; 5 ? 3 : 5，因為 - 與 &gt; 的優先權都高於三元運算子 ?:，會被解析成 (10-3) &gt; 5 ? 3 : 5，結果為 3，不是預期的 5。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">MAX2(a,b) 整體加了括號 (a&gt;b?a:b)，10 - MAX2(3,5) 展開後為 10 - (3&gt;5?3:5)，三元運算式先算出 5，再算 10-5=5，符合預期輸出。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">a+b 求的是兩數之和而不是較大值，邏輯上與題目要求不符，代入後 10-(3+5)=2，也不等於 5。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">a*b 求的是兩數之積，邏輯上也與取較大值不符，代入後 10-(3*5)=-5，同樣不等於 5。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 14 題 ===================== -->
+  <div class="question-card" id="q-ch1-14">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 14</span>
+        <span class="q-concept">📌 概念：const 與 #define 的差異</span>
+      </div>
+    </div>
+    <div class="q-body">關於 <code class="inline">const int MAX = 100;</code> 與 <code class="inline">#define MAX 100</code> 兩種定義常數方式的比較，下列敘述何者正確？</div>
+    <div class="options-grid" data-qid="ch1q14" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q14')"><span class="opt-label">A</span><span>兩者都是前處理器負責處理的指令，效果完全相同</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q14')"><span class="opt-label">B</span><span>const int MAX = 100; 具有型別，編譯器可以做型別檢查；#define MAX 100 只是單純的文字取代，沒有型別</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q14')"><span class="opt-label">C</span><span>#define MAX 100 定義出來的 MAX 是一個真正存在記憶體位址的變數，可以用 &amp;MAX 取得其位址</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q14')"><span class="opt-label">D</span><span>const int MAX = 100; 在編譯前就會被前處理器直接替換成 100，不會出現在編譯器的符號表中</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q14', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q14">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">const 是由編譯器處理的關鍵字，#define 才是前處理器指令，兩者處理階段與效果並不相同。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">const int MAX = 100; 是一個具有 int 型別的變數，編譯器可以對它做型別檢查；#define MAX 100 只是單純的文字取代，沒有任何型別資訊。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">#define 定義出來的 MAX 只是文字代換，並不是真正存在於記憶體中的變數，因此不能用 &amp;MAX 取得位址。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">const int MAX = 100; 是由編譯器處理的一般變數宣告，會正常出現在編譯器的符號表中，並不是被前處理器直接替換掉的。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 15 題 ===================== -->
+  <div class="question-card" id="q-ch1-15">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 15</span>
+        <span class="q-concept">📌 概念：const 變數可取址，巨集常數不可</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define LIMIT 200
+3  int main(void) {
+4      const int MAXV = 100;
+5      printf("%d\n", &amp;MAXV != NULL);
+6      printf("%d\n", &amp;LIMIT != NULL);
+7      return 0;
+8  }</code></pre></div>
+      上述程式編譯時，行號 6 會發生錯誤，原因是下列何者？
+    </div>
+    <div class="options-grid" data-qid="ch1q15" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q15')"><span class="opt-label">A</span><span>一樣可以正常編譯執行，因為 LIMIT 也是一個變數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q15')"><span class="opt-label">B</span><span>編譯錯誤，因為 LIMIT 在前處理階段已被替換成常數 200，&amp;LIMIT 相當於對數值常數取址，不是合法的左值（lvalue）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q15')"><span class="opt-label">C</span><span>屬於執行期錯誤（Runtime Error），因為 LIMIT 沒有被初始化</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q15')"><span class="opt-label">D</span><span>屬於連結錯誤（Linker Error），因為找不到 LIMIT 的定義</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q15', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q15">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">LIMIT 展開後只是數值常數 200，對它取址並不合法，並不能正常編譯執行。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">LIMIT 經前處理器代換後在程式中只是數值 200，&amp;LIMIT 相當於 &amp;200，對一個純數值字面值取址不合法（不是左值），因此在編譯階段就會報錯。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">此問題在編譯階段就會被發現而無法產生執行檔，根本不會進入執行期。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">這不是找不到定義的問題（LIMIT 本身確實有透過 #define 定義），而是取址對象不合法的編譯期錯誤，與連結無關。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 16 題 ===================== -->
+  <div class="question-card" id="q-ch1-16">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 16</span>
+        <span class="q-concept">📌 概念：#ifdef／#ifndef 條件式編譯</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define DEBUG 1
+3  int main(void) {
+4      int score = 60;
+5  #ifdef DEBUG
+6      printf("debug mode: score=%d\n", score);
+7  #endif
+8  #ifndef DEBUG
+9      printf("release mode\n");
+10 #endif
+11     printf("final score=%d\n", score);
+12     return 0;
+13 }</code></pre></div>
+      執行後總共會印出幾行文字？
+    </div>
+    <div class="options-grid" data-qid="ch1q16" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q16')"><span class="opt-label">A</span><span>1 行</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q16')"><span class="opt-label">B</span><span>2 行</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q16')"><span class="opt-label">C</span><span>3 行</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q16')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q16', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q16">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">實際上會有兩行輸出，不只 1 行。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">DEBUG 已定義，#ifdef DEBUG 區塊（行號 5-7）會被保留並印出一行；#ifndef DEBUG 區塊（行號 8-10）因為 DEBUG 已定義而被前處理器整段移除；行號 11 一定會執行。合計 2 行。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">#ifndef DEBUG 那一段因為 DEBUG 已定義而不會被編譯進去，不會有第 3 行輸出。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">此程式語法正確，可以順利編譯執行，不會產生編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 17 題 ===================== -->
+  <div class="question-card" id="q-ch1-17">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 17</span>
+        <span class="q-concept">📌 概念：#if／#elif／#else 條件式編譯</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  #define VERSION 2
+3  int main(void) {
+4  #if VERSION == 1
+5      printf("Version 1\n");
+6  #elif VERSION == 2
+7      printf("Version 2\n");
+8  #else
+9      printf("Unknown Version\n");
+10 #endif
+11     return 0;
+12 }</code></pre></div>
+      關於上述程式使用 #if／#elif／#else 條件式編譯的敘述，下列何者正確？
+    </div>
+    <div class="options-grid" data-qid="ch1q17" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q17')"><span class="opt-label">A</span><span>#if VERSION == 1 是在程式執行階段（Runtime）才判斷條件是否成立</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q17')"><span class="opt-label">B</span><span>由於 VERSION 被定義為 2，前處理階段就會選定 #elif VERSION == 2 對應的程式碼保留下來，其餘分支的程式碼會被直接移除，不會出現在編譯後的程式中</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q17')"><span class="opt-label">C</span><span>#if／#elif／#else／#endif 這組指令只能用來檢查巨集是否有被定義，不能用來比較數值</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q17')"><span class="opt-label">D</span><span>無論 VERSION 的值為何，三個分支的 printf 都會被編譯進最終執行檔，執行時才決定要印出哪一行</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q17', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q17">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">#if 是前處理階段（編譯之前）就已經判斷完成的指令，並非執行期才判斷。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">因為 VERSION 為 2，前處理器會在編譯之前就選定 #elif VERSION==2 對應的敘述保留下來，其餘分支會被整段移除，根本不會出現在編譯後的程式碼中。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">#if 可以搭配關係運算子（如 ==、&gt;、&lt;）對數值進行比較，並不是只能用來檢查巨集是否被定義（那是 #ifdef／#ifndef 的用法）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">未被選中的分支在前處理階段就已經被移除，並不會被編譯進最終的執行檔中，因此不是「執行時才決定」。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 18 題 ===================== -->
+  <div class="question-card" id="q-ch1-18">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 18</span>
+        <span class="q-concept">📌 概念：除錯－連結錯誤 (Linker Error)</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>// calc.c
+#include &lt;stdio.h&gt;
+
+int add(int a, int b);   /* 只有函式原型宣告，沒有函式本體 */
+
+int main(void) {
+    int sum = add(3, 4);
+    printf("%d\n", sum);
+    return 0;
+}</code></pre></div>
+      （假設整個專案中，任何檔案都沒有撰寫 add() 函式的實作內容。）此程式在建置（Build）過程中最可能於哪一個階段失敗？屬於下列哪一種錯誤型態？
+    </div>
+    <div class="options-grid" data-qid="ch1q18" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q18')"><span class="opt-label">A</span><span>編譯階段失敗，屬於語法錯誤（Syntax Error），因為 add() 函式原型的宣告方式錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q18')"><span class="opt-label">B</span><span>連結階段失敗，屬於連結錯誤（Linker Error），因為編譯器只看到 add() 的宣告，找不到對應的函式本體（定義）</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q18')"><span class="opt-label">C</span><span>執行階段失敗，屬於執行期錯誤（Runtime Error），因為呼叫 add() 時傳入的參數數量不對</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q18')"><span class="opt-label">D</span><span>前處理階段失敗，因為缺少對應的標頭檔</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q18', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q18">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">int add(int a, int b); 是完全合法的函式原型宣告語法，並沒有語法錯誤。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">編譯器只需要函式原型就能通過編譯（因為它已知函式的簽名），但連結器要把 main() 中呼叫 add() 的地方接上實際的函式本體時，卻在整個專案中找不到 add() 的定義，因而產生連結錯誤（常見訊息如 undefined reference）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">呼叫時傳入的引數數量（2 個）與原型宣告的參數數量相符，並沒有參數數量不對的問題。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">程式已經正確 #include &lt;stdio.h&gt;，前處理階段不會失敗。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 19 題 ===================== -->
+  <div class="question-card" id="q-ch1-19">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 19</span>
+        <span class="q-concept">📌 概念：除錯－執行期錯誤 (Runtime Error)</span>
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int a = 10, b = 0;
+4      int result = a / b;
+5      printf("%d\n", result);
+6      return 0;
+7  }</code></pre></div>
+      此程式可以順利通過編譯與連結，產生執行檔，但執行時卻會發生錯誤或不可預期的行為。其原因與錯誤型態為下列何者？
+    </div>
+    <div class="options-grid" data-qid="ch1q19" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q19')"><span class="opt-label">A</span><span>語法錯誤，因為 a / b 的除法運算子使用錯誤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q19')"><span class="opt-label">B</span><span>連結錯誤，因為找不到除法運算對應的函式庫</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q19')"><span class="opt-label">C</span><span>執行期錯誤（Runtime Error），因為行號 4 發生整數除以 0，這種錯誤只有在程式實際執行到該行時才會顯現</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q19')"><span class="opt-label">D</span><span>語意錯誤，因為變數 a 與 b 的型別不一致</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q19', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q19">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">a / b 在語法上是完全合法的除法運算式，並沒有語法錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">除法是 C 語言內建的運算子，不需要額外連結任何函式庫，因此不會有連結錯誤。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">整數除以 0 在語法與語意上都合法（編譯器不會檢查除數的實際數值），只有在程式實際執行到該行、且 b 剛好為 0 時才會出問題，這種只在執行當下才顯現的錯誤正是執行期錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">a 與 b 都宣告為 int，型別是一致的，並沒有型別不一致的語意錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 第 20 題 ===================== -->
+  <div class="question-card" id="q-ch1-20">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 20</span>
+        <span class="q-concept">📌 概念：綜合應用－前處理器基礎知識整合</span>
+      </div>
+    </div>
+    <div class="q-body">
+      小芳想要撰寫一個標頭檔 config.h，希望同時滿足以下三個需求：<br>
+      ① 避免被重複引入而造成重複定義錯誤
+      ② 定義一個不可修改的整數上限值 MAX_USERS，且此上限值需要有型別檢查
+      ③ 用巨集定義一個安全的平方函式 SQUARE(x)，無論傳入 x + 1 或 x * 2 這類運算式都能得到正確結果。<br>
+      下列四個 config.h 版本中，何者<u>同時</u>滿足以上三項需求？
+    </div>
+    <div class="options-grid" data-qid="ch1q20" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch1q20')">
+        <span class="opt-label">A</span>
+        <span class="q-opt-code"><pre class="code-content"><code>#define MAX_USERS 100;
+#define SQUARE(x) x*x</code></pre></span>
+      </button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch1q20')">
+        <span class="opt-label">B</span>
+        <span class="q-opt-code"><pre class="code-content"><code>#ifndef CONFIG_H
+#define CONFIG_H
+const int MAX_USERS = 100;
+#define SQUARE(x) x*x
+#endif</code></pre></span>
+      </button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch1q20')">
+        <span class="opt-label">C</span>
+        <span class="q-opt-code"><pre class="code-content"><code>#ifndef CONFIG_H
+#define CONFIG_H
+const int MAX_USERS = 100;
+#define SQUARE(x) ((x) * (x))
+#endif</code></pre></span>
+      </button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch1q20')">
+        <span class="opt-label">D</span>
+        <span class="q-opt-code"><pre class="code-content"><code>const int MAX_USERS = 100;
+#define SQUARE(x) ((x) * (x))
+#ifndef CONFIG_H
+#define CONFIG_H
+#endif</code></pre></span>
+      </button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch1q20', this)"><span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span><span class="toggle-icon">▼</span></button>
+    <div class="explanation-box" id="exp-ch1q20">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">完全沒有 Include Guard（需求①未滿足）；MAX_USERS 用 #define 定義且多加了分號（需求②未滿足）；SQUARE(x) x*x 沒有加括號，代入運算式時可能出錯（需求③未滿足）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">有正確的 Include Guard（需求①滿足），MAX_USERS 也正確使用 const（需求②滿足），但 SQUARE(x) x*x 沒有加括號保護，遇到像 SQUARE(x+1) 這樣的呼叫仍會計算錯誤（需求③未滿足）。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">Include Guard 的位置正確地包住了整份檔案內容（需求①滿足）；MAX_USERS 使用具型別檢查的 const 常數（需求②滿足）；SQUARE(x) 定義為 ((x)*(x))，參數與整體都加了括號，能正確處理任何運算式引數（需求③滿足）。三項需求同時滿足。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">雖然三種寫法都出現了，但 #ifndef／#define／#endif 只包住了一段空白內容，const int MAX_USERS 與 #define SQUARE 的宣告都寫在保護範圍之外，因此無法真正防止標頭檔被重複引入時造成重複定義（需求①未滿足）。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <p>第 1 章：前處理器與編譯基礎｜自我檢測　共 20 題　自編模擬練習題，非歷屆真題</p>
+    <p>C語言統測自主學習系列 · assessments/chapter1-preprocessor-assessment.html</p>
+  </footer>
+
+</main>
+
+<script>
+let answeredState = {};
+
+function checkOption(btn, optionLetter, qid) {
+  const parentGrid = btn.closest('.options-grid');
+  const correctOption = parentGrid.getAttribute('data-correct');
+
+  parentGrid.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('selected-correct', 'selected-wrong');
+  });
+
+  const isCorrect = optionLetter === correctOption;
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+  } else {
+    btn.classList.add('selected-wrong');
+  }
+
+  answeredState[qid] = isCorrect;
+  updateScoreBar();
+
+  const expBox = document.getElementById('exp-' + qid);
+  const toggleBtn = expBox ? expBox.previousElementSibling : null;
+  if (expBox && !expBox.classList.contains('show')) {
+    expBox.classList.add('show');
+    if (toggleBtn) toggleBtn.classList.add('open');
+  }
+}
+
+function updateScoreBar() {
+  const keys = Object.keys(answeredState);
+  const answered = keys.length;
+  const correct = keys.filter(k => answeredState[k]).length;
+  document.getElementById('answered-count').textContent = answered;
+  document.getElementById('correct-count').textContent = correct;
+}
+
+function toggleExplanation(boxId, btn) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  box.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+
+let allExpanded = false;
+function toggleAllExplanations() {
+  allExpanded = !allExpanded;
+  const boxes = document.querySelectorAll('.explanation-box');
+  const btns = document.querySelectorAll('.explanation-toggle-btn');
+  const toggleAllText = document.getElementById('toggle-all-text');
+
+  boxes.forEach(box => {
+    if (allExpanded) box.classList.add('show');
+    else box.classList.remove('show');
+  });
+
+  btns.forEach(btn => {
+    if (allExpanded) btn.classList.add('open');
+    else btn.classList.remove('open');
+  });
+
+  toggleAllText.textContent = allExpanded ? '全部收合詳解' : '全部展開詳解';
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const currentTheme = html.getAttribute('data-theme');
+  const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', nextTheme);
+
+  const themeBtn = document.getElementById('btn-theme');
+  themeBtn.textContent = nextTheme === 'light' ? '☀️ 淺色模式' : '🌙 深色模式';
+}
+</script>
+
+</body>
+</html>

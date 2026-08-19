@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4章 選擇結構｜自我檢測 — C語言統測自主學習</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-alt: #334155;
+  --bg-code: #0b1120;
+  --border-color: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #0ea5e9;
+  --accent-light: #38bdf8;
+  --accent-glow: rgba(14, 165, 233, 0.18);
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.35);
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --font-body: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', Consolas, 'SF Mono', Monaco, monospace;
+}
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f5f9;
+  --bg-code: #0f172a;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent: #0284c7;
+  --accent-light: #0ea5e9;
+  --accent-glow: rgba(2, 132, 199, 0.12);
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --success-border: #a7f3d0;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --danger-border: #fecaca;
+  --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 18px; }
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.8;
+  letter-spacing: 0.015em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+.top-header {
+  position: sticky; top: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 900;
+  padding: 10px 24px;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  transition: background 0.3s ease;
+}
+[data-theme="light"] .top-header { background: rgba(255, 255, 255, 0.88); }
+.header-brand { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand-badge {
+  background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent);
+  padding: 4px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.05em;
+}
+[data-theme="light"] .brand-badge { color: var(--accent); }
+.brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-control {
+  background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
+  padding: 6px 14px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+}
+.btn-control:hover { border-color: var(--accent); color: var(--accent-light); transform: translateY(-1px); }
+[data-theme="light"] .btn-control:hover { color: var(--accent); }
+.btn-control.primary { background: var(--accent); color: #ffffff; border-color: var(--accent); }
+.btn-control.primary:hover { background: var(--accent-light); }
+
+.main-content { width: min(1600px, 80%); margin: 0 auto; padding: 32px 20px 100px; }
+
+.hero-banner {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+  border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px 28px 28px 32px; margin-bottom: 24px;
+  position: relative; overflow: hidden; box-shadow: var(--shadow);
+}
+.hero-banner::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%;
+  background: linear-gradient(180deg, var(--accent), #6366f1);
+}
+.hero-tag {
+  display: inline-block; background: var(--accent-glow); color: var(--accent-light);
+  border: 1px solid var(--accent); padding: 4px 12px; border-radius: 999px;
+  font-size: 0.8rem; font-weight: 700; margin-bottom: 12px;
+}
+[data-theme="light"] .hero-tag { color: var(--accent); }
+.hero-banner h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; color: var(--text-primary); }
+.hero-banner p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.75; margin-bottom: 6px; }
+.hero-banner p:last-child { margin-bottom: 0; }
+.hero-banner strong { color: var(--warning, #f59e0b); }
+
+.score-bar {
+  position: sticky; top: 54px; z-index: 800;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius);
+  padding: 14px 20px; margin-bottom: 28px; box-shadow: var(--shadow-sm);
+}
+.score-items { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.score-item { font-size: 0.92rem; color: var(--text-secondary); font-weight: 600; }
+.score-item strong { font-size: 1.15rem; color: var(--accent-light); font-weight: 900; }
+[data-theme="light"] .score-item strong { color: var(--accent); }
+.score-item.is-correct strong { color: var(--success); }
+
+pre.code-content {
+  font-family: var(--font-code); font-size: 0.9rem; line-height: 1.65;
+  padding: 16px 20px; color: #e2e8f0; overflow-x: auto; margin: 0;
+  background: var(--bg-code); border-radius: var(--radius-sm); border: 1px solid var(--border-color);
+}
+pre.code-content code { font-family: inherit; }
+code.inline {
+  font-family: var(--font-code); font-size: 0.88em;
+  background: var(--bg-card-alt); color: var(--accent-light);
+  padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color);
+}
+[data-theme="light"] code.inline { color: var(--accent); }
+.q-code-wrap { margin: 14px 0 18px; }
+.q-opt-code { margin: 6px 0 14px; }
+
+.question-card {
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+  padding: 28px; margin: 28px 0; box-shadow: var(--shadow); transition: border-color 0.2s ease;
+}
+.question-card:hover { border-color: var(--accent); }
+.q-meta {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
+}
+.q-title-box { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.q-badge { background: var(--accent); color: #ffffff; padding: 4px 12px; border-radius: 6px; font-size: 0.88rem; font-weight: 800; }
+.q-concept { font-size: 0.88rem; color: var(--text-secondary); font-weight: 600; }
+.q-body { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 18px; line-height: 1.6; }
+
+.options-grid { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+.option-btn {
+  background: var(--bg-card-alt); border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+  padding: 12px 18px; color: var(--text-primary); font-size: 0.95rem; font-weight: 500;
+  text-align: left; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;
+  transition: all 0.15s ease; width: 100%;
+}
+.option-btn:hover { border-color: var(--accent); background: var(--accent-glow); transform: translateX(4px); }
+.opt-label {
+  background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--accent-light);
+  width: 28px; height: 28px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0;
+}
+[data-theme="light"] .opt-label { color: var(--accent); }
+.option-btn.selected-correct { background: var(--success-bg) !important; border-color: var(--success) !important; color: var(--text-primary) !important; }
+.option-btn.selected-correct .opt-label { background: var(--success) !important; color: #ffffff !important; }
+.option-btn.selected-wrong { background: var(--danger-bg) !important; border-color: var(--danger) !important; color: var(--text-primary) !important; }
+.option-btn.selected-wrong .opt-label { background: var(--danger) !important; color: #ffffff !important; }
+.opt-text-code { font-family: var(--font-code); font-size: 0.92em; }
+
+.explanation-toggle-btn {
+  width: 100%; background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent-light);
+  padding: 12px 20px; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  margin-top: 14px; transition: all 0.2s ease;
+}
+[data-theme="light"] .explanation-toggle-btn { color: var(--accent); }
+.explanation-toggle-btn:hover { background: var(--accent); color: #ffffff; }
+.toggle-icon { transition: transform 0.3s ease; }
+.explanation-toggle-btn.open .toggle-icon { transform: rotate(180deg); }
+
+.explanation-box {
+  display: none; background: var(--bg-primary); border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm); padding: 24px; margin-top: 14px; animation: fadeIn 0.3s ease;
+}
+.explanation-box.show { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.ans-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--success-bg); border: 1px solid var(--success-border);
+  padding: 12px 18px; border-radius: var(--radius-sm); margin-bottom: 20px;
+}
+.ans-label { font-size: 0.9rem; font-weight: 700; color: var(--success); }
+.ans-value { font-size: 1.25rem; font-weight: 900; color: var(--success); }
+
+.opt-breakdown-list { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.opt-analysis-card { border-radius: var(--radius-sm); padding: 14px 18px; border: 1px solid var(--border-color); background: var(--bg-card); }
+.opt-analysis-card.is-correct { border-color: var(--success-border); background: var(--success-bg); }
+.opt-analysis-card.is-wrong { border-color: var(--border-color); }
+.opt-card-header { display: flex; align-items: center; gap: 10px; font-weight: 800; margin-bottom: 6px; flex-wrap: wrap; }
+.badge-correct { background: var(--success); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.badge-wrong { background: var(--danger); color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; }
+.opt-analysis-text { font-size: 0.93rem; line-height: 1.65; color: var(--text-primary); }
+
+footer.page-footer {
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border-color);
+  color: var(--text-muted); font-size: 0.85rem; text-align: center; line-height: 1.8;
+}
+
+@media (max-width: 640px) {
+  .main-content { width: min(1600px, calc(100% - 24px)); padding: 20px 14px 80px; }
+  .question-card { padding: 18px; }
+  .score-bar { top: 90px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="header-brand">
+    <span class="brand-badge">CH.4 自我檢測</span>
+    <span class="brand-title">🔀 選擇結構</span>
+  </div>
+  <div class="header-actions">
+    <a class="btn-control" href="index.html" style="text-decoration: none;"><span>📋</span> <span>返回章節選單</span></a>
+    <button class="btn-control" onclick="toggleAllExplanations()"><span id="toggle-all-text">全部展開詳解</span></button>
+    <button class="btn-control" id="btn-theme" onclick="toggleTheme()">🌙 深色模式</button>
+  </div>
+</header>
+
+<main class="main-content">
+
+  <div class="hero-banner">
+    <span class="hero-tag">⚠️ 模擬練習題說明</span>
+    <h1>第 4 章：選擇結構｜自我檢測（20 題）</h1>
+    <p>以下 20 題為依據第 4 章教材內容自行編寫的<strong>模擬練習題</strong>，出題風格參考了歷屆統測（技專校院入學測驗中心）試題的命題習慣，但<strong>並非</strong>任何一年的歷屆真題，內容僅供學習自我檢測參考，不代表正式考試之題型、難度或配分。</p>
+    <p>每題單選、4 個選項。點選任一選項即可立即看到對錯標示，並自動展開該題的逐項詳解；上方「全部展開詳解」可一次展開或收合所有題目的說明；重新測驗會重新載入頁面，清空所有作答紀錄。</p>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-items">
+      <div class="score-item">已作答 <strong id="answered-count">0</strong> / 20</div>
+      <div class="score-item is-correct">答對 <strong id="correct-count">0</strong> 題</div>
+    </div>
+    <button class="btn-control primary" onclick="location.reload()">🔄 重新測驗</button>
+  </div>
+
+  <div class="question-card" id="q-ch4q01">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 01</span>
+        <span class="q-concept">📌 概念：if／if-else 基礎</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int score = 55;
+4      if (score &gt;= 60)
+5          printf(&quot;PASS\n&quot;);
+6      else
+7          printf(&quot;FAIL\n&quot;);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q01" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q01')"><span class="opt-label">A</span><span>FAIL</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q01')"><span class="opt-label">B</span><span>PASS</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q01')"><span class="opt-label">C</span><span>兩行都印出</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q01')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q01', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q01">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">score=55 未大於等於 60，if 條件為假，執行 else 分支，印出 FAIL。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">score=55 小於 60，if 條件不成立，不會印出 PASS。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">if 與 else 只會擇一執行，不會兩行都印出。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">這是完全合法的 if-else 語法，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q02">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 02</span>
+        <span class="q-concept">📌 概念：if 不加大括號的範圍陷阱</span>
+      </div>
+    </div>
+    <div class="q-body">關於此程式的執行結果，下列敘述何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int x = 5;
+4      if (x &gt; 10)
+5          printf(&quot;A\n&quot;);
+6          printf(&quot;B\n&quot;);
+7      return 0;
+8  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q02" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q02')"><span class="opt-label">A</span><span>印出 A 與 B 兩行，因為兩個 printf 的縮排看起來都在 if 的範圍內</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q02')"><span class="opt-label">B</span><span>只印出 B 這一行，因為沒有加大括號 {}，if 只會控制緊接在後面的「一行」敘述（行號5），行號6的 printf(&quot;B\n&quot;) 其實不屬於 if 的範圍，是一定會被執行的獨立敘述</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q02')"><span class="opt-label">C</span><span>完全不印出任何東西，因為 x=5 不大於 10，兩個 printf 都不會執行</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q02')"><span class="opt-label">D</span><span>編譯錯誤，因為 if 沒有加上大括號</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q02', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q02">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">縮排在 C 語言中純粹是給人閱讀用的排版，不會決定哪些敘述屬於 if 的範圍；只有緊接在 if 後面的「一行」敘述才受控制。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">沒有加大括號時，if 只會控制緊接在後面的單一敘述（行號5的 printf("A\n");）；行號6的 printf("B\n") 已經不屬於 if 的範圍，是不論條件真假都一定會執行的獨立敘述，因此 x=5（條件為假）時只會印出 B。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">行號6的 printf("B\n") 並不受 if 條件控制，即使 x=5 使條件為假，這一行仍然會被執行，因此並非「什麼都不印」。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">if 不加大括號、只控制一行敘述，是完全合法的 C 語法，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q03">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 03</span>
+        <span class="q-concept">📌 概念：if-else if 鏈狀結構：邊界值追蹤</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int score = 60;
+4      if (score &gt; 60)
+5          printf(&quot;優\n&quot;);
+6      else if (score &gt; 50)
+7          printf(&quot;甲\n&quot;);
+8      else
+9          printf(&quot;乙\n&quot;);
+10     return 0;
+11 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q03" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q03')"><span class="opt-label">A</span><span>優</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q03')"><span class="opt-label">B</span><span>乙</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q03')"><span class="opt-label">C</span><span>甲</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q03')"><span class="opt-label">D</span><span>三行都印出</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q03', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q03">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">score=60 並未大於 60（score > 60 為假），所以不會進入第一個分支印出「優」。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">score=60 大於 50，會在第二個條件 score > 50 就成立並印出「甲」，不會走到最後的 else 印出「乙」。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">依序判斷：score>60 為假（60 不大於 60），score>50 為真（60>50），因此印出「甲」。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">if-else if-else 鏈狀結構只會執行其中一個分支，不會三行都印出。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q04">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 04</span>
+        <span class="q-concept">📌 概念：陷阱：if-else if 判斷順序寫反</span>
+      </div>
+    </div>
+    <div class="q-body">撰寫者原本可能想要先判斷「優異（&gt;=90）」再判斷「及格（&gt;=60）」，但這個程式卻把判斷順序寫反了。請問 score=95 時，此程式實際輸出什麼？為什麼會這樣？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int score = 95;
+4      if (score &gt;= 60)
+5          printf(&quot;及格\n&quot;);
+6      else if (score &gt;= 90)
+7          printf(&quot;優異\n&quot;);
+8      else
+9          printf(&quot;不及格\n&quot;);
+10     return 0;
+11 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q04" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q04')"><span class="opt-label">A</span><span>印出「優異」，因為 95 也滿足 score&gt;=90 的條件，C 語言會自動判斷最符合的那一個分支</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q04')"><span class="opt-label">B</span><span>依序印出「及格」與「優異」兩行，因為兩個條件都成立</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q04')"><span class="opt-label">C</span><span>編譯錯誤，因為 else if 的判斷順序不能任意調換</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q04')"><span class="opt-label">D</span><span>只印出「及格」，因為 if-else if 鏈狀結構中，只要最前面的條件先成立，就會執行該分支並跳過後面所有的 else if／else，即使後面的條件（如 score&gt;=90）也成立，也不會再被檢查，這正是條件順序寫反時常見的邊界值陷阱</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q04', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q04">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">C 語言的 if-else if 鏈狀結構不會自動挑選「最符合」的分支，而是由上而下依序檢查，一旦有條件成立就直接執行該分支，不會考慮後面是否有更精確的條件。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">if-else if-else 鏈狀結構中只會執行其中一個分支，一旦最前面的條件（score>=60）成立，後面的 else if（score>=90）就不會再被檢查，不會依序印出兩行。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">else if 的判斷順序可以自由調整，這是完全合法的語法，只是不同順序可能因為範圍重疊而導致不同的執行結果（如本題所示），不會造成編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">score=95 讓最前面的 score>=60 就已經成立，因此執行「及格」分支後，後面的 else if (score>=90) 與 else 都會被直接跳過、不再檢查，即使 95 也滿足 >=90，也不會被判斷到，所以只印出「及格」。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q05">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 05</span>
+        <span class="q-concept">📌 概念：if-else if 鏈狀結構的求值規則（概念）</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言中 if-else if-else 鏈狀結構的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch4q05" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q05')"><span class="opt-label">A</span><span>整個鏈狀結構由上而下依序檢查每一個條件，一旦某個條件成立，就只會執行該分支對應的程式碼，後面所有的 else if 與 else 都會被跳過，不會再被檢查</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q05')"><span class="opt-label">B</span><span>鏈狀結構中的每一個條件都一定會被檢查一次，即使前面已經有條件成立，後面的條件仍然會被求值，只是不會執行對應的程式碼</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q05')"><span class="opt-label">C</span><span>if-else if-else 鏈狀結構中，最多只能有一個 else if，不能有多個</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q05')"><span class="opt-label">D</span><span>只要把多個條件的判斷順序對調，程式最終的執行結果一定完全不會改變</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q05', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q05">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">if-else if-else 鏈狀結構由上而下依序檢查，一旦某個條件成立就執行對應分支，並直接跳過後面所有剩餘的 else if 與 else，這些後面的條件根本不會再被檢查（求值）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">一旦前面已經有條件成立，後面的條件連「求值」都不會發生，並不是「求值但不執行」；這正是第 4 題陷阱的成因。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">else if 可以視需求串接任意多個，沒有數量上限。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">如第 4 題所示，當多個條件的範圍有重疊時，調換判斷順序完全可能改變最終的執行結果。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q06">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 06</span>
+        <span class="q-concept">📌 概念：switch-case 基本語法與流程</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int day = 3;
+4      switch (day) {
+5          case 1: printf(&quot;Mon\n&quot;); break;
+6          case 2: printf(&quot;Tue\n&quot;); break;
+7          case 3: printf(&quot;Wed\n&quot;); break;
+8          default: printf(&quot;Unknown\n&quot;);
+9      }
+10     return 0;
+11 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q06" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q06')"><span class="opt-label">A</span><span>Tue</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q06')"><span class="opt-label">B</span><span>Wed</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q06')"><span class="opt-label">C</span><span>Unknown</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q06')"><span class="opt-label">D</span><span>Mon Tue Wed 都印出</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q06', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q06">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">day=3，並不會比對到 case 1，不會印出 Mon。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">day=3 剛好比對到 case 3，印出 Wed，接著遇到 break 跳出 switch。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">day=3 有比對到 case 3，並不會落到 default 分支。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">switch 比對到某個 case 後，遇到 break 就會跳出，不會把每個 case 都執行過一遍。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q07">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 07</span>
+        <span class="q-concept">📌 概念：switch 運算式與 case 標籤的型態規則</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言 switch-case 敘述的語法規則，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch4q07" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q07')"><span class="opt-label">A</span><span>switch 括號內的運算式可以是 float 或 double 型態，只要 case 標籤的數值也寫成小數即可</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q07')"><span class="opt-label">B</span><span>每一個 case 標籤後面接的值，可以是任意型態的變數（如另一個 int 變數），不需要是編譯時期就能確定的常數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q07')"><span class="opt-label">C</span><span>switch 括號內的運算式必須是整數型態（如 int、char、enum），case 標籤的值也必須是編譯時期就能確定的整數常數運算式</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q07')"><span class="opt-label">D</span><span>switch 敘述中最多只能有 10 個 case 標籤，超過就必須改用 if-else if 鏈狀結構</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q07', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q07">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">switch 括號內的運算式必須是整數型態，標準 C 語言不允許 switch 直接使用 float 或 double 型態做比對。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">case 標籤的值必須是「編譯時期常數運算式」，不能是一般的變數；把一個變數寫在 case 後面會產生編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">switch 的控制運算式必須是整數型態（int、char、enum 等），每個 case 標籤的值也必須是編譯時期就能確定的整數常數，這是 switch-case 語法的硬性規定。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">C 語言標準並沒有限制 case 標籤的數量上限，實務上可以依需求撰寫任意多個 case（只受限於編譯器的實作限制，通常遠大於 10）。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q08">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 08</span>
+        <span class="q-concept">📌 概念：陷阱：switch 缺少 break 造成貫穿</span>
+      </div>
+    </div>
+    <div class="q-body">執行後會印出幾行？分別是什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int month = 2;
+4      switch (month) {
+5          case 1: printf(&quot;Jan\n&quot;);
+6          case 2: printf(&quot;Feb\n&quot;);
+7          case 3: printf(&quot;Mar\n&quot;); break;
+8          case 4: printf(&quot;Apr\n&quot;); break;
+9          default: printf(&quot;Other\n&quot;);
+10     }
+11     return 0;
+12 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q08" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q08')"><span class="opt-label">A</span><span>只印出 1 行：&quot;Feb&quot;</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q08')"><span class="opt-label">B</span><span>印出 4 行：Jan、Feb、Mar、Apr 全部印出</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q08')"><span class="opt-label">C</span><span>印出 3 行：Jan、Feb、Mar</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q08')"><span class="opt-label">D</span><span>印出 2 行：Feb 與 Mar，因為 case 2 的程式碼區塊沒有加上 break，執行完 printf(&quot;Feb\n&quot;) 後會「貫穿（Fall-through）」到下一個 case（case 3）繼續往下執行，直到遇到 case 3 的 break 才停止；由於是從 case 2 開始比對，case 1 的內容不會被執行</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q08', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q08">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">case 2 之後沒有 break，執行完 Feb 之後會繼續貫穿到 case 3 印出 Mar，不會只印出 1 行。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">month=2 是從 case 2 開始比對進入的，case 1（Jan）不會被執行；貫穿只會往「後面」的 case 繼續，不會回頭執行前面的 case 1。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">Jan 不會被印出，因為程式是直接比對到 case 2 進入的，並不會先經過 case 1。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">month=2 比對到 case 2，印出 Feb 後因為沒有 break 而貫穿到 case 3，印出 Mar，接著遇到 case 3 的 break 才停止，總共印出 2 行；case 1 的內容因為是從 case 2 開始進入，不會被執行到。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q09">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 09</span>
+        <span class="q-concept">📌 概念：修正貫穿錯誤：正確加上 break</span>
+      </div>
+    </div>
+    <div class="q-body">撰寫者原本只希望 grade=2 時印出「甲」這一行就好，但實際執行後卻印出了「甲」與「乙」兩行。若只能修改一行程式碼，最適合的修正方式是下列何者？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int grade = 2;
+4      switch (grade) {
+5          case 1:
+6              printf(&quot;優\n&quot;);
+7          case 2:
+8              printf(&quot;甲\n&quot;);
+9          case 3:
+10             printf(&quot;乙\n&quot;);
+11             break;
+12         default:
+13             printf(&quot;未知\n&quot;);
+14     }
+15     return 0;
+16 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q09" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q09')"><span class="opt-label">A</span><span>在行號 8（printf(&quot;甲\n&quot;); 之後）加上一行 break;，讓 case 2 執行完自己的程式碼後就跳出 switch，不再貫穿到 case 3</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q09')"><span class="opt-label">B</span><span>把行號 11 的 break; 刪除，改成貫穿到 default</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q09')"><span class="opt-label">C</span><span>把 case 3 整段程式碼（行號 9 到 11）搬到 case 1 的前面</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q09')"><span class="opt-label">D</span><span>把 switch 的括號內容從 grade 改成 grade + 1</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q09', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q09">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">在 case 2 自己的程式碼（printf("甲\n");）後面加上 break;，可以讓 grade=2 時執行完「甲」就立刻跳出 switch，不再貫穿到 case 3 印出「乙」，正確解決問題且不影響其他 case。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">刪除行號 11 的 break 只會讓 case 3 之後繼續貫穿到 default，讓問題更嚴重（甚至會多印出「未知」），與目標無關。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">搬動程式碼區塊的位置並不能解決「case 2 沒有 break」這個根本問題，反而會打亂原本的執行順序。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">把 grade 改成 grade+1 會讓比對的數值整個偏移，變成比對 case 3，這樣會改變程式原本的判斷邏輯，並不是針對貫穿問題的正確修法。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q10">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 10</span>
+        <span class="q-concept">📌 概念：貫穿現象的本質（概念）</span>
+      </div>
+    </div>
+    <div class="q-body">關於 switch 敘述中「貫穿（Fall-through）」現象的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch4q10" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q10')"><span class="opt-label">A</span><span>貫穿一定是程式錯誤，C 語言的 switch 敘述設計上原本就不應該讓貫穿發生，任何貫穿都代表程式有 bug</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q10')"><span class="opt-label">B</span><span>貫穿本身是 C 語言 switch 敘述的正常特性：只要某個 case 區塊沒有 break（或 return 等跳出敘述），執行流程就會自動「掉入」下一個 case 繼續執行；貫穿可能是忘記加 break 造成的錯誤，但也可能是刻意設計、讓多個 case 共用同一段程式碼的技巧</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q10')"><span class="opt-label">C</span><span>只有 default 標籤前面的最後一個 case，才有可能發生貫穿現象，其他 case 之間不會</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q10')"><span class="opt-label">D</span><span>一旦某個 case 發生貫穿，程式就會直接跳到 switch 敘述後面的下一行，不會再執行任何 case 內的程式碼</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q10', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q10">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">貫穿不一定是錯誤，如第 12、13 題所示，刻意讓多個 case 共用同一段程式碼正是善用貫穿特性的常見技巧。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">只要某個 case 的程式碼區塊結尾沒有 break（或 return 等跳出敘述），流程就會自動貫穿到下一個 case 繼續執行，這是 switch 語法本身的正常行為；它可能是忘記加 break 的錯誤（如第 8 題），也可能是刻意共用程式碼的技巧（如第 12 題）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">任何相鄰的 case 之間，只要前一個沒有 break，都可能發生貫穿，不限於 default 前面的最後一個 case。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">貫穿的效果恰好相反：是繼續往「下一個 case 的程式碼」執行下去，而不是跳出 switch 到後面的敘述。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q11">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 11</span>
+        <span class="q-concept">📌 概念：default 標籤位置與貫穿的交互作用</span>
+      </div>
+    </div>
+    <div class="q-body">此程式的 default 標籤被放在 switch 區塊的「開頭」而不是「結尾」。當 x=5 時（沒有任何 case 標籤符合 5），執行後會印出什麼？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int x = 5;
+4      switch (x) {
+5          default:
+6              printf(&quot;D\n&quot;);
+7          case 1:
+8              printf(&quot;1\n&quot;);
+9              break;
+10         case 2:
+11             printf(&quot;2\n&quot;);
+12             break;
+13     }
+14     return 0;
+15 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q11" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q11')"><span class="opt-label">A</span><span>什麼都不印出，因為 x=5 不符合任何 case 或 default 應該檢查的範圍</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q11')"><span class="opt-label">B</span><span>只印出 &quot;D&quot;，因為找到 default 之後就會直接結束 switch</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q11')"><span class="opt-label">C</span><span>印出 &quot;D&quot; 然後 &quot;1&quot;，因為即使 default 被放在開頭，只要沒有任何 case 標籤的值等於 x，程式就會跳到 default 開始執行；而 default 區塊後面沒有 break，因此會繼續貫穿到緊接在原始碼順序中下一個的 case 1，直到遇到 break 才停止</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q11')"><span class="opt-label">D</span><span>印出 &quot;1&quot; 然後 &quot;2&quot;，因為 default 只是一個註解用途的標籤，不會被實際執行</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q11', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q11">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">default 標籤正是設計來處理「沒有任何 case 符合」的情況，x=5 不符合 case 1 或 case 2，因此一定會執行 default 區塊，不會什麼都不印。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">default 本身不會讓 switch 直接結束；如果 default 區塊結尾沒有 break，一樣會貫穿到後面的 case，就像本題一樣。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">x=5 不符合 case 1、case 2，會跳到 default 開始執行，印出 "D"；因為 default 區塊沒有 break，會依原始碼中「接下來出現的」case（此處是 case 1）繼續貫穿執行，印出 "1"，接著遇到 break 才停止。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">default 是完全會被實際執行的標籤，不是註解；當沒有任何 case 符合時，程式一定會執行到 default 對應的程式碼。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q12">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 12</span>
+        <span class="q-concept">📌 概念：刻意貫穿：多重 case 共用程式碼</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      char ch = &#x27;e&#x27;;
+4      switch (ch) {
+5          case &#x27;a&#x27;:
+6          case &#x27;e&#x27;:
+7          case &#x27;i&#x27;:
+8          case &#x27;o&#x27;:
+9          case &#x27;u&#x27;:
+10             printf(&quot;是母音\n&quot;);
+11             break;
+12         default:
+13             printf(&quot;不是母音\n&quot;);
+14     }
+15     return 0;
+16 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q12" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q12')"><span class="opt-label">A</span><span>不是母音</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q12')"><span class="opt-label">B</span><span>編譯錯誤，因為多個 case 標籤不能連續堆疊在一起</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q12')"><span class="opt-label">C</span><span>印出五次「是母音」，因為符合五個 case 標籤</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q12')"><span class="opt-label">D</span><span>是母音，因為 case &#x27;a&#x27; 到 case &#x27;u&#x27; 這五個標籤刻意沒有各自加上程式碼與 break，而是共用同一段位於最後面的程式碼，這是「刻意利用貫穿特性」讓多個 case 共用程式碼的常見寫法，只要 ch 符合其中任何一個標籤，就會執行這段共用的程式碼一次</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q12', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q12">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">ch='e' 剛好符合 case 'e' 這個標籤，會進入這一組共用程式碼並印出「是母音」，不會走到 default。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">連續堆疊多個 case 標籤（不各自加上程式碼與 break）是完全合法的 C 語法，是刻意善用貫穿特性的常見寫法，不會造成編譯錯誤。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">switch 只會從符合的那一個 case 標籤開始往下執行，並不會把五個 case 都各自比對一次，因此只會印出一次「是母音」，不是五次。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">case 'a' 到 case 'u' 這五個標籤刻意不各自加上程式碼與 break，而是共用寫在最後面（case 'u' 之後）的同一段程式碼；ch='e' 符合其中的 case 'e'，因此會執行這段共用程式碼，印出一次「是母音」。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q13">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 13</span>
+        <span class="q-concept">📌 概念：多重 case 標籤的正確語法</span>
+      </div>
+    </div>
+    <div class="q-body">若希望 day 為 6（星期六）或 7（星期日）時，isWeekend 都被設為 1（其餘情況為 0），則行號 6 的【1】最適合填入下列何者？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int day = 6;
+4      int isWeekend;
+5      switch (day) {
+6          【1】
+7              isWeekend = 1;
+8              break;
+9          default:
+10             isWeekend = 0;
+11     }
+12     printf(&quot;%d\n&quot;, isWeekend);
+13     return 0;
+14 }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q13" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q13')"><span class="opt-label">A</span><span class="opt-text-code">case 6: case 7:</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q13')"><span class="opt-label">B</span><span class="opt-text-code">case 6 || case 7:</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q13')"><span class="opt-label">C</span><span class="opt-text-code">case 6, 7:</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q13')"><span class="opt-label">D</span><span class="opt-text-code">case 6 or case 7:</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q13', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q13">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">C 語言中要讓多個 case 值共用同一段程式碼，標準寫法就是把多個 case 標籤依序堆疊在一起（如 case 6: case 7:），這正是第 12 題示範的貫穿共用技巧。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">`case 6 || case 7:` 不是合法的 C 語法，case 標籤後面只能接編譯時期常數，不能用 || 這種運算子連接兩個 case。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">`case 6, 7:` 也不是合法的 case 標籤語法，C 語言的 switch-case 不支援用逗號在同一個 case 標籤中列出多個數值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">`or` 不是 C 語言的關鍵字或合法運算子，這種寫法無法通過編譯。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q14">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 14</span>
+        <span class="q-concept">📌 概念：enum 自動編號（由 0 開始）</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  enum Color { RED, GREEN, BLUE };
+3  int main(void) {
+4      enum Color c = GREEN;
+5      printf(&quot;%d\n&quot;, c);
+6      return 0;
+7  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q14" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q14')"><span class="opt-label">A</span><span>0</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q14')"><span class="opt-label">B</span><span>1</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q14')"><span class="opt-label">C</span><span>2</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q14')"><span class="opt-label">D</span><span>GREEN</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q14', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q14">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">0 是 RED 的值，不是 GREEN 的值；enum 成員若都沒有指定初值，會由 0 開始依序遞增。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">enum Color 的成員未指定初值，因此依宣告順序自動編號：RED=0、GREEN=1、BLUE=2，GREEN 對應的整數值是 1。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">2 是 BLUE 的值，不是 GREEN 的值。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">enum 成員在底層是整數常數，%d 只會印出對應的整數值，不會印出成員的名稱字串 "GREEN"。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q15">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 15</span>
+        <span class="q-concept">📌 概念：enum 指定初值後的自動編號規則</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  enum Level { LOW = 5, MEDIUM, HIGH = 10, EXTREME };
+3  int main(void) {
+4      printf(&quot;%d %d %d %d\n&quot;, LOW, MEDIUM, HIGH, EXTREME);
+5      return 0;
+6  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q15" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q15')"><span class="opt-label">A</span><span>5 6 7 8</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q15')"><span class="opt-label">B</span><span>0 1 10 11</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q15')"><span class="opt-label">C</span><span>5 6 10 11</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q15')"><span class="opt-label">D</span><span>5 6 11 12</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q15', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q15">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">MEDIUM 沒有指定初值，會依「前一個成員的值加 1」計算，得到 6（5+1），但 HIGH 有明確指定為 10，並不會延續 MEDIUM 的自動編號繼續加 1 得到 7；HIGH 之後的 EXTREME 才會延續 HIGH 的值加 1，得到 11，不是 8。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">LOW 已經明確指定初值為 5，不會被重設回 0；MEDIUM 則是延續 LOW 的值加 1，得到 6，不是 1。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">LOW 明確指定為 5；MEDIUM 未指定初值，依規則取「前一個成員的值加 1」，即 5+1=6；HIGH 又明確指定為 10；EXTREME 未指定初值，依規則取「前一個成員的值加 1」，即 10+1=11。四個依序為 5、6、10、11。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">HIGH 已經明確指定初值為 10，不會被額外加 1 變成 11；EXTREME 才是延續 HIGH 的值加 1，得到 11，不是 12。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q16">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 16</span>
+        <span class="q-concept">📌 概念：enum 的本質（概念）</span>
+      </div>
+    </div>
+    <div class="q-body">關於 C 語言 enum（列舉型態）的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch4q16" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q16')"><span class="opt-label">A</span><span>enum 型態的成員（enumerator）在記憶體中是以字串（如 &quot;RED&quot;、&quot;GREEN&quot;）的形式儲存，而不是整數</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q16')"><span class="opt-label">B</span><span>一個 enum 型態中，每一個成員的值都必須是唯一的，不能有兩個成員被指定為相同的數值</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q16')"><span class="opt-label">C</span><span>enum 的成員一旦沒有明確指定初值，就一定固定是 0，之後所有成員也都固定是 0，除非全部都手動指定</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q16')"><span class="opt-label">D</span><span>enum 本質上是一種特殊的整數常數集合，編譯器在背後會把每個成員名稱對應到一個整數值，這也是為什麼 enum 變數可以直接用 %d 格式化字串印出對應的整數</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q16', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q16">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">enum 成員在底層其實是整數常數，不是字串；如第 14 題所示，用 %d 印出的是對應的整數值，不是名稱字串。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">C 語言並沒有規定 enum 成員的值必須互相唯一，允許多個成員被指定為相同的數值（例如 enum E { A = 1, B = 1 };）。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">如第 15 題所示，未指定初值的成員是依「前一個成員的值加 1」計算，不是永遠固定是 0；只有在沒有任何前面成員被指定初值時，才會從 0 開始。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">enum 本質上就是一組具名的整數常數，編譯器會在背後把每個成員對應到一個整數值，因此才能像一般整數一樣用 %d 印出來，這也是第 14、15 題輸出結果的根本原因。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q17">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 17</span>
+        <span class="q-concept">📌 概念：!flag 邏輯反向基礎</span>
+      </div>
+    </div>
+    <div class="q-body">執行後輸出結果為何？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int found = 0;
+4      if (!found)
+5          printf(&quot;Not Found\n&quot;);
+6      else
+7          printf(&quot;Found\n&quot;);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q17" data-correct="A">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q17')"><span class="opt-label">A</span><span>Not Found</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q17')"><span class="opt-label">B</span><span>Found</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q17')"><span class="opt-label">C</span><span>兩行都印出</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q17')"><span class="opt-label">D</span><span>編譯錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q17', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q17">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(A)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 A 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">found=0（假），!found 把它反轉成真（1），if 條件成立，印出 Not Found。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">found=0 使 !found 為真，會進入 if 分支印出 Not Found，而不是進入 else 印出 Found。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">if 與 else 只會擇一執行，不會兩行都印出。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">! 是合法的邏輯反向運算子，可以直接用在 int 變數上，不會造成編譯錯誤。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q18">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 18</span>
+        <span class="q-concept">📌 概念：!flag 邏輯追蹤：不是每個 !flag 都是錯誤</span>
+      </div>
+    </div>
+    <div class="q-body">此程式片段執行後會印出「串列是空的，跳過處理」，這個結果是否符合程式碼原本想表達的邏輯？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int isEmpty = 1;   // 1 表示串列是空的
+4      if (!isEmpty)
+5          printf(&quot;串列有資料，可以繼續處理\n&quot;);
+6      else
+7          printf(&quot;串列是空的，跳過處理\n&quot;);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q18" data-correct="B">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q18')"><span class="opt-label">A</span><span>不符合，因為 isEmpty=1 應該代表串列有資料，不是空的，程式邏輯寫反了</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q18')"><span class="opt-label">B</span><span>符合，因為 isEmpty=1 代表串列是空的，!isEmpty（即 !1）為假（0），所以會執行 else 分支印出「串列是空的，跳過處理」，這正是程式碼想要表達的意思，邏輯完全正確，沒有寫反</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q18')"><span class="opt-label">C</span><span>不符合，因為 !isEmpty 應該要判斷「串列是否不為空」，但 C 語言的 ! 運算子沒有辦法用在 int 變數上，只能用在 float 上</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q18')"><span class="opt-label">D</span><span>無法判斷，因為題目沒有說明串列的實際內容有幾筆資料</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q18', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q18">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(B)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">依照註解，isEmpty=1 代表「串列是空的」，並非有資料，這個選項誤解了變數本身代表的意義。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 B 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">isEmpty=1 表示串列是空的；!isEmpty 也就是 !1，結果為假（0），因此執行 else 分支，印出「串列是空的，跳過處理」，這與變數的實際狀態（空的）完全相符，程式邏輯並沒有寫反。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">! 運算子完全可以用在 int 型態的變數上（只要值非 0 視為真，0 視為假），這是非常常見且合法的用法，並不限定只能用於 float。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">本題的判斷完全只依賴 isEmpty 這個旗標變數的值（已知為 1），不需要知道串列實際有幾筆資料，就能確定程式的輸出與邏輯是否一致。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q19">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 19</span>
+        <span class="q-concept">📌 概念：陷阱：比較運算子方向（> vs >=）</span>
+      </div>
+    </div>
+    <div class="q-body">若法律規定「滿 18 歲（含 18 歲）即為成年」，此程式在 age=18 時的判斷結果，下列敘述何者正確？<div class="q-code-wrap"><pre class="code-content"><code>1  #include &lt;stdio.h&gt;
+2  int main(void) {
+3      int age = 18;
+4      if (age &gt; 18)
+5          printf(&quot;成年\n&quot;);
+6      else
+7          printf(&quot;未成年\n&quot;);
+8      return 0;
+9  }</code></pre></div></div>
+    <div class="options-grid" data-qid="ch4q19" data-correct="C">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q19')"><span class="opt-label">A</span><span>判斷正確，age=18 應該印出「未成年」，符合法律規定</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q19')"><span class="opt-label">B</span><span>判斷正確，因為 18 歲本來就不算成年，要滿 19 歲才算成年</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q19')"><span class="opt-label">C</span><span>判斷有誤：依題目所述「滿 18 歲（含 18 歲）即為成年」，age=18 應該要被視為成年，但行號 4 使用的是 age &gt; 18（不包含 18 本身），導致剛好 18 歲的情況被誤判為「未成年」；應該把比較運算子改成 age &gt;= 18 才符合規定</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q19')"><span class="opt-label">D</span><span>這個程式不會印出任何東西，因為 if 與 else 的條件互相矛盾</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q19', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q19">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(C)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">依題目所述的法律規定，age=18 應該被視為成年，程式卻印出「未成年」，這與規定不符，並非「判斷正確」。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">題目已經明確說明「滿 18 歲（含 18 歲）即為成年」，這個選項與題目給定的規則矛盾。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 C 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">題目規定 18 歲本身就算成年，但程式使用 age > 18（不包含 18），導致 age=18 這個邊界值被誤判成「未成年」；只要把比較運算子改成 age >= 18，就能讓 18 歲也被正確判斷為成年，這是典型的比較方向（邊界包含與否）陷阱。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 D 錯誤</span></div><div class="opt-analysis-text">if 與 else 是互補的兩個分支，一定會執行其中之一並印出對應的文字，並不會什麼都不印出。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-card" id="q-ch4q20">
+    <div class="q-meta">
+      <div class="q-title-box">
+        <span class="q-badge">自編模擬試題 20</span>
+        <span class="q-concept">📌 概念：條件判斷除錯原則（綜合概念）</span>
+      </div>
+    </div>
+    <div class="q-body">在除錯 C 語言的條件判斷邏輯時，關於 !flag（邏輯反向）與比較運算子方向（如 &gt;、&gt;=、&lt;、&lt;=）的敘述，下列何者正確？</div>
+    <div class="options-grid" data-qid="ch4q20" data-correct="D">
+      <button class="option-btn" onclick="checkOption(this, 'A', 'ch4q20')"><span class="opt-label">A</span><span>只要程式中出現 !flag 這種寫法，就一定代表程式邏輯有問題，應該一律改寫成不用 ! 的版本</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'B', 'ch4q20')"><span class="opt-label">B</span><span>`&gt;` 與 `&gt;=` 在數學上的意義幾乎相同，在程式中通常可以隨意互換，不會影響任何邊界情況的判斷結果</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'C', 'ch4q20')"><span class="opt-label">C</span><span>除錯條件判斷式時，只需要檢查程式能不能通過編譯，只要能編譯成功，邏輯上就一定沒有問題</span></button>
+      <button class="option-btn" onclick="checkOption(this, 'D', 'ch4q20')"><span class="opt-label">D</span><span>除錯條件判斷式時，除了確認程式能否編譯成功外，更需要針對「邊界值」（例如剛好等於某個門檻的情況）實際代入追蹤，並仔細確認 !flag 的意義是否與變數命名所代表的邏輯相符，這兩者都是純語法檢查無法發現的錯誤</span></button>
+    </div>
+    <button class="explanation-toggle-btn" onclick="toggleExplanation('exp-ch4q20', this)">
+      <span>💡 點擊展開 / 收合 本題正確答案與逐項深度剖析</span>
+      <span class="toggle-icon">▼</span>
+    </button>
+    <div class="explanation-box" id="exp-ch4q20">
+      <div class="ans-banner"><span class="ans-label">本題標準答案：</span><span class="ans-value">(D)</span></div>
+      <div class="opt-breakdown-list">
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 A 錯誤</span></div><div class="opt-analysis-text">如第 18 題所示，!flag 本身不一定是錯誤，關鍵在於它的意義是否與變數命名所代表的邏輯相符，需要實際追蹤而不是一律避免使用。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 B 錯誤</span></div><div class="opt-analysis-text">如第 19 題所示，`>` 與 `>=` 在邊界值（例如剛好等於門檻的那個值）上會產生截然不同的判斷結果，不能隨意互換。</div></div>
+        <div class="opt-analysis-card is-wrong"><div class="opt-card-header"><span class="badge-wrong">選項 C 錯誤</span></div><div class="opt-analysis-text">程式能通過編譯只代表語法正確，不代表邏輯正確；第 4、19 題中的程式都能正常編譯執行，但邏輯上仍然有問題。</div></div>
+        <div class="opt-analysis-card is-correct"><div class="opt-card-header"><span class="badge-correct">選項 D 正確（★ 本題標準答案）</span></div><div class="opt-analysis-text">編譯成功只保證語法沒有錯誤，無法保證邏輯正確；針對邊界值實際代入追蹤，以及確認 !flag 的意義是否與變數命名相符，都是找出邏輯錯誤的關鍵做法，而這些都不是編譯器單靠語法檢查就能發現的。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <p>第 4 章：選擇結構｜自我檢測　共 20 題　自編模擬練習題，非歷屆真題　·　C語言統測自主學習系列　·　assessments/chapter4-selection-assessment.html</p>
+  </footer>
+
+</main>
+
+<script>
+let answeredState = {};
+
+function checkOption(btn, optionLetter, qid) {
+  const parentGrid = btn.closest('.options-grid');
+  const correctOption = parentGrid.getAttribute('data-correct');
+
+  parentGrid.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('selected-correct', 'selected-wrong');
+  });
+
+  const isCorrect = optionLetter === correctOption;
+  if (isCorrect) {
+    btn.classList.add('selected-correct');
+  } else {
+    btn.classList.add('selected-wrong');
+  }
+
+  answeredState[qid] = isCorrect;
+  updateScoreBar();
+
+  const expBox = document.getElementById('exp-' + qid);
+  const toggleBtn = expBox ? expBox.previousElementSibling : null;
+  if (expBox && !expBox.classList.contains('show')) {
+    expBox.classList.add('show');
+    if (toggleBtn) toggleBtn.classList.add('open');
+  }
+}
+
+function updateScoreBar() {
+  const keys = Object.keys(answeredState);
+  const answered = keys.length;
+  const correct = keys.filter(k => answeredState[k]).length;
+  const answeredEl = document.getElementById('answered-count');
+  const correctEl = document.getElementById('correct-count');
+  if (answeredEl) answeredEl.textContent = answered;
+  if (correctEl) correctEl.textContent = correct;
+}
+
+function toggleExplanation(boxId, btn) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  box.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+
+let allExpanded = false;
+function toggleAllExplanations() {
+  allExpanded = !allExpanded;
+  const boxes = document.querySelectorAll('.explanation-box');
+  const btns = document.querySelectorAll('.explanation-toggle-btn');
+  const toggleAllText = document.getElementById('toggle-all-text');
+
+  boxes.forEach(box => { if (allExpanded) box.classList.add('show'); else box.classList.remove('show'); });
+  btns.forEach(btn => { if (allExpanded) btn.classList.add('open'); else btn.classList.remove('open'); });
+  if (toggleAllText) toggleAllText.textContent = allExpanded ? '全部收合詳解' : '全部展開詳解';
+}
+
+function toggleTheme() {
+  const htmlEl = document.documentElement;
+  const currentTheme = htmlEl.getAttribute('data-theme');
+  const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+  htmlEl.setAttribute('data-theme', nextTheme);
+  const themeBtn = document.getElementById('btn-theme');
+  if (themeBtn) themeBtn.textContent = nextTheme === 'light' ? '☀️ 淺色模式' : '🌙 深色模式';
+}
+</script>
+
+</body>
+</html>
