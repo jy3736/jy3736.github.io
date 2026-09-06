@@ -1,0 +1,604 @@
+<title>把判斷留在自己手上</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --paper:#eceff2; --surface:#ffffff; --sunken:#f4f6f8;
+  --ink:#18222d; --ink-soft:#4f5d6a; --ink-faint:#76838f;
+  --line:#ccd4db; --line-soft:#e0e6ea;
+  --accent:#1f4fa3; --accent-soft:#e3ecf9;
+  --mark:#8f5510; --mark-soft:#f7edde;
+  --warn:#9d3327; --warn-soft:#f9e7e4;
+  --good:#1b6a50; --good-soft:#e2f0ea;
+  --serif:"Noto Serif TC",serif;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --shadow:0 1px 2px rgba(24,34,45,.06),0 8px 24px -16px rgba(24,34,45,.28);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#131920; --surface:#1b232c; --sunken:#161d25;
+    --ink:#e6ebef; --ink-soft:#a3b0bb; --ink-faint:#7e8b96;
+    --line:#2e3a45; --line-soft:#253039;
+    --accent:#8ab4f0; --accent-soft:#1d2b3e;
+    --mark:#d8a361; --mark-soft:#2d2517;
+    --warn:#ec9484; --warn-soft:#33201d;
+    --good:#6dc4a2; --good-soft:#172c26;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131920; --surface:#1b232c; --sunken:#161d25;
+  --ink:#e6ebef; --ink-soft:#a3b0bb; --ink-faint:#7e8b96;
+  --line:#2e3a45; --line-soft:#253039;
+  --accent:#8ab4f0; --accent-soft:#1d2b3e;
+  --mark:#d8a361; --mark-soft:#2d2517;
+  --warn:#ec9484; --warn-soft:#33201d;
+  --good:#6dc4a2; --good-soft:#172c26;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -16px rgba(0,0,0,.7);
+}
+
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:18.5px;line-height:1.9;
+  -webkit-font-smoothing:antialiased;text-spacing-trim:trim-start}
+::selection{background:var(--accent-soft);color:var(--ink)}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px;overflow-wrap:anywhere}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+h1,h2,h3{font-family:var(--serif);font-weight:700;text-wrap:balance;line-height:1.4;margin:0}
+p,li{max-width:38em}
+
+/* ---------- shell ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,44px)}
+.masthead{border-bottom:1px solid var(--line);background:var(--surface)}
+.masthead .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-top:14px;padding-bottom:14px;flex-wrap:wrap}
+.brand{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase}
+.brand b{color:var(--ink);font-weight:500}
+#themeBtn{font:500 13px/1 var(--mono);letter-spacing:.08em;color:var(--ink-soft);background:var(--sunken);
+  border:1px solid var(--line);border-radius:999px;padding:9px 15px;cursor:pointer}
+#themeBtn:hover{color:var(--ink);border-color:var(--accent)}
+
+/* ---------- hero ---------- */
+.hero{background:var(--surface);border-bottom:1px solid var(--line)}
+.hero .wrap{padding-top:clamp(48px,7vw,84px);padding-bottom:clamp(40px,6vw,64px);
+  display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(28px,5vw,60px);align-items:start}
+.kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.18em;color:var(--mark);margin:0 0 18px}
+h1{font-size:clamp(38px,6.4vw,68px);line-height:1.18;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--accent);border-bottom:4px solid var(--mark);padding-bottom:2px}
+.lede{font-size:clamp(17px,2vw,20px);color:var(--ink-soft);margin:26px 0 0;max-width:30em}
+.meta{font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);margin:30px 0 0;letter-spacing:.03em}
+.goals{background:var(--sunken);border:1px solid var(--line-soft);border-radius:4px;padding:24px 26px}
+.goals h2{font-size:17px;font-family:var(--sans);font-weight:700;letter-spacing:.02em}
+.goals ol{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px;
+  counter-reset:g;font-size:16.5px;color:var(--ink-soft)}
+.goals li{counter-increment:g;position:relative;padding-left:34px;max-width:none}
+.goals li::before{content:counter(g);position:absolute;left:0;top:5px;font-family:var(--mono);font-size:12px;
+  color:var(--mark);border:1px solid var(--mark);border-radius:50%;width:22px;height:22px;
+  display:grid;place-items:center}
+
+/* ---------- body layout ---------- */
+.body-grid{display:grid;grid-template-columns:200px minmax(0,1fr);gap:clamp(28px,5vw,64px);
+  padding-top:clamp(36px,5vw,56px);padding-bottom:80px;align-items:start}
+nav.rail{position:sticky;top:24px}
+nav.rail p{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;color:var(--ink-faint);
+  margin:0 0 12px;text-transform:uppercase}
+nav.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+nav.rail a{display:block;padding:7px 0 7px 14px;border-left:2px solid var(--line);
+  color:var(--ink-soft);text-decoration:none;font-size:15.5px}
+nav.rail a:hover{color:var(--accent);border-left-color:var(--accent)}
+
+section{scroll-margin-top:20px}
+section+section{margin-top:clamp(46px,6vw,72px)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--accent);
+  margin:0 0 10px;text-transform:uppercase}
+h2{font-size:clamp(25px,3.2vw,33px);margin-bottom:6px}
+h3{font-size:21px;margin:36px 0 8px}
+section p{margin:14px 0;color:var(--ink-soft)}
+section p strong,li strong{color:var(--ink);font-weight:700}
+ul.plain{margin:14px 0;padding-left:1.15em;color:var(--ink-soft)}
+ul.plain li{margin:7px 0}
+ul.plain li::marker{color:var(--mark)}
+
+/* ---------- components ---------- */
+.pull{font-family:var(--serif);font-size:clamp(19px,2.4vw,23px);line-height:1.6;color:var(--ink);
+  border-left:3px solid var(--mark);padding:2px 0 2px 22px;margin:26px 0;max-width:30em}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:26px 0}
+.split>div{background:var(--surface);padding:20px 22px}
+.split h4{margin:0 0 4px;font-family:var(--mono);font-size:13px;letter-spacing:.1em;font-weight:500}
+.split .a h4{color:var(--warn)} .split .b h4{color:var(--good)}
+.split ul{margin:12px 0 0;padding-left:1.1em;font-size:17px;color:var(--ink-soft);display:flex;flex-direction:column;gap:9px}
+.split li{max-width:none}
+.split .a{background:var(--sunken)}
+
+.steps{list-style:none;margin:26px 0;padding:0;counter-reset:s;display:flex;flex-direction:column;gap:0}
+.steps li{counter-increment:s;display:grid;grid-template-columns:52px minmax(0,1fr);
+  column-gap:16px;row-gap:2px;padding:20px 0;border-top:1px solid var(--line-soft);max-width:none}
+.steps li:last-child{border-bottom:1px solid var(--line-soft)}
+.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:16px;
+  color:var(--accent);grid-column:1;grid-row:1;padding-top:4px}
+.steps b{grid-column:2;grid-row:1;font-family:var(--serif);font-size:20px;color:var(--ink)}
+.steps span{grid-column:2;grid-row:2;color:var(--ink-soft);font-size:17px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:22px 24px;margin:26px 0;box-shadow:var(--shadow)}
+.card>h4{margin:0 0 10px;font-size:16.5px;font-family:var(--sans);font-weight:700;color:var(--ink)}
+.card p{margin:8px 0}
+.prompt{background:var(--accent-soft);border:0;border-left:3px solid var(--accent);border-radius:0 4px 4px 0;
+  padding:18px 22px;margin:24px 0;box-shadow:none}
+.prompt h4{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--accent);
+  text-transform:uppercase;margin-bottom:10px;font-weight:500}
+.prompt p{color:var(--ink);font-size:17.5px}
+.fill{color:var(--mark);border-bottom:1px dashed var(--mark);padding:0 .9em}
+
+.tablewrap{overflow-x:auto;margin:26px 0;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:17px}
+th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--ink-soft)}
+thead th{background:var(--sunken);color:var(--ink);font-weight:700;font-size:15px;
+  letter-spacing:.04em;border-bottom:1px solid var(--line)}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{color:var(--ink);font-weight:500;white-space:nowrap}
+
+.flag{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
+  padding:2px 8px;border-radius:3px;white-space:nowrap}
+.flag.no{background:var(--warn-soft);color:var(--warn)}
+.flag.yes{background:var(--good-soft);color:var(--good)}
+.flag.hm{background:var(--mark-soft);color:var(--mark)}
+
+figure{margin:30px 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{font-size:14.5px;color:var(--ink-faint);margin-top:12px;font-family:var(--mono);letter-spacing:.02em}
+
+.scenario{border-top:2px solid var(--ink);padding-top:16px;margin:30px 0}
+.scenario h3{margin-top:0}
+.scenario .q{color:var(--mark);font-weight:500}
+
+.checklist{list-style:none;margin:22px 0;padding:0;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.checklist li{background:var(--surface);padding:18px 20px;font-size:16px;color:var(--ink-soft);max-width:none}
+.checklist b{display:block;font-family:var(--serif);color:var(--ink);font-size:18px;margin-bottom:4px}
+
+/* ---------- quiz ---------- */
+.quiz{display:flex;flex-direction:column;gap:18px;margin-top:26px}
+.q-item{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:20px 22px}
+.q-item>p.stem{margin:0 0 4px;color:var(--ink);font-weight:500;max-width:none}
+.q-item .tag{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--ink-faint);
+  text-transform:uppercase;display:block;margin-bottom:8px}
+.opts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+.opts li{max-width:none}
+.opts label{display:grid;grid-template-columns:20px 20px 1fr;gap:10px;align-items:start;
+  padding:9px 10px;border-radius:3px;cursor:pointer;font-size:17px;color:var(--ink-soft)}
+.opts label:hover{background:var(--sunken)}
+.opts input{margin:5px 0 0;accent-color:var(--accent);width:15px;height:15px}
+.opts .ltr{font-family:var(--mono);font-size:14px;color:var(--ink-faint);padding-top:2px}
+.q-item.done .opts label{cursor:default}
+.q-item.done .opts label:hover{background:none}
+.q-item.done label.ok{background:var(--good-soft)}
+.q-item.done label.ok .ltr{color:var(--good)}
+.q-item.done label.bad{background:var(--warn-soft)}
+.q-item.done label.bad .ltr{color:var(--warn)}
+.why{display:block;font-size:15px;color:var(--ink-faint);margin-top:3px}
+.q-item:not(.done) .why{display:none}
+.q-foot{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+.q-foot button{font:500 15.5px/1 var(--sans);color:var(--surface);background:var(--accent);
+  border:0;border-radius:3px;padding:10px 18px;cursor:pointer}
+.q-foot button:hover{filter:brightness(1.12)}
+.q-foot button[disabled]{background:var(--line);color:var(--ink-faint);cursor:default;filter:none}
+.verdict{font-family:var(--mono);font-size:14.5px;letter-spacing:.04em}
+.verdict.pass{color:var(--good)} .verdict.fail{color:var(--warn)}
+.score{font-family:var(--mono);font-size:15px;color:var(--ink-faint);
+  border:1px dashed var(--line);border-radius:4px;padding:12px 16px;margin-top:20px;letter-spacing:.04em}
+.score b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+
+/* ---------- sources ---------- */
+.src{list-style:none;margin:22px 0 0;padding:0;counter-reset:r;display:flex;flex-direction:column;gap:14px}
+.src li{counter-increment:r;position:relative;padding-left:42px;
+  font-size:16px;line-height:1.8;color:var(--ink-soft);max-width:58em}
+.src li::before{content:"[" counter(r) "]";position:absolute;left:0;top:0;
+  font-family:var(--mono);font-size:13px;color:var(--ink-faint)}
+footer{border-top:1px solid var(--line);background:var(--surface)}
+footer .wrap{padding:26px 0 40px;font-size:15px;color:var(--ink-faint)}
+footer p{max-width:60em;margin:6px 0}
+
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr}
+  .body-grid{grid-template-columns:1fr}
+  nav.rail{position:static;border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:8px}
+  nav.rail ol{flex-direction:row;flex-wrap:wrap;gap:6px}
+  nav.rail a{border-left:0;border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:13.5px}
+  .split{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  nav.rail,#themeBtn,.q-foot{display:none}
+  body{background:#fff;font-size:11pt}
+  .body-grid{grid-template-columns:1fr}
+  section{break-inside:auto} h2,h3{break-after:avoid}
+  .card,.split,.q-item,figure{break-inside:avoid}
+  .why{display:block!important}
+}
+</style>
+
+<header class="masthead"><div class="wrap">
+  <span class="brand">AI 素養 · 自學讀本 <b>／ 第一週觀念</b></span>
+  <button id="themeBtn" type="button">切換深淺色</button>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <div>
+    <p class="kicker">拿到答案 ≠ 學會</p>
+    <h1>把判斷<br>留在<em>自己手上</em></h1>
+    <p class="lede">這份讀本可以一個人讀完，不需要任何程式或技術背景。它不教你怎麼把 AI 用得更快，而是教你在用了 AI 之後，還能說出三句話：我怎麼知道、我改了什麼、我願意負責什麼。</p>
+    <p class="meta">大學通識／各系皆適用　·　不需程式或技術背景　·　自學約 40 分鐘　·　來源查核日 2026-09-06</p>
+  </div>
+  <div class="goals">
+    <h2>讀完之後，你應該做得到</h2>
+    <ol>
+      <li>用自己的話說明「拿到答案」和「學會」差在哪裡，並設計一個換情境的檢查。</li>
+      <li>拿到 AI 給的事實或引用，能找到原始來源核對。</li>
+      <li>依課程規範揭露 AI 協助，說清楚自己的貢獻。</li>
+      <li>上傳資料或公開作品前，先檢查隱私、著作權與偏見。</li>
+      <li>分辨「不利學習」「違反課程規範」「可能觸法」，並提出改善行動。</li>
+    </ol>
+  </div>
+</div></div>
+
+<div class="wrap body-grid">
+<nav class="rail" aria-label="章節導覽">
+  <p>目次</p>
+  <ol>
+    <li><a href="#start">起點</a></li>
+    <li><a href="#learn">有效學習</a></li>
+    <li><a href="#three">三個面向</a></li>
+    <li><a href="#verify">查證</a></li>
+    <li><a href="#privacy">隱私</a></li>
+    <li><a href="#copyright">著作權</a></li>
+    <li><a href="#bias">偏見</a></li>
+    <li><a href="#fake">造假與冒用</a></li>
+    <li><a href="#disclose">揭露與交件</a></li>
+    <li><a href="#quiz">自我檢核</a></li>
+    <li><a href="#sources">來源</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="start">
+  <p class="eyebrow">起點</p>
+  <h2>流暢，不等於正確；看得懂，不等於會</h2>
+  <p>AI 可以解釋概念、出練習題、給回饋，這些都是真的好處。問題出在一個很容易混淆的地方：<strong>一段回答讀起來很順、每句都看得懂，不代表它是對的，也不代表你會了。</strong>流暢是文字的性質，正確要靠查證，會不會要靠你自己的表現。</p>
+  <p class="pull">「省下時間很好。接下來的問題是：省下來的時間，有沒有拿去練習與判斷？」</p>
+  <p>常見的誤解是「用了 AI 就沒有學習」。這句話太快了。真正的分界不在於你有沒有用，而在於你把哪一段留給自己做。</p>
+  <div class="split">
+    <div class="a"><h4>只完成眼前任務</h4>
+      <ul>
+        <li>直接複製一份完整答案。</li>
+        <li>看懂 AI 的每一句話，就覺得結束了。</li>
+        <li>把原題背熟，以為自己會了。</li>
+        <li>AI 稱讚你「理解得很好」，就相信了。</li>
+      </ul></div>
+    <div class="b"><h4>把能力留在自己身上</h4>
+      <ul>
+        <li>先寫自己的想法，指出卡在哪一步。</li>
+        <li>關掉回應，用自己的話重新解釋一次。</li>
+        <li>換數字、換條件、換對象，獨立再做一次。</li>
+        <li>用原始資料、實作結果或反例來檢查。</li>
+      </ul></div>
+  </div>
+</section>
+
+<section id="learn">
+  <p class="eyebrow">有效學習</p>
+  <h2>答案只是起點：五個動作</h2>
+  <p>下面五步是一個可以重複使用的順序。它不是保證進步的神奇提示，而是把「思考的機會」刻意留給自己的安排。</p>
+  <ol class="steps">
+    <li><b>先試</b><span>不管會不會，先寫下自己目前的想法，並標出卡住的位置。沒有這一步，你不會知道 AI 補了什麼。</span></li>
+    <li><b>求提示</b><span>請 AI 針對卡住的那一步給提示，而不是給完整解答。要求它一次只問你一個問題，等你回答再繼續。</span></li>
+    <li><b>關掉回應重述</b><span>把畫面關掉，用自己的話講一遍。講不出來的地方，就是還沒學會的地方。</span></li>
+    <li><b>換題遷移</b><span>換一組數字、換一個條件、換一個對象，獨立再判斷一次。能遷移，才算會。</span></li>
+    <li><b>查證與修正</b><span>回到原始資料、實作結果或反例去對。錯了就記下自己改了什麼、為什麼改。</span></li>
+  </ol>
+
+  <h3>走一遍：平均 4 分代表什麼？</h3>
+  <p>社團滿意度問卷，10 個人、總分 40、平均 4 分。有人說：「所以每個人都給 4 分。」這句話對嗎？</p>
+  <p>先自己想，再往下看。<strong>平均無法單獨呈現差異。</strong>五個人給 5、5、5、4、1，平均也是 4；五個人都給 4，平均還是 4。兩組平均一樣，感受完全不同。要判斷，你至少還需要：分布、人數、沒有回覆的人有多少，以及「滿意」在這份問卷裡怎麼定義。</p>
+  <p><span class="flag hm">換題</span> 5 個人總分 20，是否代表所有人都滿意？你還想知道什麼？——這題請你自己答完再繼續讀。</p>
+
+  <div class="card prompt">
+    <h4>可以直接用的提示</h4>
+    <p>「我想理解平均數的限制。我目前認為平均高就代表每個人都滿意。請先問我一個問題，不要直接給完整答案；等我回答再提示，最後給我一個新情境讓我自己判斷。」</p>
+  </div>
+
+  <h3>兩種用法，差別在你做了什麼</h3>
+  <p>同一個問題，你可以要「答案模式」（請直接寫出答案，約 100 字），也可以要「教練模式」（先問我問題，等我答完再給提示，最後給我一個新情境）。兩種都試一次，然後記錄一件事：<strong>在這兩次裡，我實際做了哪些思考？</strong></p>
+  <p>注意這裡的分寸：一次課堂體驗不能證明哪種模式對所有人比較有效，也不能假設 AI 在其中一次的回答一定比較好。你比較的是自己的參與程度，不是模式的優劣排名。</p>
+</section>
+
+<section id="three">
+  <p class="eyebrow">三個面向</p>
+  <h2>同一件事，要分三個面向判斷</h2>
+  <p>遇到「這樣可以嗎」的時候，不要只問一個問題。要分開問三次：這樣做<strong>對我的學習</strong>有沒有損失？這樣做<strong>符不符合這次課程的規範</strong>？這樣做<strong>有沒有涉及他人權利或法律要件</strong>？</p>
+  <figure>
+    <svg viewBox="0 0 680 505" role="img" aria-label="三個判斷面向以三個交疊的圓表示，說明它們可以同時發生，不是由輕到重的階梯">
+      <g stroke-width="1.6">
+        <circle cx="250" cy="195" r="115" fill="var(--accent)" fill-opacity="0.14" stroke="var(--accent)"/>
+        <circle cx="430" cy="195" r="115" fill="var(--mark)" fill-opacity="0.14" stroke="var(--mark)"/>
+        <circle cx="340" cy="312" r="115" fill="var(--warn)" fill-opacity="0.14" stroke="var(--warn)"/>
+      </g>
+      <g font-family="Noto Sans TC, sans-serif" text-anchor="middle">
+        <text x="168" y="42" font-size="23" font-weight="700" fill="var(--accent)">不利學習</text>
+        <text x="168" y="70" font-size="16" fill="var(--ink-soft)">我有沒有理解與練習？</text>
+        <text x="512" y="42" font-size="23" font-weight="700" fill="var(--mark)">違反課程規範</text>
+        <text x="512" y="70" font-size="16" fill="var(--ink-soft)">這次作業允許嗎？</text>
+        <text x="340" y="464" font-size="23" font-weight="700" fill="var(--warn)">可能觸法</text>
+        <text x="340" y="492" font-size="16" fill="var(--ink-soft)">是否涉及他人權利或法律要件？</text>
+      </g>
+      <rect x="243" y="212" width="194" height="66" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+      <g font-family="Noto Sans TC, sans-serif" text-anchor="middle">
+        <text x="340" y="242" font-size="17" font-weight="700" fill="var(--ink)">可能同時成立</text>
+        <text x="340" y="266" font-size="15" fill="var(--ink-soft)">也可能只中一個</text>
+      </g>
+    </svg>
+    <figcaption>三者會重疊，但不是由輕到重的階梯——沒有「先違規、再犯法」這種順序。</figcaption>
+  </figure>
+  <div class="tablewrap"><table>
+    <thead><tr><th>面向</th><th>要問的問題</th><th>例子</th><th>下一步</th></tr></thead>
+    <tbody>
+      <tr><td>不利學習</td><td>我有理解與練習嗎？</td><td>作業允許 AI，但自己只複製、無法解釋</td><td>重述、換題、補練習</td></tr>
+      <tr><td>違反課程規範</td><td>這次作業或考試允許嗎？</td><td>已公告禁用 AI 的獨立測驗仍使用 AI</td><td>停止，依教師程序說明與補救</td></tr>
+      <tr><td>可能觸法</td><td>是否涉及他人權利或法律要件？</td><td>冒用身分合成聲音騙人匯款</td><td>停止，保留相關紀錄並尋求協助</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>兩個一定要記住的分界：</strong>違反課程規範不自動等於犯罪；老師允許也不代表任何資料、任何素材都能任意使用。法律上成不成立，要看具體行為、適用範圍與法條要件，不是看事情聽起來嚴不嚴重。<a href="#sources">[2][3][5]</a></p>
+
+  <div class="scenario">
+    <h3>情境｜交出來了，但說不出來</h3>
+    <p>老師允許 AI 協助作業並要求揭露。小安照實揭露，也交出漂亮的報告，但講不出核心概念。</p>
+    <p class="q">他已經遵守揭露要求，還缺什麼？可以直接說他違法嗎？</p>
+    <p>主要問題落在<strong>不利學習</strong>：他缺的是學習證據，不是誠實。不能只憑「不理解」就認定違規或違法。可行的下一步是挑一段重述、找一個新例子、說明自己修改了什麼。如果這份作業另外要求獨立完成，那才需要再去看規範面向。</p>
+  </div>
+</section>
+
+<section id="verify">
+  <p class="eyebrow">查證</p>
+  <h2>把「它說」改成「我核對過」</h2>
+  <p>AI 可能生成看起來很完整、但實際不存在的引用：作者、期刊、年份、頁碼一應俱全，網址卻打不開。<a href="#sources">[1]</a>查證不是不信任 AI，而是把一句話的責任從模型移回自己身上。</p>
+  <ol class="steps">
+    <li><b>拆成可核對的主張</b><span>把一段話拆開：這份研究真的存在嗎？它真的得到這個結論嗎？這條規則現在真的適用嗎？</span></li>
+    <li><b>找原始來源</b><span>官方法規資料庫、研究原文、正式文件。AI 可以提供搜尋線索，但線索不是證據。</span></li>
+    <li><b>核對五件事</b><span>題名、作者、日期、適用對象、上下文。來源存在不代表它支持你這句話；法規公告了也不代表已經生效。</span></li>
+    <li><b>留下紀錄</b><span>網址、查核日期、支持你的是哪一段、哪裡還沒確認。證據不夠就縮小主張、暫緩採用，或換一個來源。</span></li>
+  </ol>
+  <div class="card">
+    <h4>三個容易踩到的地方</h4>
+    <p><span class="flag no">錯</span> 查不到就把網址刪掉，只留漂亮的引用格式。——那是假裝查過。找不到就標「尚未查證」，或改用已確認的來源。</p>
+    <p><span class="flag no">錯</span> 問第二個 AI，它也這樣說，所以是真的。——<strong>兩個 AI 同意不等於兩份獨立證據。</strong></p>
+    <p><span class="flag yes">對</span> AI 說「平均 4 分證明所有人都滿意」，你去翻原始問卷的分布。查原始資料，比再問一次 AI 直接。拿不到原始資料就寫：「目前只知道平均，無法確認每個人的感受。」</p>
+  </div>
+</section>
+
+<section id="privacy">
+  <p class="eyebrow">隱私</p>
+  <h2>上傳之前：這些欄位真的需要嗎？</h2>
+  <p>情境：小組想把全班問卷——含姓名、學號、聯絡方式與自由回答——上傳到某人的個人雲端 AI 帳號做摘要，還沒確認當初告知了什麼，也沒看過服務的資料政策。</p>
+  <p><strong>先暫停上傳，再問兩個問題：哪些欄位其實根本不需要？拿掉姓名就夠了嗎？</strong>如果任務只需要各選項的人數，那就只送統計數字，連個別回答都不必送。這是最小化：需要什麼才給什麼。</p>
+  <ul class="plain">
+    <li>拿掉姓名常常不夠。<strong>自由回答本身就可能暴露身分</strong>（「我是唯一轉學過來的那個」）。要處理到無法合理識別特定個人。</li>
+    <li>先確認四件事：蒐集與利用的合法依據、原本告知的用途、學校的規範，以及這個服務怎麼儲存與使用你送進去的資料。</li>
+    <li><strong>資料公開，不等於後續怎麼用都合適；同學說好，也不是唯一的法律依據。</strong>同意只是其中一種可能的依據，而且同意的範圍有限。<a href="#sources">[2]</a></li>
+    <li>替代做法通常存在：用虛構資料測試、只送彙整統計、把可識別欄位先移除。</li>
+  </ul>
+</section>
+
+<section id="copyright">
+  <p class="eyebrow">著作權</p>
+  <h2>註明來源、取得授權、合理使用，是三件事</h2>
+  <p>情境：AI 產出的海報，跟某張現有插畫高度相似。學生打算放上公開的專題網站，理由是「非營利，而且有註明是 AI 做的」。</p>
+  <div class="split">
+    <div class="a"><h4>常見的誤解</h4>
+      <ul>
+        <li>有註明來源就等於得到授權。</li>
+        <li>教育用途、非營利就全面免責。</li>
+        <li>看起來像不像，可以直接判定侵不侵權。</li>
+        <li>AI 產出的東西，著作權問題都一樣。</li>
+      </ul></div>
+    <div class="b"><h4>應該分開看的事</h4>
+      <ul>
+        <li>註明來源是學術誠信；授權是權利人給不給你用。兩者不能互相取代。</li>
+        <li>合理使用要看條件與具體情況，教育目的只是考量之一，不是通行證。<a href="#sources">[3]</a></li>
+        <li>要查素材的授權條款與可利用範圍；有疑慮就換素材或去取得許可。</li>
+        <li><strong>以 AI 為工具、有人類原創投入</strong>，和單純由機器生成，在著作權保護的判斷上不同。<a href="#sources">[4]</a></li>
+      </ul></div>
+  </div>
+  <p class="pull">「我的作品受不受保護」和「我有沒有侵害別人的權利」，是兩個獨立的問題。答案可以一個是、一個否。</p>
+</section>
+
+<section id="bias">
+  <p class="eyebrow">偏見</p>
+  <h2>它很像客觀，不代表它是客觀</h2>
+  <p>情境：小組請 AI 排「誰適合當組長」，AI 只拿到組員的姓名和性別，就給出了領導能力排名。大家覺得它中立，準備直接採用。</p>
+  <p><strong>先看它用了什麼資訊。</strong>姓名和性別，本來就不足以支持能力排名——不管排出來的名單看起來多合理。要問的是：哪些資訊才真的跟分工有關？誰可能因此吃虧？</p>
+  <p>比較合理的做法是換掉輸入：問成員的意願、相關經驗、可投入時間，以及這次任務實際需要什麼，然後讓成員自己檢視與調整這份建議。</p>
+  <p>還有一個容易略過的觀念：<strong>「最後由人決定」不代表偏見自動消失。</strong>如果人只是照著有偏見的排名按下確認，偏見一樣會生效。偏見不只來自資料，也來自人與使用它的社會脈絡，所以要檢查的是依據和影響，不是流程上有沒有人參與。<a href="#sources">[1][6]</a></p>
+</section>
+
+<section id="fake">
+  <p class="eyebrow">造假與冒用</p>
+  <h2>「只是幫忙」和「捏造」之間的那條線</h2>
+  <p>情境：組員提了兩個點子。一、沒時間做訪談，把 AI 生成的訪談文字當成真的訪談交出去。二、合成教師的聲音，冒稱要繳專題費，騙同學匯款。</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>做法</th><th>踩到哪一面向</th><th>可以怎麼替代</th></tr></thead>
+    <tbody>
+      <tr><td>假訪談當實證</td><td><span class="flag hm">違反規範</span> 捏造真實紀錄</td><td>改成清楚標示的模擬資料並依作業規範使用，或如實寫「這部分尚未完成」</td></tr>
+      <tr><td>合成聲音騙匯款</td><td><span class="flag no">可能觸法</span> 詐欺相關規定</td><td>沒有可替代版本。這件事本身就要停止</td></tr>
+    </tbody>
+  </table></div>
+  <p>冒用他人聲音騙取匯款，可能涉及刑法的詐欺以及與科技合成有關的加重規定；成不成立仍要看個案要件。<a href="#sources">[5]</a>同時提醒兩個方向的誤解：偽造文書有它特定的要件，<strong>不是所有內容有錯的東西都叫偽造文書</strong>；反過來，也不能因為「這是 AI 做的」就把自己的行為責任推掉。<strong>送出去的人是你。</strong></p>
+</section>
+
+<section id="disclose">
+  <p class="eyebrow">揭露與交件</p>
+  <h2>說清楚自己做了什麼</h2>
+  <p>揭露不是自首，是讓別人看得懂你的作品是怎麼長出來的。下面是可以套用的句型，實際格式依各門課的規範調整。</p>
+  <div class="card prompt">
+    <h4>揭露句型</h4>
+    <p>我使用<span class="fill"></span>工具（日期<span class="fill"></span>），協助<span class="fill"></span>部分。我自行完成<span class="fill"></span>，並以<span class="fill"></span>查證。我沒有採用 AI 的<span class="fill"></span>建議，原因是<span class="fill"></span>。仍有限制：<span class="fill"></span>。</p>
+  </div>
+  <div class="card">
+    <h4>填好之後長這樣</h4>
+    <p>「我使用 AI 協助整理報告架構；問卷統計由我計算，引用由我回到原文核對。我刪掉『每個人都滿意』的推論，改成說明分布尚待確認。」</p>
+  </div>
+  <p>保留必要的提示、修改摘要與查核紀錄就夠了，<strong>不要為了揭露而公開私人對話或別人的個資</strong>。另外兩點常被誤會：AI 使用說明不能取代正式的參考文獻引用；揭露也不會讓原本被禁止的用法變成被允許。規範不清楚時，先問老師這次允許到哪裡。</p>
+  <h3>交件前五問</h3>
+  <ul class="checklist">
+    <li><b>我能解釋嗎</b>關掉檔案，講得出核心概念嗎？</li>
+    <li><b>證據核對了嗎</b>引用與數據回到原始來源看過了嗎？</li>
+    <li><b>符合這次規則嗎</b>這份作業的公告怎麼寫？</li>
+    <li><b>素材可以這樣用嗎</b>授權範圍、隱私欄位確認了嗎？</li>
+    <li><b>對別人的影響呢</b>誰可能因為這份作品受影響？</li>
+  </ul>
+</section>
+
+<section id="quiz">
+  <p class="eyebrow">自我檢核</p>
+  <h2>十二題，答完看解析</h2>
+  <p>每題 A–D 四個選項，<strong>正確答案可能有 1 到 4 個，也可能全對</strong>。依題目給定的前提判斷。這是給自己用的練習題，答完會逐項說明為什麼。</p>
+  <div class="quiz" id="quiz"></div>
+  <p class="score" id="score">尚未作答。全部 12 題，答對 <b>0</b> 題。</p>
+</section>
+
+<section id="sources">
+  <p class="eyebrow">來源</p>
+  <h2>官方來源與查核說明</h2>
+  <p>查核日期 2026-09-06。法律部分只做一般概念教育；個案仍要看適用範圍與具體事實，不把課程違規直接等同犯罪。課堂情境、流程與提示是教材設計，不是官方文件的內容。</p>
+  <ol class="src">
+    <li><a href="https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf">NIST：生成式 AI 風險管理指引 AI 600-1</a>（2024），§2.2、§2.4、§2.6：AI 可能產生錯誤內容與引用，並涉及隱私與有害偏見。不表示每次輸出都錯。</li>
+    <li><a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=I0050021">個人資料保護法</a>，第 2、5、6、19、20、51 條。第 51 條有單純個人或家庭活動等適用例外，不能認定學生每次輸入資料都違法。該頁註明 114-11-11 部分修正尚未生效，本讀本不以未生效條文教學。</li>
+    <li><a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0070017">著作權法</a>，第 52、64、65 條：引用與合理使用需符合條件；教育目的與註明來源不是一概免責。</li>
+    <li><a href="https://www.tipo.gov.tw/tw/copyright/692-15695.html">智慧財產局 智著字第 10700038540 號</a>：人類原創投入與單純機器產出的區別。這是既有解釋資料，不是新的 AI 專法。</li>
+    <li><a href="https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=C0000001">中華民國刑法</a>，第 210、216、220、339、339-4 條：偽造與行使文書、詐欺及科技合成相關規定。不主張所有模擬內容或任何聲音合成都成立犯罪。</li>
+    <li><a href="https://www.nist.gov/news-events/news/2022/03/theres-more-ai-bias-biased-data-nist-report-highlights">NIST：AI 偏見不只來自資料</a>（2022）：偏見也與人及社會脈絡有關。</li>
+    <li><a href="https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research?hub=253682">UNESCO：Guidance for generative AI in education and research</a>（2023 指引）：以人為中心的教育方向，作為設計背景，不是臺灣法律依據。</li>
+  </ol>
+</section>
+
+</main>
+</div>
+
+<footer><div class="wrap">
+  <p>本讀本依第一週共用教材整理，供個人自學使用。各門課的作業與考試規範以教師公告為準，本文不代替校規或課程的正式評分規定。</p>
+  <p>沒有任何一個提示語能保證 AI 不出錯。查證與責任仍在你這邊。</p>
+</div></footer>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  try{var s=localStorage.getItem('ai-lit-theme'); if(s) root.setAttribute('data-theme',s);}catch(e){}
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    if(!cur){cur=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+    var next=cur==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('ai-lit-theme',next);}catch(e){}
+  });
+})();
+
+var QUESTIONS=[
+ {topic:"起點",stem:"AI 給的一段解釋，你每句都看得懂。哪些做法可以進一步檢查自己是不是真的會了？",
+  opts:[["關掉回應，用自己的話從頭解釋一次。",1,"重述能顯示你是不是掌握了概念，而不只是讀懂文字。"],
+        ["換一個條件不同的例子，再判斷一次。",1,"能遷移到新情境，才是理解的證據。"],
+        ["看 AI 有沒有稱讚你理解得很好。",0,"稱讚不是獨立的理解證據，模型本來就傾向給正面回饋。"],
+        ["確認那段回答的排版整齊、格式漂亮。",0,"外觀跟正確性與理解程度都無關。"]]},
+ {topic:"有效學習",stem:"你想用 AI 幫自己練習，而不只是拿到答案。哪些安排符合本讀本的建議？",
+  opts:[["先寫下自己目前的想法，再去問。",1,"先作答才知道自己原本理解到哪、卡在哪。"],
+        ["請 AI 只針對卡住的那一步給提示。",1,"提示保留了你思考的機會，完整解答會直接取代它。"],
+        ["看完提示後，把整題獨立重做一次。",1,"重做是檢查有沒有學會最直接的方式。"],
+        ["把完整回答存下來，之後複習就好。",0,"保存回答不能取代自己的表現；存檔不會變成能力。"]]},
+ {topic:"有效學習",stem:"一份 5 人問卷，每人 1–5 分，總分 20 分。哪些判斷正確？",
+  opts:[["平均是 4 分。",1,"20 除以 5 等於 4，這是算術，沒有問題。"],
+        ["因此每個人都給了 4 分。",0,"5、5、5、4、1 總分也是 20。平均相同不代表分數相同。"],
+        ["只憑平均，無法知道每個人的分數。",1,"平均把差異壓平了，這正是它的限制。"],
+        ["知道分布會更了解個別差異。",1,"分布能顯示有沒有人給很低分，平均看不出來。"]]},
+ {topic:"三個面向",stem:"關於「不利學習、違反課程規範、可能觸法」三個面向，哪些說法正確？",
+  opts:[["三者可能同時成立。",1,"它們是三個不同的問題，可以同時中，也可以只中一個。"],
+        ["它們是由輕到重、必經的階梯。",0,"沒有這種順序。可能直接涉及法律，也可能只是學習上的損失。"],
+        ["違反課程規範就等於犯罪。",0,"課程規範是課程的規則，跟法律成立與否是兩件事。"],
+        ["老師允許，就代表任何資料與素材都能任意使用。",0,"老師的允許管不到別人的個資與著作權。"]]},
+ {topic:"三個面向",stem:"某次測驗已明確公告禁止使用 AI，學生仍使用了，事後照實揭露。哪些判斷適當？",
+  opts:[["誠實揭露值得肯定，但不會讓被禁止的用法變成被允許。",1,"揭露處理的是透明度，不是授權。"],
+        ["這屬於違反課程規範的面向，要依教師程序處理。",1,"公告禁止而仍使用，落在規範面向。"],
+        ["因為有揭露，所以完全沒有問題。",0,"揭露不能追認一個當下就被禁止的行為。"],
+        ["違反課程規範，所以他一定觸犯了刑法。",0,"法律要件要另外判斷，不能從課程違規推導出來。"]]},
+ {topic:"查證",stem:"AI 提供了一篇論文的作者、期刊與年份，但網址打不開。哪些處理適當？",
+  opts:[["去出版者網站或官方資料庫找原文核對。",1,"回到原始來源是查證的核心動作。"],
+        ["把打不開的網址刪掉，保留漂亮的引用格式。",0,"這是假裝查過，比不查更糟。"],
+        ["查不到就標註「尚未查證」，或改用已確認的來源。",1,"誠實保留不確定，是可接受且正確的做法。"],
+        ["再問另一個 AI，兩邊說法一致就當作證實。",0,"兩個 AI 同意不等於兩份獨立證據。"]]},
+ {topic:"查證",stem:"你找到一份確實存在的來源。接下來還要核對什麼？",
+  opts:[["題名、作者與日期是否對得上。",1,"引用資訊本身就要逐項核對。"],
+        ["這份來源的內容，是否真的支持你要講的那句話。",1,"來源存在不等於它支持你的主張，這是最常見的落差。"],
+        ["適用對象與上下文是否相符。",1,"適用範圍不同，結論就不能直接搬過來。"],
+        ["來源存在就夠了，內容不必再看。",0,"只確認存在，等於沒有查證論點本身。"]]},
+ {topic:"隱私",stem:"某個摘要任務只需要各選項的人數，不需要看個別回答。哪一種輸入最符合最小化？",
+  opts:[["整份原始問卷，含姓名、學號與自由回答。",0,"遠超出任務需要，風險也最高。"],
+        ["移除姓名，但保留學號與所有自由回答。",0,"學號仍可對應到個人，自由回答也可能暴露身分。"],
+        ["只輸入各選項的統計人數。",1,"任務需要什麼就給什麼，這正是資料最小化。"],
+        ["用虛構資料先測試流程，確認可行再處理真實統計。",1,"測試階段不需要真人資料，這是合理的替代做法。"]]},
+ {topic:"隱私",stem:"準備把含他人資料的內容送進雲端服務前，哪些觀念正確？",
+  opts:[["拿掉姓名就一定不會被識別出來。",0,"自由回答等欄位仍可能指向特定個人。"],
+        ["同學口頭說好，就是唯一需要的法律依據。",0,"同意只是可能的依據之一，而且範圍有限。"],
+        ["要先確認這個服務怎麼儲存與使用送進去的資料。",1,"資料政策決定了你的資料後續會被怎麼處理。"],
+        ["資料原本就公開，不代表後續任何利用都合適。",1,"公開狀態不等於利用範圍不受限。"]]},
+ {topic:"著作權",stem:"AI 產出的海報疑似與現有插畫高度相似，還沒釐清來源與權利。學生想放上公開網站。哪些判斷正確？",
+  opts:[["有註明「由 AI 產出」就等於取得授權。",0,"註明來源與取得授權是兩回事，前者不能替代後者。"],
+        ["非營利、教育用途就一定免責。",0,"合理使用要看條件與具體情況，用途只是考量之一。"],
+        ["應先查素材的授權與可利用範圍，必要時換素材或取得許可。",1,"公開之前釐清權利，是可行也應該做的一步。"],
+        ["是否侵權不能只憑「看起來很像」的印象判定。",1,"侵權判斷有其要件，相似印象不是結論。"]]},
+ {topic:"偏見",stem:"AI 只憑姓名與性別，替組員排出領導能力名次。哪些判斷適當？",
+  opts:[["姓名與性別不足以支持能力排名。",1,"輸入資訊本身就跟要判斷的事情無關。"],
+        ["改問意願、相關經驗、可投入時間與任務需求。",1,"換成與分工真正相關的資訊，建議才有意義。"],
+        ["最後由人決定，偏見就自動消失了。",0,"人如果照著有偏見的排名確認，偏見一樣生效。"],
+        ["讓成員自己檢視並調整這份建議。",1,"受影響的人有機會檢視，是必要的檢查。"]]},
+ {topic:"造假與責任",stem:"作業要求如實呈現訪談。學生沒有做訪談，把 AI 生成的文字當成真實訪談交出。哪些說法正確？",
+  opts:[["這違反了「不得捏造真實紀錄」的規定。",1,"把生成內容當成實際蒐集的證據，就是捏造。"],
+        ["可以改成清楚標示的模擬資料，並依作業規範使用。",1,"標示清楚的模擬資料是誠實的替代方案。"],
+        ["也可以如實寫出這部分尚未完成。",1,"承認未完成，好過提交假的證據。"],
+        ["因為文字是 AI 產生的，責任在 AI 不在自己。",0,"決定送出的人是你，責任不會因為工具而轉移。"]]}
+];
+
+(function(){
+  var host=document.getElementById('quiz'), scoreEl=document.getElementById('score'),
+      L=['A','B','C','D'], done=0, right=0;
+  QUESTIONS.forEach(function(q,i){
+    var art=document.createElement('article');
+    art.className='q-item';
+    var opts=q.opts.map(function(o,j){
+      return '<li><label><input type="checkbox" data-c="'+o[1]+'"><span class="ltr">'+L[j]+'</span>'+
+             '<span>'+o[0]+'<span class="why">'+o[2]+'</span></span></label></li>';
+    }).join('');
+    art.innerHTML='<span class="tag">'+(i+1<10?'0':'')+(i+1)+' ／ '+q.topic+'</span>'+
+      '<p class="stem">'+q.stem+'</p><ul class="opts">'+opts+'</ul>'+
+      '<div class="q-foot"><button type="button">檢查這一題</button><span class="verdict"></span></div>';
+    var btn=art.querySelector('button'), verdict=art.querySelector('.verdict');
+    btn.addEventListener('click',function(){
+      if(art.classList.contains('done')) return;
+      var ok=true;
+      art.querySelectorAll('.opts label').forEach(function(lab){
+        var box=lab.querySelector('input'), correct=box.dataset.c==='1';
+        box.disabled=true;
+        if(correct) lab.classList.add('ok');
+        if(box.checked!==correct){ok=false; if(!correct) lab.classList.add('bad');}
+      });
+      art.classList.add('done');
+      btn.disabled=true;
+      verdict.textContent=ok?'全部正確':'有出入，請看下方逐項說明';
+      verdict.className='verdict '+(ok?'pass':'fail');
+      done++; if(ok) right++;
+      scoreEl.innerHTML='已檢查 <b>'+done+'</b> ／ 12 題，全對 <b>'+right+'</b> 題。'+
+        (done===12?'（答錯的地方，回到對應章節再讀一次。）':'');
+    });
+    host.appendChild(art);
+  });
+})();
+</script>
