@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 5 週：讓程式做判斷｜Arduino 程式設計講義</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A1%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#fbfaf7;--surface:#ffffff;--surface-2:#f3f1ec;--text:#1f2328;--muted:#5b6270;
+  --line:#e3e0d8;--accent:#00787f;--accent-soft:#e2f3f3;
+  --tip:#1a7f4b;--tip-soft:#e7f5ec;--warn:#b25e00;--warn-soft:#fdf1e1;
+  --key:#6f42c1;--key-soft:#f1ebfb;--err:#c0342b;--err-soft:#fbeceb;
+  --code-bg:#f6f8fa;--code-text:#1f2328;--t-com:#6a737d;--t-str:#0a7a3e;
+  --t-num:#005cc5;--t-key:#c8315e;--t-type:#6f42c1;--t-fn:#b35900;--t-const:#00787f;
+  --term-bg:#1e2227;--term-text:#e6e6e6;--hi:#f2b705;
+  --c1:#d9480f;--c2:#1c7ed6;--c3:#2b8a3e;--c4:#7048e8;--c5:#c2255c;--c6:#0c8599;--c7:#b35c00;
+  --radius:10px;--mono:ui-monospace,"SF Mono",Menlo,Consolas,"Noto Sans Mono CJK TC","Microsoft JhengHei",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#4fd1d9;--accent-soft:#14302f;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#f2b36b;--t-const:#4fd1d9;--term-bg:#0f1113;
+  --c1:#ff8a4c;--c2:#74c0fc;--c3:#69db7c;--c4:#b197fc;--c5:#f783ac;--c6:#66d9e8;--c7:#ffc078;
+}}
+:root[data-theme="dark"]{
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#4fd1d9;--accent-soft:#14302f;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#f2b36b;--t-const:#4fd1d9;--term-bg:#0f1113;
+  --c1:#ff8a4c;--c2:#74c0fc;--c3:#69db7c;--c4:#b197fc;--c5:#f783ac;--c6:#66d9e8;--c7:#ffc078;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:4.5rem}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.8 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+a{color:var(--accent)}
+.skip{position:absolute;left:-999px}.skip:focus{left:1rem;top:.5rem;z-index:10;background:var(--surface);padding:.3rem .6rem}
+header.site{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;
+  padding:.6rem max(16px,calc((100vw - 1180px)/2));background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;color:var(--text);text-decoration:none}
+nav.pages{display:flex;gap:.25rem;flex-wrap:wrap;flex:1}
+nav.pages a{padding:.15rem .7rem;border-radius:999px;text-decoration:none;color:var(--muted);font-size:.92rem;white-space:nowrap}
+@media (max-width:720px){header.site{position:static}html{scroll-padding-top:1rem}
+  nav.pages{order:3;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:.2rem}}
+nav.pages a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.theme{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;
+  width:2.2rem;height:2.2rem;cursor:pointer;font-size:1rem}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:2.5rem;max-width:1180px;margin:0 auto;padding-inline:16px}
+.layout.single{grid-template-columns:minmax(0,1fr);max-width:860px}
+main{min-width:0;max-width:820px;padding-block:1.5rem 4rem;overflow-wrap:break-word}
+.toc{position:sticky;top:4.5rem;align-self:start;max-height:calc(100vh - 5.5rem);overflow:auto;padding-block:1.5rem;font-size:.9rem}
+.toc-title{font-weight:700;margin:0 0 .4rem;color:var(--muted)}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc a{display:block;padding:.25rem .8rem;color:var(--muted);text-decoration:none;line-height:1.5;margin-left:-2px;border-left:2px solid transparent}
+.toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .toc{position:static;max-height:none;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:1rem;margin-top:1.2rem}}
+h1{font-size:clamp(1.7rem,4.5vw,2.3rem);line-height:1.35;margin:.5rem 0 .6rem}
+h2{font-size:1.5rem;line-height:1.4;margin:3.2rem 0 1rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.18rem;margin:2rem 0 .6rem}
+h4{font-size:1.02rem;margin:1.4rem 0 .4rem}
+p,li{max-width:70ch}
+.lead{font-size:1.08rem;color:var(--muted)}
+.tag{display:inline-block;padding:0 .55rem;margin-right:.45rem;border-radius:6px;background:var(--accent);color:#fff;
+  font-size:.85rem;line-height:1.7rem;vertical-align:.12em;font-weight:600}
+:root[data-theme="dark"] .tag{color:#0f1113}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag{color:#0f1113}}
+code,kbd{font-family:var(--mono);font-size:.9em}
+:not(pre)>code{background:var(--surface-2);border:1px solid var(--line);padding:.05rem .35rem;border-radius:5px;overflow-wrap:anywhere}
+kbd{background:var(--surface);border:1px solid var(--line);border-bottom-width:2px;padding:.05rem .4rem;border-radius:5px}
+figure.code{margin:1.1rem 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--code-bg)}
+figure.code figcaption{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.35rem .5rem .35rem .9rem;
+  border-bottom:1px solid var(--line);background:var(--surface-2);font-size:.85rem;color:var(--muted)}
+.file{font-family:var(--mono)}
+button.copy{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.1rem .7rem;cursor:pointer;font-size:.85rem}
+figure.code pre,.output pre,pre.plain{margin:0;padding:.9rem 1rem;overflow-x:auto;font:14.5px/1.65 var(--mono);color:var(--code-text);tab-size:2}
+pre.plain{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);margin:1rem 0}
+.t-com{color:var(--t-com);font-style:italic}.t-str{color:var(--t-str)}
+.t-num{color:var(--t-num)}.t-key{color:var(--t-key);font-weight:600}.t-type{color:var(--t-type);font-weight:600}
+.t-fn{color:var(--t-fn)}.t-const{color:var(--t-const);font-weight:600}
+.output{margin:.6rem 0 1rem;border-radius:var(--radius);overflow:hidden;background:var(--term-bg)}
+.output-label{font-size:.8rem;color:#9aa4b2;padding:.35rem 1rem 0}
+.output pre{color:var(--term-text)}
+details{margin:.8rem 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+details>summary{cursor:pointer;padding:.6rem 1rem;font-weight:600;list-style:none;color:var(--accent)}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▶";display:inline-block;margin-right:.5rem;font-size:.75em;transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+details>:not(summary){margin-inline:1rem}
+details[open]{padding-bottom:.4rem}
+.callout{border-left:4px solid var(--c);background:var(--cs);border-radius:0 var(--radius) var(--radius) 0;padding:.7rem 1rem;margin:1.2rem 0}
+.callout>.callout-title{font-weight:700;color:var(--c);margin:0 0 .2rem}
+.callout>:last-child{margin-bottom:0}.callout p{margin:.3rem 0}
+.tip{--c:var(--tip);--cs:var(--tip-soft)}.warn{--c:var(--warn);--cs:var(--warn-soft)}
+.key{--c:var(--key);--cs:var(--key-soft)}.err{--c:var(--err);--cs:var(--err-soft)}
+.try{--c:var(--accent);--cs:var(--accent-soft)}
+.table-wrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .7rem;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+th:first-child,td:first-child{white-space:nowrap}
+table.center td,table.center th{text-align:center}
+.goals{list-style:none;padding:0}
+.goals li{display:flex;gap:.6rem;align-items:flex-start;padding:.35rem 0}
+.goals input{width:1.15rem;height:1.15rem;margin-top:.35rem;accent-color:var(--accent);flex:none}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:2.4rem;margin:.55rem 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:.15rem;width:1.7rem;height:1.7rem;border-radius:50%;
+  background:var(--accent-soft);color:var(--accent);font-weight:700;text-align:center;line-height:1.7rem;font-size:.9rem}
+.flow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1rem 0}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35rem .8rem;font-weight:600;max-width:100%;overflow-wrap:anywhere}
+.flow b{color:var(--muted)}
+.boxes{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0}
+.boxes div{border:2px solid var(--accent);border-radius:8px;min-width:4.2rem;text-align:center;background:var(--surface)}
+.boxes div small{display:block;background:var(--accent);color:var(--bg);font-family:var(--mono)}
+.boxes div span{display:block;padding:.2rem .4rem;font-family:var(--mono)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+.card{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:1rem 1.1rem}
+.card h3{margin:.1rem 0 .4rem}
+.card p{margin:.4rem 0}
+a.card{--c:var(--accent);display:block;color:var(--text);text-decoration:none;
+  border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));border-top:5px solid var(--c);
+  background:color-mix(in srgb,var(--c) 9%,var(--surface));
+  transition:transform .15s,box-shadow .15s,background-color .15s}
+a.card h3{color:var(--c)}
+a.card .go{font-weight:700;color:var(--c)}
+a.card:hover{transform:translateY(-3px);background:color-mix(in srgb,var(--c) 16%,var(--surface));
+  box-shadow:0 8px 20px color-mix(in srgb,var(--c) 22%,transparent)}
+a.card:hover .go{text-decoration:underline}
+a.card:focus-visible{outline:3px solid var(--c);outline-offset:3px}
+a.card.c1{--c:var(--c1)}a.card.c2{--c:var(--c2)}a.card.c3{--c:var(--c3)}a.card.c4{--c:var(--c4)}a.card.c5{--c:var(--c5)}a.card.c6{--c:var(--c6)}a.card.c7{--c:var(--c7)}
+@media (prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}}
+figure.circuit{margin:1.2rem 0;text-align:center}
+figure.circuit img{max-width:100%;height:auto;border-radius:var(--radius);border:1px solid var(--line);background:#fff}
+figure.circuit figcaption{font-size:.88rem;color:var(--muted);text-align:left;margin-top:.5rem}
+figure.circuit figcaption strong{color:var(--text)}
+svg.diagram{max-width:100%;height:auto;display:block;margin:1rem auto;color:var(--text)}
+.diagram .accent{color:var(--accent)}.diagram .muted{color:var(--muted)}.diagram .hi{color:var(--hi)}
+.pager{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:3rem;padding-top:1.2rem;border-top:1px solid var(--line)}
+.pager a{text-decoration:none;font-weight:600;max-width:48%}
+.pager .next{margin-left:auto;text-align:right}
+.notice{font-size:.88rem;color:var(--muted)}
+footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;padding:1.2rem 16px;text-align:center}
+@media (max-width:600px){.pager a{max-width:100%}}
+@media print{header.site,.toc,button.copy,button.theme,.pager{display:none}
+  details{border:none}details>summary{display:none}details>*{display:block!important}
+  .layout{display:block}body{font-size:12pt}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="site">
+  <a class="brand" href="index.html">Arduino 程式設計講義</a>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="week02.html">第 2 週</a><a href="week03.html">第 3 週</a><a href="week04.html">第 4 週</a><a href="week05.html" aria-current="page">第 5 週</a><a href="week06.html">第 6 週</a><a href="week07.html">第 7 週</a><a href="week08.html">第 8 週</a></nav>
+  <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
+</header>
+<div class="layout"><nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><ol><li><a href="#if">1. 認識 if 判斷</a></li><li><a href="#threshold">2. 範例 If Statement：旋鈕超過門檻就亮燈</a></li><li><a href="#statechange">3. 範例 State Change Detection：數一數按了幾次</a></li><li><a href="#more">4. 加碼範例：旋鈕等級顯示</a></li><li><a href="#practice">5. 綜合練習</a></li><li><a href="#errors">6. 常見錯誤</a></li><li><a href="#review">7. 自我檢核與重點回顧</a></li><li><a href="#notice">圖片使用聲明</a></li></ol></nav><main id="main"><h1>第 5 週：讓程式做判斷</h1>
+<p class="lead">到目前為止，程式大多是「一行一行照順序做」。這週要讓程式學會<strong>看情況做事</strong>：旋鈕轉超過某個位置才讓 LED 亮、按鈕按滿 4 次才有反應。會做判斷之後，你的作品才開始像一個真正的「控制裝置」。</p>
+
+<h3>本週你會學到（學會了就打勾）</h3>
+<ul class="goals">
+  <li><input type="checkbox" id="g1"><label for="g1">寫出 <code>if</code>、<code>if ... else</code>、<code>if ... else if ... else</code> 三種判斷</label></li>
+  <li><input type="checkbox" id="g2"><label for="g2">使用比較運算子 <code>&gt;</code>、<code>&lt;</code>、<code>==</code>、<code>!=</code> 寫出條件</label></li>
+  <li><input type="checkbox" id="g3"><label for="g3">分辨 <code>=</code>（把值放進變數）與 <code>==</code>（比較是否相等）</label></li>
+  <li><input type="checkbox" id="g4"><label for="g4">用門檻值，讓可變電阻控制 LED 亮滅</label></li>
+  <li><input type="checkbox" id="g5"><label for="g5">偵測按鈕「剛被按下」的那一刻，並計算按下次數</label></li>
+</ul>
+
+<h3>準備材料</h3>
+<div class="table-wrap"><table>
+<tr><th>材料</th><th>數量</th><th>說明</th></tr>
+<tr><td>Arduino UNO</td><td>1</td><td>附 USB 傳輸線</td></tr>
+<tr><td>10k 歐姆可變電阻</td><td>1</td><td>第 2 節使用</td></tr>
+<tr><td>按鈕</td><td>1</td><td>第 3 節使用</td></tr>
+<tr><td>10k 歐姆電阻</td><td>1</td><td>第 3 節按鈕的下拉電阻</td></tr>
+<tr><td>麵包板與杜邦線</td><td>1 組</td><td></td></tr>
+</table></div>
+
+<h2 id="if">1. 認識 if 判斷</h2>
+<p>生活中充滿「如果……就……，不然就……」：<em>如果</em>下雨<em>就</em>帶傘，<em>不然就</em>戴帽子。程式用 <code>if</code> 和 <code>else</code> 來表達這種想法。</p>
+
+<h3><span class="tag">看一看</span>三種寫法</h3>
+<p><strong>寫法一：只有 if</strong>，條件成立才做，不成立就跳過。</p>
+<pre class="plain">if (條件) {
+  // 條件成立時要做的事
+}</pre>
+<p><strong>寫法二：if ... else</strong>，二選一，一定會做其中一段。</p>
+<pre class="plain">if (條件) {
+  // 條件成立時要做的事
+} else {
+  // 條件不成立時要做的事
+}</pre>
+<p><strong>寫法三：if ... else if ... else</strong>，多選一，由上往下檢查，遇到第一個成立的就做那一段，其他的都跳過。</p>
+<pre class="plain">if (條件一) {
+  // 條件一成立
+} else if (條件二) {
+  // 條件一不成立，但條件二成立
+} else {
+  // 上面的條件都不成立
+}</pre>
+
+<svg class="diagram" viewBox="0 0 540 250" width="540" role="img" aria-label="流程圖：檢查讀值是否大於 400，是就讓 LED 亮，否就讓 LED 滅，兩條路最後會合，回到 loop 開頭">
+  <defs><marker id="arrow4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <g fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="270,14 400,74 270,134 140,74" class="accent"/>
+    <rect x="20" y="150" width="170" height="46" rx="8"/>
+    <rect x="350" y="150" width="170" height="46" rx="8"/>
+    <path d="M140,74 H105 V144" marker-end="url(#arrow4)"/>
+    <path d="M400,74 H435 V144" marker-end="url(#arrow4)"/>
+    <path d="M105,196 V226 H264" marker-end="url(#arrow4)"/>
+    <path d="M435,196 V226 H276" marker-end="url(#arrow4)"/>
+  </g>
+  <g fill="currentColor" font-size="15" text-anchor="middle" font-family="sans-serif">
+    <text x="270" y="70">analogValue</text><text x="270" y="92">&gt; 400 ?</text>
+    <text x="105" y="178">LED 亮（HIGH）</text><text x="435" y="178">LED 滅（LOW）</text>
+  </g>
+  <g fill="currentColor" font-size="14" font-family="sans-serif" class="muted">
+    <text x="112" y="62" text-anchor="middle" fill="currentColor">成立</text>
+    <text x="428" y="62" text-anchor="middle" fill="currentColor">不成立</text>
+    <text x="270" y="246" text-anchor="middle" fill="currentColor">繼續往下執行</text>
+  </g>
+</svg>
+
+<h3><span class="tag">看一看</span>比較運算子</h3>
+<p>條件通常是「比大小」或「比是否相等」。比較的結果只有兩種：<strong>成立</strong>或<strong>不成立</strong>。</p>
+<div class="table-wrap"><table>
+<tr><th>寫法</th><th>意思</th><th>例子（假設 x 是 500）</th><th>結果</th></tr>
+<tr><td><code>x &gt; 400</code></td><td>大於</td><td>500 大於 400</td><td>成立</td></tr>
+<tr><td><code>x &lt; 400</code></td><td>小於</td><td>500 小於 400</td><td>不成立</td></tr>
+<tr><td><code>x &gt;= 500</code></td><td>大於或等於</td><td>500 大於或等於 500</td><td>成立</td></tr>
+<tr><td><code>x &lt;= 499</code></td><td>小於或等於</td><td>500 小於或等於 499</td><td>不成立</td></tr>
+<tr><td><code>x == 500</code></td><td>等於</td><td>500 等於 500</td><td>成立</td></tr>
+<tr><td><code>x != 500</code></td><td>不等於</td><td>500 不等於 500</td><td>不成立</td></tr>
+</table></div>
+<div class="callout tip"><p class="callout-title">怎麼記 &gt;= 和 &lt;=</p>
+<p>照著唸的順序寫：「大於或等於」就是 <code>&gt;</code> 在前、<code>=</code> 在後。寫成 <code>=&gt;</code> 會出錯。符號中間也不能有空格。</p></div>
+
+<h3>最容易犯的錯：= 與 ==</h3>
+<div class="table-wrap"><table>
+<tr><th>寫法</th><th>意思</th></tr>
+<tr><td><code>x = 5</code></td><td>把 5 <strong>放進</strong> x 裡面</td></tr>
+<tr><td><code>x == 5</code></td><td><strong>檢查</strong> x 是不是等於 5</td></tr>
+</table></div>
+<p>在 <code>if</code> 的括號裡，比較是否相等一定要寫兩個等號 <code>==</code>。如果寫成一個等號，程式<strong>還是能上傳</strong>，但意思完全變了：</p>
+<pre class="plain">if (buttonState = HIGH) {   // 錯：把 HIGH 放進 buttonState
+  digitalWrite(13, HIGH);   // 結果：不管按鈕有沒有按，這裡永遠會執行
+}</pre>
+<p>這種錯誤不會出現紅字，只會讓程式行為怪怪的，所以更要小心。</p>
+
+<h2 id="threshold">2. 範例 If Statement：旋鈕超過門檻就亮燈</h2>
+
+<h3><span class="tag">看一看</span>什麼是門檻值</h3>
+<p><strong>門檻值</strong>就是一條分界線。例如設定門檻為 400：讀值超過 400 時 LED 亮，沒超過時 LED 滅。生活中「室溫超過 28 度就開冷氣」就是同樣的想法。門檻值把連續變化的讀值，分成「超過」與「沒超過」兩種情況。</p>
+
+<h3><span class="tag">動手做</span>接線</h3>
+<p>和第 4 週相同。可變電阻兩側接 5V 與 GND，中間腳接 A0。LED 使用板上第 13 號腳位的內建 LED。</p>
+<figure class="circuit"><img src="data:image/png;base64,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" alt="門檻判斷電路圖" width="650" height="366" loading="lazy">
+<figcaption><strong>圖 1：可變電阻中間腳接 A0，LED 使用板上內建 LED。</strong> 圖片來源：Arduino 官方範例 <a href="https://docs.arduino.cc/built-in-examples/control-structures/ifStatementConditional/" target="_blank" rel="noopener">ifStatementConditional</a>，原始圖檔 <a href="https://docs.arduino.cc/static/52c851572b6bf363df0a36cffb20d706/a6d36/circuit.png" target="_blank" rel="noopener">circuit.png</a>，授權 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>。</figcaption></figure>
+
+<h3><span class="tag">動手做</span>程式</h3>
+<figure class="code"><figcaption><span class="file">IfStatementConditional.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 可變電阻讀值超過門檻時，LED 亮起</span>
+
+<span class="t-type">int</span> analogPin = <span class="t-const">A0</span>;    <span class="t-com">// 可變電阻接在 A0</span>
+<span class="t-type">int</span> ledPin = <span class="t-num">13</span>;       <span class="t-com">// 板上 LED</span>
+<span class="t-type">int</span> threshold = <span class="t-num">400</span>;   <span class="t-com">// 門檻值</span>
+
+<span class="t-type">void</span> <span class="t-fn">setup</span>() {
+  <span class="t-fn">pinMode</span>(ledPin, <span class="t-const">OUTPUT</span>);
+  <span class="t-fn">Serial</span>.<span class="t-fn">begin</span>(<span class="t-num">9600</span>);
+}
+
+<span class="t-type">void</span> <span class="t-fn">loop</span>() {
+  <span class="t-type">int</span> analogValue = <span class="t-fn">analogRead</span>(analogPin);
+
+  <span class="t-key">if</span> (analogValue &gt; threshold) {   <span class="t-com">// 讀值大於門檻</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">HIGH</span>);
+  } <span class="t-key">else</span> {                         <span class="t-com">// 讀值沒有大於門檻</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);
+  }
+
+  <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(analogValue);     <span class="t-com">// 印出讀值，方便觀察</span>
+  <span class="t-fn">delay</span>(<span class="t-num">1</span>);
+}</code></pre></figure>
+<ol class="steps">
+  <li>上傳程式，打開序列埠監控視窗。</li>
+  <li>慢慢轉動旋鈕，找出 LED 剛好亮起時的讀值，是不是在 400 附近？</li>
+</ol>
+
+<h3>用幾個讀值追蹤判斷結果</h3>
+<p>判斷時最要注意的是「剛好等於門檻」的情況：</p>
+<div class="table-wrap"><table>
+<tr><th>讀值 analogValue</th><th><code>analogValue &gt; 400</code></th><th>執行哪一段</th><th>LED</th></tr>
+<tr><td>250</td><td>不成立</td><td><code>else</code></td><td>滅</td></tr>
+<tr><td>400</td><td>不成立（400 沒有大於 400）</td><td><code>else</code></td><td>滅</td></tr>
+<tr><td>401</td><td>成立</td><td><code>if</code></td><td>亮</td></tr>
+<tr><td>900</td><td>成立</td><td><code>if</code></td><td>亮</td></tr>
+</table></div>
+<p>如果希望 400 也要亮，就把條件改成 <code>analogValue &gt;= 400</code>。</p>
+
+<div class="callout key"><p class="callout-title">為什麼門檻值要放在變數 <code>threshold</code> 裡？</p>
+<p>門檻值常常需要反覆調整。放在程式最上面的變數裡，想改的時候一眼就找得到，不用在程式中間到處找數字。</p></div>
+
+<h3><span class="tag">改一改</span></h3>
+<ol>
+  <li>把 <code>threshold</code> 改成 <code>800</code>，要轉到哪裡 LED 才會亮？</li>
+  <li>把 <code>&gt;</code> 改成 <code>&lt;</code>，LED 的反應有什麼不同？</li>
+  <li>挑戰：用 <code>if ... else if ... else</code> 做出三段反應。讀值小於 300 時 LED 熄滅；介於 300 到 700 之間時 LED 慢慢閃爍；大於 700 時 LED 恆亮。</li>
+</ol>
+<details><summary>第 1、2 題：看說明</summary>
+<p><strong>第 1 題</strong>：要轉得更多，讀值超過 800（大約轉到八成的位置）LED 才會亮。</p>
+<p><strong>第 2 題</strong>：反應完全相反，讀值小於 400 時亮，轉超過 400 反而熄滅。</p>
+</details>
+<p><strong>第 3 題的想法</strong>：由上往下檢查。第一個條件處理「小於 300」；能走到 <code>else if</code>，代表讀值一定不小於 300，所以第二個條件只要再檢查「是否不超過 700」；剩下的就是大於 700。</p>
+<details class="solution"><summary>看參考解答</summary><figure class="code"><figcaption><span class="file">ThreeLevels.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 三段反應：</span>
+<span class="t-com">//   讀值小於 300       → LED 熄滅</span>
+<span class="t-com">//   讀值 300 到 700    → LED 慢慢閃爍</span>
+<span class="t-com">//   讀值大於 700       → LED 恆亮</span>
+
+<span class="t-type">int</span> analogPin = <span class="t-const">A0</span>;
+<span class="t-type">int</span> ledPin = <span class="t-num">13</span>;
+
+<span class="t-type">void</span> <span class="t-fn">setup</span>() {
+  <span class="t-fn">pinMode</span>(ledPin, <span class="t-const">OUTPUT</span>);
+  <span class="t-fn">Serial</span>.<span class="t-fn">begin</span>(<span class="t-num">9600</span>);
+}
+
+<span class="t-type">void</span> <span class="t-fn">loop</span>() {
+  <span class="t-type">int</span> analogValue = <span class="t-fn">analogRead</span>(analogPin);
+  <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(analogValue);
+
+  <span class="t-key">if</span> (analogValue &lt; <span class="t-num">300</span>) {           <span class="t-com">// 第一段：小於 300</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);
+  } <span class="t-key">else</span> <span class="t-key">if</span> (analogValue &lt;= <span class="t-num">700</span>) {   <span class="t-com">// 第二段：能走到這裡，代表已經不小於 300</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">HIGH</span>);
+    <span class="t-fn">delay</span>(<span class="t-num">500</span>);
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);
+    <span class="t-fn">delay</span>(<span class="t-num">500</span>);
+  } <span class="t-key">else</span> {                           <span class="t-com">// 第三段：其他情況，也就是大於 700</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">HIGH</span>);
+  }
+}</code></pre></figure></details>
+
+<div class="callout err"><p class="callout-title">常見錯誤：判斷的順序寫反</p>
+<p>電腦會<strong>從上往下</strong>檢查，<strong>第一個成立的條件</strong>執行完就結束，後面的都不看。如果寫成 <code>if (value &gt; 300)</code> 在前、<code>else if (value &gt; 700)</code> 在後，讀值 900 會先符合「大於 300」，永遠走不到「大於 700」那一段。<strong>範圍判斷要依大小順序排，從最大（或最小）的範圍寫起。</strong></p></div>
+
+<h2 id="statechange">3. 範例 State Change Detection：數一數按了幾次</h2>
+
+<h3><span class="tag">看一看</span>「按住」和「剛按下」不一樣</h3>
+<p><code>loop()</code> 每秒會重複執行非常多次。如果只檢查「按鈕是不是 <code>HIGH</code>」，按住按鈕一秒鐘，程式可能會把它算成好幾百次。</p>
+<p>要正確計算次數，應該抓「狀態<strong>改變</strong>的那一刻」：上一次讀到 <code>LOW</code>、這一次讀到 <code>HIGH</code>，才代表「剛按下」。做法是用一個變數記住上一次的狀態，每次都拿來和現在比較。</p>
+<div class="table-wrap"><table>
+<tr><th>上一次狀態</th><th>這一次狀態</th><th>代表什麼</th></tr>
+<tr><td><code>LOW</code></td><td><code>HIGH</code></td><td>剛按下，次數加 1</td></tr>
+<tr><td><code>HIGH</code></td><td><code>HIGH</code></td><td>按住不放，不計次</td></tr>
+<tr><td><code>HIGH</code></td><td><code>LOW</code></td><td>剛放開，不計次</td></tr>
+<tr><td><code>LOW</code></td><td><code>LOW</code></td><td>沒有按，不計次</td></tr>
+</table></div>
+
+<svg class="diagram" viewBox="0 0 580 170" width="580" role="img" aria-label="時間圖：按鈕按了三次，第二次按住比較久，但每一次只在從 LOW 變成 HIGH 的那一刻計一次">
+  <g fill="currentColor" font-size="12" font-family="ui-monospace,monospace" class="muted">
+    <text x="40" y="54" fill="currentColor">HIGH</text><text x="40" y="104" fill="currentColor">LOW</text>
+  </g>
+  <path d="M90,100 H150 V50 H220 V100 H290 V50 H430 V100 H480 V50 H520 V100 H570" fill="none" stroke="currentColor" stroke-width="3" class="accent"/>
+  <g fill="currentColor" font-size="14" font-family="sans-serif" text-anchor="middle">
+    <text x="360" y="36">按住很久，也只算 1 次</text>
+    <text x="150" y="130">↑ 第 1 次</text><text x="290" y="130">↑ 第 2 次</text><text x="480" y="130">↑ 第 3 次</text>
+  </g>
+  <text x="330" y="160" text-anchor="middle" font-size="13" font-family="sans-serif" fill="currentColor" class="muted">只在 LOW 變成 HIGH 的那一刻計次</text>
+</svg>
+
+<h3><span class="tag">動手做</span>接線</h3>
+<p>和第 3 週第 2 節相同。第 2 號腳位接按鈕，同一隻腳經 10k 歐姆電阻接 GND，按鈕另一隻腳接 5V。</p>
+<figure class="circuit"><img src="data:image/png;base64,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" alt="按鈕計次電路圖" width="650" height="366" loading="lazy">
+<figcaption><strong>圖 2：按鈕接第 2 號腳位，並經 10k 歐姆下拉電阻接 GND。</strong> 圖片來源：Arduino 官方範例 <a href="https://docs.arduino.cc/built-in-examples/digital/StateChangeDetection/" target="_blank" rel="noopener">StateChangeDetection</a>，原始圖檔 <a href="https://docs.arduino.cc/static/529466c29da40f5e0129591beec4f0ff/a6d36/circuit.png" target="_blank" rel="noopener">circuit.png</a>，授權 <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>。</figcaption></figure>
+
+<h3><span class="tag">動手做</span>程式</h3>
+<figure class="code"><figcaption><span class="file">StateChangeDetection.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 計算按鈕按下的次數；每按滿 4 次，LED 亮起</span>
+
+<span class="t-type">int</span> buttonPin = <span class="t-num">2</span>;
+<span class="t-type">int</span> ledPin = <span class="t-num">13</span>;
+
+<span class="t-type">int</span> buttonPushCounter = <span class="t-num">0</span>;   <span class="t-com">// 按下的次數</span>
+<span class="t-type">int</span> lastButtonState = <span class="t-const">LOW</span>;   <span class="t-com">// 上一次的按鈕狀態</span>
+
+<span class="t-type">void</span> <span class="t-fn">setup</span>() {
+  <span class="t-fn">pinMode</span>(buttonPin, <span class="t-const">INPUT</span>);
+  <span class="t-fn">pinMode</span>(ledPin, <span class="t-const">OUTPUT</span>);
+  <span class="t-fn">Serial</span>.<span class="t-fn">begin</span>(<span class="t-num">9600</span>);
+}
+
+<span class="t-type">void</span> <span class="t-fn">loop</span>() {
+  <span class="t-type">int</span> buttonState = <span class="t-fn">digitalRead</span>(buttonPin);
+
+  <span class="t-key">if</span> (buttonState != lastButtonState) {   <span class="t-com">// 狀態改變了</span>
+    <span class="t-key">if</span> (buttonState == <span class="t-const">HIGH</span>) {            <span class="t-com">// 而且是變成按下</span>
+      buttonPushCounter = buttonPushCounter + <span class="t-num">1</span>;
+      <span class="t-fn">Serial</span>.<span class="t-fn">print</span>(<span class="t-str">&quot;按下次數：&quot;</span>);
+      <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(buttonPushCounter);
+    }
+    <span class="t-fn">delay</span>(<span class="t-num">50</span>);   <span class="t-com">// 稍等一下，避開按鈕接觸時的抖動</span>
+  }
+  lastButtonState = buttonState;          <span class="t-com">// 記住這一次的狀態，給下一輪比較</span>
+
+  <span class="t-key">if</span> (buttonPushCounter % <span class="t-num">4</span> == <span class="t-num">0</span>) {       <span class="t-com">// 次數是 4 的倍數</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">HIGH</span>);
+  } <span class="t-key">else</span> {
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);
+  }
+}</code></pre></figure>
+
+<h3>新符號說明</h3>
+<div class="table-wrap"><table>
+<tr><th>符號</th><th>意思</th><th>例子</th></tr>
+<tr><td><code>%</code></td><td>取餘數</td><td><code>9 % 4</code> 的結果是 1，<code>8 % 4</code> 的結果是 0</td></tr>
+<tr><td><code>!=</code></td><td>不等於</td><td><code>buttonState != lastButtonState</code> 表示狀態改變了</td></tr>
+</table></div>
+<p><code>buttonPushCounter % 4 == 0</code> 的意思是「次數除以 4 沒有餘數」，也就是次數是 0、4、8、12…的時候。</p>
+<div class="table-wrap"><table class="center">
+<tr><th>次數</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+<tr><th>次數 % 4</th><td>0</td><td>1</td><td>2</td><td>3</td><td>0</td><td>1</td><td>2</td><td>3</td><td>0</td></tr>
+<tr><th>LED</th><td>亮</td><td>滅</td><td>滅</td><td>滅</td><td>亮</td><td>滅</td><td>滅</td><td>滅</td><td>亮</td></tr>
+</table></div>
+<p>注意第一格：次數是 0 時，<code>0 % 4</code> 也是 0，所以<strong>一上傳完、還沒按，LED 就是亮的</strong>。按第 1 下熄滅，按到第 4 下再亮起來。</p>
+
+<h3>一輪一輪追蹤</h3>
+<p>下表是「按一下、按住、放開、再按一下」時，每一輪 <code>loop()</code> 裡變數的變化：</p>
+<div class="table-wrap"><table>
+<tr><th>第幾輪</th><th>buttonState（這一次）</th><th>lastButtonState（上一次）</th><th>狀態改變了嗎？</th><th>變成 HIGH 嗎？</th><th>buttonPushCounter</th></tr>
+<tr><td>1</td><td>LOW</td><td>LOW</td><td>否</td><td>不檢查</td><td>0</td></tr>
+<tr><td>2</td><td>HIGH</td><td>LOW</td><td>是</td><td>是，加 1</td><td>1</td></tr>
+<tr><td>3</td><td>HIGH</td><td>HIGH</td><td>否</td><td>不檢查</td><td>1</td></tr>
+<tr><td>4</td><td>LOW</td><td>HIGH</td><td>是</td><td>否</td><td>1</td></tr>
+<tr><td>5</td><td>HIGH</td><td>LOW</td><td>是</td><td>是，加 1</td><td>2</td></tr>
+</table></div>
+<p>每一輪最後的 <code>lastButtonState = buttonState;</code>，會把「這一次」存成下一輪的「上一次」。這一行是整個範例的關鍵。</p>
+
+<details><summary>先猜猜看：按 5 下，監控視窗會出現什麼？</summary>
+<div class="output"><div class="output-label">序列埠監控視窗</div><pre>按下次數：1
+按下次數：2
+按下次數：3
+按下次數：4
+按下次數：5</pre></div>
+<p>每按一下只印一行，按住不放不會多印。LED 在第 4 下時亮起，第 5 下又熄滅。</p>
+</details>
+
+<div class="callout key"><p class="callout-title">計數變數為什麼寫在 <code>loop()</code> 外面？</p>
+<p>寫在 <code>loop()</code> 外面的變數，整個程式執行期間都存在，數值會一直保留。如果把 <code>int buttonPushCounter = 0;</code> 寫在 <code>loop()</code> 裡面，每一輪 <code>loop()</code> 開始時都會重新建立並歸零，次數永遠加不上去。</p></div>
+
+<div class="callout warn"><p class="callout-title">什麼是按鈕抖動？</p>
+<p>按鈕內部是金屬片接觸。按下的一瞬間，金屬片會快速彈跳幾次，讀值在極短時間內「HIGH、LOW、HIGH」來回跳，程式可能把一次按下算成好幾次。狀態改變後 <code>delay(50)</code> 等 50 毫秒，就能跳過這段彈跳時間。</p></div>
+
+<h3><span class="tag">改一改</span></h3>
+<ol>
+  <li>改成每按滿 <strong>3</strong> 次 LED 才亮。</li>
+  <li>把 <code>delay(50)</code> 刪掉，快速按按鈕，次數會不會多算？</li>
+  <li>挑戰：做一個「按一下亮、再按一下滅」的開關。（提示：次數是奇數時亮，偶數時滅，可以用 <code>% 2</code> 判斷。）</li>
+</ol>
+<details><summary>第 1、2 題：看說明</summary>
+<p><strong>第 1 題</strong>：把 <code>buttonPushCounter % 4 == 0</code> 改成 <code>buttonPushCounter % 3 == 0</code>。</p>
+<p><strong>第 2 題</strong>：有可能。按一下時監控視窗偶爾會一次跳好幾個數字，這就是按鈕抖動造成的。抖動的情況每顆按鈕不一樣，有些按鈕比較不明顯。</p>
+</details>
+<details class="solution"><summary>看參考解答</summary><figure class="code"><figcaption><span class="file">ToggleSwitch.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 按一下亮、再按一下滅的開關</span>
+<span class="t-com">// 次數是奇數時亮，偶數時滅：用 % 2 判斷</span>
+
+<span class="t-type">int</span> buttonPin = <span class="t-num">2</span>;
+<span class="t-type">int</span> ledPin = <span class="t-num">13</span>;
+
+<span class="t-type">int</span> buttonPushCounter = <span class="t-num">0</span>;
+<span class="t-type">int</span> lastButtonState = <span class="t-const">LOW</span>;
+
+<span class="t-type">void</span> <span class="t-fn">setup</span>() {
+  <span class="t-fn">pinMode</span>(buttonPin, <span class="t-const">INPUT</span>);
+  <span class="t-fn">pinMode</span>(ledPin, <span class="t-const">OUTPUT</span>);
+  <span class="t-fn">Serial</span>.<span class="t-fn">begin</span>(<span class="t-num">9600</span>);
+}
+
+<span class="t-type">void</span> <span class="t-fn">loop</span>() {
+  <span class="t-type">int</span> buttonState = <span class="t-fn">digitalRead</span>(buttonPin);
+
+  <span class="t-key">if</span> (buttonState != lastButtonState) {
+    <span class="t-key">if</span> (buttonState == <span class="t-const">HIGH</span>) {
+      buttonPushCounter = buttonPushCounter + <span class="t-num">1</span>;
+      <span class="t-fn">Serial</span>.<span class="t-fn">print</span>(<span class="t-str">&quot;按下次數：&quot;</span>);
+      <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(buttonPushCounter);
+    }
+    <span class="t-fn">delay</span>(<span class="t-num">50</span>);
+  }
+  lastButtonState = buttonState;
+
+  <span class="t-key">if</span> (buttonPushCounter % <span class="t-num">2</span> == <span class="t-num">1</span>) {   <span class="t-com">// 除以 2 餘 1：奇數</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">HIGH</span>);
+  } <span class="t-key">else</span> {                            <span class="t-com">// 除以 2 餘 0：偶數</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);
+  }
+}</code></pre></figure></details>
+
+<h2 id="more">4. 加碼範例：旋鈕等級顯示</h2>
+<p>判斷的結果不一定要控制 LED，也可以決定要印出什麼文字。這個範例把讀值分成三級，在監控視窗印出「低」「中」「高」。接線和第 2 節相同。</p>
+<figure class="code"><figcaption><span class="file">KnobLevelText.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 旋鈕等級顯示：在監控視窗用文字印出「低」「中」「高」</span>
+
+<span class="t-type">void</span> <span class="t-fn">setup</span>() {
+  <span class="t-fn">Serial</span>.<span class="t-fn">begin</span>(<span class="t-num">9600</span>);
+}
+
+<span class="t-type">void</span> <span class="t-fn">loop</span>() {
+  <span class="t-type">int</span> value = <span class="t-fn">analogRead</span>(<span class="t-const">A0</span>);
+
+  <span class="t-fn">Serial</span>.<span class="t-fn">print</span>(value);
+  <span class="t-fn">Serial</span>.<span class="t-fn">print</span>(<span class="t-str">&quot; → &quot;</span>);
+
+  <span class="t-key">if</span> (value &gt; <span class="t-num">700</span>) {          <span class="t-com">// 從最大的範圍開始檢查</span>
+    <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(<span class="t-str">&quot;高&quot;</span>);
+  } <span class="t-key">else</span> <span class="t-key">if</span> (value &gt; <span class="t-num">300</span>) {   <span class="t-com">// 走到這裡代表不大於 700</span>
+    <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(<span class="t-str">&quot;中&quot;</span>);
+  } <span class="t-key">else</span> {                    <span class="t-com">// 不大於 300</span>
+    <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(<span class="t-str">&quot;低&quot;</span>);
+  }
+
+  <span class="t-fn">delay</span>(<span class="t-num">300</span>);
+}</code></pre></figure>
+<details><summary>先猜猜看：讀值分別是 150、300、301、700、701 時，會印出什麼？</summary>
+<div class="output"><div class="output-label">序列埠監控視窗</div><pre>150 → 低
+300 → 低
+301 → 中
+700 → 中
+701 → 高</pre></div>
+<p>300 不大於 300，所以是「低」；700 不大於 700，所以是「中」。<strong>剛好等於門檻的數字，最容易判斷錯</strong>，寫完程式要特別拿來檢查。</p>
+</details>
+
+<h2 id="practice">5. 綜合練習</h2>
+<div class="callout try"><p class="callout-title">練習 1：按滿 5 次就完成</p>
+<p>以 State Change Detection 為基礎：每按一下印出次數；按到第 5 次時，額外印出一行「完成！」；按滿 5 次之後，LED 一直亮著。提示：「印出完成」要用 <code>==</code>，「LED 一直亮」要用 <code>&gt;=</code>，想想看為什麼。</p></div>
+<details class="solution"><summary>看參考解答</summary><figure class="code"><figcaption><span class="file">CountToFive.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 按滿 5 次就完成：第 5 次按下時印出「完成！」，之後 LED 一直亮著</span>
+<span class="t-com">// 接線：和 StateChangeDetection 相同（按鈕接第 2 號腳位，10k 歐姆下拉電阻接 GND）</span>
+
+<span class="t-type">int</span> buttonPin = <span class="t-num">2</span>;
+<span class="t-type">int</span> ledPin = <span class="t-num">13</span>;
+
+<span class="t-type">int</span> buttonPushCounter = <span class="t-num">0</span>;
+<span class="t-type">int</span> lastButtonState = <span class="t-const">LOW</span>;
+
+<span class="t-type">void</span> <span class="t-fn">setup</span>() {
+  <span class="t-fn">pinMode</span>(buttonPin, <span class="t-const">INPUT</span>);
+  <span class="t-fn">pinMode</span>(ledPin, <span class="t-const">OUTPUT</span>);
+  <span class="t-fn">Serial</span>.<span class="t-fn">begin</span>(<span class="t-num">9600</span>);
+}
+
+<span class="t-type">void</span> <span class="t-fn">loop</span>() {
+  <span class="t-type">int</span> buttonState = <span class="t-fn">digitalRead</span>(buttonPin);
+
+  <span class="t-key">if</span> (buttonState != lastButtonState) {
+    <span class="t-key">if</span> (buttonState == <span class="t-const">HIGH</span>) {
+      buttonPushCounter = buttonPushCounter + <span class="t-num">1</span>;
+      <span class="t-fn">Serial</span>.<span class="t-fn">print</span>(<span class="t-str">&quot;按下次數：&quot;</span>);
+      <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(buttonPushCounter);
+
+      <span class="t-key">if</span> (buttonPushCounter == <span class="t-num">5</span>) {      <span class="t-com">// 剛好第 5 次：只會印一次</span>
+        <span class="t-fn">Serial</span>.<span class="t-fn">println</span>(<span class="t-str">&quot;完成！&quot;</span>);
+      }
+    }
+    <span class="t-fn">delay</span>(<span class="t-num">50</span>);
+  }
+  lastButtonState = buttonState;
+
+  <span class="t-key">if</span> (buttonPushCounter &gt;= <span class="t-num">5</span>) {          <span class="t-com">// 5 次以上：LED 亮</span>
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">HIGH</span>);
+  } <span class="t-key">else</span> {
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);
+  }
+}</code></pre></figure></details>
+<details><summary>看說明：為什麼一個用 ==、一個用 &gt;=？</summary>
+<p>「完成！」只想印一次，所以只在次數<strong>剛好等於</strong> 5 的那一下印；如果用 <code>&gt;=</code>，第 6、7 下也會再印。LED 則是 5 次以後都要亮，所以用<strong>大於或等於</strong>。</p>
+</details>
+
+<div class="callout try"><p class="callout-title">練習 2：按鈕加旋鈕，兩個條件都要成立</p>
+<p>同時接上按鈕（第 2 號腳位，下拉電阻接法）與可變電阻（A0）。只有「按住按鈕」<strong>而且</strong>「旋鈕讀值大於 500」時，LED 才亮。提示：可以在一個 <code>if</code> 裡面再放一個 <code>if</code>。</p></div>
+<details class="solution"><summary>看參考解答</summary><figure class="code"><figcaption><span class="file">ButtonAndKnob.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 按鈕 + 旋鈕：按住按鈕時，才檢查旋鈕是否超過 500；兩個條件都成立 LED 才亮</span>
+<span class="t-com">// 接線：按鈕接第 2 號腳位（10k 歐姆下拉電阻接 GND）；可變電阻中間腳接 A0</span>
+
+<span class="t-type">int</span> buttonPin = <span class="t-num">2</span>;
+<span class="t-type">int</span> ledPin = <span class="t-num">13</span>;
+
+<span class="t-type">void</span> <span class="t-fn">setup</span>() {
+  <span class="t-fn">pinMode</span>(buttonPin, <span class="t-const">INPUT</span>);
+  <span class="t-fn">pinMode</span>(ledPin, <span class="t-const">OUTPUT</span>);
+}
+
+<span class="t-type">void</span> <span class="t-fn">loop</span>() {
+  <span class="t-type">int</span> buttonState = <span class="t-fn">digitalRead</span>(buttonPin);
+  <span class="t-type">int</span> knobValue = <span class="t-fn">analogRead</span>(<span class="t-const">A0</span>);
+
+  <span class="t-key">if</span> (buttonState == <span class="t-const">HIGH</span>) {          <span class="t-com">// 外層：按鈕有按下嗎？</span>
+    <span class="t-key">if</span> (knobValue &gt; <span class="t-num">500</span>) {            <span class="t-com">// 內層：旋鈕超過 500 嗎？</span>
+      <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">HIGH</span>);     <span class="t-com">// 兩個都成立</span>
+    } <span class="t-key">else</span> {
+      <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);      <span class="t-com">// 有按按鈕，但旋鈕沒超過</span>
+    }
+  } <span class="t-key">else</span> {
+    <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);        <span class="t-com">// 沒按按鈕，不管旋鈕</span>
+  }
+}</code></pre></figure></details>
+
+<h2 id="errors">6. 常見錯誤</h2>
+<div class="table-wrap"><table>
+<tr><th>狀況</th><th>可能原因</th><th>解決方式</th></tr>
+<tr><td>條件好像永遠成立</td><td>在 <code>if</code> 裡寫成 <code>=</code>，而不是 <code>==</code></td><td>比較相等要寫 <code>==</code></td></tr>
+<tr><td>按一次卻算好幾次</td><td>沒有做狀態改變偵測，或按鈕抖動</td><td>比較上一次狀態，並加入短暫延遲</td></tr>
+<tr><td><code>else</code> 出現錯誤</td><td><code>else</code> 前面的 <code>}</code> 少了或多了</td><td>檢查大括號是否成對</td></tr>
+<tr><td>次數沒有累加</td><td>把 <code>int buttonPushCounter = 0;</code> 寫在 <code>loop()</code> 裡面</td><td>計數變數要寫在 <code>loop()</code> 外面，才不會每輪歸零</td></tr>
+<tr><td>某一段 <code>else if</code> 永遠不會執行</td><td>條件的順序排錯，前面的條件把範圍先吃掉了</td><td>依大小順序重新排列條件</td></tr>
+<tr><td><code>if</code> 後面加了分號，條件沒作用</td><td>寫成 <code>if (x &gt; 400);</code></td><td><code>if (...)</code> 後面直接接 <code>{</code>，不要加分號</td></tr>
+</table></div>
+
+<div class="callout tip"><p class="callout-title">保持縮排，大括號才不會對錯</p>
+<p>大括號裡的程式往右縮兩格。在 Arduino IDE 按 <kbd>Ctrl</kbd> + <kbd>T</kbd>（Mac 用 <kbd>Cmd</kbd> + <kbd>T</kbd>）可以自動整理縮排。整理完如果縮排怪怪的，通常就是大括號少了或多了。</p></div>
+
+<h2 id="review">7. 自我檢核與重點回顧</h2>
+<h3>自我檢核</h3>
+<ol>
+  <li><code>if ... else</code> 和只有 <code>if</code> 的差別是什麼？</li>
+  <li><code>x = 5</code> 和 <code>x == 5</code> 有什麼不同？</li>
+  <li>為什麼計算按鈕次數時，要記住「上一次的狀態」？</li>
+  <li><code>10 % 4</code> 的結果是多少？</li>
+  <li>門檻是 400、條件寫 <code>value &gt; 400</code> 時，讀值剛好 400 會不會亮？</li>
+</ol>
+<details><summary>看參考答案</summary>
+<ol>
+  <li>只有 <code>if</code> 時，條件不成立就什麼都不做；<code>if ... else</code> 一定會做其中一段。</li>
+  <li><code>x = 5</code> 是把 5 放進 x；<code>x == 5</code> 是檢查 x 是否等於 5。</li>
+  <li><code>loop()</code> 重複得非常快，按住按鈕會連續讀到很多次 <code>HIGH</code>。只有和上一次比較，才能抓到「從 LOW 變 HIGH」那一刻，一次按下只算一次。</li>
+  <li>2（10 除以 4 等於 2 餘 2）。</li>
+  <li>不會。400 沒有大於 400，要寫 <code>value &gt;= 400</code> 才會亮。</li>
+</ol>
+</details>
+
+<h3>本週重點回顧</h3>
+<ul>
+  <li><code>if</code> 讓程式在條件成立時才執行某段程式；<code>else</code> 處理條件不成立的情況；<code>else if</code> 做多選一。</li>
+  <li>比較運算子有 <code>&gt;</code>、<code>&lt;</code>、<code>&gt;=</code>、<code>&lt;=</code>、<code>==</code>、<code>!=</code>。</li>
+  <li>門檻值可以把連續的讀值分成「超過」與「沒超過」兩種情況；要注意剛好等於門檻的情況。</li>
+  <li>偵測狀態改變，才能正確計算按鈕按下的次數。<code>%</code> 取餘數，可以判斷倍數與奇偶。</li>
+</ul>
+
+<h3>下週預告</h3>
+<p>這週的 LED 只有「亮」和「滅」兩種狀態。下週要讓 LED <strong>慢慢變亮、慢慢變暗</strong>，並且用旋鈕控制 LED 的亮度。</p>
+
+<h2 id="notice">圖片使用聲明</h2>
+<p class="notice">本講義中的電路圖取自 Arduino 官方文件，每張圖下方皆註明原始網址與授權方式。本講義僅供教學使用，只提供給修課學生，不作其他用途。若原作者或權利人希望移除相關圖片，請來信 <a href="mailto:p306teaching@gmail.com">p306teaching@gmail.com</a>，我們將依作者要求盡快移除。</p>
+<nav class="pager" aria-label="上一週與下一週"><a class="prev" href="week04.html">← 第 4 週：可變電阻與類比讀值</a><a class="next" href="week06.html">第 6 週：LED 調光與數值換算 →</a></nav></main></div>
+<footer class="site">參考資料：Arduino 官方文件 <a href="https://docs.arduino.cc/" target="_blank" rel="noopener">docs.arduino.cc</a>。電路圖取自 Arduino 官方範例，依 CC BY-SA 4.0 授權使用。</footer>
+<script>
+(function(){
+  var root=document.documentElement,key='arduino-handout-theme';
+  try{var saved=localStorage.getItem(key);if(saved)root.dataset.theme=saved;}catch(e){}
+  document.querySelector('button.theme').addEventListener('click',function(){
+    var dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme=dark?'light':'dark';
+    try{localStorage.setItem(key,root.dataset.theme);}catch(e){}
+  });
+  document.querySelectorAll('button.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var text=btn.closest('figure').querySelector('pre').innerText;
+      var done=function(){btn.textContent='已複製 ✓';setTimeout(function(){btn.textContent='複製';},1500);};
+      if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,fallback);}else{fallback();}
+      function fallback(){var t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();
+        try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}
+    });
+  });
+  var page=location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('.goals input').forEach(function(box,i){
+    var id='arduino-handout-'+page+'-goal-'+i;
+    try{box.checked=localStorage.getItem(id)==='1';}catch(e){}
+    box.addEventListener('change',function(){try{localStorage.setItem(id,box.checked?'1':'0');}catch(e){}});
+  });
+  var links=document.querySelectorAll('.toc a');
+  if(links.length&&'IntersectionObserver' in window){
+    var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+    var io=new IntersectionObserver(function(entries){entries.forEach(function(en){
+      if(en.isIntersecting){links.forEach(function(a){a.classList.remove('active');});
+        var a=map[en.target.id];if(a)a.classList.add('active');}
+    });},{rootMargin:'-20% 0px -70% 0px'});
+    document.querySelectorAll('main h2[id]').forEach(function(h){io.observe(h);});
+  }
+  window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=true;});});
+})();
+</script>
+</body>
+</html>
