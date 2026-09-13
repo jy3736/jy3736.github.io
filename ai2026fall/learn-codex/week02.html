@@ -1,0 +1,1347 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
+<title>第 2 週：用 ChatGPT 與 Codex 學習和做專題</title>
+<meta name="description" content="認識 Chat、ChatGPT Work 與 Codex，學會寫提示、檢查答案，並看 Codex 如何修好一個小程式。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding-inline: 16px;
+}
+.site-header .inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+@media (min-width: 1000px) {
+  .page { grid-template-columns: 250px minmax(0, 1fr); }
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 1000px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 1000px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable week cards on the index page. */
+.week-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.week-card.week-2 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.week-card.week-3 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+@media (prefers-color-scheme: dark) {
+  .week-card.week-2 { --wc: #5cc8bf; --wc-bg: #17332f; }
+  .week-card.week-3 { --wc: #b996f2; --wc-bg: #2a2140; }
+}
+.week-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+@media (prefers-color-scheme: dark) { .week-card .tag { color: #15171a; } }
+.week-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.week-card .card-link { color: var(--text); text-decoration: none; }
+.week-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.week-card .card-link:focus-visible { outline: none; }
+.week-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.week-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.week-card:hover .card-link { color: var(--wc); }
+.week-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.week-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .week-card { transition: none; } .week-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+@media (prefers-color-scheme: dark) {
+  .steps > li::before { color: #0e1a19; }
+}
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+@media (prefers-color-scheme: dark) { .download { color: #0e1a19; } }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; padding-inline: 16px; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+@media print {
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); max-width: 900px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 協作程式設計講義</a><nav aria-label="講義"><a href="index.html">課程講義首頁</a>
+<a href="week02.html" aria-current="page">第 2 週</a>
+<a href="week03.html">第 3 週</a></nav></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><details><summary>本頁目錄</summary><ol><li><a href="#words"><span class="toc-num">01</span>先認識幾個會一直出現的名詞</a></li>
+<li><a href="#modes"><span class="toc-num">02</span>ChatGPT 的三種工作方式</a></li>
+<li><a href="#prompt"><span class="toc-num">03</span>寫出清楚的提示</a></li>
+<li><a href="#check"><span class="toc-num">04</span>檢查 AI 的答案</a></li>
+<li><a href="#projects"><span class="toc-num">05</span>專案、檔案與個人化</a></li>
+<li><a href="#work"><span class="toc-num">06</span>ChatGPT Work：交辦一整件事</a></li>
+<li><a href="#codex"><span class="toc-num">07</span>認識 Codex</a></li>
+<li><a href="#safety"><span class="toc-num">08</span>先設好安全網</a></li>
+<li><a href="#agents-md"><span class="toc-num">09</span>用 AGENTS.md 交代專案規則</a></li>
+<li><a href="#see-it"><span class="toc-num">10</span>動手看一次：Codex 修好一個有錯的程式</a></li>
+<li><a href="#workflows"><span class="toc-num">11</span>專題中最常用的 Codex 工作流程</a></li>
+<li><a href="#more"><span class="toc-num">12</span>其他實用功能</a></li>
+<li><a href="#practice"><span class="toc-num">13</span>整合演練：一個專題從發想到展示</a></li>
+<li><a href="#summary"><span class="toc-num">14</span>總結與課後練習</a></li></ol></details></aside>
+<main id="main">
+<section class="hero">
+  <p class="eyebrow">第 2 週講義</p>
+  <h1>用 ChatGPT 與 Codex 學習和做專題</h1>
+  <p class="lead">這一週要學會三件事：分辨 ChatGPT 的三種工作方式、把需求說清楚、以及確認 AI 做出來的東西真的是對的。最後會一步一步看 Codex 怎麼修好一個有錯的小程式。</p>
+  <ul class="meta">
+    <li>課堂時間 120 分鐘</li>
+    <li>需要：ChatGPT 帳號</li>
+    <li>選用：VS Code、Git、Python</li>
+  </ul>
+</section>
+
+<div class="card-grid">
+  <div class="card"><span class="tag">目標 1</span><p>分辨 <strong>Chat</strong>、<strong>ChatGPT Work</strong>、<strong>Codex</strong>，依任務選對工具。</p></div>
+  <div class="card"><span class="tag">目標 2</span><p>用「目標、脈絡、產出、界線」四個要素寫出清楚的提示。</p></div>
+  <div class="card"><span class="tag">目標 3</span><p>追問 AI 的依據與假設，親自檢查重要的內容。</p></div>
+  <div class="card"><span class="tag">目標 4</span><p>看懂 Codex 修改程式的過程，並知道如何用 Git 保留退路。</p></div>
+</div>
+
+<h2 id="words"><span class="num">01</span>先認識幾個會一直出現的名詞</h2>
+
+<p>這份講義會用到一些電腦與程式的名詞。先把它們用生活化的方式講清楚，後面讀起來會輕鬆很多。不必一次背起來，看到不懂的詞再回來查就好。</p>
+
+<dl class="glossary">
+  <dt>AI 代理（agent）</dt>
+  <dd>不只會回答問題，還能<strong>自己規劃步驟、使用工具、把事情做完</strong>的 AI。像一位助理：你交代目標，它會自己查資料、開檔案、做出成果給你檢查。</dd>
+  <dt>提示（prompt）</dt>
+  <dd>你輸入給 AI 的文字，可以是一個問題、一個指令或一個目標。</dd>
+  <dt>脈絡（context）</dt>
+  <dd>AI 在回答時能參考的背景資訊，例如你上傳的檔案、之前的對話、你說明的情況。脈絡越貼切，答案越符合你的需要。</dd>
+  <dt>檔案與資料夾</dt>
+  <dd>檔案是一份資料（一篇文件、一張圖、一個程式）；資料夾是裝檔案的容器，資料夾裡還可以有資料夾。</dd>
+  <dt>路徑（path）</dt>
+  <dd>檔案在電腦裡的「地址」，例如 <code>專題/程式/main.py</code> 表示「專題」資料夾裡的「程式」資料夾裡的 <code>main.py</code>。</dd>
+  <dt>程式碼（code）</dt>
+  <dd>用程式語言寫給電腦執行的指示。副檔名常透露它是哪種語言，例如 <code>.py</code> 是 Python，<code>.js</code> 是 JavaScript，<code>.html</code> 是網頁。</dd>
+  <dt>終端機（terminal）</dt>
+  <dd>一個用「打字下指令」操作電腦的視窗。在圖形介面裡你用滑鼠點「開啟」，在終端機裡你輸入一行指令讓電腦做同樣的事。macOS 叫「終端機」，Windows 常用「PowerShell」。</dd>
+  <dt>Bug</dt>
+  <dd>程式中的錯誤，讓程式的結果和預期不一樣，或直接當掉。</dd>
+  <dt>測試（test）</dt>
+  <dd>另外寫一小段程式，自動檢查「輸入這些資料時，結果是不是我們預期的」。每次修改後跑一次測試，就知道有沒有改壞東西。</dd>
+  <dt>Git</dt>
+  <dd>記錄檔案每一次變化的工具，像是遊戲的「存檔點」。改壞了可以回到之前的存檔。</dd>
+  <dt>Commit</dt>
+  <dd>在 Git 裡建立一個存檔點的動作，會記下「這個時間點所有檔案的樣子」和一句說明。</dd>
+</dl>
+
+<h2 id="modes"><span class="num">02</span>ChatGPT 的三種工作方式</h2>
+
+<p>ChatGPT 是可以用日常語言溝通的 AI 代理。你可以從一個問題、一份筆記或一件待辦事項開始，需要時再加入檔案、網路搜尋等資訊，最後檢查結果並要求修改。第一個提示不必完美，也不需要學任何特殊指令。</p>
+
+<p>同一個 ChatGPT 裡，有三種工作方式：</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>工作方式</th><th>可以把它想成</th><th>適合的時候</th><th>大學生的例子</th></tr></thead>
+  <tbody>
+    <tr><td>Chat</td><td>隨時可以問問題的學長姐</td><td>想來回討論、問問題、腦力激盪</td><td>解釋看不懂的觀念、想報告題目、比較兩種做法</td></tr>
+    <tr><td>ChatGPT Work</td><td>可以交辦一整件事的助理</td><td>要一份可以檢查的完整成品</td><td>把筆記做成簡報、整理文獻比較表、擬專題計畫書</td></tr>
+    <tr><td>Codex</td><td>會寫程式的組員</td><td>要處理程式碼，並看到技術細節</td><td>找出程式錯誤、執行測試、審查組員的程式、做新功能</td></tr>
+  </tbody>
+</table></div>
+
+<div class="callout tip">
+  <span class="label">一句話記住</span>
+  <p><strong>問問題用 Chat，要成品用 Work，碰程式碼用 Codex。</strong></p>
+</div>
+
+<h3>怎麼判斷該用哪一個？</h3>
+<p>拿到一件事時，依序問自己兩個問題：</p>
+<ol class="steps">
+  <li><p><strong>這件事會動到程式碼嗎？</strong> 會的話用 Codex，因為它會顯示修改了哪幾行、執行了哪些指令，方便你檢查。</p></li>
+  <li><p><strong>我要的是「答案」還是「成品」？</strong> 只要一個解釋、一個建議、一段短文字，用 Chat；要一份簡報、一張試算表、一份報告，用 ChatGPT Work。</p></li>
+</ol>
+
+<p>另外兩件要知道的事：</p>
+<ul>
+  <li>ChatGPT Work 和 Codex 的能力有重疊。Codex 也能做研究和文件，差別在於介面：Work 會把 Git 或指令這類技術細節藏起來，Codex 則會把它們顯示出來。</li>
+  <li>ChatGPT Work 和 Codex <strong>共用同一份用量額度</strong>。越大的任務用掉的額度越多，所以要把任務範圍說清楚。</li>
+</ul>
+
+<h2 id="prompt"><span class="num">03</span>寫出清楚的提示</h2>
+
+<h3>提示的四個要素</h3>
+<p>簡單的問題直接問就好。遇到比較大或比較重要的任務時，想想下面四件事，用得到的才寫進去：</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>要素</th><th>要回答的問題</th><th>例子</th></tr></thead>
+  <tbody>
+    <tr><td>目標</td><td>要 AI 做什麼？</td><td>幫我準備資料結構期中考</td></tr>
+    <tr><td>脈絡</td><td>哪些資訊會影響結果？</td><td>考試範圍是堆疊、佇列、鏈結串列，我對遞迴比較不熟</td></tr>
+    <tr><td>產出</td><td>要什麼格式、長度、詳細程度？</td><td>10 題選擇題加 2 題手寫程式題，附詳解</td></tr>
+    <tr><td>界線</td><td>什麼不能做？什麼要先問我？</td><td>只出範圍內的題目；程式題先不要給答案，等我作答後再批改</td></tr>
+  </tbody>
+</table></div>
+
+<p>寫提示時，先說「想要的結果」，而不是列出一長串步驟。只有當步驟本身很重要時，才需要把流程寫出來。</p>
+
+<h3>同一個問題的三個版本</h3>
+<p>下面用「Big-O」這個資工課常見的觀念示範。你不需要懂 Big-O 是什麼，重點是觀察提示怎麼一步步變清楚。</p>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">版本 1：只有目標</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="什麼是 Big-O？">什麼是 Big-O？</span></code></pre></figure>
+<p>AI 只知道你要一個定義，會給出一般性的解釋，可能太深或太淺。</p>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">版本 2：加上脈絡</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="什麼是 Big-O？我是資工系二年級，剛學完迴圈和陣列，">什麼是 Big-O？我是資工系二年級，剛學完迴圈和陣列，</span>
+<span class="line" data-text="但一直搞不懂為什麼 O(n log n) 比 O(n^2) 快。">但一直搞不懂為什麼 O(n log n) 比 O(n^2) 快。</span></code></pre></figure>
+<p>AI 現在知道你學過什麼、卡在哪裡，會針對你的困惑解釋。</p>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">版本 3：再指定產出</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="用我學過的迴圈和陣列當例子，解釋 Big-O 是什麼，">用我學過的迴圈和陣列當例子，解釋 Big-O 是什麼，</span>
+<span class="line" data-text="以及為什麼 O(n log n) 比 O(n^2) 快。">以及為什麼 O(n log n) 比 O(n^2) 快。</span>
+<span class="line" data-text="請用一個 n = 10、100、1000 的比較表呈現，">請用一個 n = 10、100、1000 的比較表呈現，</span>
+<span class="line" data-text="最後出 3 題讓我自我檢查，先不要給答案。">最後出 3 題讓我自我檢查，先不要給答案。</span></code></pre></figure>
+<p>AI 不只知道要解釋什麼，還知道要用表格、要出題、而且答案先保留。這就是一個完整的提示。</p>
+
+<h3>用追問把結果調整到剛好</h3>
+<p>第一個回答只是起點。看完後可以直接用一句話調整：</p>
+<ul>
+  <li>「再短一點。」</li>
+  <li>「給我三種不同的解釋方式。」</li>
+  <li>「你做了哪些假設？」</li>
+  <li>「繼續之前，先問我幾個問題。」</li>
+</ul>
+
+<h3>學習時好用的提示範例</h3>
+
+<h4>用熟悉的事物類比，理解新觀念</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我在修「計算機概論」，老師講到 TCP 三向交握。">我在修「計算機概論」，老師講到 TCP 三向交握。</span>
+<span class="line" data-text="請用「打電話約同學出去」來類比，解釋三個步驟各自的目的，">請用「打電話約同學出去」來類比，解釋三個步驟各自的目的，</span>
+<span class="line" data-text="並指出這個類比在哪裡不成立。">並指出這個類比在哪裡不成立。</span></code></pre></figure>
+<p><strong>為什麼有效：</strong>要求「指出類比哪裡不成立」，可以避免你把類比當成真的，學到錯誤的細節。</p>
+
+<h4>讓 AI 當家教，一步步引導你想</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想自己弄懂「為什麼二元搜尋一定要在排序好的陣列上做」。">我想自己弄懂「為什麼二元搜尋一定要在排序好的陣列上做」。</span>
+<span class="line" data-text="請不要直接告訴我答案，一次只問我一個問題引導我推理，">請不要直接告訴我答案，一次只問我一個問題引導我推理，</span>
+<span class="line" data-text="等我回答後再決定下一個問題。">等我回答後再決定下一個問題。</span></code></pre></figure>
+<p><strong>為什麼有效：</strong>自己想出來的答案記得最牢。「一次只問一個問題」讓對話變成真正的練習。</p>
+
+<h4>考前複習：出題、作答、批改</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="這是我整理的「統計學」第 3 到第 5 章重點（貼上筆記）。">這是我整理的「統計學」第 3 到第 5 章重點（貼上筆記）。</span>
+<span class="line" data-text="請根據這份筆記出 8 題觀念題，難度由易到難。">請根據這份筆記出 8 題觀念題，難度由易到難。</span>
+<span class="line" data-text="我作答後，請逐題批改，說明錯在哪個觀念，並指出筆記中對應的段落。">我作答後，請逐題批改，說明錯在哪個觀念，並指出筆記中對應的段落。</span></code></pre></figure>
+<p><strong>為什麼有效：</strong>「根據這份筆記」把範圍鎖在你的課程內容；「指出對應段落」讓你能回頭複習。</p>
+
+<h4>讀懂論文或原文教科書</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我附上一篇論文的摘要與結論。">我附上一篇論文的摘要與結論。</span>
+<span class="line" data-text="請用繁體中文整理：研究問題、方法、主要發現、限制。">請用繁體中文整理：研究問題、方法、主要發現、限制。</span>
+<span class="line" data-text="專有名詞第一次出現時保留英文原文並附中文解釋。">專有名詞第一次出現時保留英文原文並附中文解釋。</span></code></pre></figure>
+
+<h4>比較選項，做出決定</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我的專題想做一個校園活動報名 App，正在考慮 Flutter 和 React Native。">我的專題想做一個校園活動報名 App，正在考慮 Flutter 和 React Native。</span>
+<span class="line" data-text="我們組員都學過 Dart，沒學過 JavaScript，時間只有一學期。">我們組員都學過 Dart，沒學過 JavaScript，時間只有一學期。</span>
+<span class="line" data-text="請用表格比較學習成本、開發速度、社群資源，最後推薦一個並說明取捨。">請用表格比較學習成本、開發速度、社群資源，最後推薦一個並說明取捨。</span></code></pre></figure>
+<p><strong>為什麼有效：</strong>「組員會什麼、時間多長」是會改變答案的脈絡；沒有這些資訊，AI 只能給出一般的比較。</p>
+
+<h4>寫信與溝通</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="幫我寫一封給教授的 email，請假下週三的實驗課，原因是參加校外競賽。">幫我寫一封給教授的 email，請假下週三的實驗課，原因是參加校外競賽。</span>
+<span class="line" data-text="語氣正式有禮，150 字以內，並詢問補做實驗的方式。">語氣正式有禮，150 字以內，並詢問補做實驗的方式。</span></code></pre></figure>
+
+<h2 id="check"><span class="num">04</span>檢查 AI 的答案</h2>
+
+<p>AI 的回答讀起來再流暢，也可能不完整或有錯。請把第一個結果當成<strong>草稿</strong>，而不是最終答案。</p>
+
+<h3>要親自檢查的內容</h3>
+<ul class="checklist">
+  <li>重要的數字、人名、日期、引用的句子。</li>
+  <li>AI 產生的檔案：每一頁、每一張投影片、每一個工作表都要打開看。</li>
+  <li>AI 是否用了正確、最新的資料。</li>
+  <li>有沒有缺漏的資訊，或沒有根據的假設。</li>
+</ul>
+
+<h3>請 AI 自己說清楚的問題</h3>
+<ul>
+  <li>「這個說法的來源是什麼？」</li>
+  <li>「每個主要論點請附上來源。」</li>
+  <li>「你做了哪些假設？」</li>
+  <li>「有哪些資訊你無法取得？」</li>
+  <li>「請對照我給的原始檔案，再檢查一次這份結果。」</li>
+</ul>
+
+<p>需要最新資訊時，可以要求 ChatGPT 使用網路搜尋並附上來源，方便查證。如果 AI 沒辦法取得某個來源，請它明確說出來：<strong>一個說清楚的缺口，遠比一個自信的猜測容易處理。</strong></p>
+
+<div class="callout warn">
+  <span class="label">重大決定一定要找專業人士</span>
+  <p>法律、財務、醫療、資訊安全等會影響重大決定的內容，AI 只能幫你整理思路，最後一定要請相關專業人士確認。</p>
+</div>
+
+<div class="callout note">
+  <span class="label">學習誠信</span>
+  <p>作業和考試是用來確認「你」學會了什麼。用 AI 解釋觀念、出練習題、批改你的作答都很好；把作業題目貼上去、直接交出 AI 的答案，就不是學習。每門課對 AI 的規定不同，交作業前請先確認授課教師的規定，並依要求註明 AI 的使用方式。</p>
+</div>
+
+<h2 id="projects"><span class="num">05</span>專案、檔案與個人化</h2>
+
+<h3>用「專案」讓 AI 記得你的課程</h3>
+<p>如果一件事會持續一段時間、會產出不只一份成果，或會反覆用到同一批檔案，就建立一個<strong>專案（Project）</strong>。專案會把相關的對話、檔案和指示放在一起，專案指示會套用到裡面的每一個對話。一次性的小問題，直接開新對話就好。</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th>專案名稱</th><th>放進去的檔案</th><th>專案指示範例</th></tr></thead>
+  <tbody>
+    <tr><td>資料結構 115 上</td><td>課程大綱、講義 PDF、自己的筆記</td><td>回答時以本課講義為準，程式範例使用 C 語言</td></tr>
+    <tr><td>畢業專題</td><td>計畫書、會議紀錄、需求文件</td><td>我們是 4 人小組，目標是期末完成可展示的 App</td></tr>
+    <tr><td>求職準備</td><td>履歷、目標職缺說明</td><td>用台灣企業常見的履歷格式給建議</td></tr>
+  </tbody>
+</table></div>
+
+<ul>
+  <li><strong>每個成果開一個對話</strong>：例如「期中複習」一個對話、「報告大綱」一個對話，讓每個對話保持聚焦。</li>
+  <li><strong>網頁版專案讀不到你的電腦</strong>：要讓 AI 使用檔案，需要上傳或透過外掛連接。桌面版則可以建立連到電腦資料夾的「本機專案」。</li>
+</ul>
+
+<h3>上傳檔案可以做什麼</h3>
+<p>可以上傳文件、簡報、試算表、PDF、圖片與資料匯出檔，請 ChatGPT 摘要或比較、找出規律或矛盾、整理資料，或當作做新檔案的素材。</p>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">整理一學期的筆記</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我上傳了這學期「經濟學原理」的 6 份講義 PDF。">我上傳了這學期「經濟學原理」的 6 份講義 PDF。</span>
+<span class="line" data-text="請整理成一份期末複習講義：每章一頁、列出核心名詞與公式、">請整理成一份期末複習講義：每章一頁、列出核心名詞與公式、</span>
+<span class="line" data-text="標出不同章節之間互相關聯的概念。">標出不同章節之間互相關聯的概念。</span>
+<span class="line" data-text="講義沒提到的內容不要自行補充，有疑問的地方請標註「待確認」。">講義沒提到的內容不要自行補充，有疑問的地方請標註「待確認」。</span></code></pre></figure>
+<p>最後兩句是<strong>界線</strong>：限制 AI 只能用講義內容，並把不確定的地方標出來，你就知道哪裡要回去查。</p>
+
+<p>圖片適合用在錯誤訊息截圖、介面設計或架構圖。記得說清楚要看圖中哪裡、想得到什麼：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">用截圖問問題</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="這是我執行 Python 程式時的錯誤訊息截圖。">這是我執行 Python 程式時的錯誤訊息截圖。</span>
+<span class="line" data-text="請看最下面紅色那一行，解釋錯誤原因，並告訴我最小的修正方式。">請看最下面紅色那一行，解釋錯誤原因，並告訴我最小的修正方式。</span></code></pre></figure>
+
+<h3>個人化設定</h3>
+<p>想套用到<strong>所有對話</strong>的偏好（例如「一律用繁體中文回答」、「我是機械系學生，舉例請偏向工程情境」），放在 <strong>Settings &gt; Personalization</strong> 的自訂指示裡。只跟<strong>這次對話</strong>有關的細節，直接寫在提示中。</p>
+
+<h2 id="work"><span class="num">06</span>ChatGPT Work：交辦一整件事</h2>
+
+<h3>Work 能做什麼</h3>
+<div class="card-grid">
+  <div class="card"><h4>研究與分析</h4><p>搜尋網路、瀏覽網站、比較來源、讀檔案、分析資料並整理發現。</p></div>
+  <div class="card"><h4>使用你的檔案與工具</h4><p>上傳的檔案、專案、記憶，以及安裝的外掛（例如 Google Drive）。</p></div>
+  <div class="card"><h4>產出完成的檔案</h4><p>文件、簡報、試算表、PDF，可以預覽、要求修改、下載。</p></div>
+  <div class="card"><h4>視覺與互動作品</h4><p>產生或編輯圖片、做互動圖表，並用 Sites 建立與分享網站。</p></div>
+  <div class="card"><h4>重複有用的流程</h4><p>設定排程任務，或用技能（skill）重複使用同一套做法。</p></div>
+</div>
+
+<p>適合交給 Work 的任務，通常符合下面幾點：需要多個來源或步驟、自己做會花不少時間、產出是你之後要檢查或重複使用的東西、需要定期重做。快速的問題和簡短的改寫，用 Chat 就夠了。</p>
+
+<h3>雲端或本機</h3>
+<ul>
+  <li><strong>網頁版</strong>：Work 在雲端執行。</li>
+  <li><strong>桌面版</strong>：可以選 <strong>Cloud</strong>（關掉 App 或電腦後任務仍繼續，也能從網頁或手機接著看），或 <strong>Work locally</strong>（使用你電腦上的檔案、App 或瀏覽器）。</li>
+</ul>
+<p>Work 會顯示進度，需要資訊或授權時會暫停等你。重要的動作先檢查再核准，最後的成果也要檢查過才使用或分享。</p>
+
+<h3>寫給 Work 的提示：同一件事的兩種寫法</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">不好的寫法</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="幫我做一份期末報告簡報。">幫我做一份期末報告簡報。</span></code></pre></figure>
+<p>AI 不知道主題、聽眾、長度、資料來源，只能自己猜，做出來的東西多半要大改。</p>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">好的寫法</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請閱讀我附上的三份文獻 PDF 和我的讀書筆記，">請閱讀我附上的三份文獻 PDF 和我的讀書筆記，</span>
+<span class="line" data-text="製作一份 8 張投影片的簡報，主題是「生成式 AI 對大學寫作教學的影響」，">製作一份 8 張投影片的簡報，主題是「生成式 AI 對大學寫作教學的影響」，</span>
+<span class="line" data-text="聽眾是「教育心理學」課堂的同學與老師，報告時間 10 分鐘。">聽眾是「教育心理學」課堂的同學與老師，報告時間 10 分鐘。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="要求：">要求：</span>
+<span class="line" data-text="- 聚焦文獻中最常被提到的三個影響，每個影響附上支持的證據與出處">- 聚焦文獻中最常被提到的三個影響，每個影響附上支持的證據與出處</span>
+<span class="line" data-text="- 把「文獻的發現」和「我們的看法」分開呈現">- 把「文獻的發現」和「我們的看法」分開呈現</span>
+<span class="line" data-text="- 找不到充分證據的說法請標記出來，不要自行補充">- 找不到充分證據的說法請標記出來，不要自行補充</span>
+<span class="line" data-text="- 先給我草稿檢查，不要當成最終版本">- 先給我草稿檢查，不要當成最終版本</span></code></pre></figure>
+
+<details class="explain">
+  <summary>拆解：這個提示好在哪裡？</summary>
+  <div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>句子</th><th>對應要素</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td>閱讀附上的三份文獻和讀書筆記</td><td>脈絡</td><td>指定資料來源，AI 不會亂找</td></tr>
+        <tr><td>8 張投影片、報告 10 分鐘</td><td>產出</td><td>決定份量</td></tr>
+        <tr><td>主題、聽眾是同學與老師</td><td>目標、脈絡</td><td>決定用詞深淺與重點</td></tr>
+        <tr><td>三個影響、附證據與出處</td><td>產出</td><td>決定內容結構，也方便你查證</td></tr>
+        <tr><td>分開發現與看法、標記證據不足</td><td>界線</td><td>避免 AI 把猜測寫成事實</td></tr>
+        <tr><td>先給草稿檢查</td><td>界線</td><td>保留你修改的機會</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</details>
+
+<h3>大學生常見的 Work 任務</h3>
+
+<h4>文獻比較表（試算表）</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我附上 6 篇關於「微塑膠對海洋生物影響」的論文。">我附上 6 篇關於「微塑膠對海洋生物影響」的論文。</span>
+<span class="line" data-text="請建立一份試算表，每篇論文一列，欄位包含：作者與年份、研究對象、">請建立一份試算表，每篇論文一列，欄位包含：作者與年份、研究對象、</span>
+<span class="line" data-text="研究方法、樣本數、主要發現、研究限制。">研究方法、樣本數、主要發現、研究限制。</span>
+<span class="line" data-text="另外新增一個「總結」工作表，歸納這些研究的共同結論與彼此矛盾之處。">另外新增一個「總結」工作表，歸納這些研究的共同結論與彼此矛盾之處。</span>
+<span class="line" data-text="每個數字都要能對應回原始論文。">每個數字都要能對應回原始論文。</span></code></pre></figure>
+
+<h4>專題選題決策</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我們小組要從以下三個題目中選一個當畢業專題：">我們小組要從以下三個題目中選一個當畢業專題：</span>
+<span class="line" data-text="(1) 校園二手書交易平台 (2) 實驗室器材借用系統 (3) 學餐營養分析 App。">(1) 校園二手書交易平台 (2) 實驗室器材借用系統 (3) 學餐營養分析 App。</span>
+<span class="line" data-text="組員技能：2 人會 Python，1 人會 Flutter，1 人擅長 UI 設計，時間 2 個學期。">組員技能：2 人會 Python，1 人會 Flutter，1 人擅長 UI 設計，時間 2 個學期。</span>
+<span class="line" data-text="請建立一份比較試算表，評分標準包含技術難度、所需時間、展示效果、">請建立一份比較試算表，評分標準包含技術難度、所需時間、展示效果、</span>
+<span class="line" data-text="可取得的資料、潛在風險，並新增總結頁提出推薦與下一步。">可取得的資料、潛在風險，並新增總結頁提出推薦與下一步。</span>
+<span class="line" data-text="缺少的資訊請列出來問我們，不要自行假設。">缺少的資訊請列出來問我們，不要自行假設。</span></code></pre></figure>
+
+<h4>專題計畫書草稿</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="根據我附上的專題會議紀錄與需求清單，">根據我附上的專題會議紀錄與需求清單，</span>
+<span class="line" data-text="撰寫一份專題計畫書草稿（Word 文件），包含：">撰寫一份專題計畫書草稿（Word 文件），包含：</span>
+<span class="line" data-text="研究動機、目標、系統功能列表、技術架構、18 週時程表、分工、風險與因應。">研究動機、目標、系統功能列表、技術架構、18 週時程表、分工、風險與因應。</span>
+<span class="line" data-text="時程表請標出期中與期末兩個展示節點。">時程表請標出期中與期末兩個展示節點。</span>
+<span class="line" data-text="完成前請檢查每個功能都有對應的負責人與完成週次。">完成前請檢查每個功能都有對應的負責人與完成週次。</span></code></pre></figure>
+
+<h4>實驗數據分析</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我上傳了「物理實驗二」單擺實驗的原始數據 CSV（擺長與週期，共 5 組）。">我上傳了「物理實驗二」單擺實驗的原始數據 CSV（擺長與週期，共 5 組）。</span>
+<span class="line" data-text="請清理明顯的輸入錯誤，計算每組平均週期與標準差，">請清理明顯的輸入錯誤，計算每組平均週期與標準差，</span>
+<span class="line" data-text="畫出週期平方對擺長的圖並做線性迴歸，估算重力加速度 g。">畫出週期平方對擺長的圖並做線性迴歸，估算重力加速度 g。</span>
+<span class="line" data-text="請說明每一步的計算方式，並把圖表與結果整理成一頁實驗報告的結果段落。">請說明每一步的計算方式，並把圖表與結果整理成一頁實驗報告的結果段落。</span></code></pre></figure>
+<p>CSV 是一種用逗號分隔欄位的表格檔，可以用 Excel 或 Google 試算表打開。</p>
+
+<h4>定期更新（排程任務）</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="每週一早上 8 點，整理本週「資料結構」與「線性代數」的作業截止日、">每週一早上 8 點，整理本週「資料結構」與「線性代數」的作業截止日、</span>
+<span class="line" data-text="考試日期與小組會議，列成一份本週待辦清單，依截止日期排序。">考試日期與小組會議，列成一份本週待辦清單，依截止日期排序。</span></code></pre></figure>
+<p>建議先在一般對話裡把提示調整到結果穩定，再在那個對話中設定排程。需要讀取行事曆或信件的排程，必須先連接對應的外掛。</p>
+
+<h4>建立網站（Sites）</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="幫我們的社團「程式設計研究社」做一個期初招生網站。">幫我們的社團「程式設計研究社」做一個期初招生網站。</span>
+<span class="line" data-text="包含社團介紹、本學期活動時程、幹部介紹、報名表單。">包含社團介紹、本學期活動時程、幹部介紹、報名表單。</span>
+<span class="line" data-text="先問我社團的基本資料和活動內容，再開始製作。">先問我社團的基本資料和活動內容，再開始製作。</span></code></pre></figure>
+<p>Sites 目前為公開測試版，適用 ChatGPT Plus、Pro、Business、Enterprise 與 Edu 方案，並有用量限制。</p>
+
+<h3>讓 Work 更有效率的五個習慣</h3>
+<ol class="steps">
+  <li><p><strong>設下界線</strong>：「只用這些來源」、「比較前五名就好」、「送出任何東西前先停下來」。</p></li>
+  <li><p><strong>只給相關的資料</strong>：必要時限定日期範圍。</p></li>
+  <li><p><strong>區分必要與加分</strong>：把一定要做的和「有空再潤飾」的分開寫。</p></li>
+  <li><p><strong>先要計畫</strong>：做法重要時請它先提出計畫；要寄出、發布或修改別人依賴的資料前，一定要先經過你核准。</p></li>
+  <li><p><strong>偏離方向就喊停</strong>：縮小範圍或直接停止，不要讓它繼續做你不需要的事。</p></li>
+</ol>
+
+<h2 id="codex"><span class="num">07</span>認識 Codex</h2>
+
+<h3>程式專案長什麼樣子</h3>
+<p>一個程式專案其實就是<strong>一個資料夾</strong>，裡面放著程式檔、資料檔、說明文件。例如一個「計算平均分數」的小專案：</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">專案資料夾結構</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="average-bug/">average-bug/</span>
+<span class="line" data-text="├── before/">├── before/</span>
+<span class="line" data-text="│   └── average.py        ← 有錯的版本">│   └── average.py        ← 有錯的版本</span>
+<span class="line" data-text="└── after/">└── after/</span>
+<span class="line" data-text="    ├── average.py        ← 修好的版本">    ├── average.py        ← 修好的版本</span>
+<span class="line" data-text="    └── test_average.py   ← 自動檢查用的測試">    └── test_average.py   ← 自動檢查用的測試</span></code></pre></figure>
+<p>Codex 做的事，就是在這樣的資料夾裡<strong>讀檔案、修改檔案、執行指令</strong>，最後告訴你改了什麼。</p>
+
+<h3>在哪裡使用 Codex</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>使用介面</th><th>適合的情境</th><th>開始方式</th></tr></thead>
+  <tbody>
+    <tr><td>ChatGPT 桌面版</td><td>用滑鼠操作，方便看修改內容與審查</td><td>在產品選單選 <strong>Codex</strong>，開啟專案資料夾</td></tr>
+    <tr><td>VS Code 擴充套件</td><td>一邊寫程式一邊問，修改顯示在程式碼旁邊</td><td>在 VS Code 安裝擴充套件，點 Codex 圖示</td></tr>
+    <tr><td>Codex CLI</td><td>在終端機裡用打字操作，也能寫進自動化腳本</td><td>在專案資料夾執行 <code>codex</code></td></tr>
+    <tr><td>Codex 雲端</td><td>長時間任務、同時跑多個任務、從 GitHub 發起</td><td>到 chatgpt.com/codex 連接 GitHub 並建立環境</td></tr>
+  </tbody>
+</table></div>
+<p>VS Code 是一個免費的程式編輯器，下週會詳細介紹。如果只想先體驗，桌面版最直覺。</p>
+
+<h3>打開終端機</h3>
+<p>安裝 CLI 或執行程式時需要終端機：</p>
+<ul>
+  <li><strong>macOS</strong>：按 <kbd>Cmd</kbd>+<kbd>Space</kbd> 開啟 Spotlight，輸入「終端機」或「Terminal」後按 Enter。</li>
+  <li><strong>Windows</strong>：按開始鍵，輸入「PowerShell」後按 Enter。</li>
+</ul>
+<p>終端機打開後會看到一行提示符號（例如 <code>%</code> 或 <code>&gt;</code>），在後面輸入指令、按 Enter 執行。</p>
+
+<h3>安裝 Codex CLI（選一種方式即可）</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">macOS 或 Linux</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="curl -fsSL https://chatgpt.com/codex/install.sh | sh">curl -fsSL https://chatgpt.com/codex/install.sh | sh</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">Windows PowerShell</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="powershell -ExecutionPolicy ByPass -c &quot;irm https://chatgpt.com/codex/install.ps1 | iex&quot;">powershell -ExecutionPolicy ByPass -c &quot;irm https://chatgpt.com/codex/install.ps1 | iex&quot;</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">已經安裝 Node.js 的話，也可以用 npm</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="npm install -g @openai/codex">npm install -g @openai/codex</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">已經安裝 Homebrew 的話，也可以用 brew（macOS）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="brew install --cask codex">brew install --cask codex</span></code></pre></figure>
+
+<details class="explain">
+  <summary>這些指令在做什麼？</summary>
+  <div>
+    <ul>
+      <li><code>curl ... | sh</code>：<code>curl</code> 從網址下載安裝程式，<code>|</code>（管線）把下載的內容交給 <code>sh</code> 執行。</li>
+      <li><code>irm ... | iex</code>：PowerShell 版的同一件事，<code>irm</code> 下載、<code>iex</code> 執行。</li>
+      <li><code>npm install -g</code>：用 Node.js 的套件管理工具安裝，<code>-g</code> 表示安裝成整台電腦都能用的指令。</li>
+    </ul>
+    <p>從網路下載並執行程式前，一定要確認網址是官方來源。</p>
+  </div>
+</details>
+
+<p>安裝好之後，用終端機進到專案資料夾，輸入 <code>codex</code> 啟動。第一次使用時選擇 <strong>Sign in with ChatGPT</strong> 登入。Codex 會把你啟動它時所在的資料夾當成這次工作的專案。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">進入資料夾並啟動 Codex</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="cd Desktop/average-bug">cd Desktop/average-bug</span>
+<span class="line" data-text="codex">codex</span></code></pre></figure>
+<p><code>cd</code> 是 change directory（切換資料夾）的縮寫，後面接要進去的資料夾路徑。</p>
+
+<h2 id="safety"><span class="num">08</span>先設好安全網</h2>
+
+<p>Codex 會讀檔案、改檔案、執行指令。為了確保一切在你的掌控之中，有兩個機制一起運作：</p>
+
+<div class="card-grid">
+  <div class="card"><h4>沙箱（Sandbox）</h4><p>像是一道圍籬，技術上限制 Codex 能碰哪些檔案、能不能連網。Codex 執行的其他工具（例如 Git、測試工具）也都在圍籬內。</p></div>
+  <div class="card"><h4>核准（Approvals）</h4><p>決定 Codex 什麼時候要停下來問你。例如要跨出圍籬時，先徵求你同意。</p></div>
+</div>
+
+<p>大多數情況建議使用 <strong>Ask for approval</strong> 模式：Codex 可以在目前的專案資料夾內自由工作，要超出範圍時會先暫停問你。在 CLI 中輸入 <code>/permissions</code> 可以查看和切換模式。</p>
+
+<h3>用 Git 建立存檔點</h3>
+<p><strong>每次請 Codex 動手前後，都建立一個 Git 存檔點。</strong>如果結果不滿意，就能回到修改前的狀態。第一次在一個資料夾使用 Git 時：</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">第一次：讓資料夾開始被 Git 記錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git init">git init</span>
+<span class="line" data-text="git add -A">git add -A</span>
+<span class="line" data-text="git commit -m &quot;checkpoint: 請 Codex 修改之前&quot;">git commit -m &quot;checkpoint: 請 Codex 修改之前&quot;</span></code></pre></figure>
+
+<details class="explain" open>
+  <summary>逐行解說</summary>
+  <div>
+    <ul>
+      <li><code>git init</code>：讓 Git 開始記錄這個資料夾。每個資料夾只需要做一次。</li>
+      <li><code>git add -A</code>：把「所有檔案目前的樣子」放進準備存檔的區域。<code>-A</code> 代表全部。</li>
+      <li><code>git commit -m "..."</code>：正式建立存檔點，<code>-m</code> 後面引號裡是這個存檔點的說明，寫給未來的自己看。</li>
+    </ul>
+    <p>之後每次要存檔，只需要執行後面兩行。第一次使用 Git 時，它可能會要求你先設定姓名與 email，照畫面提示輸入即可。</p>
+  </div>
+</details>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">查看修改了什麼、回到上一個存檔點</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git status">git status</span>
+<span class="line" data-text="git diff">git diff</span>
+<span class="line" data-text="git restore .">git restore .</span></code></pre></figure>
+<ul>
+  <li><code>git status</code>：列出哪些檔案被改過。</li>
+  <li><code>git diff</code>：逐行顯示改了哪些內容，<code>-</code> 開頭是刪掉的行，<code>+</code> 開頭是新增的行。</li>
+  <li><code>git restore .</code>：放棄所有還沒存檔的修改，回到上一個存檔點。<strong>這個動作無法復原</strong>，執行前先用 <code>git diff</code> 確認。</li>
+</ul>
+
+<h2 id="agents-md"><span class="num">09</span>用 AGENTS.md 交代專案規則</h2>
+
+<p>每次請 Codex 做事，你可能都要重複交代「修改後要跑測試」、「不要改原始資料」。把這些規則寫進專案資料夾裡一個叫 <code>AGENTS.md</code> 的檔案，Codex 開始工作前會自動讀取，就不用每次重講。</p>
+
+<h3>Markdown 是什麼</h3>
+<p><code>.md</code> 結尾的檔案是 Markdown 格式，一種用簡單符號標示格式的純文字檔：</p>
+<ul>
+  <li><code># 標題</code>：一個 <code>#</code> 是大標題，<code>##</code> 是小一級的標題。</li>
+  <li><code>- 項目</code>：減號加空格開頭，是條列項目。</li>
+  <li><code>`文字`</code>：用反引號包起來，表示這是指令或程式名稱。</li>
+</ul>
+
+<h3>範例：畢業專題的 AGENTS.md</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">AGENTS.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# AGENTS.md"># AGENTS.md</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="## 專案說明">## 專案說明</span>
+<span class="line" data-text="- 這是「校園二手書交易平台」畢業專題，前端 Flutter，後端 Python FastAPI。">- 這是「校園二手書交易平台」畢業專題，前端 Flutter，後端 Python FastAPI。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="## 工作規則">## 工作規則</span>
+<span class="line" data-text="- 修改 Python 程式後，執行 `pytest` 並回報結果。">- 修改 Python 程式後，執行 `pytest` 並回報結果。</span>
+<span class="line" data-text="- 修改 Dart 程式後，執行 `flutter analyze` 與 `flutter test`。">- 修改 Dart 程式後，執行 `flutter analyze` 與 `flutter test`。</span>
+<span class="line" data-text="- 新增任何套件前，先問我們並說明理由。">- 新增任何套件前，先問我們並說明理由。</span>
+<span class="line" data-text="- 程式碼註解使用繁體中文，變數與函式名稱使用英文。">- 程式碼註解使用繁體中文，變數與函式名稱使用英文。</span>
+<span class="line" data-text="- 不要修改 `docs/proposal/` 裡的計畫書檔案。">- 不要修改 `docs/proposal/` 裡的計畫書檔案。</span></code></pre></figure>
+
+<h3>Codex 怎麼找 AGENTS.md</h3>
+<ol class="steps">
+  <li><p><strong>全域</strong>：先讀你個人的 <code>~/.codex/AGENTS.md</code>，套用到所有專案。（<code>~</code> 代表你的使用者家目錄。）</p></li>
+  <li><p><strong>專案</strong>：從專案最上層的資料夾一路往下到目前的資料夾，每一層最多讀一個規則檔。</p></li>
+  <li><p><strong>合併</strong>：越靠近目前資料夾的規則越晚讀到，所以會覆蓋前面的規則。</p></li>
+</ol>
+<p>懶得從零寫？在專案資料夾中對 Codex 輸入 <code>/init</code>，它會產生一份 <code>AGENTS.md</code> 草稿，你再修改成自己的規則。</p>
+
+<h2 id="see-it"><span class="num">10</span>動手看一次：Codex 修好一個有錯的程式</h2>
+
+<p>這一節用一個很小的 Python 程式，完整走一遍「發現錯誤、請 Codex 修、檢查結果」的過程。就算你從來沒寫過程式，也能照著看懂。</p>
+
+<p><a class="download" href="downloads/week02-average-bug.zip">下載本節範例（week02-average-bug.zip）</a></p>
+
+<h3>第 1 步：看懂這個程式想做什麼</h3>
+<p>這個程式想計算一串分數的<strong>平均</strong>。平均的算法是：把所有分數加起來，再除以分數的個數。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">before/average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def average(scores):"><span class="ln">1</span>def average(scores):</span>
+<span class="line" data-text="    total = 0"><span class="ln">2</span>    total = 0</span>
+<span class="line" data-text="    for score in scores:"><span class="ln">3</span>    for score in scores:</span>
+<span class="line" data-text="        total = total + score"><span class="ln">4</span>        total = total + score</span>
+<span class="line" data-text="    return total / 3"><span class="ln">5</span>    return total / 3</span>
+<span class="line" data-text=""><span class="ln">6</span></span>
+<span class="line" data-text=""><span class="ln">7</span></span>
+<span class="line" data-text="print(average([80, 90, 70]))"><span class="ln">8</span>print(average([80, 90, 70]))</span>
+<span class="line" data-text="print(average([100, 60]))"><span class="ln">9</span>print(average([100, 60]))</span>
+<span class="line" data-text="print(average([]))"><span class="ln">10</span>print(average([]))</span></code></pre></figure>
+
+<details class="explain" open>
+  <summary>逐行解說</summary>
+  <div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>行號</th><th>程式碼的意思</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>def average(scores):</code> 定義一個叫 <code>average</code> 的<strong>函式</strong>。函式像一台機器：把資料（這裡叫 <code>scores</code>，一串分數）放進去，它會算出結果。冒號後面縮排的幾行，都是這台機器的內部步驟。</td></tr>
+        <tr><td>2</td><td><code>total = 0</code> 建立一個叫 <code>total</code> 的<strong>變數</strong>，先放入 0。變數像一個貼了標籤的盒子，用來暫存數字。</td></tr>
+        <tr><td>3</td><td><code>for score in scores:</code> <strong>迴圈</strong>：從分數串列中一次拿出一個分數，叫它 <code>score</code>，對每個分數都執行下一行。</td></tr>
+        <tr><td>4</td><td><code>total = total + score</code> 把目前的總和加上這個分數，再存回 <code>total</code>。迴圈跑完，<code>total</code> 就是全部分數的總和。</td></tr>
+        <tr><td>5</td><td><code>return total / 3</code> 把總和除以 3，當成結果交回去。<strong>問題就在這裡。</strong></td></tr>
+        <tr><td>8-10</td><td><code>print(...)</code> 把結果顯示在畫面上。<code>[80, 90, 70]</code> 是一個有三個分數的<strong>串列</strong>，<code>[]</code> 是一個空的串列。</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</details>
+
+<h3>第 2 步：執行，發現結果不對</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">在 before 資料夾中執行程式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="cd before">cd before</span>
+<span class="line" data-text="python3 average.py">python3 average.py</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="80.0">80.0</span>
+<span class="line" data-text="53.333333333333336">53.333333333333336</span>
+<span class="line" data-text="0.0">0.0</span></code></pre></figure>
+
+<p>逐一檢查：</p>
+<ul>
+  <li>80、90、70 的平均是 80，<strong>正確</strong>。</li>
+  <li>100、60 的平均應該是 80，程式卻算出 53.33，<strong>錯誤</strong>。因為程式固定除以 3，但這裡只有 2 個分數。</li>
+  <li>沒有任何分數時，程式回答 0.0。但「沒有分數」不等於「平均 0 分」，這個結果會<strong>誤導</strong>人。</li>
+</ul>
+<div class="callout tip">
+  <span class="label">觀察重點</span>
+  <p>第一個例子剛好是 3 個分數，所以結果看起來正確。<strong>只測一種情況，很容易漏掉錯誤</strong>，這就是為什麼需要多種情況的測試。</p>
+</div>
+
+<h3>第 3 步：把問題描述清楚，交給 Codex</h3>
+<p>在 <code>average-bug</code> 資料夾中啟動 Codex（或在桌面版、VS Code 開啟這個資料夾），輸入：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="before/average.py 的 average 函式計算平均時有錯。">before/average.py 的 average 函式計算平均時有錯。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="重現方式：">重現方式：</span>
+<span class="line" data-text="1) 執行 python3 before/average.py">1) 執行 python3 before/average.py</span>
+<span class="line" data-text="2) average([100, 60]) 印出 53.333333333333336，預期是 80">2) average([100, 60]) 印出 53.333333333333336，預期是 80</span>
+<span class="line" data-text="3) average([]) 印出 0.0，但沒有分數時應該回傳 None，表示「沒有平均」">3) average([]) 印出 0.0，但沒有分數時應該回傳 None，表示「沒有平均」</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="限制：">限制：</span>
+<span class="line" data-text="- 只修改 average 函式，不要改其他行">- 只修改 average 函式，不要改其他行</span>
+<span class="line" data-text="- 修正盡量小">- 修正盡量小</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請修正後再執行一次程式，並新增一個測試檔，涵蓋三個分數、兩個分數、沒有分數三種情況，">請修正後再執行一次程式，並新增一個測試檔，涵蓋三個分數、兩個分數、沒有分數三種情況，</span>
+<span class="line" data-text="執行測試並回報指令與結果。">執行測試並回報指令與結果。</span></code></pre></figure>
+
+<details class="explain">
+  <summary>為什麼要這樣寫提示？</summary>
+  <div>
+    <ul>
+      <li><strong>重現方式</strong>：給出「怎麼執行、看到什麼、預期什麼」，Codex 可以自己跑一次確認問題，比「平均算錯了」精確得多。</li>
+      <li><strong>限制</strong>：避免 Codex 順手改了其他地方，讓你難以檢查。</li>
+      <li><strong>驗證方式</strong>：要求它修完後再執行、加測試、回報結果，你不用盲目相信「我修好了」。</li>
+    </ul>
+  </div>
+</details>
+
+<h3>第 4 步：看 Codex 改了什麼</h3>
+<p>Codex 會顯示它修改的內容（稱為 diff）。下面是一份參考解答，Codex 實際的寫法可能略有不同，但重點一樣：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">after/average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def average(scores):"><span class="ln">1</span>def average(scores):</span>
+<span class="line" data-text="    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;"><span class="ln">2</span>    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;</span>
+<span class="line" data-text="    if len(scores) == 0:"><span class="ln">3</span>    if len(scores) == 0:</span>
+<span class="line" data-text="        return None"><span class="ln">4</span>        return None</span>
+<span class="line" data-text="    total = 0"><span class="ln">5</span>    total = 0</span>
+<span class="line" data-text="    for score in scores:"><span class="ln">6</span>    for score in scores:</span>
+<span class="line" data-text="        total = total + score"><span class="ln">7</span>        total = total + score</span>
+<span class="line" data-text="    return total / len(scores)"><span class="ln">8</span>    return total / len(scores)</span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text=""><span class="ln">10</span></span>
+<span class="line" data-text="print(average([80, 90, 70]))"><span class="ln">11</span>print(average([80, 90, 70]))</span>
+<span class="line" data-text="print(average([100, 60]))"><span class="ln">12</span>print(average([100, 60]))</span>
+<span class="line" data-text="print(average([]))"><span class="ln">13</span>print(average([]))</span></code></pre></figure>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind ">diff</span><span class="code-title">修改內容（diff）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text=" def average(scores):"> def average(scores):</span>
+<span class="line" data-text="+    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;">+    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;</span>
+<span class="line" data-text="+    if len(scores) == 0:">+    if len(scores) == 0:</span>
+<span class="line" data-text="+        return None">+        return None</span>
+<span class="line" data-text="     total = 0">     total = 0</span>
+<span class="line" data-text="     for score in scores:">     for score in scores:</span>
+<span class="line" data-text="         total = total + score">         total = total + score</span>
+<span class="line" data-text="-    return total / 3">-    return total / 3</span>
+<span class="line" data-text="+    return total / len(scores)">+    return total / len(scores)</span></code></pre></figure>
+
+<details class="explain" open>
+  <summary>改了哪裡、為什麼</summary>
+  <div>
+    <ul>
+      <li><code>+</code> 開頭是新增的行，<code>-</code> 開頭是刪掉的行，前面是空格的行沒有變。</li>
+      <li>第 2 行三個引號包起來的文字是<strong>說明文字</strong>，寫給閱讀程式的人看，不影響執行。</li>
+      <li>第 3-4 行：<code>len(scores)</code> 是串列裡有幾個分數。如果是 0 個，就直接回傳 <code>None</code>（Python 裡代表「沒有值」），不往下算。</li>
+      <li>第 8 行：除以 <code>len(scores)</code>，也就是「實際的分數個數」，不再固定除以 3。</li>
+    </ul>
+  </div>
+</details>
+
+<h3>第 5 步：用測試確認真的修好了</h3>
+<p>參考的測試檔如下（Codex 寫的測試名稱或順序可能不同）：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">after/test_average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="import unittest"><span class="ln">1</span>import unittest</span>
+<span class="line" data-text=""><span class="ln">2</span></span>
+<span class="line" data-text="from average import average"><span class="ln">3</span>from average import average</span>
+<span class="line" data-text=""><span class="ln">4</span></span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="class AverageTest(unittest.TestCase):"><span class="ln">6</span>class AverageTest(unittest.TestCase):</span>
+<span class="line" data-text="    def test_three_scores(self):"><span class="ln">7</span>    def test_three_scores(self):</span>
+<span class="line" data-text="        self.assertEqual(average([80, 90, 70]), 80)"><span class="ln">8</span>        self.assertEqual(average([80, 90, 70]), 80)</span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text="    def test_two_scores(self):"><span class="ln">10</span>    def test_two_scores(self):</span>
+<span class="line" data-text="        self.assertEqual(average([100, 60]), 80)"><span class="ln">11</span>        self.assertEqual(average([100, 60]), 80)</span>
+<span class="line" data-text=""><span class="ln">12</span></span>
+<span class="line" data-text="    def test_no_scores(self):"><span class="ln">13</span>    def test_no_scores(self):</span>
+<span class="line" data-text="        self.assertIsNone(average([]))"><span class="ln">14</span>        self.assertIsNone(average([]))</span>
+<span class="line" data-text=""><span class="ln">15</span></span>
+<span class="line" data-text=""><span class="ln">16</span></span>
+<span class="line" data-text="if __name__ == &quot;__main__&quot;:"><span class="ln">17</span>if __name__ == &quot;__main__&quot;:</span>
+<span class="line" data-text="    unittest.main()"><span class="ln">18</span>    unittest.main()</span></code></pre></figure>
+
+<details class="explain">
+  <summary>逐行解說</summary>
+  <div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>行號</th><th>程式碼的意思</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>載入 Python 內建的測試工具 <code>unittest</code>。</td></tr>
+        <tr><td>3</td><td>從 <code>average.py</code> 取出 <code>average</code> 函式來測試。</td></tr>
+        <tr><td>6</td><td>建立一組測試，名字叫 <code>AverageTest</code>。</td></tr>
+        <tr><td>7-8</td><td>第一個測試：<code>assertEqual</code> 意思是「斷定兩者相等」。算出來的平均必須等於 80，否則測試失敗。</td></tr>
+        <tr><td>10-11</td><td>第二個測試：兩個分數的平均也必須是 80。<strong>原本的錯誤就會在這裡被抓到。</strong></td></tr>
+        <tr><td>13-14</td><td>第三個測試：<code>assertIsNone</code> 斷定沒有分數時結果是 <code>None</code>。</td></tr>
+        <tr><td>17-18</td><td>直接執行這個檔案時，跑所有測試。</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</details>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">在 after 資料夾中執行測試</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="cd after">cd after</span>
+<span class="line" data-text="python3 -m unittest -v">python3 -m unittest -v</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="test_no_scores (test_average.AverageTest.test_no_scores) ... ok">test_no_scores (test_average.AverageTest.test_no_scores) ... ok</span>
+<span class="line" data-text="test_three_scores (test_average.AverageTest.test_three_scores) ... ok">test_three_scores (test_average.AverageTest.test_three_scores) ... ok</span>
+<span class="line" data-text="test_two_scores (test_average.AverageTest.test_two_scores) ... ok">test_two_scores (test_average.AverageTest.test_two_scores) ... ok</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="----------------------------------------------------------------------">----------------------------------------------------------------------</span>
+<span class="line" data-text="Ran 3 tests in 0.000s">Ran 3 tests in 0.000s</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="OK">OK</span></code></pre></figure>
+<p>三個測試都顯示 <code>ok</code>，最後一行是 <code>OK</code>，代表全部通過。以後不管誰修改 <code>average</code>，只要再跑一次測試，就知道有沒有改壞。</p>
+
+<div class="callout try">
+  <span class="label">試試看</span>
+  <p>把 <code>after/average.py</code> 第 8 行暫時改回 <code>return total / 3</code>，再執行一次測試。你會看到哪一個測試失敗？失敗訊息說了什麼？看完後記得改回來。</p>
+</div>
+
+<div class="callout note">
+  <span class="label">Windows 使用者</span>
+  <p>如果終端機說找不到 <code>python3</code>，改用 <code>python</code> 或 <code>py</code>，例如 <code>py -m unittest -v</code>。</p>
+</div>
+
+<h2 id="workflows"><span class="num">11</span>專題中最常用的 Codex 工作流程</h2>
+
+<p>好的 Codex 提示會說清楚四件事：<strong>想要的行為</strong>、<strong>相關的程式或重現步驟</strong>、<strong>必須保留的限制</strong>、<strong>如何驗證</strong>。下面的例子以一個「校園二手書交易平台」專題為背景，你不需要懂裡面的技術名詞，重點是看提示的結構。</p>
+
+<h3>流程 1：看懂別人的程式</h3>
+<p>接手組員或網路上的程式時，先請 Codex 帶你讀懂。在 VS Code 中打開相關檔案、選取想了解的程式碼，然後問：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="解釋選取的這段程式中，使用者按下「上架書籍」後資料是怎麼流動的。">解釋選取的這段程式中，使用者按下「上架書籍」後資料是怎麼流動的。</span>
+<span class="line" data-text="請包含：">請包含：</span>
+<span class="line" data-text="- 每個相關模組負責的工作">- 每個相關模組負責的工作</span>
+<span class="line" data-text="- 哪裡驗證了資料">- 哪裡驗證了資料</span>
+<span class="line" data-text="- 修改這段程式時要注意的一兩個陷阱">- 修改這段程式時要注意的一兩個陷阱</span></code></pre></figure>
+<p>再要一份可以核對的整理，方便你自己打開檔案確認：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="把這個流程整理成編號步驟，並列出涉及的檔案。">把這個流程整理成編號步驟，並列出涉及的檔案。</span></code></pre></figure>
+
+<h3>流程 2：修 bug</h3>
+<p>和第 10 節的做法一樣：<strong>重現步驟比描述問題更有用。</strong></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="Bug：在書籍列表頁按下「收藏」後畫面顯示成功，但重新整理後收藏消失。">Bug：在書籍列表頁按下「收藏」後畫面顯示成功，但重新整理後收藏消失。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="重現步驟：">重現步驟：</span>
+<span class="line" data-text="1) 啟動後端：uvicorn main:app --reload">1) 啟動後端：uvicorn main:app --reload</span>
+<span class="line" data-text="2) 啟動前端：flutter run -d chrome">2) 啟動前端：flutter run -d chrome</span>
+<span class="line" data-text="3) 登入測試帳號，進入書籍列表">3) 登入測試帳號，進入書籍列表</span>
+<span class="line" data-text="4) 點任一本書的「收藏」">4) 點任一本書的「收藏」</span>
+<span class="line" data-text="5) 重新整理頁面，收藏狀態不見了">5) 重新整理頁面，收藏狀態不見了</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="限制：">限制：</span>
+<span class="line" data-text="- 不要更改 API 的回傳格式">- 不要更改 API 的回傳格式</span>
+<span class="line" data-text="- 修正盡量小，可行的話加一個回歸測試">- 修正盡量小，可行的話加一個回歸測試</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請先在本機重現這個 bug，再提出修正並執行檢查。">請先在本機重現這個 bug，再提出修正並執行檢查。</span>
+<span class="line" data-text="修正後執行相關的測試，回報執行的指令與結果。">修正後執行相關的測試，回報執行的指令與結果。</span></code></pre></figure>
+<p>「回歸測試」是專門確認「這個 bug 以後不會再出現」的測試。</p>
+
+<h3>流程 3：寫測試</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="為 backend/services/pricing.py 裡的 calculate_discount 函式寫單元測試，">為 backend/services/pricing.py 裡的 calculate_discount 函式寫單元測試，</span>
+<span class="line" data-text="涵蓋正常情況與邊界情況（折扣為 0、超過 100%、價格為負數），">涵蓋正常情況與邊界情況（折扣為 0、超過 100%、價格為負數），</span>
+<span class="line" data-text="並遵循 tests/ 資料夾中既有測試的寫法。">並遵循 tests/ 資料夾中既有測試的寫法。</span></code></pre></figure>
+<p>「邊界情況」是最容易出錯的極端輸入，例如 0、最大值、負數、空白。</p>
+
+<h3>流程 4：從設計稿做出畫面</h3>
+<p>設計稿圖片可以直接給 Codex，但框架、互動行為這些圖片看不出來的資訊，要用文字補充。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">啟動 Codex 並附上圖片</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="codex -i specs/home_mockup.png">codex -i specs/home_mockup.png</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="依照這張設計稿做出首頁。">依照這張設計稿做出首頁。</span>
+<span class="line" data-text="限制：">限制：</span>
+<span class="line" data-text="- 使用 Flutter，沿用 lib/widgets/ 裡既有的元件風格">- 使用 Flutter，沿用 lib/widgets/ 裡既有的元件風格</span>
+<span class="line" data-text="- 間距、字體、版面盡量貼近設計稿">- 間距、字體、版面盡量貼近設計稿</span>
+<span class="line" data-text="- 搜尋框輸入時要即時篩選書籍（圖片看不出來，請依此實作）">- 搜尋框輸入時要即時篩選書籍（圖片看不出來，請依此實作）</span>
+<span class="line" data-text="產出：">產出：</span>
+<span class="line" data-text="- 新的首頁畫面與需要的小元件">- 新的首頁畫面與需要的小元件</span>
+<span class="line" data-text="- 在 README.md 補上執行方式">- 在 README.md 補上執行方式</span></code></pre></figure>
+
+<h3>流程 5：邊看畫面邊微調</h3>
+<p>先啟動網頁的開發伺服器（會自動重新整理畫面），再用小而具體的提示反覆調整：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="針對登入頁提出 2 到 3 個視覺改善方案。">針對登入頁提出 2 到 3 個視覺改善方案。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="採用方案 2，只改標題區：字體更有質感、增加留白、確認手機版也好看。">採用方案 2，只改標題區：字體更有質感、增加留白、確認手機版也好看。</span></code></pre></figure>
+<p>喜歡的修改就 commit，不喜歡的就還原。如果你自己改動或還原了某段程式，要告訴 Codex，免得它下一輪把你的修改蓋掉。</p>
+
+<h3>流程 6：交作業或合併前做程式碼審查</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/review">/review</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">也可以指定審查重點</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/review 特別注意邊界情況，以及使用者輸入是否有安全性問題">/review 特別注意邊界情況，以及使用者輸入是否有安全性問題</span></code></pre></figure>
+<p><code>/review</code> 會列出依嚴重程度排序的問題，<strong>不會改動你的程式碼</strong>。修正後再跑一次，確認問題解決。專案必須是 Git 儲存庫才能使用。小組若把專案放在 GitHub 並啟用 Codex 程式碼審查，也可以在合併請求（PR）留言 <code>@codex review</code>。</p>
+
+<h3>流程 7：大任務先規劃，再設定目標</h3>
+<p>需求還不明確時，先用 <code>/plan</code> 請 Codex 調查並提出做法：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/plan">/plan</span>
+<span class="line" data-text="我們要在二手書平台加入「站內訊息」功能，讓買家和賣家可以私訊。">我們要在二手書平台加入「站內訊息」功能，讓買家和賣家可以私訊。</span>
+<span class="line" data-text="請先訪談我需求細節，再提出分階段的實作計畫，">請先訪談我需求細節，再提出分階段的實作計畫，</span>
+<span class="line" data-text="每個階段列出要修改的檔案與驗證方式。">每個階段列出要修改的檔案與驗證方式。</span></code></pre></figure>
+<p>計畫確定後，用 <code>/goal</code> 設定一個持續進行的目標。好的目標包含三件事：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>目標元素</th><th>要寫什麼</th><th>範例</th></tr></thead>
+  <tbody>
+    <tr><td>成果</td><td>想要的結果，而不只是活動</td><td>完成站內訊息的第一階段：一對一文字訊息</td></tr>
+    <tr><td>限制</td><td>必須用的工具、不能碰的範圍</td><td>使用現有的 FastAPI 與資料庫，不新增第三方服務</td></tr>
+    <tr><td>驗證</td><td>證明完成的測試或標準</td><td>新增的 API 測試全部通過，flutter test 無錯誤</td></tr>
+  </tbody>
+</table></div>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/goal 完成站內訊息第一階段（一對一文字訊息）。">/goal 完成站內訊息第一階段（一對一文字訊息）。</span>
+<span class="line" data-text="使用現有的 FastAPI 與資料庫，不新增第三方服務。">使用現有的 FastAPI 與資料庫，不新增第三方服務。</span>
+<span class="line" data-text="新增的 API 測試全部通過，flutter analyze 與 flutter test 沒有錯誤。">新增的 API 測試全部通過，flutter analyze 與 flutter test 沒有錯誤。</span></code></pre></figure>
+<p>Codex 工作到一半時你仍可以傳訊息。在 CLI 中按 <kbd>Enter</kbd> 是<strong>引導</strong>（把訊息加入目前這一輪），按 <kbd>Tab</kbd> 是<strong>排隊</strong>（等這一輪結束再處理）。</p>
+
+<h2 id="more"><span class="num">12</span>其他實用功能</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>功能</th><th>用途</th><th>使用方式</th></tr></thead>
+  <tbody>
+    <tr><td>回到舊對話</td><td>昨天沒做完的任務接著做</td><td><code>codex resume</code>，或在 CLI 中輸入 <code>/resume</code></td></tr>
+    <tr><td>網路搜尋</td><td>需要最新版本的文件或套件資訊</td><td><code>codex --search</code></td></tr>
+    <tr><td>非互動模式</td><td>寫進腳本自動執行</td><td><code>codex exec "摘要這個專案的結構"</code></td></tr>
+    <tr><td>Worktree</td><td>讓 Codex 在另一份副本工作，不打擾你手上的修改</td><td>桌面版中選擇在 Worktree 開始對話（下週詳細介紹）</td></tr>
+    <tr><td>技能（Skill）</td><td>把重複的做法打包成可重用的流程</td><td>用 <code>$</code> 呼叫技能，用 <code>$skill-creator</code> 建立（下週詳細介紹）</td></tr>
+    <tr><td>雲端委派</td><td>長時間任務放到雲端，完成後檢查修改或開 PR</td><td>在 IDE 輸入框下方選擇雲端環境</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="practice"><span class="num">13</span>整合演練：一個專題從發想到展示</h2>
+<p>以「實驗室器材借用系統」為例，看三種工作方式如何接力：</p>
+<ol class="flow">
+  <li><b>1 發想</b>Chat：腦力激盪使用情境、比較技術選項</li>
+  <li><b>2 規劃</b>Work：計畫書草稿、時程表、分工試算表</li>
+  <li><b>3 建立專案</b>Codex：<code>/init</code> 產生 AGENTS.md</li>
+  <li><b>4 開發</b>Codex：做畫面、實作功能、寫測試、修 bug</li>
+  <li><b>5 審查</b>Codex：每次合併前 <code>/review</code></li>
+  <li><b>6 展示</b>Work：期末簡報與展示網站</li>
+</ol>
+
+<h3>課堂活動（兩人一組）</h3>
+<ol class="steps">
+  <li><p>選一個你們想做的專題題目。</p></li>
+  <li><p>用 Chat 寫一個包含四要素的提示，請 AI 列出 5 個核心功能與可能的風險。</p></li>
+  <li><p>至少追問兩次，例如：「你做了哪些假設？」、「哪一個功能最可能做不完？為什麼？」</p></li>
+  <li><p>把結果改寫成給 ChatGPT Work 的提示，要求產出一份專題時程試算表。</p></li>
+  <li><p>和旁邊的組別交換提示，互相指出缺少了哪一個要素。</p></li>
+</ol>
+
+<h2 id="summary"><span class="num">14</span>總結與課後練習</h2>
+
+<h3>五個使用守則</h3>
+<ol class="steps">
+  <li><p><strong>選對工具</strong>：問問題用 Chat，要成品用 Work，碰程式碼用 Codex。</p></li>
+  <li><p><strong>說清楚</strong>：目標、脈絡、產出、界線，用得到的就寫上。</p></li>
+  <li><p><strong>要驗證</strong>：追問來源與假設，親自檢查數字、引用與每一頁內容。</p></li>
+  <li><p><strong>留退路</strong>：Codex 動手前後建立 Git 存檔點，預設使用 Ask for approval。</p></li>
+  <li><p><strong>守誠信</strong>：AI 是幫你學會，不是替你交差；依各課程規定使用並註明。</p></li>
+</ol>
+
+<h3>課後練習</h3>
+<ol>
+  <li><strong>Chat</strong>：挑一個本週課程中最不熟的觀念，用「讓 AI 當家教」的提示對話至少 5 回合，記錄你在哪一回合想通。</li>
+  <li><strong>專案</strong>：為一門本學期的課建立 ChatGPT 專案，上傳講義並寫好專案指示。</li>
+  <li><strong>Work</strong>：用自己的筆記產出一份考前複習講義或簡報，並列出你檢查時發現的 3 個錯誤或不精確之處。</li>
+  <li><strong>Codex</strong>：下載本週範例，照第 10 節的步驟請 Codex 修好 <code>before/average.py</code>，並比較它的修法和 <code>after/average.py</code> 有什麼不同。</li>
+</ol>
+
+<h3>延伸閱讀（官方文件）</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>主題</th><th>網址</th></tr></thead>
+  <tbody>
+    <tr><td>使用 ChatGPT</td><td><a href="https://learn.chatgpt.com/docs/use-chatgpt">learn.chatgpt.com/docs/use-chatgpt</a></td></tr>
+    <tr><td>快速上手（Quickstart）</td><td><a href="https://learn.chatgpt.com/docs/quickstart">learn.chatgpt.com/docs/quickstart</a></td></tr>
+    <tr><td>提示技巧</td><td><a href="https://learn.chatgpt.com/docs/prompting">learn.chatgpt.com/docs/prompting</a></td></tr>
+    <tr><td>ChatGPT Work</td><td><a href="https://learn.chatgpt.com/docs/get-started-with-work">learn.chatgpt.com/docs/get-started-with-work</a></td></tr>
+    <tr><td>專案與對話</td><td><a href="https://learn.chatgpt.com/docs/projects">learn.chatgpt.com/docs/projects</a></td></tr>
+    <tr><td>Codex CLI</td><td><a href="https://learn.chatgpt.com/docs/codex/cli">learn.chatgpt.com/docs/codex/cli</a></td></tr>
+    <tr><td>Codex IDE 擴充套件</td><td><a href="https://learn.chatgpt.com/docs/codex/ide">learn.chatgpt.com/docs/codex/ide</a></td></tr>
+    <tr><td>權限模式</td><td><a href="https://learn.chatgpt.com/docs/permission-modes">learn.chatgpt.com/docs/permission-modes</a></td></tr>
+    <tr><td>AGENTS.md</td><td><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">learn.chatgpt.com/docs/agent-configuration/agents-md</a></td></tr>
+    <tr><td>程式碼審查</td><td><a href="https://learn.chatgpt.com/docs/code-review">learn.chatgpt.com/docs/code-review</a></td></tr>
+  </tbody>
+</table></div>
+
+<nav class="pager" aria-label="上下頁"><a href="index.html">回講義首頁</a><a href="week03.html">下一週：建立與管理 Codex 專案</a></nav>
+
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 999px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 1000px)").matches) tocDetails.open = true;
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>

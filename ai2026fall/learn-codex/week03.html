@@ -1,0 +1,1977 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
+<title>第 3 週：建立與管理 Codex 專案，並在 VS Code 中協作</title>
+<meta name="description" content="把專案規則寫進 AGENTS.md、設定檔與技能，在 VS Code 中與 Codex 協作，完成兩個可重現的範例。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding-inline: 16px;
+}
+.site-header .inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+@media (min-width: 1000px) {
+  .page { grid-template-columns: 250px minmax(0, 1fr); }
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 1000px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 1000px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable week cards on the index page. */
+.week-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.week-card.week-2 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.week-card.week-3 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+@media (prefers-color-scheme: dark) {
+  .week-card.week-2 { --wc: #5cc8bf; --wc-bg: #17332f; }
+  .week-card.week-3 { --wc: #b996f2; --wc-bg: #2a2140; }
+}
+.week-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+@media (prefers-color-scheme: dark) { .week-card .tag { color: #15171a; } }
+.week-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.week-card .card-link { color: var(--text); text-decoration: none; }
+.week-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.week-card .card-link:focus-visible { outline: none; }
+.week-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.week-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.week-card:hover .card-link { color: var(--wc); }
+.week-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.week-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .week-card { transition: none; } .week-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+@media (prefers-color-scheme: dark) {
+  .steps > li::before { color: #0e1a19; }
+}
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+@media (prefers-color-scheme: dark) { .download { color: #0e1a19; } }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; padding-inline: 16px; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+@media print {
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); max-width: 900px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 協作程式設計講義</a><nav aria-label="講義"><a href="index.html">課程講義首頁</a>
+<a href="week02.html">第 2 週</a>
+<a href="week03.html" aria-current="page">第 3 週</a></nav></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><details><summary>本頁目錄</summary><ol><li><a href="#words"><span class="toc-num">01</span>這週會用到的名詞</a></li>
+<li><a href="#projects"><span class="toc-num">02</span>Codex 專案是什麼</a></li>
+<li><a href="#rules"><span class="toc-num">03</span>把專案規則寫進專案</a></li>
+<li><a href="#skills"><span class="toc-num">04</span>技能：把重複的做法打包起來</a></li>
+<li><a href="#local-env"><span class="toc-num">05</span>本機環境（桌面版）</a></li>
+<li><a href="#vscode"><span class="toc-num">06</span>在 VS Code 中與 Codex 協作</a></li>
+<li><a href="#vscode-agents"><span class="toc-num">07</span>在 VS Code 的代理工作階段中使用 Codex</a></li>
+<li><a href="#setup"><span class="toc-num">08</span>實作前準備</a></li>
+<li><a href="#sample1"><span class="toc-num">09</span>範例一：成績報告產生器</a></li>
+<li><a href="#sample2"><span class="toc-num">10</span>範例二：截止日看板與平行作業</a></li>
+<li><a href="#summary"><span class="toc-num">11</span>總結與課後練習</a></li></ol></details></aside>
+<main id="main">
+<section class="hero">
+  <p class="eyebrow">第 3 週講義</p>
+  <h1>建立與管理 Codex 專案，並在 VS Code 中協作</h1>
+  <p class="lead">上週學會了「怎麼跟 AI 說清楚」。這週要把專案整理成 Codex 一打開就知道規則的樣子，並在 VS Code 裡和 Codex 一起完成兩個小而完整的程式，最後用「技能」讓任何人都能重現同樣的結果。</p>
+  <ul class="meta">
+    <li>課堂時間 120 分鐘</li>
+    <li>需要：VS Code、Codex 擴充套件、Git、Python、Node.js</li>
+    <li>選用：ChatGPT 桌面版</li>
+  </ul>
+</section>
+
+<div class="card-grid">
+  <div class="card"><span class="tag">目標 1</span><p>說明桌面版、CLI、VS Code 各自把什麼當作 Codex 專案，並整理專案與對話。</p></div>
+  <div class="card"><span class="tag">目標 2</span><p>用 <code>AGENTS.md</code>、<code>config.toml</code> 與技能，把專案規則寫進專案裡。</p></div>
+  <div class="card"><span class="tag">目標 3</span><p>在 VS Code 中用指令、斜線指令與設定和 Codex 協作。</p></div>
+  <div class="card"><span class="tag">目標 4</span><p>完成兩個範例，用 worktree 平行作業，並用技能重現結果。</p></div>
+</div>
+
+<h2 id="words"><span class="num">01</span>這週會用到的名詞</h2>
+
+<dl class="glossary">
+  <dt>專案</dt>
+  <dd>一件持續進行的工作，以及它用到的檔案、規則與對話。在 Codex 裡，專案通常對應到電腦上的<strong>一個資料夾</strong>。</dd>
+  <dt>儲存庫（repository）</dt>
+  <dd>被 Git 記錄的資料夾，常簡稱 repo。執行過 <code>git init</code> 的資料夾就是一個儲存庫。</dd>
+  <dt>分支（branch）</dt>
+  <dd>同一個專案的「平行版本」。可以在新分支上嘗試新功能，不影響主要版本（常叫 <code>main</code>），確定沒問題再合併回去。</dd>
+  <dt>Worktree</dt>
+  <dd>同一個儲存庫在電腦上的<strong>另一份工作副本</strong>。兩份副本共用 Git 的紀錄，但檔案各自獨立，所以可以同時在兩邊做不同的修改。</dd>
+  <dt>設定檔</dt>
+  <dd>存放「偏好與選項」的文字檔。Codex 的設定檔叫 <code>config.toml</code>。</dd>
+  <dt>技能（skill）</dt>
+  <dd>一個資料夾，裡面寫好「某件事該怎麼做」的步驟與參考資料。Codex 讀了它，就能照同一套流程把事情做好。</dd>
+  <dt>VS Code</dt>
+  <dd>免費的程式編輯器，可以看檔案、改程式、開終端機，也能安裝擴充套件增加功能。</dd>
+  <dt>擴充套件</dt>
+  <dd>替 VS Code 加上新功能的外掛。Codex 擴充套件讓你在 VS Code 裡直接使用 Codex。</dd>
+  <dt>命令選擇區</dt>
+  <dd>VS Code 裡用打字找功能的搜尋框（Command Palette）。按 <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>（macOS）或 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>（Windows）開啟。</dd>
+  <dt>CSV</dt>
+  <dd>用逗號分隔欄位的表格文字檔，第一行通常是欄位名稱。可以用 Excel 開啟。</dd>
+  <dt>JSON</dt>
+  <dd>一種常見的資料格式，用 <code>{ }</code> 包住一筆資料的各個欄位，用 <code>[ ]</code> 包住一串資料。</dd>
+  <dt>函式（function）</dt>
+  <dd>一段有名字、可以重複使用的程式。把資料交給它，它算出結果交回來。</dd>
+  <dt>測試（test）</dt>
+  <dd>自動檢查程式結果是否符合預期的程式。</dd>
+</dl>
+
+<h2 id="projects"><span class="num">02</span>Codex 專案是什麼</h2>
+
+<h3>不同介面怎麼決定「專案」</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>介面</th><th>專案是什麼</th><th>開始方式</th></tr></thead>
+  <tbody>
+    <tr><td>ChatGPT 桌面版</td><td><strong>Projects</strong> 畫面中的專案，可以連結電腦上的一個或多個資料夾</td><td>建立專案，或開啟一個資料夾</td></tr>
+    <tr><td>Codex CLI</td><td>啟動 <code>codex</code> 時所在的資料夾</td><td>在該資料夾執行 <code>codex</code>，或用 <code>--cd &lt;資料夾&gt;</code>（簡寫 <code>-C</code>）指定</td></tr>
+    <tr><td>VS Code 擴充套件</td><td>VS Code 目前開啟的資料夾或工作區</td><td>用 VS Code 開啟資料夾；同時開多個資料夾時，要為對話選擇其中一個作為根目錄</td></tr>
+  </tbody>
+</table></div>
+
+<p>換句話說：<strong>你在哪個資料夾打開 Codex，Codex 就在那個資料夾工作。</strong>CLI 和 VS Code 擴充套件看不到網頁版或桌面版的 Projects 畫面，所以長期有效的規則要寫在資料夾裡的 <code>AGENTS.md</code>，未來的新對話才讀得到。</p>
+
+<h3>什麼時候建立專案</h3>
+<ul>
+  <li><strong>建立專案</strong>：工作會持續一段時間、會產出不只一份成果，或會反覆用到同一批檔案。</li>
+  <li><strong>直接開新對話</strong>：一次性的工作，不需要共用檔案、指示或資料夾。</li>
+  <li><strong>每個成果一個對話</strong>：同一個專案裡，「修 bug」、「加新功能」、「寫說明文件」各開一個對話，讓每個對話保持聚焦。</li>
+</ul>
+
+<h3>桌面版：一個專案連結多個資料夾</h3>
+<p>當 Codex 需要讀取或修改電腦上的檔案時，就在桌面版建立本機專案：</p>
+<ol class="steps">
+  <li><p>開啟專案選單，選擇 <strong>Edit project</strong>。</p></li>
+  <li><p>選擇 <strong>Add folder</strong> 加入資料夾，可以加入多個。Codex 能讀取和修改每個加入的資料夾。</p></li>
+  <li><p>在某個資料夾上選擇 <strong>Make primary</strong>，設為<strong>主要資料夾</strong>。</p></li>
+</ol>
+
+<p>主要資料夾有特別的地位：</p>
+<ul>
+  <li>新對話從主要資料夾開始。</li>
+  <li>Git 操作預設作用在主要資料夾。</li>
+  <li>Codex <strong>只會在主要資料夾自動尋找</strong> <code>AGENTS.md</code>、技能與 <code>config.toml</code>。其他資料夾仍然可以搜尋、讀取、編輯，但這些專案檔不會自動載入。</li>
+</ul>
+
+<figure class="code"><div class="code-head"><div><span class="code-title">適合一個專案連結兩個資料夾的例子</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="專案「校園二手書平台」">專案「校園二手書平台」</span>
+<span class="line" data-text="├── bookshop-app/      ← 主要資料夾：程式碼、AGENTS.md、技能">├── bookshop-app/      ← 主要資料夾：程式碼、AGENTS.md、技能</span>
+<span class="line" data-text="└── bookshop-docs/     ← 次要資料夾：需求文件、會議紀錄">└── bookshop-docs/     ← 次要資料夾：需求文件、會議紀錄</span></code></pre></figure>
+
+<p>彼此無關的工作，或希望對話只能碰到其中一部分時，就建立不同的專案。</p>
+
+<div class="callout warn">
+  <span class="label">專案不是安全圍籬</span>
+  <p>專案與 worktree 負責「整理工作」。真正限制 Codex 執行的指令能讀寫哪些檔案、能不能連網的，是<strong>沙箱</strong>。</p>
+</div>
+
+<h3>整理專案與對話</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>動作</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td>釘選專案</td><td>讓常用專案固定在側邊欄上方</td></tr>
+    <tr><td>釘選對話</td><td>常回來看的對話不會被新對話擠下去</td></tr>
+    <tr><td>重新命名對話</td><td>用描述成果的短標題，例如「成績報告：資料驗證」</td></tr>
+    <tr><td>搜尋</td><td>在 Projects 畫面搜尋專案；記得片段文字或分支名稱時，用 <strong>Search chats</strong> 找舊對話</td></tr>
+    <tr><td>封存對話</td><td>完成後封存；也可以從專案選單一次封存該專案的所有對話</td></tr>
+  </tbody>
+</table></div>
+<p>釘選只改變顯示的位置，<strong>不會</strong>讓 Codex 多知道什麼，也不會改變它能存取的內容。桌面版封存的對話可以從 <strong>Settings &gt; Archived chats</strong> 還原。在 CLI 中，用 <code>/new</code> 開新對話，用 <code>/resume</code> 或 <code>codex resume</code> 接續舊對話。</p>
+
+<h2 id="rules"><span class="num">03</span>把專案規則寫進專案</h2>
+
+<p>一個「交給任何人打開都能順利工作」的 Codex 專案，通常長這樣。以 <code>.</code> 開頭的資料夾在 macOS 的 Finder 和 Windows 檔案總管中預設會隱藏，但在 VS Code 的檔案總管裡看得到。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-title">Codex 專案的常見結構</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="my-project/">my-project/</span>
+<span class="line" data-text="├── AGENTS.md                     ← 給 Codex 的專案規則">├── AGENTS.md                     ← 給 Codex 的專案規則</span>
+<span class="line" data-text="├── .codex/">├── .codex/</span>
+<span class="line" data-text="│   └── config.toml               ← 專案層級的 Codex 設定（選用）">│   └── config.toml               ← 專案層級的 Codex 設定（選用）</span>
+<span class="line" data-text="└── .agents/">└── .agents/</span>
+<span class="line" data-text="    └── skills/">    └── skills/</span>
+<span class="line" data-text="        └── my-skill/">        └── my-skill/</span>
+<span class="line" data-text="            ├── SKILL.md          ← 技能的說明與步驟（必要）">            ├── SKILL.md          ← 技能的說明與步驟（必要）</span>
+<span class="line" data-text="            ├── references/       ← 參考文件（選用）">            ├── references/       ← 參考文件（選用）</span>
+<span class="line" data-text="            └── assets/           ← 範本、預期結果等資源（選用）">            └── assets/           ← 範本、預期結果等資源（選用）</span></code></pre></figure>
+
+<h3>AGENTS.md：Codex 開工前先讀的規則</h3>
+<p>Codex 每次開始工作時，會把找到的規則檔串成一份指示：</p>
+<ol class="steps">
+  <li><p><strong>全域</strong>：Codex 家目錄（預設是 <code>~/.codex</code>）裡的 <code>AGENTS.override.md</code>；沒有的話讀 <code>AGENTS.md</code>。這是你個人套用到所有專案的規則。</p></li>
+  <li><p><strong>專案</strong>：從專案最上層（通常是 Git 儲存庫的根目錄）一路往下，走到你目前所在的資料夾。每一層依序找 <code>AGENTS.override.md</code>、<code>AGENTS.md</code>，每層最多採用一個。</p></li>
+  <li><p><strong>合併</strong>：由上往下串起來。越靠近目前資料夾的檔案越晚出現，所以會<strong>覆蓋</strong>前面的規則。</p></li>
+</ol>
+
+<details class="explain">
+  <summary>用例子看懂「越近越優先」</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-title">資料夾結構</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="~/.codex/AGENTS.md            ← 全域：「回答請用繁體中文」">~/.codex/AGENTS.md            ← 全域：「回答請用繁體中文」</span>
+<span class="line" data-text="bookshop/">bookshop/</span>
+<span class="line" data-text="├── AGENTS.md                 ← 專案：「修改後執行 pytest」">├── AGENTS.md                 ← 專案：「修改後執行 pytest」</span>
+<span class="line" data-text="└── backend/">└── backend/</span>
+<span class="line" data-text="    └── payments/">    └── payments/</span>
+<span class="line" data-text="        └── AGENTS.override.md  ← 付款模組：「改用 make test-payments」">        └── AGENTS.override.md  ← 付款模組：「改用 make test-payments」</span></code></pre></figure>
+    <p>如果在 <code>bookshop/backend/payments</code> 裡啟動 Codex，它會依序讀到三份規則。「繁體中文」照樣適用；但測試指令的規則，付款模組那份最靠近，所以以「make test-payments」為準。</p>
+  </div>
+</details>
+
+<p>還要注意：</p>
+<ul>
+  <li>空白的規則檔會被略過。所有規則合併後的大小上限預設為 32 KiB（約一萬多個中文字），超過就不再加入。專案很大時，把規則拆到各子資料夾。</li>
+  <li>在要放規則的資料夾執行 <code>/init</code>，Codex 會產生一份 <code>AGENTS.md</code> 草稿，檢查、修改後再 commit。</li>
+  <li>想確認 Codex 讀到了哪些規則，直接問它：「列出你載入的指示來源。」</li>
+</ul>
+
+<p>本週範例一的 <code>AGENTS.md</code>：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">01-grade-report/AGENTS.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# AGENTS.md"><span class="ln">1</span># AGENTS.md</span>
+<span class="line" data-text=""><span class="ln">2</span></span>
+<span class="line" data-text="## 專案說明"><span class="ln">3</span>## 專案說明</span>
+<span class="line" data-text="- 成績報告產生器：讀取 `data/scores.csv`，輸出 Markdown 成績報告到 `output/report.md`。"><span class="ln">4</span>- 成績報告產生器：讀取 `data/scores.csv`，輸出 Markdown 成績報告到 `output/report.md`。</span>
+<span class="line" data-text="- 只使用 Python 3.10 以上的標準函式庫，不安裝任何第三方套件。"><span class="ln">5</span>- 只使用 Python 3.10 以上的標準函式庫，不安裝任何第三方套件。</span>
+<span class="line" data-text=""><span class="ln">6</span></span>
+<span class="line" data-text="## 工作規則"><span class="ln">7</span>## 工作規則</span>
+<span class="line" data-text="- 修改 `grade_report.py` 後，執行 `python3 -m unittest discover -s tests` 並回報結果。"><span class="ln">8</span>- 修改 `grade_report.py` 後，執行 `python3 -m unittest discover -s tests` 並回報結果。</span>
+<span class="line" data-text="- 計分規則以 `.agents/skills/grade-report/references/spec.md` 為準，不要自行更改權重或等第門檻。"><span class="ln">9</span>- 計分規則以 `.agents/skills/grade-report/references/spec.md` 為準，不要自行更改權重或等第門檻。</span>
+<span class="line" data-text="- 報告內容使用繁體中文；變數與函式名稱使用英文。"><span class="ln">10</span>- 報告內容使用繁體中文；變數與函式名稱使用英文。</span>
+<span class="line" data-text="- 不要修改 `data/scores.csv` 的原始資料。"><span class="ln">11</span>- 不要修改 `data/scores.csv` 的原始資料。</span></code></pre></figure>
+
+<h3>.codex/config.toml：專案層級設定</h3>
+<p>個人預設設定放在 <code>~/.codex/config.toml</code>；某個專案需要不同的設定時，在專案中加入 <code>.codex/config.toml</code>。CLI 與 VS Code 擴充套件共用同一套設定。</p>
+
+<p>TOML 格式很單純：每一行寫「<code>設定名稱 = 值</code>」，文字值要加引號，<code>#</code> 後面是註解（給人看的說明，Codex 會忽略）。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind ">TOML</span><span class="code-title">.codex/config.toml</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# 何時暫停下來問你"># 何時暫停下來問你</span>
+<span class="line" data-text="approval_policy = &quot;on-request&quot;">approval_policy = &quot;on-request&quot;</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="# 執行指令時，檔案與網路的存取程度"># 執行指令時，檔案與網路的存取程度</span>
+<span class="line" data-text="sandbox_mode = &quot;workspace-write&quot;">sandbox_mode = &quot;workspace-write&quot;</span></code></pre></figure>
+
+<p>同一個設定可能出現在好幾個地方，Codex 依下面的順序決定用哪一個（數字越小越優先）：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>順序</th><th>設定來源</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>啟動 CLI 時直接加的旗標與 <code>--config</code> 覆寫</td></tr>
+    <tr><td>2</td><td>專案的 <code>.codex/config.toml</code>（越靠近目前資料夾越優先，<strong>只在信任的專案生效</strong>）</td></tr>
+    <tr><td>3</td><td>用 <code>--profile</code> 選擇的設定檔</td></tr>
+    <tr><td>4</td><td>你的使用者設定 <code>~/.codex/config.toml</code></td></tr>
+    <tr><td>5</td><td>工作區雲端管理的預設值</td></tr>
+    <tr><td>6</td><td>系統設定（Unix 為 <code>/etc/codex/config.toml</code>）</td></tr>
+    <tr><td>7</td><td>Codex 內建的預設值</td></tr>
+  </tbody>
+</table></div>
+
+<div class="callout warn">
+  <span class="label">安全提醒</span>
+  <ul>
+    <li>把專案標記為<strong>不信任</strong>時，Codex 會略過專案裡的 <code>.codex/</code> 設定，包括專案設定、hooks 與 rules。從網路下載的陌生專案，先確認內容再信任。</li>
+    <li>專案設定檔不能改和帳號憑證、服務供應商、設定檔選擇有關的設定（例如 <code>model_provider</code>、<code>profile</code>），Codex 會忽略並在啟動時警告。</li>
+    <li>在 CLI 中執行 <code>/status</code> 可以看目前的模型、核准政策與可寫入路徑；<code>/debug-config</code> 會依優先順序列出各設定層。</li>
+  </ul>
+</div>
+
+<h2 id="skills"><span class="num">04</span>技能：把重複的做法打包起來</h2>
+
+<p>如果你常常要 Codex 做同一件事（例如「跑完所有檢查並整理結果」），每次都貼一大段提示很麻煩，也容易漏掉步驟。<strong>技能</strong>就是把這套做法寫成檔案，放在專案裡，需要時一句話叫出來。</p>
+
+<h3>技能的組成</h3>
+<p>技能是一個資料夾，裡面<strong>一定要有</strong> <code>SKILL.md</code>，可以另外附上 <code>scripts/</code>（程式）、<code>references/</code>（參考文件）、<code>assets/</code>（範本或資源）。<code>SKILL.md</code> 開頭兩條 <code>---</code> 之間必須寫 <code>name</code>（名稱）與 <code>description</code>（什麼時候用）：</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">SKILL.md 的最小格式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="---">---</span>
+<span class="line" data-text="name: skill-name">name: skill-name</span>
+<span class="line" data-text="description: 清楚說明這個技能什麼時候該用、什麼時候不該用。">description: 清楚說明這個技能什麼時候該用、什麼時候不該用。</span>
+<span class="line" data-text="---">---</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="給 Codex 的步驟說明。">給 Codex 的步驟說明。</span></code></pre></figure>
+
+<h3>Codex 怎麼使用技能</h3>
+<ul>
+  <li><strong>明確呼叫</strong>：在 CLI 或 VS Code 擴充套件輸入 <code>$</code> 接技能名稱，例如 <code>$grade-report</code>，或執行 <code>/skills</code> 選擇。</li>
+  <li><strong>自動選用</strong>：你的請求符合技能的 <code>description</code> 時，Codex 會自己選用。所以描述要精簡，把關鍵用途和觸發字放在前面。</li>
+  <li><strong>用到才細讀</strong>：Codex 一開始只看每個技能的名稱與描述，決定使用某個技能時，才讀完整的 <code>SKILL.md</code>。</li>
+</ul>
+
+<h3>技能放在哪裡</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>範圍</th><th>位置</th><th>適合放</th></tr></thead>
+  <tbody>
+    <tr><td>REPO</td><td>從目前資料夾往上到儲存庫根目錄，每一層的 <code>.agents/skills</code></td><td>跟這個專案有關的技能，隨專案一起 commit 分享給組員</td></tr>
+    <tr><td>USER</td><td><code>$HOME/.agents/skills</code></td><td>你個人在任何專案都會用到的技能</td></tr>
+    <tr><td>ADMIN</td><td><code>/etc/codex/skills</code></td><td>整台機器共用的預設技能</td></tr>
+    <tr><td>SYSTEM</td><td>Codex 內建</td><td>例如 <code>skill-creator</code>、<code>plan</code></td></tr>
+  </tbody>
+</table></div>
+
+<h3>建立技能</h3>
+<ul>
+  <li>輸入 <code>$skill-creator</code>，Codex 會問你這個技能要做什麼、什麼時候觸發，然後幫你產生草稿。</li>
+  <li>也可以手動建立資料夾和 <code>SKILL.md</code>。Codex 會自動偵測技能變更；沒出現的話，重新啟動 Codex。</li>
+</ul>
+
+<div class="callout tip">
+  <span class="label">寫好技能的四個原則</span>
+  <ol>
+    <li>一個技能只做一件事。</li>
+    <li>除非需要每次都得到完全相同的結果，或需要外部工具，否則優先用文字說明步驟。</li>
+    <li>步驟寫成明確的命令句。</li>
+    <li>寫清楚輸入是什麼、輸出是什麼。</li>
+  </ol>
+</div>
+
+<h2 id="local-env"><span class="num">05</span>本機環境（桌面版）</h2>
+<p>在 ChatGPT 桌面版的 Codex 中，可以為專案設定<strong>本機環境</strong>。設定存放在專案根目錄的 <code>.codex</code> 資料夾，可以 commit 分享給組員：</p>
+<ul>
+  <li><strong>Setup scripts（設定腳本）</strong>：Codex 建立新 worktree 時自動執行，例如安裝套件、先建置一次。macOS、Windows、Linux 可以分別設定。</li>
+  <li><strong>Actions（快捷動作）</strong>：常用任務的按鈕，例如「啟動網站」、「執行測試」，顯示在桌面版上方工具列，點下去就在內建終端機執行。</li>
+</ul>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">範例二可以設定的 Actions</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="npm test">npm test</span>
+<span class="line" data-text="node build.mjs --today 2026-09-21">node build.mjs --today 2026-09-21</span></code></pre></figure>
+
+<h2 id="vscode"><span class="num">06</span>在 VS Code 中與 Codex 協作</h2>
+
+<h3>VS Code 畫面導覽</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>區域</th><th>位置</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td>活動列</td><td>最左邊一排圖示</td><td>切換檔案總管、搜尋、原始檔控制（Git）、擴充套件、Codex</td></tr>
+    <tr><td>側邊欄</td><td>活動列右邊</td><td>顯示目前選擇的功能，例如檔案清單或 Codex 對話</td></tr>
+    <tr><td>編輯區</td><td>中間最大的區域</td><td>打開、閱讀、修改檔案</td></tr>
+    <tr><td>終端機</td><td>下方面板</td><td>執行指令。選單 <strong>終端機 &gt; 新增終端機</strong> 開啟，會自動位在目前開啟的專案資料夾</td></tr>
+  </tbody>
+</table></div>
+
+<h3>開啟 Codex</h3>
+<ol class="steps">
+  <li><p>在 VS Code 的擴充套件頁搜尋並安裝 OpenAI 的 Codex 擴充套件（ID：<code>openai.chatgpt</code>），依畫面登入。</p></li>
+  <li><p>選單 <strong>檔案 &gt; 開啟資料夾</strong>，打開你的專案資料夾。</p></li>
+  <li><p>點活動列上的 Codex 圖示。看不到的話，開啟命令選擇區，輸入並執行 <strong>Codex: Open Codex Sidebar</strong>。</p></li>
+</ol>
+
+<p>VS Code 擴充套件會自動把你<strong>開啟的檔案</strong>當作脈絡。你也可以選取一段程式碼加入對話，讓 Codex 從你正在看的地方開始。每次任務前後記得建立 Git 存檔點。</p>
+
+<h3>擴充套件指令</h3>
+<p>在命令選擇區輸入指令名稱執行，也可以綁定快捷鍵：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>指令 ID</th><th>預設快捷鍵</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td><code>chatgpt.addToThread</code></td><td>無</td><td>把選取的程式碼範圍加入目前對話</td></tr>
+    <tr><td><code>chatgpt.addFileToThread</code></td><td>無</td><td>把整個檔案加入目前對話</td></tr>
+    <tr><td><code>chatgpt.newChat</code></td><td>macOS <kbd>Cmd</kbd>+<kbd>N</kbd>；Windows/Linux <kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>開新對話</td></tr>
+    <tr><td><code>chatgpt.newCodexPanel</code></td><td>無</td><td>開新的 Codex 面板</td></tr>
+    <tr><td><code>chatgpt.openCommandMenu</code></td><td>無</td><td>開啟 Codex 指令選單</td></tr>
+    <tr><td><code>chatgpt.openSidebar</code></td><td>無</td><td>開啟 Codex 側邊欄</td></tr>
+  </tbody>
+</table></div>
+
+<h4>綁定快捷鍵</h4>
+<ol class="steps">
+  <li><p>開啟命令選擇區（<kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>）。</p></li>
+  <li><p>執行 <strong>Preferences: Open Keyboard Shortcuts</strong>。</p></li>
+  <li><p>搜尋 <code>Codex</code> 或指令 ID，例如 <code>chatgpt.addToThread</code>。</p></li>
+  <li><p>點鉛筆圖示，按下你想要的快捷鍵組合，再按 <kbd>Enter</kbd>。</p></li>
+</ol>
+<div class="callout try">
+  <span class="label">課堂小練習</span>
+  <p>把 <code>chatgpt.addToThread</code> 綁定到你習慣的快捷鍵。之後選取一段程式碼、按快捷鍵，就能一鍵加入對話。</p>
+</div>
+
+<h3>常用斜線指令</h3>
+<p>在 Codex 輸入框輸入 <code>/</code>，會列出可用指令，繼續打字可以篩選：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>指令</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td><code>/init</code></td><td>為目前專案產生 <code>AGENTS.md</code> 草稿</td></tr>
+    <tr><td><code>/plan</code></td><td>切換到規劃模式，先想清楚多步驟任務再動手</td></tr>
+    <tr><td><code>/goal</code></td><td>設定一個持續性目標，讓 Codex 朝它工作</td></tr>
+    <tr><td><code>/review</code></td><td>審查還沒 commit 的修改，或和基準分支比較</td></tr>
+    <tr><td><code>/project</code></td><td>選擇新對話要使用的專案</td></tr>
+    <tr><td><code>/local</code></td><td>在本機工作區執行這個對話</td></tr>
+    <tr><td><code>/worktree</code></td><td>在新的 Git worktree 中執行這個對話</td></tr>
+    <tr><td><code>/cloud</code></td><td>在雲端執行這個對話（可用時）</td></tr>
+    <tr><td><code>/ide-context</code></td><td>開關「自動帶入編輯器內容」</td></tr>
+    <tr><td><code>/side</code></td><td>開一個臨時的側聊，不打斷主對話</td></tr>
+    <tr><td><code>/fork</code></td><td>把目前的本機對話複製成一個新的本機對話</td></tr>
+    <tr><td><code>/compact</code></td><td>壓縮目前對話的脈絡，讓長對話繼續順暢</td></tr>
+    <tr><td><code>/status</code></td><td>顯示對話 ID、脈絡使用量與用量限制</td></tr>
+    <tr><td><code>/model</code>、<code>/reasoning</code></td><td>選擇模型與推理強度</td></tr>
+  </tbody>
+</table></div>
+
+<h3>兩層設定：Codex 設定與編輯器設定</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>設定層</th><th>控制什麼</th><th>在哪裡改</th></tr></thead>
+  <tbody>
+    <tr><td>Codex 設定</td><td>模型、推理強度、權限、沙箱、MCP、個人化；和 CLI 共用</td><td>Codex 側邊欄齒輪 &gt; <strong>Codex Settings</strong>，或 <strong>Open config.toml</strong> 直接編輯</td></tr>
+    <tr><td>編輯器設定</td><td>擴充套件在 VS Code 裡的行為，名稱以 <code>chatgpt.</code> 開頭</td><td>VS Code 設定頁搜尋 <code>@ext:openai.chatgpt</code> 或 <code>Codex</code></td></tr>
+  </tbody>
+</table></div>
+<p><code>chatgpt.</code> 開頭的設定屬於 VS Code，<strong>不要</strong>寫進 <code>config.toml</code>。幾個值得認識的編輯器設定：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>設定</th><th>預設</th><th>說明</th></tr></thead>
+  <tbody>
+    <tr><td><code>chatgpt.followUpQueueMode</code></td><td><code>queue</code></td><td>Codex 工作中送出的訊息，要排隊等下一輪（<code>queue</code>），還是立刻引導目前這一輪（<code>steer</code>）。按 <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Enter</kbd> 可以單次反轉</td></tr>
+    <tr><td><code>chatgpt.composerEnterBehavior</code></td><td><code>enter</code></td><td><kbd>Enter</kbd> 是否直接送出，或多行時需要 <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd></td></tr>
+    <tr><td><code>chatgpt.reviewDelivery</code></td><td><code>inline</code></td><td><code>/review</code> 在目前對話執行，或另開一個審查對話</td></tr>
+    <tr><td><code>chatgpt.commentCodeLensEnabled</code></td><td><code>true</code></td><td>在程式中的 <code>TODO</code> 註解上方顯示小按鈕，讓 Codex 處理</td></tr>
+    <tr><td><code>chatgpt.localeOverride</code></td><td>自動</td><td>設定 Codex 介面語言</td></tr>
+    <tr><td><code>chatgpt.runCodexInWindowsSubsystemForLinux</code></td><td><code>false</code></td><td>僅 Windows：在 WSL 中執行 Codex</td></tr>
+  </tbody>
+</table></div>
+
+<p>VS Code 的使用者設定也可以用 JSON 格式編輯（命令選擇區執行 <strong>Preferences: Open User Settings (JSON)</strong>）。例如想讓工作中送出的訊息立刻引導 Codex：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JSON</span><span class="code-title">settings.json（VS Code 使用者設定）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="{">{</span>
+<span class="line" data-text="  &quot;chatgpt.followUpQueueMode&quot;: &quot;steer&quot;">  &quot;chatgpt.followUpQueueMode&quot;: &quot;steer&quot;</span>
+<span class="line" data-text="}">}</span></code></pre></figure>
+<p>JSON 的規則：整份用 <code>{ }</code> 包住，名稱和文字值都要加雙引號，名稱和值之間用冒號，多個設定之間用逗號分隔。</p>
+
+<h3>VS Code 與桌面版同步</h3>
+<p>當 ChatGPT 桌面版和 VS Code 擴充套件開啟<strong>同一個專案</strong>時，兩邊會共用進行中的對話與編輯器內容：</p>
+<ul>
+  <li>在桌面版輸入框開啟 <strong>IDE context</strong>，Codex 就能使用你在 VS Code 開著的檔案；不想帶入時關掉。</li>
+  <li>可以從 VS Code 擴充套件打開桌面版的對話，也可以把 VS Code 的對話拿到桌面版繼續。</li>
+</ul>
+
+<h2 id="vscode-agents"><span class="num">07</span>在 VS Code 的代理工作階段中使用 Codex</h2>
+
+<p>VS Code 本身也有「代理」介面（Chat view 與 Agents window），可以選擇由哪個 AI 代理來執行一個<strong>工作階段（session）</strong>。Codex 是其中一個選項。一個工作階段包含一段對話、它用到的脈絡和修改，可以暫停、繼續或交接。</p>
+
+<h3>讓 Codex 出現在選單中</h3>
+<p>Codex 預設不在選單裡，下面兩種方式擇一即可：</p>
+<ul>
+  <li><strong>安裝 OpenAI Codex 擴充套件</strong>：在 Chat view 中使用。</li>
+  <li><strong>實驗功能 Agent Host</strong>：在設定中開啟 <code>chat.agentHost.codexAgent.enabled</code>，Codex 會出現在 Agents window。在 Agent Host 上可以選擇登入 ChatGPT，免費帳號即可。</li>
+</ul>
+
+<h3>工作階段的控制項</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>控制項</th><th>決定什麼</th><th>本課建議</th></tr></thead>
+  <tbody>
+    <tr><td>Session Target</td><td>由哪個代理執行、工具在哪裡運作（Local、Copilot、Claude、Codex、Cloud）</td><td>選 <strong>Codex</strong></td></tr>
+    <tr><td>Agent</td><td>代理扮演的角色，例如 <strong>Agent</strong> 實作，<strong>Plan</strong> 先規劃</td><td>不確定做法時先用 Plan</td></tr>
+    <tr><td>Language model</td><td>推理方式、速度與額度消耗</td><td>用預設值</td></tr>
+    <tr><td>Permissions</td><td>哪些動作需要你確認</td><td>用最保守的選項</td></tr>
+    <tr><td>Code isolation</td><td>修改寫進目前資料夾，或另開 Git worktree（只有 Agents window 可選）</td><td>小任務用 Folder</td></tr>
+  </tbody>
+</table></div>
+
+<p>在 Agent Host 上執行 Codex 時，有三種核准預設：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>預設</th><th>Codex 可以做什麼</th></tr></thead>
+  <tbody>
+    <tr><td>Default Permissions</td><td>讀寫專案檔案、執行一般指令；要連網或存取專案外的資源前會先問你</td></tr>
+    <tr><td>Auto-Review</td><td>權限和 Default Permissions 相同，但核准請求交給自動審查者判斷，不問你</td></tr>
+    <tr><td>Full Access</td><td>可以修改專案外的檔案並直接連網。等於把整台電腦交給代理，請謹慎使用</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Folder 還是 New Worktree</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>選擇</th><th>適合</th><th>注意</th></tr></thead>
+  <tbody>
+    <tr><td>Folder</td><td>需要用到目前檔案、還沒 commit 的修改的小型互動任務</td><td>修改會立刻出現在你的工作區</td></tr>
+    <tr><td>New Worktree</td><td>不想影響目前工作區的平行任務</td><td>從已 commit 的狀態開始，完成後要自己整合結果</td></tr>
+  </tbody>
+</table></div>
+<ul>
+  <li>New Worktree 需要一個<strong>至少有一次 commit</strong> 的 Git 儲存庫。還沒 commit 的修改、沒被追蹤的檔案、被 Git 忽略的檔案（例如 <code>.env</code>）預設都不會帶過去；被忽略的檔案可以用 VS Code 設定 <code>git.worktreeIncludeFiles</code> 指定要複製的項目。</li>
+  <li>Worktree 工作階段使用 <strong>Allow all</strong> 權限。Worktree 只隔離程式碼修改，<strong>不是</strong>安全邊界，不會限制指令或網路存取。</li>
+</ul>
+
+<h3>交接（Handoff）</h3>
+<p>在進行中的工作階段打開 <strong>Session Target</strong> 下拉選單，選另一個目標（例如從 Copilot 換成 Codex，或換到 Cloud），VS Code 會把對話紀錄和脈絡一起帶過去。VS Code 也能找到你在 Codex 裡建立的本機工作階段，繼續在 VS Code 中使用。</p>
+
+<h2 id="setup"><span class="num">08</span>實作前準備</h2>
+
+<h3>確認工具都裝好了</h3>
+<p>打開終端機，逐行執行下面的指令。每一行都會顯示版本號碼；如果出現「找不到指令」，代表那個工具還沒安裝。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">檢查版本</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git --version">git --version</span>
+<span class="line" data-text="python3 --version">python3 --version</span>
+<span class="line" data-text="node --version">node --version</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span><span class="code-title">類似這樣就代表已安裝（版本數字可能不同）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git version 2.45.2">git version 2.45.2</span>
+<span class="line" data-text="Python 3.12.3">Python 3.12.3</span>
+<span class="line" data-text="v20.20.2">v20.20.2</span></code></pre></figure>
+<div class="callout note">
+  <span class="label">Windows 使用者</span>
+  <p>如果 <code>python3</code> 找不到，試試 <code>python --version</code> 或 <code>py --version</code>。之後講義中的 <code>python3</code> 都換成能用的那個。範例一需要 Python 3.10 以上，範例二需要 Node.js 20 以上。</p>
+</div>
+
+<h3>下載範例並建立存檔點</h3>
+<p><a class="download" href="downloads/week03-01-grade-report.zip">下載範例一：成績報告</a><a class="download" href="downloads/week03-02-deadline-board.zip">下載範例二：截止日看板</a></p>
+<ol class="steps">
+  <li><p>下載後解壓縮，把資料夾放到你好找的位置，例如桌面上的 <code>codex-lab</code> 資料夾。</p></li>
+  <li><p>用 VS Code 的 <strong>檔案 &gt; 開啟資料夾</strong> 打開 <code>01-grade-report</code>。</p></li>
+  <li><p>開啟 VS Code 的終端機（<strong>終端機 &gt; 新增終端機</strong>），它會自動位在這個資料夾。執行：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">建立 Git 儲存庫與第一個存檔點</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git init">git init</span>
+<span class="line" data-text="git add -A">git add -A</span>
+<span class="line" data-text="git commit -m &quot;checkpoint: 範例一初始狀態&quot;">git commit -m &quot;checkpoint: 範例一初始狀態&quot;</span></code></pre></figure>
+  </li>
+  <li><p>打開 Codex 側邊欄，先確認 Codex 讀到了專案規則：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="列出你載入的指示來源，並用三點摘要這個專案的工作規則。">列出你載入的指示來源，並用三點摘要這個專案的工作規則。</span></code></pre></figure>
+  </li>
+</ol>
+
+<h2 id="sample1"><span class="num">09</span>範例一：成績報告產生器</h2>
+
+<h3>這個程式要做什麼</h3>
+<p>讀取一份學生成績表，依「作業 30%、期中 30%、期末 40%」算出總分與等第，輸出一份整理好的成績報告。成績表裡刻意放了兩筆有問題的資料（一位期中沒有分數、一位作業填了 105 分），程式必須把它們挑出來，不能算進統計。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-title">01-grade-report 的檔案</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="01-grade-report/">01-grade-report/</span>
+<span class="line" data-text="├── AGENTS.md                                 ← 專案規則">├── AGENTS.md                                 ← 專案規則</span>
+<span class="line" data-text="├── data/scores.csv                           ← 10 位學生的成績">├── data/scores.csv                           ← 10 位學生的成績</span>
+<span class="line" data-text="├── grade_report.py                           ← 報告產生器">├── grade_report.py                           ← 報告產生器</span>
+<span class="line" data-text="├── tests/test_grade_report.py                ← 8 個自動測試">├── tests/test_grade_report.py                ← 8 個自動測試</span>
+<span class="line" data-text="└── .agents/skills/grade-report/">└── .agents/skills/grade-report/</span>
+<span class="line" data-text="    ├── SKILL.md                              ← 技能：重現並驗證報告">    ├── SKILL.md                              ← 技能：重現並驗證報告</span>
+<span class="line" data-text="    ├── references/spec.md                    ← 計分與報告格式規格">    ├── references/spec.md                    ← 計分與報告格式規格</span>
+<span class="line" data-text="    └── assets/expected-report.md             ← 範例資料的預期報告">    └── assets/expected-report.md             ← 範例資料的預期報告</span></code></pre></figure>
+
+<h3>輸入資料</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">CSV</span><span class="code-title">data/scores.csv</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="student_id,name,homework,midterm,final"><span class="ln">1</span>student_id,name,homework,midterm,final</span>
+<span class="line" data-text="S1130001,王小明,92,85,88"><span class="ln">2</span>S1130001,王小明,92,85,88</span>
+<span class="line" data-text="S1130002,林佳穎,78,64,70"><span class="ln">3</span>S1130002,林佳穎,78,64,70</span>
+<span class="line" data-text="S1130003,陳志豪,55,48,52"><span class="ln">4</span>S1130003,陳志豪,55,48,52</span>
+<span class="line" data-text="S1130004,張雅婷,100,95,97"><span class="ln">5</span>S1130004,張雅婷,100,95,97</span>
+<span class="line" data-text="S1130005,李承恩,85,,90"><span class="ln">6</span>S1130005,李承恩,85,,90</span>
+<span class="line" data-text="S1130006,黃詩涵,68,72,61"><span class="ln">7</span>S1130006,黃詩涵,68,72,61</span>
+<span class="line" data-text="S1130007,吳冠廷,88,91,79"><span class="ln">8</span>S1130007,吳冠廷,88,91,79</span>
+<span class="line" data-text="S1130008,蔡宜蓁,73,58,66"><span class="ln">9</span>S1130008,蔡宜蓁,73,58,66</span>
+<span class="line" data-text="S1130009,鄭宇翔,105,80,75"><span class="ln">10</span>S1130009,鄭宇翔,105,80,75</span>
+<span class="line" data-text="S1130010,謝欣妤,60,62,59"><span class="ln">11</span>S1130010,謝欣妤,60,62,59</span></code></pre></figure>
+<p>第 1 行是欄位名稱：學號、姓名、作業、期中、期末。之後每一行是一位學生。注意第 6 行李承恩的期中是空的（兩個逗號之間沒有值），第 10 行鄭宇翔的作業是 105。</p>
+
+<h3>程式碼逐段解說</h3>
+<p>整個程式用 Python 寫成，只用 Python 內建的功能，不需要安裝其他東西。下面分段說明，每段先看程式碼，再看解說。</p>
+
+<h4>第 1 段：載入工具與定義規則</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">grade_report.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="&quot;&quot;&quot;Generate a Markdown grade report from a CSV score sheet."><span class="ln">1</span>&quot;&quot;&quot;Generate a Markdown grade report from a CSV score sheet.</span>
+<span class="line" data-text=""><span class="ln">2</span></span>
+<span class="line" data-text="Usage: python3 grade_report.py data/scores.csv -o output/report.md"><span class="ln">3</span>Usage: python3 grade_report.py data/scores.csv -o output/report.md</span>
+<span class="line" data-text="&quot;&quot;&quot;"><span class="ln">4</span>&quot;&quot;&quot;</span>
+<span class="line" data-text="import argparse"><span class="ln">5</span>import argparse</span>
+<span class="line" data-text="import csv"><span class="ln">6</span>import csv</span>
+<span class="line" data-text="from decimal import ROUND_HALF_UP, Decimal"><span class="ln">7</span>from decimal import ROUND_HALF_UP, Decimal</span>
+<span class="line" data-text="from pathlib import Path"><span class="ln">8</span>from pathlib import Path</span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text="WEIGHTS = {&quot;homework&quot;: Decimal(&quot;0.3&quot;), &quot;midterm&quot;: Decimal(&quot;0.3&quot;), &quot;final&quot;: Decimal(&quot;0.4&quot;)}"><span class="ln">10</span>WEIGHTS = {&quot;homework&quot;: Decimal(&quot;0.3&quot;), &quot;midterm&quot;: Decimal(&quot;0.3&quot;), &quot;final&quot;: Decimal(&quot;0.4&quot;)}</span>
+<span class="line" data-text="LETTERS = [(90, &quot;A&quot;), (80, &quot;B&quot;), (70, &quot;C&quot;), (60, &quot;D&quot;), (0, &quot;F&quot;)]"><span class="ln">11</span>LETTERS = [(90, &quot;A&quot;), (80, &quot;B&quot;), (70, &quot;C&quot;), (60, &quot;D&quot;), (0, &quot;F&quot;)]</span>
+<span class="line" data-text="PASS_SCORE = 60"><span class="ln">12</span>PASS_SCORE = 60</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 1-4 行</strong>：三個引號包住的是說明文字，告訴讀的人這個程式在做什麼、怎麼執行。</li>
+      <li><strong>第 5-8 行</strong>：<code>import</code> 載入 Python 內建的工具。<code>argparse</code> 讀取命令列參數，<code>csv</code> 讀表格檔，<code>Decimal</code> 做精確的小數計算，<code>Path</code> 處理檔案路徑。</li>
+      <li><strong>第 10 行</strong>：<code>WEIGHTS</code> 是一個<strong>字典</strong>，像一張「名稱對應數值」的對照表：作業 0.3、期中 0.3、期末 0.4。</li>
+      <li><strong>第 11 行</strong>：<code>LETTERS</code> 是等第門檻，從高到低排列：90 分以上 A、80 以上 B，依此類推。</li>
+      <li><strong>第 12 行</strong>：及格分數 60。</li>
+    </ul>
+    <p>名稱全部大寫，是 Python 的慣例，表示「這是固定的規則，程式執行時不會改變」。把規則集中寫在最上面，要調整時只需要改這裡。</p>
+  </div>
+</details>
+
+<h4>第 2 段：四捨五入、加權總分、等第</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">grade_report.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def round1(value):"><span class="ln">15</span>def round1(value):</span>
+<span class="line" data-text="    return Decimal(value).quantize(Decimal(&quot;0.1&quot;), rounding=ROUND_HALF_UP)"><span class="ln">16</span>    return Decimal(value).quantize(Decimal(&quot;0.1&quot;), rounding=ROUND_HALF_UP)</span>
+<span class="line" data-text=""><span class="ln">17</span></span>
+<span class="line" data-text=""><span class="ln">18</span></span>
+<span class="line" data-text="def weighted_total(row):"><span class="ln">19</span>def weighted_total(row):</span>
+<span class="line" data-text="    return round1(sum(Decimal(row[k]) * w for k, w in WEIGHTS.items()))"><span class="ln">20</span>    return round1(sum(Decimal(row[k]) * w for k, w in WEIGHTS.items()))</span>
+<span class="line" data-text=""><span class="ln">21</span></span>
+<span class="line" data-text=""><span class="ln">22</span></span>
+<span class="line" data-text="def letter(total):"><span class="ln">23</span>def letter(total):</span>
+<span class="line" data-text="    for cutoff, grade in LETTERS:"><span class="ln">24</span>    for cutoff, grade in LETTERS:</span>
+<span class="line" data-text="        if total &gt;= cutoff:"><span class="ln">25</span>        if total &gt;= cutoff:</span>
+<span class="line" data-text="            return grade"><span class="ln">26</span>            return grade</span>
+<span class="line" data-text="    return &quot;F&quot;"><span class="ln">27</span>    return &quot;F&quot;</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong><code>round1</code>（第 15-16 行）</strong>：把數字四捨五入到小數第一位。<code>ROUND_HALF_UP</code> 就是我們熟悉的「五入」。</li>
+      <li><strong><code>weighted_total</code>（第 19-20 行）</strong>：<code>row</code> 是一位學生的資料。對每個科目，把分數乘上權重，再全部加起來，最後四捨五入。</li>
+      <li><strong><code>letter</code>（第 23-27 行）</strong>：從最高門檻開始比，第一個「總分大於等於門檻」的就是等第。</li>
+    </ul>
+    <p><strong>用王小明算一次：</strong>作業 92 × 0.3 = 27.6，期中 85 × 0.3 = 25.5，期末 88 × 0.4 = 35.2。加起來 88.3。88.3 不到 90，但大於等於 80，所以等第是 B。</p>
+    <p><strong>為什麼用 <code>Decimal</code>？</strong>電腦平常用二進位存小數，有些小數存不精確。例如作業 60.5、期中 70、期末 60，精確的總分是 63.15，四捨五入應該是 63.2；但用一般小數計算再四捨五入，會得到 63.1。成績差 0.1 分就可能影響及格與否，所以要用精確計算。</p>
+  </div>
+</details>
+
+<h4>第 3 段：檢查資料是否正確</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">grade_report.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def validate(row):"><span class="ln">30</span>def validate(row):</span>
+<span class="line" data-text="    &quot;&quot;&quot;Return an error message for an invalid row, or None when the row is usable.&quot;&quot;&quot;"><span class="ln">31</span>    &quot;&quot;&quot;Return an error message for an invalid row, or None when the row is usable.&quot;&quot;&quot;</span>
+<span class="line" data-text="    for key in WEIGHTS:"><span class="ln">32</span>    for key in WEIGHTS:</span>
+<span class="line" data-text="        raw = (row.get(key) or &quot;&quot;).strip()"><span class="ln">33</span>        raw = (row.get(key) or &quot;&quot;).strip()</span>
+<span class="line" data-text="        if raw == &quot;&quot;:"><span class="ln">34</span>        if raw == &quot;&quot;:</span>
+<span class="line" data-text="            return f&quot;{key} 缺少分數&quot;"><span class="ln">35</span>            return f&quot;{key} 缺少分數&quot;</span>
+<span class="line" data-text="        try:"><span class="ln">36</span>        try:</span>
+<span class="line" data-text="            score = Decimal(raw)"><span class="ln">37</span>            score = Decimal(raw)</span>
+<span class="line" data-text="        except ArithmeticError:"><span class="ln">38</span>        except ArithmeticError:</span>
+<span class="line" data-text="            return f&quot;{key} 不是數字：{raw}&quot;"><span class="ln">39</span>            return f&quot;{key} 不是數字：{raw}&quot;</span>
+<span class="line" data-text="        if not 0 &lt;= score &lt;= 100:"><span class="ln">40</span>        if not 0 &lt;= score &lt;= 100:</span>
+<span class="line" data-text="            return f&quot;{key} 超出 0-100：{raw}&quot;"><span class="ln">41</span>            return f&quot;{key} 超出 0-100：{raw}&quot;</span>
+<span class="line" data-text="    return None"><span class="ln">42</span>    return None</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <p><code>validate</code> 依序檢查作業、期中、期末三個分數。發現第一個問題就立刻回傳一段問題描述；三個都沒問題才回傳 <code>None</code>（代表「沒有問題」）。</p>
+    <ul>
+      <li><strong>第 33 行</strong>：取出分數文字並去掉前後空白。<code>or ""</code> 讓欄位不存在時也當成空字串處理。</li>
+      <li><strong>第 34-35 行</strong>：空的就回報「缺少分數」。前面的 <code>f</code> 讓引號裡的 <code>{key}</code> 被換成實際的欄位名稱。</li>
+      <li><strong>第 36-39 行</strong>：<code>try</code> 嘗試把文字轉成數字；轉不了（例如填了 abc）就跳到 <code>except</code>，回報「不是數字」。</li>
+      <li><strong>第 40-41 行</strong>：數字不在 0 到 100 之間，回報「超出 0-100」。</li>
+    </ul>
+  </div>
+</details>
+
+<h4>第 4 段：讀檔、計算、排序</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">grade_report.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def load(path):"><span class="ln">45</span>def load(path):</span>
+<span class="line" data-text="    students, problems = [], []"><span class="ln">46</span>    students, problems = [], []</span>
+<span class="line" data-text="    with open(path, newline=&quot;&quot;, encoding=&quot;utf-8&quot;) as f:"><span class="ln">47</span>    with open(path, newline=&quot;&quot;, encoding=&quot;utf-8&quot;) as f:</span>
+<span class="line" data-text="        for row in csv.DictReader(f):"><span class="ln">48</span>        for row in csv.DictReader(f):</span>
+<span class="line" data-text="            error = validate(row)"><span class="ln">49</span>            error = validate(row)</span>
+<span class="line" data-text="            if error:"><span class="ln">50</span>            if error:</span>
+<span class="line" data-text="                problems.append((row[&quot;student_id&quot;], row[&quot;name&quot;], error))"><span class="ln">51</span>                problems.append((row[&quot;student_id&quot;], row[&quot;name&quot;], error))</span>
+<span class="line" data-text="                continue"><span class="ln">52</span>                continue</span>
+<span class="line" data-text="            total = weighted_total(row)"><span class="ln">53</span>            total = weighted_total(row)</span>
+<span class="line" data-text="            students.append({**row, &quot;total&quot;: total, &quot;letter&quot;: letter(total)})"><span class="ln">54</span>            students.append({**row, &quot;total&quot;: total, &quot;letter&quot;: letter(total)})</span>
+<span class="line" data-text="    students.sort(key=lambda s: (-s[&quot;total&quot;], s[&quot;student_id&quot;]))"><span class="ln">55</span>    students.sort(key=lambda s: (-s[&quot;total&quot;], s[&quot;student_id&quot;]))</span>
+<span class="line" data-text="    return students, problems"><span class="ln">56</span>    return students, problems</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 46 行</strong>：準備兩個空串列，<code>students</code> 放有效的學生，<code>problems</code> 放有問題的資料。</li>
+      <li><strong>第 47-48 行</strong>：打開 CSV 檔，<code>csv.DictReader</code> 讓每一行變成「欄位名稱對應值」的字典，逐行處理。</li>
+      <li><strong>第 49-52 行</strong>：先檢查資料。有問題就記到 <code>problems</code>，<code>continue</code> 表示「跳過這一行，處理下一行」。</li>
+      <li><strong>第 53-54 行</strong>：沒問題就算總分和等第，連同原本的資料一起加入 <code>students</code>。</li>
+      <li><strong>第 55 行</strong>：排序。先依總分由高到低（加負號讓大的排前面），總分相同再依學號由小到大。</li>
+    </ul>
+  </div>
+</details>
+
+<h4>第 5 段：組出報告內容</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">grade_report.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def render(students, problems):"><span class="ln">59</span>def render(students, problems):</span>
+<span class="line" data-text="    totals = [s[&quot;total&quot;] for s in students]"><span class="ln">60</span>    totals = [s[&quot;total&quot;] for s in students]</span>
+<span class="line" data-text="    passed = sum(1 for t in totals if t &gt;= PASS_SCORE)"><span class="ln">61</span>    passed = sum(1 for t in totals if t &gt;= PASS_SCORE)</span>
+<span class="line" data-text="    lines = [&quot;# 成績報告&quot;, &quot;&quot;, &quot;## 摘要&quot;, &quot;&quot;, &quot;| 項目 | 數值 |&quot;, &quot;|---|---|&quot;]"><span class="ln">62</span>    lines = [&quot;# 成績報告&quot;, &quot;&quot;, &quot;## 摘要&quot;, &quot;&quot;, &quot;| 項目 | 數值 |&quot;, &quot;|---|---|&quot;]</span>
+<span class="line" data-text="    if totals:"><span class="ln">63</span>    if totals:</span>
+<span class="line" data-text="        lines += ["><span class="ln">64</span>        lines += [</span>
+<span class="line" data-text="            f&quot;| 有效人數 | {len(totals)} |&quot;,"><span class="ln">65</span>            f&quot;| 有效人數 | {len(totals)} |&quot;,</span>
+<span class="line" data-text="            f&quot;| 平均 | {round1(sum(totals) / len(totals))} |&quot;,"><span class="ln">66</span>            f&quot;| 平均 | {round1(sum(totals) / len(totals))} |&quot;,</span>
+<span class="line" data-text="            f&quot;| 最高 | {max(totals)} |&quot;,"><span class="ln">67</span>            f&quot;| 最高 | {max(totals)} |&quot;,</span>
+<span class="line" data-text="            f&quot;| 最低 | {min(totals)} |&quot;,"><span class="ln">68</span>            f&quot;| 最低 | {min(totals)} |&quot;,</span>
+<span class="line" data-text="            f&quot;| 及格率 | {round1(Decimal(passed * 100) / len(totals))}% |&quot;,"><span class="ln">69</span>            f&quot;| 及格率 | {round1(Decimal(passed * 100) / len(totals))}% |&quot;,</span>
+<span class="line" data-text="        ]"><span class="ln">70</span>        ]</span>
+<span class="line" data-text="    else:"><span class="ln">71</span>    else:</span>
+<span class="line" data-text="        lines.append(&quot;| 有效人數 | 0 |&quot;)"><span class="ln">72</span>        lines.append(&quot;| 有效人數 | 0 |&quot;)</span>
+<span class="line" data-text="    lines += [&quot;&quot;, &quot;## 個人成績&quot;, &quot;&quot;, &quot;| 名次 | 學號 | 姓名 | 作業 | 期中 | 期末 | 總分 | 等第 |&quot;, &quot;|---|---|---|---|---|---|---|---|&quot;]"><span class="ln">73</span>    lines += [&quot;&quot;, &quot;## 個人成績&quot;, &quot;&quot;, &quot;| 名次 | 學號 | 姓名 | 作業 | 期中 | 期末 | 總分 | 等第 |&quot;, &quot;|---|---|---|---|---|---|---|---|&quot;]</span>
+<span class="line" data-text="    for rank, s in enumerate(students, 1):"><span class="ln">74</span>    for rank, s in enumerate(students, 1):</span>
+<span class="line" data-text="        lines.append(f&quot;| {rank} | {s[&#x27;student_id&#x27;]} | {s[&#x27;name&#x27;]} | {s[&#x27;homework&#x27;]} | {s[&#x27;midterm&#x27;]} | {s[&#x27;final&#x27;]} | {s[&#x27;total&#x27;]} | {s[&#x27;letter&#x27;]} |&quot;)"><span class="ln">75</span>        lines.append(f&quot;| {rank} | {s[&#x27;student_id&#x27;]} | {s[&#x27;name&#x27;]} | {s[&#x27;homework&#x27;]} | {s[&#x27;midterm&#x27;]} | {s[&#x27;final&#x27;]} | {s[&#x27;total&#x27;]} | {s[&#x27;letter&#x27;]} |&quot;)</span>
+<span class="line" data-text="    lines += [&quot;&quot;, &quot;## 等第分布&quot;, &quot;&quot;, &quot;| 等第 | 人數 |&quot;, &quot;|---|---|&quot;]"><span class="ln">76</span>    lines += [&quot;&quot;, &quot;## 等第分布&quot;, &quot;&quot;, &quot;| 等第 | 人數 |&quot;, &quot;|---|---|&quot;]</span>
+<span class="line" data-text="    for _, grade in LETTERS:"><span class="ln">77</span>    for _, grade in LETTERS:</span>
+<span class="line" data-text="        lines.append(f&quot;| {grade} | {sum(1 for s in students if s[&#x27;letter&#x27;] == grade)} |&quot;)"><span class="ln">78</span>        lines.append(f&quot;| {grade} | {sum(1 for s in students if s[&#x27;letter&#x27;] == grade)} |&quot;)</span>
+<span class="line" data-text="    lines += [&quot;&quot;, &quot;## 資料問題&quot;, &quot;&quot;]"><span class="ln">79</span>    lines += [&quot;&quot;, &quot;## 資料問題&quot;, &quot;&quot;]</span>
+<span class="line" data-text="    if problems:"><span class="ln">80</span>    if problems:</span>
+<span class="line" data-text="        lines += [&quot;| 學號 | 姓名 | 問題 |&quot;, &quot;|---|---|---|&quot;]"><span class="ln">81</span>        lines += [&quot;| 學號 | 姓名 | 問題 |&quot;, &quot;|---|---|---|&quot;]</span>
+<span class="line" data-text="        lines += [f&quot;| {sid} | {name} | {err} |&quot; for sid, name, err in problems]"><span class="ln">82</span>        lines += [f&quot;| {sid} | {name} | {err} |&quot; for sid, name, err in problems]</span>
+<span class="line" data-text="    else:"><span class="ln">83</span>    else:</span>
+<span class="line" data-text="        lines.append(&quot;沒有資料問題。&quot;)"><span class="ln">84</span>        lines.append(&quot;沒有資料問題。&quot;)</span>
+<span class="line" data-text="    return &quot;\n&quot;.join(lines) + &quot;\n&quot;"><span class="ln">85</span>    return &quot;\n&quot;.join(lines) + &quot;\n&quot;</span></code></pre></figure>
+<details class="explain">
+  <summary>解說</summary>
+  <div>
+    <p><code>render</code> 把計算結果組成 Markdown 格式的報告。<code>lines</code> 是一個串列，每個元素是報告的一行，最後用換行符號 <code>\n</code> 串起來。</p>
+    <ul>
+      <li><strong>第 60-61 行</strong>：取出所有總分，並數出及格的人數。</li>
+      <li><strong>第 62-72 行</strong>：摘要表格。有有效學生時才計算平均、最高、最低、及格率，避免「除以 0」。</li>
+      <li><strong>第 73-75 行</strong>：個人成績表格。<code>enumerate(students, 1)</code> 一邊逐一取出學生，一邊從 1 開始編名次。</li>
+      <li><strong>第 76-78 行</strong>：等第分布，A 到 F 每個等第數一次人數。</li>
+      <li><strong>第 79-84 行</strong>：資料問題表格；沒有問題時寫「沒有資料問題。」</li>
+    </ul>
+    <p>Markdown 表格的寫法是用 <code>|</code> 分隔欄位，第二行 <code>|---|---|</code> 表示上面那行是標題列。</p>
+  </div>
+</details>
+
+<h4>第 6 段：從命令列執行</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">grade_report.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def main():"><span class="ln">88</span>def main():</span>
+<span class="line" data-text="    parser = argparse.ArgumentParser(description=__doc__)"><span class="ln">89</span>    parser = argparse.ArgumentParser(description=__doc__)</span>
+<span class="line" data-text="    parser.add_argument(&quot;csv_path&quot;)"><span class="ln">90</span>    parser.add_argument(&quot;csv_path&quot;)</span>
+<span class="line" data-text="    parser.add_argument(&quot;-o&quot;, &quot;--output&quot;, default=&quot;output/report.md&quot;)"><span class="ln">91</span>    parser.add_argument(&quot;-o&quot;, &quot;--output&quot;, default=&quot;output/report.md&quot;)</span>
+<span class="line" data-text="    args = parser.parse_args()"><span class="ln">92</span>    args = parser.parse_args()</span>
+<span class="line" data-text="    students, problems = load(args.csv_path)"><span class="ln">93</span>    students, problems = load(args.csv_path)</span>
+<span class="line" data-text="    out = Path(args.output)"><span class="ln">94</span>    out = Path(args.output)</span>
+<span class="line" data-text="    out.parent.mkdir(parents=True, exist_ok=True)"><span class="ln">95</span>    out.parent.mkdir(parents=True, exist_ok=True)</span>
+<span class="line" data-text="    out.write_text(render(students, problems), encoding=&quot;utf-8&quot;)"><span class="ln">96</span>    out.write_text(render(students, problems), encoding=&quot;utf-8&quot;)</span>
+<span class="line" data-text="    print(f&quot;寫入 {out}：有效 {len(students)} 筆，資料問題 {len(problems)} 筆&quot;)"><span class="ln">97</span>    print(f&quot;寫入 {out}：有效 {len(students)} 筆，資料問題 {len(problems)} 筆&quot;)</span>
+<span class="line" data-text=""><span class="ln">98</span></span>
+<span class="line" data-text=""><span class="ln">99</span></span>
+<span class="line" data-text="if __name__ == &quot;__main__&quot;:"><span class="ln">100</span>if __name__ == &quot;__main__&quot;:</span>
+<span class="line" data-text="    main()"><span class="ln">101</span>    main()</span></code></pre></figure>
+<details class="explain">
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 89-92 行</strong>：定義命令列參數。第一個參數是 CSV 路徑，<code>-o</code> 指定輸出位置，沒給就用 <code>output/report.md</code>。</li>
+      <li><strong>第 93-96 行</strong>：讀資料、建立輸出資料夾（已存在也沒關係）、寫出報告。</li>
+      <li><strong>第 97 行</strong>：在終端機印出一行摘要。</li>
+      <li><strong>第 100-101 行</strong>：只有「直接執行這個檔案」時才呼叫 <code>main</code>。被測試程式載入時不會自動執行，測試才能單獨檢查每個函式。</li>
+    </ul>
+  </div>
+</details>
+
+<h3>執行程式</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">在 01-grade-report 資料夾中執行</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="python3 grade_report.py data/scores.csv -o output/report.md">python3 grade_report.py data/scores.csv -o output/report.md</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="寫入 output/report.md：有效 8 筆，資料問題 2 筆">寫入 output/report.md：有效 8 筆，資料問題 2 筆</span></code></pre></figure>
+<p>在 VS Code 中打開 <code>output/report.md</code>，按編輯區右上角的預覽按鈕，就能看到排版好的表格。完整報告如下：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">output/report.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# 成績報告"><span class="ln">1</span># 成績報告</span>
+<span class="line" data-text=""><span class="ln">2</span></span>
+<span class="line" data-text="## 摘要"><span class="ln">3</span>## 摘要</span>
+<span class="line" data-text=""><span class="ln">4</span></span>
+<span class="line" data-text="| 項目 | 數值 |"><span class="ln">5</span>| 項目 | 數值 |</span>
+<span class="line" data-text="|---|---|"><span class="ln">6</span>|---|---|</span>
+<span class="line" data-text="| 有效人數 | 8 |"><span class="ln">7</span>| 有效人數 | 8 |</span>
+<span class="line" data-text="| 平均 | 73.2 |"><span class="ln">8</span>| 平均 | 73.2 |</span>
+<span class="line" data-text="| 最高 | 97.3 |"><span class="ln">9</span>| 最高 | 97.3 |</span>
+<span class="line" data-text="| 最低 | 51.7 |"><span class="ln">10</span>| 最低 | 51.7 |</span>
+<span class="line" data-text="| 及格率 | 87.5% |"><span class="ln">11</span>| 及格率 | 87.5% |</span>
+<span class="line" data-text=""><span class="ln">12</span></span>
+<span class="line" data-text="## 個人成績"><span class="ln">13</span>## 個人成績</span>
+<span class="line" data-text=""><span class="ln">14</span></span>
+<span class="line" data-text="| 名次 | 學號 | 姓名 | 作業 | 期中 | 期末 | 總分 | 等第 |"><span class="ln">15</span>| 名次 | 學號 | 姓名 | 作業 | 期中 | 期末 | 總分 | 等第 |</span>
+<span class="line" data-text="|---|---|---|---|---|---|---|---|"><span class="ln">16</span>|---|---|---|---|---|---|---|---|</span>
+<span class="line" data-text="| 1 | S1130004 | 張雅婷 | 100 | 95 | 97 | 97.3 | A |"><span class="ln">17</span>| 1 | S1130004 | 張雅婷 | 100 | 95 | 97 | 97.3 | A |</span>
+<span class="line" data-text="| 2 | S1130001 | 王小明 | 92 | 85 | 88 | 88.3 | B |"><span class="ln">18</span>| 2 | S1130001 | 王小明 | 92 | 85 | 88 | 88.3 | B |</span>
+<span class="line" data-text="| 3 | S1130007 | 吳冠廷 | 88 | 91 | 79 | 85.3 | B |"><span class="ln">19</span>| 3 | S1130007 | 吳冠廷 | 88 | 91 | 79 | 85.3 | B |</span>
+<span class="line" data-text="| 4 | S1130002 | 林佳穎 | 78 | 64 | 70 | 70.6 | C |"><span class="ln">20</span>| 4 | S1130002 | 林佳穎 | 78 | 64 | 70 | 70.6 | C |</span>
+<span class="line" data-text="| 5 | S1130006 | 黃詩涵 | 68 | 72 | 61 | 66.4 | D |"><span class="ln">21</span>| 5 | S1130006 | 黃詩涵 | 68 | 72 | 61 | 66.4 | D |</span>
+<span class="line" data-text="| 6 | S1130008 | 蔡宜蓁 | 73 | 58 | 66 | 65.7 | D |"><span class="ln">22</span>| 6 | S1130008 | 蔡宜蓁 | 73 | 58 | 66 | 65.7 | D |</span>
+<span class="line" data-text="| 7 | S1130010 | 謝欣妤 | 60 | 62 | 59 | 60.2 | D |"><span class="ln">23</span>| 7 | S1130010 | 謝欣妤 | 60 | 62 | 59 | 60.2 | D |</span>
+<span class="line" data-text="| 8 | S1130003 | 陳志豪 | 55 | 48 | 52 | 51.7 | F |"><span class="ln">24</span>| 8 | S1130003 | 陳志豪 | 55 | 48 | 52 | 51.7 | F |</span>
+<span class="line" data-text=""><span class="ln">25</span></span>
+<span class="line" data-text="## 等第分布"><span class="ln">26</span>## 等第分布</span>
+<span class="line" data-text=""><span class="ln">27</span></span>
+<span class="line" data-text="| 等第 | 人數 |"><span class="ln">28</span>| 等第 | 人數 |</span>
+<span class="line" data-text="|---|---|"><span class="ln">29</span>|---|---|</span>
+<span class="line" data-text="| A | 1 |"><span class="ln">30</span>| A | 1 |</span>
+<span class="line" data-text="| B | 2 |"><span class="ln">31</span>| B | 2 |</span>
+<span class="line" data-text="| C | 1 |"><span class="ln">32</span>| C | 1 |</span>
+<span class="line" data-text="| D | 3 |"><span class="ln">33</span>| D | 3 |</span>
+<span class="line" data-text="| F | 1 |"><span class="ln">34</span>| F | 1 |</span>
+<span class="line" data-text=""><span class="ln">35</span></span>
+<span class="line" data-text="## 資料問題"><span class="ln">36</span>## 資料問題</span>
+<span class="line" data-text=""><span class="ln">37</span></span>
+<span class="line" data-text="| 學號 | 姓名 | 問題 |"><span class="ln">38</span>| 學號 | 姓名 | 問題 |</span>
+<span class="line" data-text="|---|---|---|"><span class="ln">39</span>|---|---|---|</span>
+<span class="line" data-text="| S1130005 | 李承恩 | midterm 缺少分數 |"><span class="ln">40</span>| S1130005 | 李承恩 | midterm 缺少分數 |</span>
+<span class="line" data-text="| S1130009 | 鄭宇翔 | homework 超出 0-100：105 |"><span class="ln">41</span>| S1130009 | 鄭宇翔 | homework 超出 0-100：105 |</span></code></pre></figure>
+
+<h3>執行測試</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="python3 -m unittest discover -s tests -v">python3 -m unittest discover -s tests -v</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="test_cutoffs (test_grade_report.LetterTest.test_cutoffs) ... ok">test_cutoffs (test_grade_report.LetterTest.test_cutoffs) ... ok</span>
+<span class="line" data-text="test_sample_report_matches_expected (test_grade_report.ReportTest.test_sample_report_matches_expected) ... ok">test_sample_report_matches_expected (test_grade_report.ReportTest.test_sample_report_matches_expected) ... ok</span>
+<span class="line" data-text="test_missing_score (test_grade_report.ValidateTest.test_missing_score) ... ok">test_missing_score (test_grade_report.ValidateTest.test_missing_score) ... ok</span>
+<span class="line" data-text="test_not_a_number (test_grade_report.ValidateTest.test_not_a_number) ... ok">test_not_a_number (test_grade_report.ValidateTest.test_not_a_number) ... ok</span>
+<span class="line" data-text="test_out_of_range (test_grade_report.ValidateTest.test_out_of_range) ... ok">test_out_of_range (test_grade_report.ValidateTest.test_out_of_range) ... ok</span>
+<span class="line" data-text="test_valid_row (test_grade_report.ValidateTest.test_valid_row) ... ok">test_valid_row (test_grade_report.ValidateTest.test_valid_row) ... ok</span>
+<span class="line" data-text="test_rounds_half_up_to_one_decimal (test_grade_report.WeightedTotalTest.test_rounds_half_up_to_one_decimal) ... ok">test_rounds_half_up_to_one_decimal (test_grade_report.WeightedTotalTest.test_rounds_half_up_to_one_decimal) ... ok</span>
+<span class="line" data-text="test_weights_are_30_30_40 (test_grade_report.WeightedTotalTest.test_weights_are_30_30_40) ... ok">test_weights_are_30_30_40 (test_grade_report.WeightedTotalTest.test_weights_are_30_30_40) ... ok</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="----------------------------------------------------------------------">----------------------------------------------------------------------</span>
+<span class="line" data-text="Ran 8 tests in 0.000s">Ran 8 tests in 0.000s</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="OK">OK</span></code></pre></figure>
+<p><code>discover -s tests</code> 表示「到 tests 資料夾找出所有測試來跑」，<code>-v</code> 表示逐一列出每個測試的結果。</p>
+
+<details class="explain">
+  <summary>看測試檔：每個測試在檢查什麼</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">tests/test_grade_report.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="import sys"><span class="ln">1</span>import sys</span>
+<span class="line" data-text="import unittest"><span class="ln">2</span>import unittest</span>
+<span class="line" data-text="from decimal import Decimal"><span class="ln">3</span>from decimal import Decimal</span>
+<span class="line" data-text="from pathlib import Path"><span class="ln">4</span>from pathlib import Path</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="sys.path.insert(0, str(Path(__file__).resolve().parents[1]))"><span class="ln">6</span>sys.path.insert(0, str(Path(__file__).resolve().parents[1]))</span>
+<span class="line" data-text="import grade_report as gr  # noqa: E402"><span class="ln">7</span>import grade_report as gr  # noqa: E402</span>
+<span class="line" data-text=""><span class="ln">8</span></span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text="class WeightedTotalTest(unittest.TestCase):"><span class="ln">10</span>class WeightedTotalTest(unittest.TestCase):</span>
+<span class="line" data-text="    def test_weights_are_30_30_40(self):"><span class="ln">11</span>    def test_weights_are_30_30_40(self):</span>
+<span class="line" data-text="        row = {&quot;homework&quot;: &quot;100&quot;, &quot;midterm&quot;: &quot;0&quot;, &quot;final&quot;: &quot;0&quot;}"><span class="ln">12</span>        row = {&quot;homework&quot;: &quot;100&quot;, &quot;midterm&quot;: &quot;0&quot;, &quot;final&quot;: &quot;0&quot;}</span>
+<span class="line" data-text="        self.assertEqual(gr.weighted_total(row), Decimal(&quot;30.0&quot;))"><span class="ln">13</span>        self.assertEqual(gr.weighted_total(row), Decimal(&quot;30.0&quot;))</span>
+<span class="line" data-text=""><span class="ln">14</span></span>
+<span class="line" data-text="    def test_rounds_half_up_to_one_decimal(self):"><span class="ln">15</span>    def test_rounds_half_up_to_one_decimal(self):</span>
+<span class="line" data-text="        # 60.5*0.3 + 70*0.3 + 60*0.4 = 63.15 exactly; float round() would give 63.1"><span class="ln">16</span>        # 60.5*0.3 + 70*0.3 + 60*0.4 = 63.15 exactly; float round() would give 63.1</span>
+<span class="line" data-text="        row = {&quot;homework&quot;: &quot;60.5&quot;, &quot;midterm&quot;: &quot;70&quot;, &quot;final&quot;: &quot;60&quot;}"><span class="ln">17</span>        row = {&quot;homework&quot;: &quot;60.5&quot;, &quot;midterm&quot;: &quot;70&quot;, &quot;final&quot;: &quot;60&quot;}</span>
+<span class="line" data-text="        self.assertEqual(gr.weighted_total(row), Decimal(&quot;63.2&quot;))"><span class="ln">18</span>        self.assertEqual(gr.weighted_total(row), Decimal(&quot;63.2&quot;))</span>
+<span class="line" data-text=""><span class="ln">19</span></span>
+<span class="line" data-text=""><span class="ln">20</span></span>
+<span class="line" data-text="class LetterTest(unittest.TestCase):"><span class="ln">21</span>class LetterTest(unittest.TestCase):</span>
+<span class="line" data-text="    def test_cutoffs(self):"><span class="ln">22</span>    def test_cutoffs(self):</span>
+<span class="line" data-text="        cases = {Decimal(&quot;90&quot;): &quot;A&quot;, Decimal(&quot;89.9&quot;): &quot;B&quot;, Decimal(&quot;70&quot;): &quot;C&quot;, Decimal(&quot;60&quot;): &quot;D&quot;, Decimal(&quot;59.9&quot;): &quot;F&quot;}"><span class="ln">23</span>        cases = {Decimal(&quot;90&quot;): &quot;A&quot;, Decimal(&quot;89.9&quot;): &quot;B&quot;, Decimal(&quot;70&quot;): &quot;C&quot;, Decimal(&quot;60&quot;): &quot;D&quot;, Decimal(&quot;59.9&quot;): &quot;F&quot;}</span>
+<span class="line" data-text="        for total, expected in cases.items():"><span class="ln">24</span>        for total, expected in cases.items():</span>
+<span class="line" data-text="            self.assertEqual(gr.letter(total), expected, total)"><span class="ln">25</span>            self.assertEqual(gr.letter(total), expected, total)</span>
+<span class="line" data-text=""><span class="ln">26</span></span>
+<span class="line" data-text=""><span class="ln">27</span></span>
+<span class="line" data-text="class ValidateTest(unittest.TestCase):"><span class="ln">28</span>class ValidateTest(unittest.TestCase):</span>
+<span class="line" data-text="    def test_missing_score(self):"><span class="ln">29</span>    def test_missing_score(self):</span>
+<span class="line" data-text="        self.assertIn(&quot;缺少&quot;, gr.validate({&quot;homework&quot;: &quot;80&quot;, &quot;midterm&quot;: &quot;&quot;, &quot;final&quot;: &quot;70&quot;}))"><span class="ln">30</span>        self.assertIn(&quot;缺少&quot;, gr.validate({&quot;homework&quot;: &quot;80&quot;, &quot;midterm&quot;: &quot;&quot;, &quot;final&quot;: &quot;70&quot;}))</span>
+<span class="line" data-text=""><span class="ln">31</span></span>
+<span class="line" data-text="    def test_out_of_range(self):"><span class="ln">32</span>    def test_out_of_range(self):</span>
+<span class="line" data-text="        self.assertIn(&quot;超出&quot;, gr.validate({&quot;homework&quot;: &quot;105&quot;, &quot;midterm&quot;: &quot;80&quot;, &quot;final&quot;: &quot;70&quot;}))"><span class="ln">33</span>        self.assertIn(&quot;超出&quot;, gr.validate({&quot;homework&quot;: &quot;105&quot;, &quot;midterm&quot;: &quot;80&quot;, &quot;final&quot;: &quot;70&quot;}))</span>
+<span class="line" data-text=""><span class="ln">34</span></span>
+<span class="line" data-text="    def test_not_a_number(self):"><span class="ln">35</span>    def test_not_a_number(self):</span>
+<span class="line" data-text="        self.assertIn(&quot;不是數字&quot;, gr.validate({&quot;homework&quot;: &quot;abc&quot;, &quot;midterm&quot;: &quot;80&quot;, &quot;final&quot;: &quot;70&quot;}))"><span class="ln">36</span>        self.assertIn(&quot;不是數字&quot;, gr.validate({&quot;homework&quot;: &quot;abc&quot;, &quot;midterm&quot;: &quot;80&quot;, &quot;final&quot;: &quot;70&quot;}))</span>
+<span class="line" data-text=""><span class="ln">37</span></span>
+<span class="line" data-text="    def test_valid_row(self):"><span class="ln">38</span>    def test_valid_row(self):</span>
+<span class="line" data-text="        self.assertIsNone(gr.validate({&quot;homework&quot;: &quot;80&quot;, &quot;midterm&quot;: &quot;80&quot;, &quot;final&quot;: &quot;70&quot;}))"><span class="ln">39</span>        self.assertIsNone(gr.validate({&quot;homework&quot;: &quot;80&quot;, &quot;midterm&quot;: &quot;80&quot;, &quot;final&quot;: &quot;70&quot;}))</span>
+<span class="line" data-text=""><span class="ln">40</span></span>
+<span class="line" data-text=""><span class="ln">41</span></span>
+<span class="line" data-text="class ReportTest(unittest.TestCase):"><span class="ln">42</span>class ReportTest(unittest.TestCase):</span>
+<span class="line" data-text="    def test_sample_report_matches_expected(self):"><span class="ln">43</span>    def test_sample_report_matches_expected(self):</span>
+<span class="line" data-text="        root = Path(__file__).resolve().parents[1]"><span class="ln">44</span>        root = Path(__file__).resolve().parents[1]</span>
+<span class="line" data-text="        students, problems = gr.load(root / &quot;data&quot; / &quot;scores.csv&quot;)"><span class="ln">45</span>        students, problems = gr.load(root / &quot;data&quot; / &quot;scores.csv&quot;)</span>
+<span class="line" data-text="        expected = root / &quot;.agents&quot; / &quot;skills&quot; / &quot;grade-report&quot; / &quot;assets&quot; / &quot;expected-report.md&quot;"><span class="ln">46</span>        expected = root / &quot;.agents&quot; / &quot;skills&quot; / &quot;grade-report&quot; / &quot;assets&quot; / &quot;expected-report.md&quot;</span>
+<span class="line" data-text="        self.assertEqual(gr.render(students, problems), expected.read_text(encoding=&quot;utf-8&quot;))"><span class="ln">47</span>        self.assertEqual(gr.render(students, problems), expected.read_text(encoding=&quot;utf-8&quot;))</span>
+<span class="line" data-text=""><span class="ln">48</span></span>
+<span class="line" data-text=""><span class="ln">49</span></span>
+<span class="line" data-text="if __name__ == &quot;__main__&quot;:"><span class="ln">50</span>if __name__ == &quot;__main__&quot;:</span>
+<span class="line" data-text="    unittest.main()"><span class="ln">51</span>    unittest.main()</span></code></pre></figure>
+    <div class="table-wrap"><table>
+      <thead><tr><th>測試名稱</th><th>檢查的事</th></tr></thead>
+      <tbody>
+        <tr><td>test_weights_are_30_30_40</td><td>只有作業 100 分時，總分應該是 30.0，證明權重正確</td></tr>
+        <tr><td>test_rounds_half_up_to_one_decimal</td><td>60.5、70、60 必須算出 63.2，證明用的是精確的五入</td></tr>
+        <tr><td>test_cutoffs</td><td>剛好 90 是 A、89.9 是 B、59.9 是 F，檢查每個門檻的邊界</td></tr>
+        <tr><td>test_missing_score</td><td>空白分數要回報「缺少」</td></tr>
+        <tr><td>test_out_of_range</td><td>105 分要回報「超出」</td></tr>
+        <tr><td>test_not_a_number</td><td>abc 要回報「不是數字」</td></tr>
+        <tr><td>test_valid_row</td><td>正常的資料不應該回報問題</td></tr>
+        <tr><td>test_sample_report_matches_expected</td><td>用範例資料產生的整份報告，必須和預期報告一字不差</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</details>
+
+<h3>技能：讓任何人都能重現這份報告</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">.agents/skills/grade-report/SKILL.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="---"><span class="ln">1</span>---</span>
+<span class="line" data-text="name: grade-report"><span class="ln">2</span>name: grade-report</span>
+<span class="line" data-text="description: Generate and verify a Markdown grade report from a student score CSV (homework/midterm/final) in this repository. Use when asked to build, rebuild, reproduce, or check the grade report; do not use for other spreadsheets or grading policies."><span class="ln">3</span>description: Generate and verify a Markdown grade report from a student score CSV (homework/midterm/final) in this repository. Use when asked to build, rebuild, reproduce, or check the grade report; do not use for other spreadsheets or grading policies.</span>
+<span class="line" data-text="---"><span class="ln">4</span>---</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="# Grade report"><span class="ln">6</span># Grade report</span>
+<span class="line" data-text=""><span class="ln">7</span></span>
+<span class="line" data-text="Reproduce the grade report for this project and prove it matches the specification."><span class="ln">8</span>Reproduce the grade report for this project and prove it matches the specification.</span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text="## Inputs"><span class="ln">10</span>## Inputs</span>
+<span class="line" data-text=""><span class="ln">11</span></span>
+<span class="line" data-text="- Score CSV: the path the user gives, otherwise `data/scores.csv`."><span class="ln">12</span>- Score CSV: the path the user gives, otherwise `data/scores.csv`.</span>
+<span class="line" data-text="- Specification: `references/spec.md` in this skill folder. It is the single source of truth for weights, rounding, letter cutoffs, validation messages, and report layout."><span class="ln">13</span>- Specification: `references/spec.md` in this skill folder. It is the single source of truth for weights, rounding, letter cutoffs, validation messages, and report layout.</span>
+<span class="line" data-text="- Expected output for the bundled sample data: `assets/expected-report.md` in this skill folder."><span class="ln">14</span>- Expected output for the bundled sample data: `assets/expected-report.md` in this skill folder.</span>
+<span class="line" data-text=""><span class="ln">15</span></span>
+<span class="line" data-text="## Workflow"><span class="ln">16</span>## Workflow</span>
+<span class="line" data-text=""><span class="ln">17</span></span>
+<span class="line" data-text="1. Read `references/spec.md`."><span class="ln">18</span>1. Read `references/spec.md`.</span>
+<span class="line" data-text="2. If `grade_report.py` or `tests/test_grade_report.py` is missing at the project root, implement it from the specification using only the Python standard library. Otherwise do not rewrite working code."><span class="ln">19</span>2. If `grade_report.py` or `tests/test_grade_report.py` is missing at the project root, implement it from the specification using only the Python standard library. Otherwise do not rewrite working code.</span>
+<span class="line" data-text="3. Run `python3 -m unittest discover -s tests`. If a test fails, fix the implementation (never the expected file or the specification), then rerun until every test passes."><span class="ln">20</span>3. Run `python3 -m unittest discover -s tests`. If a test fails, fix the implementation (never the expected file or the specification), then rerun until every test passes.</span>
+<span class="line" data-text="4. Run `python3 grade_report.py &lt;csv&gt; -o output/report.md`."><span class="ln">21</span>4. Run `python3 grade_report.py &lt;csv&gt; -o output/report.md`.</span>
+<span class="line" data-text="5. If the input is `data/scores.csv`, compare byte for byte: `diff output/report.md .agents/skills/grade-report/assets/expected-report.md`. Any difference is a failure to fix before finishing."><span class="ln">22</span>5. If the input is `data/scores.csv`, compare byte for byte: `diff output/report.md .agents/skills/grade-report/assets/expected-report.md`. Any difference is a failure to fix before finishing.</span>
+<span class="line" data-text="6. Do not edit the input CSV. Report data problems instead of correcting scores."><span class="ln">23</span>6. Do not edit the input CSV. Report data problems instead of correcting scores.</span>
+<span class="line" data-text=""><span class="ln">24</span></span>
+<span class="line" data-text="## Final response"><span class="ln">25</span>## Final response</span>
+<span class="line" data-text=""><span class="ln">26</span></span>
+<span class="line" data-text="Reply in Traditional Chinese with:"><span class="ln">27</span>Reply in Traditional Chinese with:</span>
+<span class="line" data-text=""><span class="ln">28</span></span>
+<span class="line" data-text="- The commands you ran and whether each passed."><span class="ln">29</span>- The commands you ran and whether each passed.</span>
+<span class="line" data-text="- 有效人數, 平均, 及格率, and the number of data problems, copied from the report."><span class="ln">30</span>- 有效人數, 平均, 及格率, and the number of data problems, copied from the report.</span>
+<span class="line" data-text="- The output path, and whether it matched the expected report (or that no expected file applies to this input)."><span class="ln">31</span>- The output path, and whether it matched the expected report (or that no expected file applies to this input).</span></code></pre></figure>
+<details class="explain" open>
+  <summary>這份技能怎麼設計的</summary>
+  <div>
+    <ul>
+      <li><strong><code>description</code></strong>：前半句說明用途與觸發字（build、rebuild、reproduce、check the grade report），後半句說明<strong>不該用</strong>的情況，避免被誤用在別的試算表。</li>
+      <li><strong>Inputs</strong>：清楚列出輸入的成績檔、唯一依據的規格檔、以及用來比對的預期報告。</li>
+      <li><strong>Workflow</strong>：先讀規格；程式不存在才依規格補寫；跑測試；產生報告；和預期報告逐字比對。</li>
+      <li><strong>防呆規則</strong>：測試失敗時只能改程式，<strong>不能</strong>改預期結果或規格；也不能偷偷改原始成績。這樣「通過」才有意義。</li>
+      <li><strong>Final response</strong>：規定回報內容，你一眼就能確認結果。</li>
+    </ul>
+    <p>技能用英文撰寫，是為了讓說明精確、方便分享；技能規定 Codex 用繁體中文回報。</p>
+  </div>
+</details>
+
+<details class="explain">
+  <summary>看規格檔 references/spec.md</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">.agents/skills/grade-report/references/spec.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# Grade report specification"><span class="ln">1</span># Grade report specification</span>
+<span class="line" data-text=""><span class="ln">2</span></span>
+<span class="line" data-text="## Input"><span class="ln">3</span>## Input</span>
+<span class="line" data-text=""><span class="ln">4</span></span>
+<span class="line" data-text="A UTF-8 CSV file with the header `student_id,name,homework,midterm,final`."><span class="ln">5</span>A UTF-8 CSV file with the header `student_id,name,homework,midterm,final`.</span>
+<span class="line" data-text=""><span class="ln">6</span></span>
+<span class="line" data-text="## Validation"><span class="ln">7</span>## Validation</span>
+<span class="line" data-text=""><span class="ln">8</span></span>
+<span class="line" data-text="A row is invalid when any of `homework`, `midterm`, `final`:"><span class="ln">9</span>A row is invalid when any of `homework`, `midterm`, `final`:</span>
+<span class="line" data-text=""><span class="ln">10</span></span>
+<span class="line" data-text="| Condition | Problem text |"><span class="ln">11</span>| Condition | Problem text |</span>
+<span class="line" data-text="|---|---|"><span class="ln">12</span>|---|---|</span>
+<span class="line" data-text="| empty | `&lt;field&gt; 缺少分數` |"><span class="ln">13</span>| empty | `&lt;field&gt; 缺少分數` |</span>
+<span class="line" data-text="| not a number | `&lt;field&gt; 不是數字：&lt;raw&gt;` |"><span class="ln">14</span>| not a number | `&lt;field&gt; 不是數字：&lt;raw&gt;` |</span>
+<span class="line" data-text="| outside 0-100 | `&lt;field&gt; 超出 0-100：&lt;raw&gt;` |"><span class="ln">15</span>| outside 0-100 | `&lt;field&gt; 超出 0-100：&lt;raw&gt;` |</span>
+<span class="line" data-text=""><span class="ln">16</span></span>
+<span class="line" data-text="Check fields in the order homework, midterm, final and report only the first problem."><span class="ln">17</span>Check fields in the order homework, midterm, final and report only the first problem.</span>
+<span class="line" data-text="Invalid rows are excluded from every statistic and listed in the 資料問題 section in input order."><span class="ln">18</span>Invalid rows are excluded from every statistic and listed in the 資料問題 section in input order.</span>
+<span class="line" data-text=""><span class="ln">19</span></span>
+<span class="line" data-text="## Scoring"><span class="ln">20</span>## Scoring</span>
+<span class="line" data-text=""><span class="ln">21</span></span>
+<span class="line" data-text="- Weighted total = homework x 0.3 + midterm x 0.3 + final x 0.4."><span class="ln">22</span>- Weighted total = homework x 0.3 + midterm x 0.3 + final x 0.4.</span>
+<span class="line" data-text="- Round to one decimal place, half up (use `decimal.Decimal`, not float `round`)."><span class="ln">23</span>- Round to one decimal place, half up (use `decimal.Decimal`, not float `round`).</span>
+<span class="line" data-text="- Letter grade: A &gt;= 90, B &gt;= 80, C &gt;= 70, D &gt;= 60, otherwise F."><span class="ln">24</span>- Letter grade: A &gt;= 90, B &gt;= 80, C &gt;= 70, D &gt;= 60, otherwise F.</span>
+<span class="line" data-text="- Pass means total &gt;= 60."><span class="ln">25</span>- Pass means total &gt;= 60.</span>
+<span class="line" data-text=""><span class="ln">26</span></span>
+<span class="line" data-text="## Output"><span class="ln">27</span>## Output</span>
+<span class="line" data-text=""><span class="ln">28</span></span>
+<span class="line" data-text="Markdown with these sections in order:"><span class="ln">29</span>Markdown with these sections in order:</span>
+<span class="line" data-text=""><span class="ln">30</span></span>
+<span class="line" data-text="1. `# 成績報告`"><span class="ln">31</span>1. `# 成績報告`</span>
+<span class="line" data-text="2. `## 摘要`: table of 有效人數, 平均, 最高, 最低, 及格率 (average and pass rate rounded half up to one decimal; pass rate ends with `%`)."><span class="ln">32</span>2. `## 摘要`: table of 有效人數, 平均, 最高, 最低, 及格率 (average and pass rate rounded half up to one decimal; pass rate ends with `%`).</span>
+<span class="line" data-text="3. `## 個人成績`: table 名次, 學號, 姓名, 作業, 期中, 期末, 總分, 等第; sorted by total descending, then student_id ascending."><span class="ln">33</span>3. `## 個人成績`: table 名次, 學號, 姓名, 作業, 期中, 期末, 總分, 等第; sorted by total descending, then student_id ascending.</span>
+<span class="line" data-text="4. `## 等第分布`: table of counts for A, B, C, D, F (all five rows, zero included)."><span class="ln">34</span>4. `## 等第分布`: table of counts for A, B, C, D, F (all five rows, zero included).</span>
+<span class="line" data-text="5. `## 資料問題`: table 學號, 姓名, 問題, or the line `沒有資料問題。` when there are none."><span class="ln">35</span>5. `## 資料問題`: table 學號, 姓名, 問題, or the line `沒有資料問題。` when there are none.</span>
+<span class="line" data-text=""><span class="ln">36</span></span>
+<span class="line" data-text="The file ends with a single newline."><span class="ln">37</span>The file ends with a single newline.</span>
+<span class="line" data-text=""><span class="ln">38</span></span>
+<span class="line" data-text="## Command line"><span class="ln">39</span>## Command line</span>
+<span class="line" data-text=""><span class="ln">40</span></span>
+<span class="line" data-text="`python3 grade_report.py &lt;csv_path&gt; -o &lt;output_path&gt;` (default output `output/report.md`),"><span class="ln">41</span>`python3 grade_report.py &lt;csv_path&gt; -o &lt;output_path&gt;` (default output `output/report.md`),</span>
+<span class="line" data-text="creating the output folder when missing and printing `寫入 &lt;path&gt;：有效 N 筆，資料問題 M 筆`."><span class="ln">42</span>creating the output folder when missing and printing `寫入 &lt;path&gt;：有效 N 筆，資料問題 M 筆`.</span></code></pre></figure>
+  </div>
+</details>
+
+<h3>路線 A：從零開始，讓 Codex 依規格實作</h3>
+<p>把程式和測試刪掉，只留下資料、規則和規格，完整體驗「規劃、實作、審查」：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">刪除實作並存檔</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git rm -q grade_report.py tests/test_grade_report.py">git rm -q grade_report.py tests/test_grade_report.py</span>
+<span class="line" data-text="git commit -m &quot;checkpoint: 移除實作，準備從規格重做&quot;">git commit -m &quot;checkpoint: 移除實作，準備從規格重做&quot;</span></code></pre></figure>
+<p><code>git rm</code> 會刪除檔案並讓 Git 記下「這些檔案被刪了」。放心，之前的存檔點裡還有原本的程式。</p>
+
+<ol class="steps">
+  <li><p><strong>先規劃，不動手</strong></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/plan">/plan</span>
+<span class="line" data-text="請閱讀 AGENTS.md 和 .agents/skills/grade-report/references/spec.md，">請閱讀 AGENTS.md 和 .agents/skills/grade-report/references/spec.md，</span>
+<span class="line" data-text="規劃如何實作 grade_report.py 與 tests/test_grade_report.py。">規劃如何實作 grade_report.py 與 tests/test_grade_report.py。</span>
+<span class="line" data-text="列出要寫的函式、每個函式的輸入輸出，以及要涵蓋哪些測試情境。">列出要寫的函式、每個函式的輸入輸出，以及要涵蓋哪些測試情境。</span>
+<span class="line" data-text="先不要修改任何檔案。">先不要修改任何檔案。</span></code></pre></figure>
+    <p>讀完計畫，有不懂的地方直接問，例如「為什麼要把讀檔和計算分成兩個函式？」</p>
+  </li>
+  <li><p><strong>依計畫實作並驗證</strong></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="依照剛才的計畫實作。">依照剛才的計畫實作。</span>
+<span class="line" data-text="完成後執行 python3 -m unittest discover -s tests，">完成後執行 python3 -m unittest discover -s tests，</span>
+<span class="line" data-text="再執行 python3 grade_report.py data/scores.csv -o output/report.md，">再執行 python3 grade_report.py data/scores.csv -o output/report.md，</span>
+<span class="line" data-text="並用 diff 和 .agents/skills/grade-report/assets/expected-report.md 比對，">並用 diff 和 .agents/skills/grade-report/assets/expected-report.md 比對，</span>
+<span class="line" data-text="回報執行的指令與結果。">回報執行的指令與結果。</span></code></pre></figure>
+    <p><code>diff</code> 是比較兩個檔案差異的指令，沒有輸出就代表兩個檔案完全相同。</p>
+  </li>
+  <li><p><strong>審查</strong></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/review">/review</span></code></pre></figure>
+  </li>
+  <li><p><strong>用 VS Code 的選取功能追問細節</strong>：在 <code>grade_report.py</code> 選取 <code>weighted_total</code> 函式，執行 <code>chatgpt.addToThread</code>，然後問：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="為什麼這裡要用 Decimal 而不是 float 的 round？">為什麼這裡要用 Decimal 而不是 float 的 round？</span>
+<span class="line" data-text="請用作業 60.5、期中 70、期末 60 這組分數，實際執行程式比較兩種寫法的結果並說明原因。">請用作業 60.5、期中 70、期末 60 這組分數，實際執行程式比較兩種寫法的結果並說明原因。</span></code></pre></figure>
+  </li>
+  <li><p><strong>存檔</strong>：確認沒問題後 commit。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git add -A">git add -A</span>
+<span class="line" data-text="git commit -m &quot;依規格重新實作成績報告&quot;">git commit -m &quot;依規格重新實作成績報告&quot;</span></code></pre></figure>
+  </li>
+</ol>
+
+<h3>路線 B：用技能重現結果</h3>
+<p>保留原本的程式（或完成路線 A 後），開一個新對話，直接呼叫技能：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="$grade-report 重現範例資料的成績報告，並確認與預期結果一致。">$grade-report 重現範例資料的成績報告，並確認與預期結果一致。</span></code></pre></figure>
+<p>Codex 會照技能的步驟做完，並用繁體中文回報。你應該看到這些數字：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>項目</th><th>預期結果</th></tr></thead>
+  <tbody>
+    <tr><td>測試</td><td>8 個全部通過</td></tr>
+    <tr><td>有效人數</td><td>8</td></tr>
+    <tr><td>平均</td><td>73.2</td></tr>
+    <tr><td>及格率</td><td>87.5%</td></tr>
+    <tr><td>資料問題</td><td>2 筆（S1130005 期中缺少分數、S1130009 作業 105 分）</td></tr>
+    <tr><td>與預期報告比對</td><td>完全一致</td></tr>
+  </tbody>
+</table></div>
+
+<h3>延伸挑戰</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我們想把等第改成 A+、A、A-、B+ 這種 11 級制。">我們想把等第改成 A+、A、A-、B+ 這種 11 級制。</span>
+<span class="line" data-text="請先說明需要修改哪些檔案（包含 spec.md、測試與預期報告），">請先說明需要修改哪些檔案（包含 spec.md、測試與預期報告），</span>
+<span class="line" data-text="列出修改計畫給我確認，確認後再動手。">列出修改計畫給我確認，確認後再動手。</span></code></pre></figure>
+<div class="callout try">
+  <span class="label">想一想</span>
+  <p>規則改變時，為什麼要<strong>先改規格、再改程式、最後才更新預期結果</strong>，而不是讓技能直接修改預期結果來「通過」比對？</p>
+</div>
+
+<h2 id="sample2"><span class="num">10</span>範例二：截止日看板與平行作業</h2>
+
+<h3>這個程式要做什麼</h3>
+<p>讀取各科作業、考試、報告的截止日，依一個「基準日」算出每一項還剩幾天，分成「已過期、緊急、本週、之後」四區，產生一個可以用瀏覽器打開的網頁。基準日一律由指令指定，所以不論哪一天執行，結果都一樣，方便檢查與重現。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-title">02-deadline-board 的檔案</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="02-deadline-board/">02-deadline-board/</span>
+<span class="line" data-text="├── AGENTS.md                                  ← 專案規則">├── AGENTS.md                                  ← 專案規則</span>
+<span class="line" data-text="├── package.json                               ← npm test、npm run build 的設定">├── package.json                               ← npm test、npm run build 的設定</span>
+<span class="line" data-text="├── data/deadlines.json                        ← 7 筆截止日">├── data/deadlines.json                        ← 7 筆截止日</span>
+<span class="line" data-text="├── src/board.mjs                              ← 計算與產生網頁的函式（不讀寫檔案）">├── src/board.mjs                              ← 計算與產生網頁的函式（不讀寫檔案）</span>
+<span class="line" data-text="├── build.mjs                                  ← 命令列：讀資料、寫出網頁">├── build.mjs                                  ← 命令列：讀資料、寫出網頁</span>
+<span class="line" data-text="├── test/board.test.mjs                        ← 6 個自動測試">├── test/board.test.mjs                        ← 6 個自動測試</span>
+<span class="line" data-text="└── .agents/skills/deadline-board/">└── .agents/skills/deadline-board/</span>
+<span class="line" data-text="    ├── SKILL.md                               ← 技能：重現並驗證網頁">    ├── SKILL.md                               ← 技能：重現並驗證網頁</span>
+<span class="line" data-text="    ├── references/spec.md                     ← 分類、排序與頁面規格">    ├── references/spec.md                     ← 分類、排序與頁面規格</span>
+<span class="line" data-text="    └── assets/expected-index.html             ← 基準日 2026-09-21 的預期網頁">    └── assets/expected-index.html             ← 基準日 2026-09-21 的預期網頁</span></code></pre></figure>
+
+<p>先照第 08 節的方式，用 VS Code 開啟 <code>02-deadline-board</code>，執行 <code>git init</code>、<code>git add -A</code>、<code>git commit</code> 建立存檔點。</p>
+
+<h3>輸入資料</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JSON</span><span class="code-title">data/deadlines.json</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="["><span class="ln">1</span>[</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業三：鏈結串列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-23&quot; },"><span class="ln">2</span>  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業三：鏈結串列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-23&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;第一次小考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-09-25&quot; },"><span class="ln">3</span>  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;第一次小考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-09-25&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;分組報告：網路協定&quot;, &quot;type&quot;: &quot;報告&quot;, &quot;due&quot;: &quot;2026-10-02&quot; },"><span class="ln">4</span>  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;分組報告：網路協定&quot;, &quot;type&quot;: &quot;報告&quot;, &quot;due&quot;: &quot;2026-10-02&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業二：堆疊與佇列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-18&quot; },"><span class="ln">5</span>  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業二：堆疊與佇列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-18&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;英文閱讀&quot;, &quot;title&quot;: &quot;讀書心得&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-28&quot; },"><span class="ln">6</span>  { &quot;course&quot;: &quot;英文閱讀&quot;, &quot;title&quot;: &quot;讀書心得&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-28&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;期中考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-10-20&quot; },"><span class="ln">7</span>  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;期中考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-10-20&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;實習二：Git 操作&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-21&quot; }"><span class="ln">8</span>  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;實習二：Git 操作&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-21&quot; }</span>
+<span class="line" data-text="]"><span class="ln">9</span>]</span></code></pre></figure>
+<p>整份資料是一個串列 <code>[ ]</code>，裡面每一組 <code>{ }</code> 是一筆截止日，有四個欄位：科目 <code>course</code>、名稱 <code>title</code>、類型 <code>type</code>、截止日 <code>due</code>。</p>
+
+<h3>分類規則</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>剩餘天數</th><th>分到哪一區</th><th>顯示文字</th></tr></thead>
+  <tbody>
+    <tr><td>小於 0</td><td>已過期</td><td>逾期 N 天</td></tr>
+    <tr><td>0</td><td>緊急</td><td>今天到期</td></tr>
+    <tr><td>1 到 3</td><td>緊急</td><td>剩 N 天</td></tr>
+    <tr><td>4 到 7</td><td>本週</td><td>剩 N 天</td></tr>
+    <tr><td>8 以上</td><td>之後</td><td>剩 N 天</td></tr>
+  </tbody>
+</table></div>
+
+<h3>程式碼逐段解說</h3>
+<p>範例二用 JavaScript 寫成，在 Node.js 上執行。程式分成兩個檔案：<code>src/board.mjs</code> 只負責<strong>計算</strong>，<code>build.mjs</code> 負責<strong>讀寫檔案</strong>。這樣分工，測試時只要把資料交給計算函式、檢查結果，不必真的讀寫檔案。</p>
+
+<h4>第 1 段：把日期文字轉成日期</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">src/board.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="// Pure functions for the deadline board. No I/O, so every function is easy to test."><span class="ln">1</span>// Pure functions for the deadline board. No I/O, so every function is easy to test.</span>
+<span class="line" data-text=""><span class="ln">2</span></span>
+<span class="line" data-text="export const STATUS_ORDER = [&quot;已過期&quot;, &quot;緊急&quot;, &quot;本週&quot;, &quot;之後&quot;];"><span class="ln">3</span>export const STATUS_ORDER = [&quot;已過期&quot;, &quot;緊急&quot;, &quot;本週&quot;, &quot;之後&quot;];</span>
+<span class="line" data-text=""><span class="ln">4</span></span>
+<span class="line" data-text="const DAY_MS = 24 * 60 * 60 * 1000;"><span class="ln">5</span>const DAY_MS = 24 * 60 * 60 * 1000;</span>
+<span class="line" data-text=""><span class="ln">6</span></span>
+<span class="line" data-text="function parseDate(text) {"><span class="ln">7</span>function parseDate(text) {</span>
+<span class="line" data-text="  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) throw new Error(`日期格式錯誤：${text}`);"><span class="ln">8</span>  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) throw new Error(`日期格式錯誤：${text}`);</span>
+<span class="line" data-text="  const [y, m, d] = text.split(&quot;-&quot;).map(Number);"><span class="ln">9</span>  const [y, m, d] = text.split(&quot;-&quot;).map(Number);</span>
+<span class="line" data-text="  const date = new Date(Date.UTC(y, m - 1, d));"><span class="ln">10</span>  const date = new Date(Date.UTC(y, m - 1, d));</span>
+<span class="line" data-text="  if (date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) throw new Error(`日期不存在：${text}`);"><span class="ln">11</span>  if (date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) throw new Error(`日期不存在：${text}`);</span>
+<span class="line" data-text="  return date;"><span class="ln">12</span>  return date;</span>
+<span class="line" data-text="}"><span class="ln">13</span>}</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 1 行</strong>：<code>//</code> 開頭是註解。</li>
+      <li><strong>第 3 行</strong>：<code>export const</code> 定義一個固定值，並讓其他檔案可以使用。這裡是四個區的顯示順序。</li>
+      <li><strong>第 5 行</strong>：一天有幾毫秒（24 小時 × 60 分 × 60 秒 × 1000 毫秒）。電腦裡的時間常以毫秒計算。</li>
+      <li><strong>第 8 行</strong>：用<strong>正規表示式</strong>檢查格式是不是「4 位數-2 位數-2 位數」。<code>\d{4}</code> 意思是「4 個數字」。不符合就用 <code>throw</code> 丟出錯誤訊息。</li>
+      <li><strong>第 9 行</strong>：用 <code>-</code> 把文字切成年、月、日三段，並轉成數字。</li>
+      <li><strong>第 10 行</strong>：建立日期。JavaScript 的月份從 0 開始算（1 月是 0），所以要 <code>m - 1</code>。用 UTC 可以避免不同時區算出不同天數。</li>
+      <li><strong>第 11 行</strong>：像 2 月 30 日這種不存在的日期，電腦會自動變成 3 月 2 日。這行檢查月和日有沒有被改掉，有的話就回報「日期不存在」。</li>
+    </ul>
+  </div>
+</details>
+
+<h4>第 2 段：算天數、分區、顯示文字</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">src/board.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="export function daysLeft(due, today) {"><span class="ln">15</span>export function daysLeft(due, today) {</span>
+<span class="line" data-text="  return Math.round((parseDate(due) - parseDate(today)) / DAY_MS);"><span class="ln">16</span>  return Math.round((parseDate(due) - parseDate(today)) / DAY_MS);</span>
+<span class="line" data-text="}"><span class="ln">17</span>}</span>
+<span class="line" data-text=""><span class="ln">18</span></span>
+<span class="line" data-text="export function statusOf(days) {"><span class="ln">19</span>export function statusOf(days) {</span>
+<span class="line" data-text="  if (days &lt; 0) return &quot;已過期&quot;;"><span class="ln">20</span>  if (days &lt; 0) return &quot;已過期&quot;;</span>
+<span class="line" data-text="  if (days &lt;= 3) return &quot;緊急&quot;;"><span class="ln">21</span>  if (days &lt;= 3) return &quot;緊急&quot;;</span>
+<span class="line" data-text="  if (days &lt;= 7) return &quot;本週&quot;;"><span class="ln">22</span>  if (days &lt;= 7) return &quot;本週&quot;;</span>
+<span class="line" data-text="  return &quot;之後&quot;;"><span class="ln">23</span>  return &quot;之後&quot;;</span>
+<span class="line" data-text="}"><span class="ln">24</span>}</span>
+<span class="line" data-text=""><span class="ln">25</span></span>
+<span class="line" data-text="export function label(days) {"><span class="ln">26</span>export function label(days) {</span>
+<span class="line" data-text="  if (days &lt; 0) return `逾期 ${-days} 天`;"><span class="ln">27</span>  if (days &lt; 0) return `逾期 ${-days} 天`;</span>
+<span class="line" data-text="  if (days === 0) return &quot;今天到期&quot;;"><span class="ln">28</span>  if (days === 0) return &quot;今天到期&quot;;</span>
+<span class="line" data-text="  return `剩 ${days} 天`;"><span class="ln">29</span>  return `剩 ${days} 天`;</span>
+<span class="line" data-text="}"><span class="ln">30</span>}</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong><code>daysLeft</code></strong>：截止日減基準日得到毫秒數，除以一天的毫秒數就是天數。例如 2026-10-02 減 2026-09-21 是 11 天。</li>
+      <li><strong><code>statusOf</code></strong>：依剩餘天數，從上往下判斷分到哪一區。一碰到符合的條件就 <code>return</code>，後面不再判斷。</li>
+      <li><strong><code>label</code></strong>：產生顯示文字。反引號 <code>`...`</code> 裡的 <code>${days}</code> 會換成實際的數字。</li>
+    </ul>
+  </div>
+</details>
+
+<h4>第 3 段：整理成四個區</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">src/board.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="export function buildBoard(items, today) {"><span class="ln">32</span>export function buildBoard(items, today) {</span>
+<span class="line" data-text="  const enriched = items"><span class="ln">33</span>  const enriched = items</span>
+<span class="line" data-text="    .map((item) =&gt; {"><span class="ln">34</span>    .map((item) =&gt; {</span>
+<span class="line" data-text="      const days = daysLeft(item.due, today);"><span class="ln">35</span>      const days = daysLeft(item.due, today);</span>
+<span class="line" data-text="      return { ...item, days, status: statusOf(days) };"><span class="ln">36</span>      return { ...item, days, status: statusOf(days) };</span>
+<span class="line" data-text="    })"><span class="ln">37</span>    })</span>
+<span class="line" data-text="    .sort((a, b) =&gt; a.days - b.days || a.course.localeCompare(b.course, &quot;zh-Hant&quot;));"><span class="ln">38</span>    .sort((a, b) =&gt; a.days - b.days || a.course.localeCompare(b.course, &quot;zh-Hant&quot;));</span>
+<span class="line" data-text="  return STATUS_ORDER.map((status) =&gt; ({ status, items: enriched.filter((i) =&gt; i.status === status) }));"><span class="ln">39</span>  return STATUS_ORDER.map((status) =&gt; ({ status, items: enriched.filter((i) =&gt; i.status === status) }));</span>
+<span class="line" data-text="}"><span class="ln">40</span>}</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 34-37 行</strong>：<code>map</code> 對每一筆資料做同一件事：算出天數與分區，連同原本的欄位（<code>...item</code> 表示「複製原本所有欄位」）組成新資料。</li>
+      <li><strong>第 38 行</strong>：<code>sort</code> 排序。先比天數，天數少的在前；天數相同再依科目名稱排序。</li>
+      <li><strong>第 39 行</strong>：依「已過期、緊急、本週、之後」的順序，用 <code>filter</code> 挑出每一區的項目。</li>
+    </ul>
+  </div>
+</details>
+
+<h4>第 4 段：安全地產生網頁</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">src/board.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="const escapeHtml = (text) =&gt;"><span class="ln">42</span>const escapeHtml = (text) =&gt;</span>
+<span class="line" data-text="  String(text).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g, (c) =&gt; ({ &quot;&amp;&quot;: &quot;&amp;amp;&quot;, &quot;&lt;&quot;: &quot;&amp;lt;&quot;, &quot;&gt;&quot;: &quot;&amp;gt;&quot;, &#x27;&quot;&#x27;: &quot;&amp;quot;&quot;, &quot;&#x27;&quot;: &quot;&amp;#39;&quot; })[c]);"><span class="ln">43</span>  String(text).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g, (c) =&gt; ({ &quot;&amp;&quot;: &quot;&amp;amp;&quot;, &quot;&lt;&quot;: &quot;&amp;lt;&quot;, &quot;&gt;&quot;: &quot;&amp;gt;&quot;, &#x27;&quot;&#x27;: &quot;&amp;quot;&quot;, &quot;&#x27;&quot;: &quot;&amp;#39;&quot; })[c]);</span>
+<span class="line" data-text=""><span class="ln">44</span></span>
+<span class="line" data-text="export function renderHtml(groups, today) {"><span class="ln">45</span>export function renderHtml(groups, today) {</span>
+<span class="line" data-text="  const sections = groups"><span class="ln">46</span>  const sections = groups</span>
+<span class="line" data-text="    .map(({ status, items }) =&gt; {"><span class="ln">47</span>    .map(({ status, items }) =&gt; {</span>
+<span class="line" data-text="      const rows = items.length"><span class="ln">48</span>      const rows = items.length</span>
+<span class="line" data-text="        ? items"><span class="ln">49</span>        ? items</span>
+<span class="line" data-text="            .map("><span class="ln">50</span>            .map(</span>
+<span class="line" data-text="              (i) =&gt;"><span class="ln">51</span>              (i) =&gt;</span>
+<span class="line" data-text="                `      &lt;li class=&quot;${i.status}&quot;&gt;&lt;span class=&quot;due&quot;&gt;${i.due}&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;${escapeHtml(i.type)}&lt;/span&gt; &lt;strong&gt;${escapeHtml(i.course)}&lt;/strong&gt; ${escapeHtml(i.title)} &lt;em&gt;${label(i.days)}&lt;/em&gt;&lt;/li&gt;`"><span class="ln">52</span>                `      &lt;li class=&quot;${i.status}&quot;&gt;&lt;span class=&quot;due&quot;&gt;${i.due}&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;${escapeHtml(i.type)}&lt;/span&gt; &lt;strong&gt;${escapeHtml(i.course)}&lt;/strong&gt; ${escapeHtml(i.title)} &lt;em&gt;${label(i.days)}&lt;/em&gt;&lt;/li&gt;`</span>
+<span class="line" data-text="            )"><span class="ln">53</span>            )</span>
+<span class="line" data-text="            .join(&quot;\n&quot;)"><span class="ln">54</span>            .join(&quot;\n&quot;)</span>
+<span class="line" data-text="        : `      &lt;li class=&quot;empty&quot;&gt;沒有項目&lt;/li&gt;`;"><span class="ln">55</span>        : `      &lt;li class=&quot;empty&quot;&gt;沒有項目&lt;/li&gt;`;</span>
+<span class="line" data-text="      return `  &lt;section&gt;\n    &lt;h2&gt;${status}（${items.length}）&lt;/h2&gt;\n    &lt;ul&gt;\n${rows}\n    &lt;/ul&gt;\n  &lt;/section&gt;`;"><span class="ln">56</span>      return `  &lt;section&gt;\n    &lt;h2&gt;${status}（${items.length}）&lt;/h2&gt;\n    &lt;ul&gt;\n${rows}\n    &lt;/ul&gt;\n  &lt;/section&gt;`;</span>
+<span class="line" data-text="    })"><span class="ln">57</span>    })</span>
+<span class="line" data-text="    .join(&quot;\n&quot;);"><span class="ln">58</span>    .join(&quot;\n&quot;);</span>
+<span class="line" data-text="  return `&lt;!doctype html&gt;"><span class="ln">59</span>  return `&lt;!doctype html&gt;</span>
+<span class="line" data-text="&lt;html lang=&quot;zh-Hant&quot;&gt;"><span class="ln">60</span>&lt;html lang=&quot;zh-Hant&quot;&gt;</span>
+<span class="line" data-text="&lt;head&gt;"><span class="ln">61</span>&lt;head&gt;</span>
+<span class="line" data-text="  &lt;meta charset=&quot;utf-8&quot;&gt;"><span class="ln">62</span>  &lt;meta charset=&quot;utf-8&quot;&gt;</span>
+<span class="line" data-text="  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;"><span class="ln">63</span>  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;</span>
+<span class="line" data-text="  &lt;title&gt;截止日看板&lt;/title&gt;"><span class="ln">64</span>  &lt;title&gt;截止日看板&lt;/title&gt;</span>
+<span class="line" data-text="  &lt;style&gt;"><span class="ln">65</span>  &lt;style&gt;</span>
+<span class="line" data-text="    body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }"><span class="ln">66</span>    body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }</span>
+<span class="line" data-text="    li { margin: 0.4rem 0; list-style: none; }"><span class="ln">67</span>    li { margin: 0.4rem 0; list-style: none; }</span>
+<span class="line" data-text="    .due { font-family: monospace; }"><span class="ln">68</span>    .due { font-family: monospace; }</span>
+<span class="line" data-text="    .type { padding: 0 0.4rem; border-radius: 0.3rem; background: #eee; }"><span class="ln">69</span>    .type { padding: 0 0.4rem; border-radius: 0.3rem; background: #eee; }</span>
+<span class="line" data-text="    .緊急 em { color: #b00020; }"><span class="ln">70</span>    .緊急 em { color: #b00020; }</span>
+<span class="line" data-text="    .已過期 { color: #888; text-decoration: line-through; }"><span class="ln">71</span>    .已過期 { color: #888; text-decoration: line-through; }</span>
+<span class="line" data-text="  &lt;/style&gt;"><span class="ln">72</span>  &lt;/style&gt;</span>
+<span class="line" data-text="&lt;/head&gt;"><span class="ln">73</span>&lt;/head&gt;</span>
+<span class="line" data-text="&lt;body&gt;"><span class="ln">74</span>&lt;body&gt;</span>
+<span class="line" data-text="  &lt;h1&gt;截止日看板&lt;/h1&gt;"><span class="ln">75</span>  &lt;h1&gt;截止日看板&lt;/h1&gt;</span>
+<span class="line" data-text="  &lt;p&gt;基準日：${today}&lt;/p&gt;"><span class="ln">76</span>  &lt;p&gt;基準日：${today}&lt;/p&gt;</span>
+<span class="line" data-text="${sections}"><span class="ln">77</span>${sections}</span>
+<span class="line" data-text="&lt;/body&gt;"><span class="ln">78</span>&lt;/body&gt;</span>
+<span class="line" data-text="&lt;/html&gt;"><span class="ln">79</span>&lt;/html&gt;</span>
+<span class="line" data-text="`;"><span class="ln">80</span>`;</span>
+<span class="line" data-text="}"><span class="ln">81</span>}</span></code></pre></figure>
+<details class="explain">
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong><code>escapeHtml</code>（第 42-43 行）</strong>：把 <code>&lt;</code>、<code>&gt;</code>、<code>&amp;</code> 這類在網頁中有特殊意義的符號換成安全的寫法。如果有人把科目名稱填成一段網頁程式碼，它只會被當成文字顯示，不會被執行。</li>
+      <li><strong><code>renderHtml</code>（第 45 行起）</strong>：把每一區組成一個 <code>&lt;section&gt;</code>，區裡每個項目是一個 <code>&lt;li&gt;</code>；沒有項目時顯示「沒有項目」。</li>
+      <li><strong>第 59 行起</strong>：整份網頁的外框，包含標題、基準日、簡單的樣式（<code>&lt;style&gt;</code>），以及各區內容。</li>
+    </ul>
+    <p>網頁裡沒有放「產生時間」，所以同樣的資料和基準日，每次產生的檔案都一模一樣，才能和預期結果逐字比對。</p>
+  </div>
+</details>
+
+<h4>第 5 段：命令列程式</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">build.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="// Usage: node build.mjs [--today YYYY-MM-DD] [--input data/deadlines.json] [--output dist/index.html]"><span class="ln">1</span>// Usage: node build.mjs [--today YYYY-MM-DD] [--input data/deadlines.json] [--output dist/index.html]</span>
+<span class="line" data-text="import { mkdirSync, readFileSync, writeFileSync } from &quot;node:fs&quot;;"><span class="ln">2</span>import { mkdirSync, readFileSync, writeFileSync } from &quot;node:fs&quot;;</span>
+<span class="line" data-text="import { dirname } from &quot;node:path&quot;;"><span class="ln">3</span>import { dirname } from &quot;node:path&quot;;</span>
+<span class="line" data-text="import { buildBoard, renderHtml } from &quot;./src/board.mjs&quot;;"><span class="ln">4</span>import { buildBoard, renderHtml } from &quot;./src/board.mjs&quot;;</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="function option(name, fallback) {"><span class="ln">6</span>function option(name, fallback) {</span>
+<span class="line" data-text="  const index = process.argv.indexOf(`--${name}`);"><span class="ln">7</span>  const index = process.argv.indexOf(`--${name}`);</span>
+<span class="line" data-text="  return index &gt; -1 ? process.argv[index + 1] : fallback;"><span class="ln">8</span>  return index &gt; -1 ? process.argv[index + 1] : fallback;</span>
+<span class="line" data-text="}"><span class="ln">9</span>}</span>
+<span class="line" data-text=""><span class="ln">10</span></span>
+<span class="line" data-text="const today = option(&quot;today&quot;, new Date().toISOString().slice(0, 10));"><span class="ln">11</span>const today = option(&quot;today&quot;, new Date().toISOString().slice(0, 10));</span>
+<span class="line" data-text="const input = option(&quot;input&quot;, &quot;data/deadlines.json&quot;);"><span class="ln">12</span>const input = option(&quot;input&quot;, &quot;data/deadlines.json&quot;);</span>
+<span class="line" data-text="const output = option(&quot;output&quot;, &quot;dist/index.html&quot;);"><span class="ln">13</span>const output = option(&quot;output&quot;, &quot;dist/index.html&quot;);</span>
+<span class="line" data-text=""><span class="ln">14</span></span>
+<span class="line" data-text="const groups = buildBoard(JSON.parse(readFileSync(input, &quot;utf8&quot;)), today);"><span class="ln">15</span>const groups = buildBoard(JSON.parse(readFileSync(input, &quot;utf8&quot;)), today);</span>
+<span class="line" data-text="mkdirSync(dirname(output), { recursive: true });"><span class="ln">16</span>mkdirSync(dirname(output), { recursive: true });</span>
+<span class="line" data-text="writeFileSync(output, renderHtml(groups, today));"><span class="ln">17</span>writeFileSync(output, renderHtml(groups, today));</span>
+<span class="line" data-text="console.log(`寫入 ${output}：${groups.map((g) =&gt; `${g.status} ${g.items.length}`).join(&quot;、&quot;)}`);"><span class="ln">18</span>console.log(`寫入 ${output}：${groups.map((g) =&gt; `${g.status} ${g.items.length}`).join(&quot;、&quot;)}`);</span></code></pre></figure>
+<details class="explain">
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 2-4 行</strong>：載入 Node.js 內建的讀寫檔案工具，以及 <code>board.mjs</code> 裡的兩個函式。</li>
+      <li><strong>第 6-9 行</strong>：<code>option</code> 從指令中找出 <code>--today</code> 這類參數後面的值，找不到就用預設值。</li>
+      <li><strong>第 11-13 行</strong>：基準日、輸入檔、輸出檔。沒指定基準日時才用今天的日期。</li>
+      <li><strong>第 15-18 行</strong>：讀 JSON、整理分區、建立輸出資料夾、寫出網頁，最後印出每區的數量。</li>
+    </ul>
+  </div>
+</details>
+
+<h3>執行測試與產生網頁</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JSON</span><span class="code-title">package.json</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="{"><span class="ln">1</span>{</span>
+<span class="line" data-text="  &quot;name&quot;: &quot;deadline-board&quot;,"><span class="ln">2</span>  &quot;name&quot;: &quot;deadline-board&quot;,</span>
+<span class="line" data-text="  &quot;private&quot;: true,"><span class="ln">3</span>  &quot;private&quot;: true,</span>
+<span class="line" data-text="  &quot;type&quot;: &quot;module&quot;,"><span class="ln">4</span>  &quot;type&quot;: &quot;module&quot;,</span>
+<span class="line" data-text="  &quot;scripts&quot;: {"><span class="ln">5</span>  &quot;scripts&quot;: {</span>
+<span class="line" data-text="    &quot;build&quot;: &quot;node build.mjs --today 2026-09-21&quot;,"><span class="ln">6</span>    &quot;build&quot;: &quot;node build.mjs --today 2026-09-21&quot;,</span>
+<span class="line" data-text="    &quot;test&quot;: &quot;node --test&quot;"><span class="ln">7</span>    &quot;test&quot;: &quot;node --test&quot;</span>
+<span class="line" data-text="  }"><span class="ln">8</span>  }</span>
+<span class="line" data-text="}"><span class="ln">9</span>}</span></code></pre></figure>
+<p><code>package.json</code> 裡的 <code>scripts</code> 定義了捷徑：<code>npm test</code> 會執行 <code>node --test</code>，<code>npm run build</code> 會用基準日 2026-09-21 產生網頁。範例不需要安裝任何套件，所以不用執行 <code>npm install</code>。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="npm test">npm test</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span><span class="code-title">結果的最後幾行</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# tests 6"># tests 6</span>
+<span class="line" data-text="# suites 0"># suites 0</span>
+<span class="line" data-text="# pass 6"># pass 6</span>
+<span class="line" data-text="# fail 0"># fail 0</span></code></pre></figure>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="node build.mjs --today 2026-09-21">node build.mjs --today 2026-09-21</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="寫入 dist/index.html：已過期 1、緊急 2、本週 2、之後 2">寫入 dist/index.html：已過期 1、緊急 2、本週 2、之後 2</span></code></pre></figure>
+<p>在 VS Code 檔案總管中對 <code>dist/index.html</code> 按右鍵，選 <strong>在檔案總管中顯示</strong>（Windows）或 <strong>在 Finder 中顯示</strong>（macOS），再用瀏覽器打開。</p>
+
+<details class="explain">
+  <summary>看產生出來的網頁原始碼</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-kind ">HTML</span><span class="code-title">dist/index.html</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="&lt;!doctype html&gt;"><span class="ln">1</span>&lt;!doctype html&gt;</span>
+<span class="line" data-text="&lt;html lang=&quot;zh-Hant&quot;&gt;"><span class="ln">2</span>&lt;html lang=&quot;zh-Hant&quot;&gt;</span>
+<span class="line" data-text="&lt;head&gt;"><span class="ln">3</span>&lt;head&gt;</span>
+<span class="line" data-text="  &lt;meta charset=&quot;utf-8&quot;&gt;"><span class="ln">4</span>  &lt;meta charset=&quot;utf-8&quot;&gt;</span>
+<span class="line" data-text="  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;"><span class="ln">5</span>  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;</span>
+<span class="line" data-text="  &lt;title&gt;截止日看板&lt;/title&gt;"><span class="ln">6</span>  &lt;title&gt;截止日看板&lt;/title&gt;</span>
+<span class="line" data-text="  &lt;style&gt;"><span class="ln">7</span>  &lt;style&gt;</span>
+<span class="line" data-text="    body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }"><span class="ln">8</span>    body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }</span>
+<span class="line" data-text="    li { margin: 0.4rem 0; list-style: none; }"><span class="ln">9</span>    li { margin: 0.4rem 0; list-style: none; }</span>
+<span class="line" data-text="    .due { font-family: monospace; }"><span class="ln">10</span>    .due { font-family: monospace; }</span>
+<span class="line" data-text="    .type { padding: 0 0.4rem; border-radius: 0.3rem; background: #eee; }"><span class="ln">11</span>    .type { padding: 0 0.4rem; border-radius: 0.3rem; background: #eee; }</span>
+<span class="line" data-text="    .緊急 em { color: #b00020; }"><span class="ln">12</span>    .緊急 em { color: #b00020; }</span>
+<span class="line" data-text="    .已過期 { color: #888; text-decoration: line-through; }"><span class="ln">13</span>    .已過期 { color: #888; text-decoration: line-through; }</span>
+<span class="line" data-text="  &lt;/style&gt;"><span class="ln">14</span>  &lt;/style&gt;</span>
+<span class="line" data-text="&lt;/head&gt;"><span class="ln">15</span>&lt;/head&gt;</span>
+<span class="line" data-text="&lt;body&gt;"><span class="ln">16</span>&lt;body&gt;</span>
+<span class="line" data-text="  &lt;h1&gt;截止日看板&lt;/h1&gt;"><span class="ln">17</span>  &lt;h1&gt;截止日看板&lt;/h1&gt;</span>
+<span class="line" data-text="  &lt;p&gt;基準日：2026-09-21&lt;/p&gt;"><span class="ln">18</span>  &lt;p&gt;基準日：2026-09-21&lt;/p&gt;</span>
+<span class="line" data-text="  &lt;section&gt;"><span class="ln">19</span>  &lt;section&gt;</span>
+<span class="line" data-text="    &lt;h2&gt;已過期（1）&lt;/h2&gt;"><span class="ln">20</span>    &lt;h2&gt;已過期（1）&lt;/h2&gt;</span>
+<span class="line" data-text="    &lt;ul&gt;"><span class="ln">21</span>    &lt;ul&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;已過期&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-18&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;資料結構&lt;/strong&gt; 作業二：堆疊與佇列 &lt;em&gt;逾期 3 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">22</span>      &lt;li class=&quot;已過期&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-18&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;資料結構&lt;/strong&gt; 作業二：堆疊與佇列 &lt;em&gt;逾期 3 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="    &lt;/ul&gt;"><span class="ln">23</span>    &lt;/ul&gt;</span>
+<span class="line" data-text="  &lt;/section&gt;"><span class="ln">24</span>  &lt;/section&gt;</span>
+<span class="line" data-text="  &lt;section&gt;"><span class="ln">25</span>  &lt;section&gt;</span>
+<span class="line" data-text="    &lt;h2&gt;緊急（2）&lt;/h2&gt;"><span class="ln">26</span>    &lt;h2&gt;緊急（2）&lt;/h2&gt;</span>
+<span class="line" data-text="    &lt;ul&gt;"><span class="ln">27</span>    &lt;ul&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;緊急&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-21&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;計算機概論&lt;/strong&gt; 實習二：Git 操作 &lt;em&gt;今天到期&lt;/em&gt;&lt;/li&gt;"><span class="ln">28</span>      &lt;li class=&quot;緊急&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-21&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;計算機概論&lt;/strong&gt; 實習二：Git 操作 &lt;em&gt;今天到期&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;緊急&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-23&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;資料結構&lt;/strong&gt; 作業三：鏈結串列 &lt;em&gt;剩 2 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">29</span>      &lt;li class=&quot;緊急&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-23&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;資料結構&lt;/strong&gt; 作業三：鏈結串列 &lt;em&gt;剩 2 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="    &lt;/ul&gt;"><span class="ln">30</span>    &lt;/ul&gt;</span>
+<span class="line" data-text="  &lt;/section&gt;"><span class="ln">31</span>  &lt;/section&gt;</span>
+<span class="line" data-text="  &lt;section&gt;"><span class="ln">32</span>  &lt;section&gt;</span>
+<span class="line" data-text="    &lt;h2&gt;本週（2）&lt;/h2&gt;"><span class="ln">33</span>    &lt;h2&gt;本週（2）&lt;/h2&gt;</span>
+<span class="line" data-text="    &lt;ul&gt;"><span class="ln">34</span>    &lt;ul&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;本週&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-25&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;考試&lt;/span&gt; &lt;strong&gt;線性代數&lt;/strong&gt; 第一次小考 &lt;em&gt;剩 4 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">35</span>      &lt;li class=&quot;本週&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-25&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;考試&lt;/span&gt; &lt;strong&gt;線性代數&lt;/strong&gt; 第一次小考 &lt;em&gt;剩 4 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;本週&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-28&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;英文閱讀&lt;/strong&gt; 讀書心得 &lt;em&gt;剩 7 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">36</span>      &lt;li class=&quot;本週&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-28&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;英文閱讀&lt;/strong&gt; 讀書心得 &lt;em&gt;剩 7 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="    &lt;/ul&gt;"><span class="ln">37</span>    &lt;/ul&gt;</span>
+<span class="line" data-text="  &lt;/section&gt;"><span class="ln">38</span>  &lt;/section&gt;</span>
+<span class="line" data-text="  &lt;section&gt;"><span class="ln">39</span>  &lt;section&gt;</span>
+<span class="line" data-text="    &lt;h2&gt;之後（2）&lt;/h2&gt;"><span class="ln">40</span>    &lt;h2&gt;之後（2）&lt;/h2&gt;</span>
+<span class="line" data-text="    &lt;ul&gt;"><span class="ln">41</span>    &lt;ul&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;之後&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-10-02&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;報告&lt;/span&gt; &lt;strong&gt;計算機概論&lt;/strong&gt; 分組報告：網路協定 &lt;em&gt;剩 11 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">42</span>      &lt;li class=&quot;之後&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-10-02&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;報告&lt;/span&gt; &lt;strong&gt;計算機概論&lt;/strong&gt; 分組報告：網路協定 &lt;em&gt;剩 11 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;之後&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-10-20&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;考試&lt;/span&gt; &lt;strong&gt;線性代數&lt;/strong&gt; 期中考 &lt;em&gt;剩 29 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">43</span>      &lt;li class=&quot;之後&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-10-20&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;考試&lt;/span&gt; &lt;strong&gt;線性代數&lt;/strong&gt; 期中考 &lt;em&gt;剩 29 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="    &lt;/ul&gt;"><span class="ln">44</span>    &lt;/ul&gt;</span>
+<span class="line" data-text="  &lt;/section&gt;"><span class="ln">45</span>  &lt;/section&gt;</span>
+<span class="line" data-text="&lt;/body&gt;"><span class="ln">46</span>&lt;/body&gt;</span>
+<span class="line" data-text="&lt;/html&gt;"><span class="ln">47</span>&lt;/html&gt;</span></code></pre></figure>
+  </div>
+</details>
+
+<details class="explain">
+  <summary>看測試檔：每個測試在檢查什麼</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">test/board.test.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="import assert from &quot;node:assert/strict&quot;;"><span class="ln">1</span>import assert from &quot;node:assert/strict&quot;;</span>
+<span class="line" data-text="import { readFileSync } from &quot;node:fs&quot;;"><span class="ln">2</span>import { readFileSync } from &quot;node:fs&quot;;</span>
+<span class="line" data-text="import { test } from &quot;node:test&quot;;"><span class="ln">3</span>import { test } from &quot;node:test&quot;;</span>
+<span class="line" data-text="import { buildBoard, daysLeft, label, renderHtml, statusOf } from &quot;../src/board.mjs&quot;;"><span class="ln">4</span>import { buildBoard, daysLeft, label, renderHtml, statusOf } from &quot;../src/board.mjs&quot;;</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="test(&quot;daysLeft counts calendar days across months&quot;, () =&gt; {"><span class="ln">6</span>test(&quot;daysLeft counts calendar days across months&quot;, () =&gt; {</span>
+<span class="line" data-text="  assert.equal(daysLeft(&quot;2026-10-02&quot;, &quot;2026-09-21&quot;), 11);"><span class="ln">7</span>  assert.equal(daysLeft(&quot;2026-10-02&quot;, &quot;2026-09-21&quot;), 11);</span>
+<span class="line" data-text="  assert.equal(daysLeft(&quot;2026-09-18&quot;, &quot;2026-09-21&quot;), -3);"><span class="ln">8</span>  assert.equal(daysLeft(&quot;2026-09-18&quot;, &quot;2026-09-21&quot;), -3);</span>
+<span class="line" data-text="});"><span class="ln">9</span>});</span>
+<span class="line" data-text=""><span class="ln">10</span></span>
+<span class="line" data-text="test(&quot;daysLeft rejects malformed and impossible dates&quot;, () =&gt; {"><span class="ln">11</span>test(&quot;daysLeft rejects malformed and impossible dates&quot;, () =&gt; {</span>
+<span class="line" data-text="  assert.throws(() =&gt; daysLeft(&quot;2026/09/21&quot;, &quot;2026-09-21&quot;), /格式錯誤/);"><span class="ln">12</span>  assert.throws(() =&gt; daysLeft(&quot;2026/09/21&quot;, &quot;2026-09-21&quot;), /格式錯誤/);</span>
+<span class="line" data-text="  assert.throws(() =&gt; daysLeft(&quot;2026-02-30&quot;, &quot;2026-09-21&quot;), /不存在/);"><span class="ln">13</span>  assert.throws(() =&gt; daysLeft(&quot;2026-02-30&quot;, &quot;2026-09-21&quot;), /不存在/);</span>
+<span class="line" data-text="});"><span class="ln">14</span>});</span>
+<span class="line" data-text=""><span class="ln">15</span></span>
+<span class="line" data-text="test(&quot;statusOf uses 0-3 urgent, 4-7 this week&quot;, () =&gt; {"><span class="ln">16</span>test(&quot;statusOf uses 0-3 urgent, 4-7 this week&quot;, () =&gt; {</span>
+<span class="line" data-text="  assert.deepEqual([-1, 0, 3, 4, 7, 8].map(statusOf), [&quot;已過期&quot;, &quot;緊急&quot;, &quot;緊急&quot;, &quot;本週&quot;, &quot;本週&quot;, &quot;之後&quot;]);"><span class="ln">17</span>  assert.deepEqual([-1, 0, 3, 4, 7, 8].map(statusOf), [&quot;已過期&quot;, &quot;緊急&quot;, &quot;緊急&quot;, &quot;本週&quot;, &quot;本週&quot;, &quot;之後&quot;]);</span>
+<span class="line" data-text="});"><span class="ln">18</span>});</span>
+<span class="line" data-text=""><span class="ln">19</span></span>
+<span class="line" data-text="test(&quot;label wording&quot;, () =&gt; {"><span class="ln">20</span>test(&quot;label wording&quot;, () =&gt; {</span>
+<span class="line" data-text="  assert.deepEqual([-2, 0, 5].map(label), [&quot;逾期 2 天&quot;, &quot;今天到期&quot;, &quot;剩 5 天&quot;]);"><span class="ln">21</span>  assert.deepEqual([-2, 0, 5].map(label), [&quot;逾期 2 天&quot;, &quot;今天到期&quot;, &quot;剩 5 天&quot;]);</span>
+<span class="line" data-text="});"><span class="ln">22</span>});</span>
+<span class="line" data-text=""><span class="ln">23</span></span>
+<span class="line" data-text="test(&quot;renderHtml escapes user text&quot;, () =&gt; {"><span class="ln">24</span>test(&quot;renderHtml escapes user text&quot;, () =&gt; {</span>
+<span class="line" data-text="  const groups = buildBoard([{ course: &quot;A&amp;B&quot;, title: &quot;&lt;script&gt;&quot;, type: &quot;作業&quot;, due: &quot;2026-09-22&quot; }], &quot;2026-09-21&quot;);"><span class="ln">25</span>  const groups = buildBoard([{ course: &quot;A&amp;B&quot;, title: &quot;&lt;script&gt;&quot;, type: &quot;作業&quot;, due: &quot;2026-09-22&quot; }], &quot;2026-09-21&quot;);</span>
+<span class="line" data-text="  const html = renderHtml(groups, &quot;2026-09-21&quot;);"><span class="ln">26</span>  const html = renderHtml(groups, &quot;2026-09-21&quot;);</span>
+<span class="line" data-text="  assert.match(html, /A&amp;amp;B/);"><span class="ln">27</span>  assert.match(html, /A&amp;amp;B/);</span>
+<span class="line" data-text="  assert.doesNotMatch(html, /&lt;script&gt;/);"><span class="ln">28</span>  assert.doesNotMatch(html, /&lt;script&gt;/);</span>
+<span class="line" data-text="});"><span class="ln">29</span>});</span>
+<span class="line" data-text=""><span class="ln">30</span></span>
+<span class="line" data-text="test(&quot;sample data matches the expected page&quot;, () =&gt; {"><span class="ln">31</span>test(&quot;sample data matches the expected page&quot;, () =&gt; {</span>
+<span class="line" data-text="  const items = JSON.parse(readFileSync(new URL(&quot;../data/deadlines.json&quot;, import.meta.url), &quot;utf8&quot;));"><span class="ln">32</span>  const items = JSON.parse(readFileSync(new URL(&quot;../data/deadlines.json&quot;, import.meta.url), &quot;utf8&quot;));</span>
+<span class="line" data-text="  const expected = readFileSync(new URL(&quot;../.agents/skills/deadline-board/assets/expected-index.html&quot;, import.meta.url), &quot;utf8&quot;);"><span class="ln">33</span>  const expected = readFileSync(new URL(&quot;../.agents/skills/deadline-board/assets/expected-index.html&quot;, import.meta.url), &quot;utf8&quot;);</span>
+<span class="line" data-text="  assert.equal(renderHtml(buildBoard(items, &quot;2026-09-21&quot;), &quot;2026-09-21&quot;), expected);"><span class="ln">34</span>  assert.equal(renderHtml(buildBoard(items, &quot;2026-09-21&quot;), &quot;2026-09-21&quot;), expected);</span>
+<span class="line" data-text="});"><span class="ln">35</span>});</span></code></pre></figure>
+    <div class="table-wrap"><table>
+      <thead><tr><th>測試</th><th>檢查的事</th></tr></thead>
+      <tbody>
+        <tr><td>daysLeft counts calendar days</td><td>跨月份的天數計算正確，過期會是負數</td></tr>
+        <tr><td>daysLeft rejects malformed dates</td><td>格式錯誤或不存在的日期會回報錯誤</td></tr>
+        <tr><td>statusOf uses 0-3 urgent</td><td>-1、0、3、4、7、8 天分別落在正確的區</td></tr>
+        <tr><td>label wording</td><td>逾期、今天到期、剩 N 天的文字正確</td></tr>
+        <tr><td>renderHtml escapes user text</td><td>資料中的特殊符號會被安全轉換，不會變成網頁程式碼</td></tr>
+        <tr><td>sample data matches the expected page</td><td>範例資料產生的網頁和預期網頁一字不差</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</details>
+
+<h3>用技能重現</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="$deadline-board 用基準日 2026-09-21 重現範例看板，並確認與預期頁面一致。">$deadline-board 用基準日 2026-09-21 重現範例看板，並確認與預期頁面一致。</span></code></pre></figure>
+<p>預期回報：6 個測試通過；已過期 1、緊急 2、本週 2、之後 2；<code>dist/index.html</code> 與預期頁面一致。</p>
+<details class="explain">
+  <summary>看技能檔 SKILL.md</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">.agents/skills/deadline-board/SKILL.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="---"><span class="ln">1</span>---</span>
+<span class="line" data-text="name: deadline-board"><span class="ln">2</span>name: deadline-board</span>
+<span class="line" data-text="description: Build and verify the static course deadline board page (dist/index.html) from data/deadlines.json in this repository. Use when asked to build, rebuild, reproduce, or check the deadline board; do not use for calendars, reminders, or other web pages."><span class="ln">3</span>description: Build and verify the static course deadline board page (dist/index.html) from data/deadlines.json in this repository. Use when asked to build, rebuild, reproduce, or check the deadline board; do not use for calendars, reminders, or other web pages.</span>
+<span class="line" data-text="---"><span class="ln">4</span>---</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="# Deadline board"><span class="ln">6</span># Deadline board</span>
+<span class="line" data-text=""><span class="ln">7</span></span>
+<span class="line" data-text="Reproduce the deadline board page for this project and prove it matches the specification."><span class="ln">8</span>Reproduce the deadline board page for this project and prove it matches the specification.</span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text="## Inputs"><span class="ln">10</span>## Inputs</span>
+<span class="line" data-text=""><span class="ln">11</span></span>
+<span class="line" data-text="- Deadline data: the path the user gives, otherwise `data/deadlines.json`."><span class="ln">12</span>- Deadline data: the path the user gives, otherwise `data/deadlines.json`.</span>
+<span class="line" data-text="- Reference date: the date the user gives; when reproducing the sample, use `2026-09-21`. Never rely on today&#x27;s system date for a reproducible build."><span class="ln">13</span>- Reference date: the date the user gives; when reproducing the sample, use `2026-09-21`. Never rely on today&#x27;s system date for a reproducible build.</span>
+<span class="line" data-text="- Specification: `references/spec.md` in this skill folder, the single source of truth for status rules, sorting, and page structure."><span class="ln">14</span>- Specification: `references/spec.md` in this skill folder, the single source of truth for status rules, sorting, and page structure.</span>
+<span class="line" data-text="- Expected page for the sample data at 2026-09-21: `assets/expected-index.html` in this skill folder."><span class="ln">15</span>- Expected page for the sample data at 2026-09-21: `assets/expected-index.html` in this skill folder.</span>
+<span class="line" data-text=""><span class="ln">16</span></span>
+<span class="line" data-text="## Workflow"><span class="ln">17</span>## Workflow</span>
+<span class="line" data-text=""><span class="ln">18</span></span>
+<span class="line" data-text="1. Read `references/spec.md`."><span class="ln">19</span>1. Read `references/spec.md`.</span>
+<span class="line" data-text="2. If `src/board.mjs`, `build.mjs`, or `test/board.test.mjs` is missing, implement it from the specification with Node.js built-in modules only. Otherwise do not rewrite working code."><span class="ln">20</span>2. If `src/board.mjs`, `build.mjs`, or `test/board.test.mjs` is missing, implement it from the specification with Node.js built-in modules only. Otherwise do not rewrite working code.</span>
+<span class="line" data-text="3. Run `npm test`. If a test fails, fix the implementation (never the expected file or the specification), then rerun until every test passes."><span class="ln">21</span>3. Run `npm test`. If a test fails, fix the implementation (never the expected file or the specification), then rerun until every test passes.</span>
+<span class="line" data-text="4. Run `node build.mjs --today &lt;date&gt; --input &lt;data&gt; --output dist/index.html`."><span class="ln">22</span>4. Run `node build.mjs --today &lt;date&gt; --input &lt;data&gt; --output dist/index.html`.</span>
+<span class="line" data-text="5. For the sample data at 2026-09-21, compare byte for byte: `diff dist/index.html .agents/skills/deadline-board/assets/expected-index.html`. Any difference is a failure to fix before finishing."><span class="ln">23</span>5. For the sample data at 2026-09-21, compare byte for byte: `diff dist/index.html .agents/skills/deadline-board/assets/expected-index.html`. Any difference is a failure to fix before finishing.</span>
+<span class="line" data-text="6. Do not edit the input JSON. If an entry has an invalid date, report it instead of changing the data."><span class="ln">24</span>6. Do not edit the input JSON. If an entry has an invalid date, report it instead of changing the data.</span>
+<span class="line" data-text=""><span class="ln">25</span></span>
+<span class="line" data-text="## Final response"><span class="ln">26</span>## Final response</span>
+<span class="line" data-text=""><span class="ln">27</span></span>
+<span class="line" data-text="Reply in Traditional Chinese with:"><span class="ln">28</span>Reply in Traditional Chinese with:</span>
+<span class="line" data-text=""><span class="ln">29</span></span>
+<span class="line" data-text="- The commands you ran and whether each passed."><span class="ln">30</span>- The commands you ran and whether each passed.</span>
+<span class="line" data-text="- The item count for each status (已過期, 緊急, 本週, 之後), copied from the build output."><span class="ln">31</span>- The item count for each status (已過期, 緊急, 本週, 之後), copied from the build output.</span>
+<span class="line" data-text="- The output path, whether it matched the expected page (or that no expected file applies), and how to open it in a browser."><span class="ln">32</span>- The output path, whether it matched the expected page (or that no expected file applies), and how to open it in a browser.</span></code></pre></figure>
+    <p>和範例一的技能結構相同。特別的是 <strong>Inputs</strong> 規定「重現時一律用基準日 2026-09-21，不能用今天的日期」，否則每天產生的網頁都不同，就無法比對。</p>
+  </div>
+</details>
+
+<h3>用 worktree 平行做兩個功能</h3>
+<p>現在要同時加兩個功能，而且不希望兩份修改互相干擾：</p>
+<div class="card-grid">
+  <div class="card"><h4>功能一：類型顏色</h4><p>作業、考試、報告顯示不同的標籤顏色。</p></div>
+  <div class="card"><h4>功能二：統計列</h4><p>在標題下方顯示「共 7 項，其中作業 4 項、考試 2 項、報告 1 項」。</p></div>
+</div>
+
+<div class="callout note">
+  <span class="label">為什麼要用 worktree</span>
+  <p>如果兩個對話同時修改同一個資料夾，它們會改到彼此的檔案，很難分清楚哪個修改是誰做的。Worktree 讓每個對話有自己的一份檔案副本，<strong>本機（Local）像是前景，worktree 像是背景</strong>，兩邊互不打擾，完成後再整合。</p>
+</div>
+
+<h4>做法一：在 VS Code 的 Codex 擴充套件中</h4>
+<ol class="steps">
+  <li><p>對話一在本機做功能一：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="在網頁中讓作業、考試、報告的類型標籤顯示不同的背景色。">在網頁中讓作業、考試、報告的類型標籤顯示不同的背景色。</span>
+<span class="line" data-text="只修改 src/board.mjs 的樣式與標籤 class，更新 spec.md 的 Output 段落。">只修改 src/board.mjs 的樣式與標籤 class，更新 spec.md 的 Output 段落。</span>
+<span class="line" data-text="完成後執行 npm test 與 node build.mjs --today 2026-09-21，回報結果。">完成後執行 npm test 與 node build.mjs --today 2026-09-21，回報結果。</span></code></pre></figure>
+  </li>
+  <li><p>開新對話，先輸入 <code>/worktree</code>，讓這個對話在新的 Git worktree 裡做功能二：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/worktree">/worktree</span>
+<span class="line" data-text="在頁面標題下方加一行統計：「共 N 項，其中作業 A 項、考試 B 項、報告 C 項」。">在頁面標題下方加一行統計：「共 N 項，其中作業 A 項、考試 B 項、報告 C 項」。</span>
+<span class="line" data-text="統計邏輯寫成 src/board.mjs 的純函式並加測試，更新 spec.md 的 Output 段落。">統計邏輯寫成 src/board.mjs 的純函式並加測試，更新 spec.md 的 Output 段落。</span>
+<span class="line" data-text="完成後執行 npm test 與 node build.mjs --today 2026-09-21，回報結果。">完成後執行 npm test 與 node build.mjs --today 2026-09-21，回報結果。</span></code></pre></figure>
+  </li>
+</ol>
+<p>兩個功能都會讓測試中的「和預期網頁一字不差」失敗，這是正常的，因為網頁內容本來就改變了。整合時再更新預期網頁（見下方「整合與審查」）。</p>
+
+<h4>做法二：在 ChatGPT 桌面版中</h4>
+<ol class="steps">
+  <li><p>在新對話畫面的輸入框下方選擇 <strong>Worktree</strong>，並選擇起始分支（例如 <code>main</code>）。</p></li>
+  <li><p>送出提示。Codex 會以這個分支建立 worktree，預設處於「detached HEAD」狀態，也就是還沒有掛在任何分支名稱上。</p></li>
+  <li><p>完成後二選一：</p>
+    <ul>
+      <li>在 worktree 上按 <strong>Create branch here</strong> 建立分支，再 commit、push、開 PR。</li>
+      <li>按 <strong>Hand off</strong> 把對話和程式碼移回 <strong>Local</strong>，在你平常的 VS Code 視窗中檢查。</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>做法三：在 VS Code 的 Agents window 中</h4>
+<p>開新工作階段，<strong>Session Target</strong> 選 <strong>Codex</strong>，勾選 <strong>New Worktree</strong> 並選擇基準分支。記得 worktree 只包含已 commit 的檔案，開始前要先 commit。</p>
+
+<h3>Worktree 的注意事項</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>狀況</th><th>說明與做法</th></tr></thead>
+  <tbody>
+    <tr><td>同一分支不能兩處同時使用</td><td>在 worktree 建了 <code>feature/a</code> 分支後，本機就無法切換到它。想在本機檢查，改用 <strong>Hand off</strong></td></tr>
+    <tr><td>被 Git 忽略的檔案不會跟過去</td><td>桌面版可在儲存庫根目錄建立 <code>.worktreeinclude</code>，列出要複製的忽略檔（例如 <code>.env</code>）</td></tr>
+    <tr><td>新 worktree 缺少套件</td><td>在桌面版本機環境設定 setup script，建立 worktree 時自動安裝</td></tr>
+    <tr><td>占用磁碟空間</td><td>桌面版預設保留最近 15 個 Codex 管理的 worktree；刪除前會存快照，重新打開對話可以還原</td></tr>
+    <tr><td>需要長期使用</td><td>從側邊欄專案的三點選單建立 permanent worktree，不會被自動刪除</td></tr>
+  </tbody>
+</table></div>
+
+<figure class="code"><div class="code-head"><div><span class="code-title">.worktreeinclude 範例</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# 建立 worktree 時要一起複製的忽略檔"># 建立 worktree 時要一起複製的忽略檔</span>
+<span class="line" data-text=".env">.env</span>
+<span class="line" data-text=".env.local">.env.local</span></code></pre></figure>
+
+<h3>整合與審查</h3>
+<p>兩個功能都完成並合併後，先審查：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/review 比較目前分支與 main，特別注意兩個功能是否修改到同一段 renderHtml 程式碼。">/review 比較目前分支與 main，特別注意兩個功能是否修改到同一段 renderHtml 程式碼。</span></code></pre></figure>
+<p>接著更新預期網頁。記住順序：<strong>規格與測試先更新，人親自檢查過網頁，最後才更新預期結果。</strong></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="兩個功能已合併。請執行 npm test 與 node build.mjs --today 2026-09-21，">兩個功能已合併。請執行 npm test 與 node build.mjs --today 2026-09-21，</span>
+<span class="line" data-text="告訴我如何用瀏覽器打開 dist/index.html。">告訴我如何用瀏覽器打開 dist/index.html。</span>
+<span class="line" data-text="等我確認頁面正確後，再把 dist/index.html 複製為新的">等我確認頁面正確後，再把 dist/index.html 複製為新的</span>
+<span class="line" data-text=".agents/skills/deadline-board/assets/expected-index.html，">.agents/skills/deadline-board/assets/expected-index.html，</span>
+<span class="line" data-text="並說明預期頁面有哪些差異。">並說明預期頁面有哪些差異。</span></code></pre></figure>
+
+<h2 id="summary"><span class="num">11</span>總結與課後練習</h2>
+
+<h3>檢核清單</h3>
+<ul class="checklist">
+  <li>我知道桌面版、CLI、VS Code 擴充套件各自把什麼當作專案。</li>
+  <li>我的專案有 <code>AGENTS.md</code>，並確認 Codex 讀到了它。</li>
+  <li>我知道 <code>.codex/config.toml</code> 只在信任的專案生效，以及設定的優先順序。</li>
+  <li>我能在 VS Code 中把選取的程式碼加入對話，並使用 <code>/plan</code>、<code>/review</code>、<code>/worktree</code>。</li>
+  <li>我分得清 Codex 設定（<code>config.toml</code>）和編輯器設定（<code>chatgpt.</code> 開頭）。</li>
+  <li>我完成了兩個範例，並用 <code>$grade-report</code>、<code>$deadline-board</code> 重現結果。</li>
+  <li>我知道 worktree 隔離的是程式碼修改，不是安全邊界。</li>
+</ul>
+
+<h3>課後練習</h3>
+<ol>
+  <li><strong>整理專案</strong>：為自己的期末專題建立 Codex 專案，釘選專案、把現有對話改成描述成果的標題，並封存已完成的對話。</li>
+  <li><strong>寫規則</strong>：在專題中執行 <code>/init</code>，把產生的 <code>AGENTS.md</code> 改寫成至少 5 條你們組的規則，並請 Codex 列出它載入的指示來源。</li>
+  <li><strong>做一個技能</strong>：挑一件專題中會重複做的事（例如「產生週報」或「執行全部檢查並彙整結果」），用 <code>$skill-creator</code> 或手動建立技能，並準備一份預期結果讓技能自我驗證。</li>
+  <li><strong>平行作業</strong>：在範例二用 worktree 完成兩個功能，最後用 <code>/review</code> 審查，截圖記錄 Hand off 或 Create branch here 的過程。</li>
+</ol>
+
+<h3>延伸閱讀（官方文件）</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>主題</th><th>網址</th></tr></thead>
+  <tbody>
+    <tr><td>專案與對話</td><td><a href="https://learn.chatgpt.com/docs/projects">learn.chatgpt.com/docs/projects</a></td></tr>
+    <tr><td>AGENTS.md</td><td><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">learn.chatgpt.com/docs/agent-configuration/agents-md</a></td></tr>
+    <tr><td>設定基礎</td><td><a href="https://learn.chatgpt.com/docs/config-file/config-basic">learn.chatgpt.com/docs/config-file/config-basic</a></td></tr>
+    <tr><td>建立技能</td><td><a href="https://learn.chatgpt.com/docs/build-skills">learn.chatgpt.com/docs/build-skills</a></td></tr>
+    <tr><td>本機環境</td><td><a href="https://learn.chatgpt.com/docs/environments/local-environment">learn.chatgpt.com/docs/environments/local-environment</a></td></tr>
+    <tr><td>開發者指令</td><td><a href="https://learn.chatgpt.com/docs/developer-commands">learn.chatgpt.com/docs/developer-commands</a></td></tr>
+    <tr><td>開發者設定</td><td><a href="https://learn.chatgpt.com/docs/developer-settings">learn.chatgpt.com/docs/developer-settings</a></td></tr>
+    <tr><td>Worktrees</td><td><a href="https://learn.chatgpt.com/docs/environments/git-worktrees">learn.chatgpt.com/docs/environments/git-worktrees</a></td></tr>
+    <tr><td>VS Code 代理</td><td><a href="https://code.visualstudio.com/docs/agents/overview">code.visualstudio.com/docs/agents/overview</a></td></tr>
+    <tr><td>VS Code 代理 harness</td><td><a href="https://code.visualstudio.com/docs/agents/run/agent-harnesses">code.visualstudio.com/docs/agents/run/agent-harnesses</a></td></tr>
+  </tbody>
+</table></div>
+
+<nav class="pager" aria-label="上下頁"><a href="week02.html">上一週：用 ChatGPT 與 Codex 學習和做專題</a><a href="index.html">回講義首頁</a></nav>
+
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 999px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 1000px)").matches) tocDetails.open = true;
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
