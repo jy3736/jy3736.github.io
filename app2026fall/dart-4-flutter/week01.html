@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 1 週：課程導論、PEA 學習循環、AI 協作規範、Dart 開發流程｜Dart 程式設計講義</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#fbfaf7;--surface:#ffffff;--surface-2:#f3f1ec;--text:#1f2328;--muted:#5b6270;
+  --line:#e3e0d8;--accent:#0b6bcb;--accent-soft:#e6f0fb;
+  --tip:#1a7f4b;--tip-soft:#e7f5ec;--warn:#b25e00;--warn-soft:#fdf1e1;
+  --key:#6f42c1;--key-soft:#f1ebfb;--err:#c0342b;--err-soft:#fbeceb;
+  --code-bg:#f6f8fa;--code-text:#1f2328;--t-com:#6a737d;--t-str:#0a7a3e;--t-int:#b35900;
+  --t-num:#005cc5;--t-key:#c8315e;--t-type:#6f42c1;--t-fn:#0b5cad;
+  --term-bg:#1e2227;--term-text:#e6e6e6;
+  --radius:10px;--mono:ui-monospace,"SF Mono",Menlo,Consolas,"Noto Sans Mono CJK TC","Microsoft JhengHei",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#6cb2ff;--accent-soft:#1b2a3a;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;--t-int:#f2b36b;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#6cb2ff;--term-bg:#0f1113;
+}}
+:root[data-theme="dark"]{
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#6cb2ff;--accent-soft:#1b2a3a;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;--t-int:#f2b36b;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#6cb2ff;--term-bg:#0f1113;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:4.5rem}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.8 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+a{color:var(--accent)}
+.skip{position:absolute;left:-999px}.skip:focus{left:1rem;top:.5rem;z-index:10;background:var(--surface);padding:.3rem .6rem}
+header.site{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;
+  padding:.6rem max(16px,calc((100vw - 1180px)/2));background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;color:var(--text);text-decoration:none}
+nav.pages{display:flex;gap:.25rem;flex-wrap:wrap;flex:1}
+nav.pages a{padding:.15rem .7rem;border-radius:999px;text-decoration:none;color:var(--muted);font-size:.92rem}
+nav.pages a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.theme{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;
+  width:2.2rem;height:2.2rem;cursor:pointer;font-size:1rem}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:2.5rem;max-width:1180px;margin:0 auto;padding-inline:16px}
+.layout.single{grid-template-columns:minmax(0,1fr);max-width:860px}
+main{min-width:0;max-width:820px;padding-block:1.5rem 4rem}
+.toc{position:sticky;top:4.5rem;align-self:start;max-height:calc(100vh - 5.5rem);overflow:auto;padding-block:1.5rem;font-size:.9rem}
+.toc-title{font-weight:700;margin:0 0 .4rem;color:var(--muted)}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc a{display:block;padding:.25rem .8rem;color:var(--muted);text-decoration:none;line-height:1.5;margin-left:-2px;border-left:2px solid transparent}
+.toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr);gap:0}
+  .toc{position:static;max-height:none;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:1rem;margin-top:1.2rem}}
+h1{font-size:clamp(1.7rem,4.5vw,2.3rem);line-height:1.35;margin:.5rem 0 .6rem}
+h2{font-size:1.5rem;line-height:1.4;margin:3.2rem 0 1rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.18rem;margin:2rem 0 .6rem}
+p,li{max-width:70ch}
+.lead{font-size:1.08rem;color:var(--muted)}
+.step-badge{display:inline-block;min-width:1.8rem;padding:0 .45rem;margin-right:.4rem;border-radius:6px;background:var(--accent);color:#fff;
+  text-align:center;font-size:.95rem;line-height:1.8rem;vertical-align:.15em}
+code,kbd{font-family:var(--mono);font-size:.9em}
+:not(pre)>code{background:var(--surface-2);border:1px solid var(--line);padding:.05rem .35rem;border-radius:5px;overflow-wrap:anywhere}
+main{overflow-wrap:break-word}
+.flow span{max-width:100%;overflow-wrap:anywhere}
+kbd{background:var(--surface);border:1px solid var(--line);border-bottom-width:2px;padding:.05rem .4rem;border-radius:5px}
+figure.code{margin:1.1rem 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--code-bg)}
+figure.code figcaption{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.35rem .5rem .35rem .9rem;
+  border-bottom:1px solid var(--line);background:var(--surface-2);font-size:.85rem;color:var(--muted)}
+.file{font-family:var(--mono)}
+button.copy{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.1rem .7rem;cursor:pointer;font-size:.85rem}
+figure.code pre,.output pre,pre.term{margin:0;padding:.9rem 1rem;overflow-x:auto;font:14.5px/1.65 var(--mono);color:var(--code-text);tab-size:2}
+.t-com{color:var(--t-com);font-style:italic}.t-str{color:var(--t-str)}.t-int{color:var(--t-int);font-weight:600}
+.t-num{color:var(--t-num)}.t-key{color:var(--t-key);font-weight:600}.t-type{color:var(--t-type)}.t-fn{color:var(--t-fn)}
+.output{margin:.6rem 0 1rem;border-radius:var(--radius);overflow:hidden;background:var(--term-bg)}
+.output-label{font-size:.8rem;color:#9aa4b2;padding:.35rem 1rem 0}
+.output pre{color:var(--term-text)}
+.output.is-error pre{color:#ffb4ae}
+pre.term{background:var(--term-bg);color:var(--term-text);border-radius:var(--radius);margin:1rem 0}
+pre.term .t-com{color:#8b949e}
+details{margin:.8rem 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+details>summary{cursor:pointer;padding:.6rem 1rem;font-weight:600;list-style:none;color:var(--accent)}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▶";display:inline-block;margin-right:.5rem;font-size:.75em;transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+details>:not(summary){margin-inline:1rem}
+details[open]{padding-bottom:.4rem}
+.stdin-note{font-size:.92rem;color:var(--muted);margin:.2rem 1rem}
+.callout{border-left:4px solid var(--c);background:var(--cs);border-radius:0 var(--radius) var(--radius) 0;padding:.7rem 1rem;margin:1.2rem 0}
+.callout>.callout-title{font-weight:700;color:var(--c);margin:0 0 .2rem}
+.callout>:last-child{margin-bottom:0}.callout p{margin:.3rem 0}
+.tip{--c:var(--tip);--cs:var(--tip-soft)}.warn{--c:var(--warn);--cs:var(--warn-soft)}
+.key{--c:var(--key);--cs:var(--key-soft)}.err{--c:var(--err);--cs:var(--err-soft)}
+.try{--c:var(--accent);--cs:var(--accent-soft)}
+.table-wrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .7rem;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.goals{list-style:none;padding:0}
+.goals li{display:flex;gap:.6rem;align-items:flex-start;padding:.35rem 0}
+.goals input{width:1.15rem;height:1.15rem;margin-top:.35rem;accent-color:var(--accent);flex:none}
+.flow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1rem 0}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35rem .8rem;font-weight:600}
+.flow b{color:var(--muted)}
+.boxes{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0}
+.boxes div{border:2px solid var(--accent);border-radius:8px;min-width:4.2rem;text-align:center;background:var(--surface)}
+.boxes div small{display:block;background:var(--accent);color:#fff;font-family:var(--mono)}
+.boxes div span{display:block;padding:.2rem .4rem;font-family:var(--mono)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+a.card{display:flex;flex-direction:column;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-top:5px solid var(--c);border-radius:var(--radius);
+  background:linear-gradient(180deg,var(--cs),var(--surface) 70%);padding:1rem 1.1rem;color:var(--text);text-decoration:none;
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+a.card:hover,a.card:focus-visible{transform:translateY(-3px);border-color:var(--c);box-shadow:0 8px 22px color-mix(in srgb,var(--c) 22%,transparent)}
+a.card:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.card .week{display:inline-block;align-self:flex-start;margin:0 0 .5rem;padding:.05rem .7rem;border-radius:999px;
+  background:var(--c);color:var(--surface);font-weight:700;font-size:.9rem}
+.card h3{margin:0 0 .4rem;color:var(--c);line-height:1.5}
+.card p{margin:.3rem 0}
+.card .go{margin-top:auto;padding-top:.5rem;font-weight:700;color:var(--c)}
+a.card:hover .go{text-decoration:underline}
+@media (prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}}
+svg.diagram{max-width:100%;height:auto;display:block;margin:1rem auto;color:var(--text)}
+footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;padding:1.2rem 16px;text-align:center}
+@media print{header.site,.toc,button.copy,button.theme{display:none}
+  details{border:none}details>summary{display:none}details>*{display:block!important}
+  .layout{display:block}body{font-size:12pt}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="site">
+  <a class="brand" href="index.html">Dart 程式設計講義</a>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="week01.html" aria-current="page">第 1 週</a><a href="week02.html">第 2 週</a><a href="week03.html">第 3 週</a></nav>
+  <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
+</header>
+<div class="layout"><nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><ol><li><a href="#goal">1. 這門課要做出什麼？</a></li><li><a href="#pea">2. PEA 學習循環：每週怎麼學？</a></li><li><a href="#ai">3. 生成式 AI 協作規範</a></li><li><a href="#tools">4. 開發環境：DartPad 與 Dart SDK</a></li><li><a href="#project">5. 第一個 Dart 專案：建立、執行、修改</a></li><li><a href="#analyze">6. 先分析，再執行：dart analyze</a></li><li><a href="#scenarios">7. 情境練習：哪個階段？AI 能不能用？</a></li><li><a href="#summary">8. 本週重點整理</a></li><li><a href="#glossary">9. 名詞小辭典</a></li><li><a href="#homework">10. 本週作業：第一個 Dart 專案</a></li><li><a href="#more">11. 延伸閱讀（dart.dev 官方文件，英文）</a></li></ol></nav><main id="main"><h1>第 1 週：課程導論、PEA 學習循環、AI 協作規範、Dart 開發流程</h1>
+<p class="lead">這週先看清楚整學期要去哪裡、每週怎麼學、AI 什麼時候能用，然後親手跑出第一支 Dart 程式，走一次「建立 → 執行 → 修改 → 再執行」。</p>
+
+<h3>本週你會學到（學會了就打勾，會自動記在這台電腦的瀏覽器裡）</h3>
+<ul class="goals">
+  <li><input type="checkbox" id="g1"><label for="g1">說得出這門課學期末要做出什麼樣的 App</label></li>
+  <li><input type="checkbox" id="g2"><label for="g2">說得出 PEA（Preview／Engage／Assess）三個階段各要做什麼</label></li>
+  <li><input type="checkbox" id="g3"><label for="g3">分得清楚 AI「可以用」和「不可以用」的情境，也說得出理由</label></li>
+  <li><input type="checkbox" id="g4"><label for="g4">會用 DartPad 執行程式，會用 <code>dart create</code>、<code>dart run</code> 建立並執行專案</label></li>
+  <li><input type="checkbox" id="g5"><label for="g5">會用 <code>dart analyze</code> 在執行前找出錯誤</label></li>
+  <li><input type="checkbox" id="g6"><label for="g6">寫得出一則「AI 提示與驗證紀錄」</label></li>
+</ul>
+
+<h2 id="goal">1. 這門課要做出什麼？</h2>
+<p>先把終點講清楚，後面每週在學什麼才有方向。</p>
+<div class="callout key"><p class="callout-title">學期終點</p>
+<p>完成一個<strong>可以在手機上執行</strong>、能和<strong>感測器或雲端資料</strong>互動的小型 App。例如畫面顯示溫濕度、光照的即時數值，可以切換開關、瀏覽清單、查看詳細資料。</p>
+<p>教室沒有實體硬體時，我們會先用「模擬資料」（寫死或亂數產生的數值）開發，實體感測器放在課程後段再串接。</p></div>
+
+<h3>整學期路線</h3>
+<div class="flow"><span>Dart 基礎</span><b>→</b><span>Flutter 畫面</span><b>→</b><span>資料與互動</span><b>→</b><span>IoT/AIoT 專題</span></div>
+<div class="table-wrap"><table>
+<tr><th>階段</th><th>週次</th><th>主題</th><th>在練什麼</th></tr>
+<tr><td>Dart 基礎</td><td>第 2–3 週</td><td>變數、型別、運算子、條件、迴圈、函式、集合</td><td>在主控台程式裡把「邏輯」寫對，先不管畫面</td></tr>
+<tr><td>Flutter 畫面</td><td>第 4–5 週</td><td>widget tree、Material Design、版面配置、導覽</td><td>有畫面可以看、可以操作</td></tr>
+<tr><td>資料與互動</td><td>第 6 週起</td><td>狀態管理、表單與輸入驗證、非同步程式設計</td><td>資料從哪裡來、使用者怎麼操作、畫面怎麼更新</td></tr>
+<tr><td>專題整合</td><td>課程後段</td><td>串接感測器或雲端資料</td><td>整合成 IoT/AIoT 情境的小型專題</td></tr>
+</table></div>
+
+<h3>為什麼先學 Dart，再學 Flutter？</h3>
+<p><strong>Flutter</strong> 是用來做 App 畫面的工具組，同一套程式碼可以做出 iOS、Android、桌面和網頁 App。而 Flutter App 用的程式語言和執行環境，就是 <strong>Dart</strong>。所以 Dart 寫得穩，Flutter 才寫得動。</p>
+<div class="callout tip"><p class="callout-title">Dart 的兩個特色（下週會一直遇到）</p>
+<p><strong>型別安全</strong>：變數裡的值一定符合它的型別，寫錯型別時，Dart 會在執行前提醒你。</p>
+<p><strong>null safety</strong>：除非你明確允許，否則值不能是 <code>null</code>（什麼都沒有），很多錯誤可以提前被擋下來。</p></div>
+<p>另外，Dart 在開發時支援<strong>熱重載（hot reload）</strong>：改完程式可以很快看到結果，Flutter 開發也會用到這個能力。</p>
+
+<h2 id="pea">2. PEA 學習循環：每週怎麼學？</h2>
+<p>「什麼時候該預習？什麼時候練習？什麼時候會被檢核？」這門課把每一週拆成三個階段：</p>
+<div class="table-wrap"><table>
+<tr><th>階段</th><th>你要做什麼</th><th>老師／課程會做什麼</th></tr>
+<tr><td><strong>P</strong>review 預習</td><td>課前閱讀資料，可以用 AI 幫忙理解</td><td>提供本週重點與官方文件連結</td></tr>
+<tr><td><strong>E</strong>ngage 課中參與</td><td>動手寫程式、討論、修正錯誤</td><td>帶領示範、巡堂協助除錯</td></tr>
+<tr><td><strong>A</strong>ssess 檢核</td><td>完成前測／後測或作業，展示自己的理解</td><td>出 n 選 m 前測／後測、批閱作業</td></tr>
+</table></div>
+<div class="flow"><span>Preview 讀文件＋用 AI 釐清觀念</span><b>→</b><span>Engage 寫程式、看結果、討論</span><b>→</b><span>Assess 前後測、交作業</span><b>→</b><span>拿回饋，進入下一週</span></div>
+<ul>
+  <li><strong>Preview</strong>：課前先有基本認識，上課時間才能拿來動手做。</li>
+  <li><strong>Engage</strong>：真正犯錯、修正的階段。錯誤訊息本身就是學習材料（第 6 段馬上體驗）。</li>
+  <li><strong>Assess</strong>：讓你知道自己掌握了多少，也讓老師調整教學步調。</li>
+</ul>
+
+<h2 id="ai">3. 生成式 AI 協作規範</h2>
+<div class="table-wrap"><table>
+<tr><th>AI</th><th>情境</th><th>例子</th></tr>
+<tr><td>✅ 可以</td><td>Preview 自學</td><td>請 AI 用不同方式解釋一個 Dart 語法</td></tr>
+<tr><td>✅ 可以</td><td>專題開發</td><td>除錯、重構建議、理解官方文件的英文用語</td></tr>
+<tr><td>❌ 不可以</td><td>列入成績的 n 選 m 前測／後測</td><td>每週的前測、後測</td></tr>
+<tr><td>❌ 不可以</td><td>隨堂測驗、考試、標示「個人獨立完成、自動評分」的作業</td><td>自動批閱作業</td></tr>
+</table></div>
+<div class="callout warn"><p class="callout-title">為什麼前測／後測不能用 AI？</p>
+<p>前測／後測檢核的是<strong>你自己</strong>現在懂多少。當下用 AI 作答，就算答對，結果也無法反映你真正的學習狀態，老師也沒辦法依此調整教學。這和「預習、做專題時鼓勵善用工具」並不衝突，只是依情境劃出界線。</p></div>
+
+<h3>AI 提示與驗證紀錄</h3>
+<p>從這週開始，每次用 AI 協助寫程式或除錯，記下三件事：</p>
+<ol>
+  <li><strong>提示內容摘要</strong>：你問了 AI 什麼。</li>
+  <li><strong>AI 給的建議</strong>：摘要重點就好，不必整段複製。</li>
+  <li><strong>驗證方式與結果</strong>：你怎麼確認建議是對的（例如執行 <code>dart analyze</code>、<code>dart run</code>、對照官方文件），以及結果如何。</li>
+</ol>
+<div class="callout key"><p class="callout-title">重點在第 3 項</p>
+<p>沒有自己動手確認過，這則紀錄就不完整。第 5、6 段學到的 <code>dart run</code> 和 <code>dart analyze</code>，就是你最基本的驗證工具。這份紀錄會一路用到期末專題。</p></div>
+
+<h2 id="tools">4. 開發環境：DartPad 與 Dart SDK</h2>
+<div class="table-wrap"><table>
+<tr><th>環境</th><th>要安裝嗎</th><th>適合做什麼</th><th>限制</th></tr>
+<tr><td>DartPad</td><td>不用，打開瀏覽器即可</td><td>學語法、快速試想法，也能跑 Flutter 範例</td><td>不支援 <code>dart:io</code>（例如讀鍵盤輸入），也不能任意使用套件</td></tr>
+<tr><td>Dart SDK</td><td>要，裝在自己的電腦</td><td>建立專案、分析程式、讀鍵盤輸入、寫測試</td><td>需要安裝與設定</td></tr>
+</table></div>
+
+<h3>試試看 A：在 DartPad 看一個 Flutter 畫面</h3>
+<ol>
+  <li>打開 <a href="https://dartpad.dev" target="_blank" rel="noopener">https://dartpad.dev</a>，左邊是程式碼，右邊是輸出。</li>
+  <li>按上方的 <kbd>Samples</kbd>，選一個 Flutter 範例，例如 <strong>Sunflower</strong>。</li>
+  <li>右邊會出現 App 畫面。程式先不用看懂，只要知道：學期中段，我們也會寫出這樣的畫面。</li>
+</ol>
+
+<h3>試試看 B：在 DartPad 寫一支命令列程式</h3>
+<ol>
+  <li>按 <kbd>New</kbd>，選有 Dart 圖示的項目。</li>
+  <li>把 <code>main()</code> 大括號裡的內容換成下面這段（打字時注意 DartPad 跳出的提示和自動完成）：</li>
+</ol>
+<figure class="code"><figcaption><span class="file">main() 的內容</span><button class="copy" type="button">複製</button></figcaption>
+<pre><code><span class="t-key">for</span> (<span class="t-key">final</span> char <span class="t-key">in</span> <span class="t-str">'hello'</span>.<span class="t-fn">split</span>(<span class="t-str">''</span>)) {
+  <span class="t-fn">print</span>(char);
+}</code></pre></figure>
+<ol start="3">
+  <li>按 <kbd>Format</kbd> 整理排版，再按 <kbd>Run</kbd>。右邊應該一行一個字母，印出 <code>h</code>、<code>e</code>、<code>l</code>、<code>l</code>、<code>o</code>。</li>
+</ol>
+<div class="callout tip"><p class="callout-title">看不懂 <code>for</code>？沒關係</p>
+<p>這是「迴圈」，第 3 週才會正式教。這週先照打，重點是熟悉「改程式 → 執行 → 看結果」。</p></div>
+
+<h3>在自己的電腦安裝 Dart</h3>
+<ol>
+  <li>依照官方說明安裝：<a href="https://dart.dev/get-dart" target="_blank" rel="noopener">Get the Dart SDK</a>（官方建議用套件管理工具安裝）。</li>
+  <li>如果你已經裝了（或打算裝）<strong>Flutter SDK</strong>，就不用另外裝 Dart，因為 Flutter SDK 裡面已經包含完整的 Dart SDK。這門課之後要寫 Flutter，直接裝 Flutter SDK 也可以。</li>
+  <li>打開「終端機」（Mac 搜尋 <strong>Terminal</strong>；Windows 搜尋 <strong>PowerShell</strong>），輸入：</li>
+</ol>
+<pre class="term">dart --version
+<span class="t-com"># 看到類似下面這行就成功了（版本號可能不同）</span>
+Dart SDK version: 3.9.2 (stable) ...</pre>
+<p>如果出現 <code>command not found</code>，代表還沒裝好，請回到官方安裝說明檢查設定。</p>
+
+<h2 id="project">5. 第一個 Dart 專案：建立、執行、修改</h2>
+<p>這一段要親手走一次「建立 → 執行 → 修改 → 存檔 → 再執行」，這就是整學期的開發節奏。</p>
+
+<h3><span class="step-badge">1</span>建立專案</h3>
+<pre class="term">dart create hello_dart</pre>
+<p><code>dart create</code> 會建立一個資料夾和專案檔案，接著自動下載需要的套件（畫面上會看到 <code>Running pub get...</code>）。沒有特別指定時，它會建立一個<strong>命令列程式</strong>專案（<code>console</code> 範本）。產生的檔案如下：</p>
+<pre class="term">hello_dart/
+├── bin/hello_dart.dart         <span class="t-com">← 程式的進入點，可執行的程式放這裡</span>
+├── lib/hello_dart.dart         <span class="t-com">← 程式庫的程式碼</span>
+├── test/hello_dart_test.dart   <span class="t-com">← 測試</span>
+├── pubspec.yaml                <span class="t-com">← 專案名稱與套件設定</span>
+├── analysis_options.yaml       <span class="t-com">← 程式分析的設定</span>
+├── CHANGELOG.md
+└── README.md</pre>
+<p>檔案很多沒關係，這週只要記得 <code>bin/</code> 和 <code>pubspec.yaml</code>，其他之後用到再說。</p>
+
+<h3><span class="step-badge">2</span>執行</h3>
+<pre class="term">cd hello_dart
+dart run
+<span class="t-com"># 執行結果</span>
+Hello world: 42!</pre>
+
+<h3><span class="step-badge">3</span>看懂進入點</h3>
+<p>用編輯器（建議 VS Code）打開 <code>bin/hello_dart.dart</code>：</p>
+<figure class="code"><figcaption><span class="file">bin/hello_dart.dart（dart create 產生的原始內容）</span><button class="copy" type="button">複製</button></figcaption>
+<pre><code><span class="t-key">import</span> <span class="t-str">'package:hello_dart/hello_dart.dart'</span> <span class="t-key">as</span> hello_dart;
+
+<span class="t-key">void</span> <span class="t-fn">main</span>(<span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; arguments) {
+  <span class="t-fn">print</span>(<span class="t-str">'Hello world: <span class="t-int">${hello_dart.calculate()}</span>!'</span>);
+}</code></pre></figure>
+<div class="callout key"><p class="callout-title">重點</p>
+<p><strong>每個 Dart 程式都從 <code>main()</code> 開始執行。</strong><code>print()</code> 會把文字顯示在終端機。</p>
+<p>第一行的 <code>import</code> 把 <code>lib/</code> 裡的程式拿進來用，<code>calculate()</code> 算出了 42。</p></div>
+
+<h3><span class="step-badge">4</span>修改、存檔、再執行</h3>
+<p>刪掉第一行 <code>import</code>，把整個檔案改成下面這樣，<strong>存檔</strong>後再執行 <code>dart run</code>：</p>
+<figure class="code"><figcaption><span class="file">s01_first_change.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 由 dart create 產生的 bin/ 檔案修改而來：刪掉 import，改寫 main() 的內容</span>
+<span class="t-key">void</span> <span class="t-fn">main</span>(<span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; arguments) {
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;Hello, Dart!&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;歡迎來到 APP 程式設計實務&#x27;</span>);
+  <span class="t-com">// 這段迴圈取自 DartPad 入門步驟，第 3 週才會正式教，先照打、看結果</span>
+  <span class="t-key">for</span> (<span class="t-key">final</span> char <span class="t-key">in</span> <span class="t-str">&#x27;hello&#x27;</span>.<span class="t-fn">split</span>(<span class="t-str">&#x27;&#x27;</span>)) {
+    <span class="t-fn">print</span>(char);
+  }
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>Hello, Dart!
+歡迎來到 APP 程式設計實務
+h
+e
+l
+l
+o</pre></div></details>
+<div class="callout try"><p class="callout-title">動手試試</p>
+<p>把第二個 <code>print</code> 改成印出你的姓名和系級，存檔後再執行一次。</p></div>
+<p>小提示：也可以指定要執行哪個檔案，例如 <code>dart run bin/hello_dart.dart</code>。</p>
+
+<h2 id="analyze">6. 先分析，再執行：<code>dart analyze</code></h2>
+<p><code>dart analyze</code> 會檢查程式有沒有寫錯，檢查的內容和 VS Code 這類編輯器裡看到的一樣。最棒的是：<strong>不用執行程式</strong>，就能先把錯誤找出來。</p>
+<pre class="term">dart analyze       <span class="t-com"># 檢查目前資料夾裡所有的 Dart 檔案</span>
+dart analyze bin   <span class="t-com"># 只檢查 bin 資料夾</span></pre>
+<p>全部沒問題時，會看到 <code>No issues found!</code>。</p>
+
+<h3>故意打錯字看看</h3>
+<p>把 <code>split</code> 打成 <code>spit</code>，執行後會得到這樣的錯誤：</p>
+<figure class="code"><figcaption><span class="file">e8_method_typo.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-com">// 把 split 打成 spit，看看工具怎麼提醒你</span>
+  <span class="t-key">for</span> (<span class="t-key">final</span> char <span class="t-key">in</span> <span class="t-str">&#x27;hello&#x27;</span>.<span class="t-fn">spit</span>(<span class="t-str">&#x27;&#x27;</span>)) {
+    <span class="t-fn">print</span>(char);
+  }
+}</code></pre></figure><div class="output is-error"><div class="output-label">錯誤訊息（實際執行結果）</div><pre>e8_method_typo.dart:3:30: Error: The method &#x27;spit&#x27; isn&#x27;t defined for the type &#x27;String&#x27;.
+Try correcting the name to the name of an existing method, or defining a method named &#x27;spit&#x27;.
+  for (final char in &#x27;hello&#x27;.spit(&#x27;&#x27;)) {
+                             ^^^^</pre></div>
+<p>如果改用 <code>dart analyze</code> 檢查，還沒執行就會看到同一個錯誤：</p>
+<pre class="term">error - e8_method_typo.dart:3:30 - The method 'spit' isn't defined for the type 'String'. ... - undefined_method
+
+1 issue found.</pre>
+<div class="callout key"><p class="callout-title">怎麼讀錯誤訊息</p>
+<p><code>3:30</code> 代表「<strong>第 3 行、第 30 個字元</strong>」。訊息的意思是：文字（<code>String</code>）沒有叫做 <code>spit</code> 的方法，請改成正確的名稱。把 <code>spit</code> 改回 <code>split</code> 就好了。</p>
+<p>在 DartPad 裡打錯字，右下角也會出現警告；硬是按執行，就會看到編譯錯誤。</p></div>
+
+<div class="callout try"><p class="callout-title">小練習</p>
+<p>回到你的 <code>hello_dart</code> 專案，只刪掉第一行 <code>import</code>，但<strong>保留</strong> <code>hello_dart.calculate()</code>。先猜猜會發生什麼事，再執行 <code>dart analyze</code>，找出錯誤的「行:字元」，然後改到出現 <code>No issues found!</code> 為止。</p></div>
+<details><summary>做完再看：會看到什麼錯誤？</summary>
+<pre class="term">error - bin/hello_dart.dart:2:25 - Undefined name 'hello_dart'. ...</pre>
+<p><code>import</code> 被刪掉之後，Dart 不知道 <code>hello_dart</code> 是誰。可以把 <code>import</code> 加回來，或把 <code>print</code> 裡用到 <code>hello_dart</code> 的部分改掉。</p></details>
+
+<div class="callout warn"><p class="callout-title">和 AI 紀錄的關係</p>
+<p>AI 給你修改建議後：先 <code>dart analyze</code> 看到 <code>No issues found!</code>，再 <code>dart run</code> 確認結果正確。把這兩步寫進紀錄的「驗證方式與結果」，就是一則完整的紀錄。</p></div>
+
+<h2 id="scenarios">7. 情境練習：哪個階段？AI 能不能用？</h2>
+<p>和旁邊的同學討論，每個情境寫下「屬於 PEA 哪個階段」「AI 能不能用」「理由」：</p>
+<ol>
+  <li>上課前，先請 AI 用不同方式解釋「<code>dart create</code> 產生的 <code>bin/</code> 和 <code>lib/</code> 有什麼不同」。</li>
+  <li>隨堂的 n 選 m 前測，檢核 <code>var</code>／<code>final</code>／<code>const</code> 的差異。</li>
+  <li>期末專題開發時，請 AI 協助找出畫面沒有更新的原因。</li>
+  <li>課堂實作時 <code>dart run</code> 出現錯誤，請 AI 解讀錯誤訊息，自己修改後重新執行。</li>
+</ol>
+<details><summary>討論完再看參考答案</summary>
+<div class="table-wrap"><table>
+<tr><th>情境</th><th>階段</th><th>AI</th><th>理由</th></tr>
+<tr><td>1</td><td>Preview</td><td>可以</td><td>課前自學、釐清觀念</td></tr>
+<tr><td>2</td><td>Assess</td><td>不可以</td><td>列入檢核的前測，要反映自己的理解</td></tr>
+<tr><td>3</td><td>Engage（專題實作）</td><td>可以</td><td>專題除錯是允許的情境，但要寫驗證紀錄</td></tr>
+<tr><td>4</td><td>Engage</td><td>可以</td><td>課堂練習不是檢核；重點是自己改、自己重跑</td></tr>
+</table></div></details>
+
+<h2 id="summary">8. 本週重點整理</h2>
+<ul>
+  <li>學期終點：做出能和感測器或雲端資料互動的 App；路線是 Dart 基礎 → Flutter 畫面 → 資料與互動 → 專題。</li>
+  <li>PEA：Preview 預習、Engage 課中動手、Assess 檢核，每週循環一次。</li>
+  <li>AI 可以用在預習和專題；列入成績的前測／後測、考試、自動評分作業不可以用。</li>
+  <li>AI 紀錄三件事：問了什麼、AI 建議什麼、<strong>自己怎麼驗證</strong>。</li>
+  <li>DartPad 免安裝就能寫 Dart；Flutter SDK 內含完整的 Dart SDK。</li>
+  <li><code>dart create</code> 建立專案、<code>dart run</code> 執行；程式從 <code>bin/</code> 裡的 <code>main()</code> 開始。</li>
+  <li><code>dart analyze</code> 不用執行就能先找錯；錯誤位置 <code>行:字元</code>。</li>
+</ul>
+
+<h2 id="glossary">9. 名詞小辭典</h2>
+<div class="table-wrap"><table>
+<tr><th>中文</th><th>英文</th><th>一句話解釋</th></tr>
+<tr><td>軟體開發套件</td><td>SDK</td><td>寫程式需要的一整套工具，例如 <code>dart</code> 指令</td></tr>
+<tr><td>終端機</td><td>terminal</td><td>用打字指揮電腦的視窗</td></tr>
+<tr><td>專案</td><td>project</td><td>一個程式需要的所有檔案，放在同一個資料夾</td></tr>
+<tr><td>範本</td><td>template</td><td><code>dart create</code> 建立專案時用的「樣板」</td></tr>
+<tr><td>進入點</td><td>entry point</td><td>程式開始執行的地方，也就是 <code>main()</code></td></tr>
+<tr><td>靜態分析</td><td>static analysis</td><td>不執行程式，先檢查程式有沒有寫錯</td></tr>
+<tr><td>熱重載</td><td>hot reload</td><td>改完程式後，很快就能看到新結果</td></tr>
+<tr><td>型別安全</td><td>type safe</td><td>變數的值一定符合它的型別</td></tr>
+<tr><td>空值</td><td>null</td><td>代表「什麼都沒有」</td></tr>
+<tr><td>錯誤訊息</td><td>error message</td><td>電腦告訴你哪裡出問題的說明</td></tr>
+</table></div>
+
+<h2 id="homework">10. 本週作業：第一個 Dart 專案</h2>
+<ol>
+  <li><strong>建立與修改</strong>：用 <code>dart create</code> 建立自己的專案，修改 <code>bin/</code> 裡的程式，印出「歡迎來到 APP 程式設計實務」和你的姓名、系級。</li>
+  <li><strong>驗證</strong>：繳交兩張截圖：<code>dart analyze</code> 顯示 <code>No issues found!</code>，以及 <code>dart run</code> 的執行結果。</li>
+  <li><strong>第一則 AI 提示與驗證紀錄</strong>：記錄一次這週真實發生的 AI 使用（例如請 AI 解釋錯誤訊息），寫成三行：提示內容摘要、AI 給的建議、驗證方式與結果。驗證必須是你自己動手執行過的工具，或自己對照過的文件。</li>
+</ol>
+<div class="callout tip"><p class="callout-title">作業最後，回答兩個反思問題</p>
+<ol>
+  <li>我對「學期末要做出什麼樣的 App」有沒有清楚的畫面？如果還不清楚，我最想先問哪個問題？</li>
+  <li>接下來每週，我打算怎麼持續寫「AI 提示與驗證紀錄」？</li>
+</ol></div>
+
+<h2 id="more">11. 延伸閱讀（dart.dev 官方文件，英文）</h2>
+<ul>
+  <li><a href="https://dart.dev/overview" target="_blank" rel="noopener">Dart overview</a>：Dart 語言、平台與 Flutter 的關係</li>
+  <li><a href="https://dart.dev/learn/tutorial/first-app" target="_blank" rel="noopener">Build your first app</a>：本週第 5 段的官方教學</li>
+  <li><a href="https://dart.dev/get-dart" target="_blank" rel="noopener">Get the Dart SDK</a>：安裝說明</li>
+  <li><a href="https://dart.dev/tools/dartpad" target="_blank" rel="noopener">DartPad</a>：線上寫 Dart 的工具說明</li>
+  <li><a href="https://dart.dev/tools/dart-create" target="_blank" rel="noopener">dart create</a>、<a href="https://dart.dev/tools/dart-run" target="_blank" rel="noopener">dart run</a>、<a href="https://dart.dev/tools/dart-analyze" target="_blank" rel="noopener">dart analyze</a>：本週用到的三個指令</li>
+  <li><a href="https://dart.dev/ai" target="_blank" rel="noopener">Build with AI</a>：在 Dart 開發中使用 AI 的官方工具介紹（本課程前幾週不需要安裝）</li>
+</ul>
+<p>小提示：看不懂英文文件時，可以用瀏覽器的翻譯功能，或請 AI 用簡單的中文解釋其中一段。</p>
+</main></div>
+<footer class="site">範例程式皆以 Dart 3.9.2 實際執行產生結果。參考資料：dart.dev 官方文件（CC BY 4.0）。</footer>
+<script>
+(function(){
+  var root=document.documentElement,key='dart-handout-theme';
+  try{var saved=localStorage.getItem(key);if(saved)root.dataset.theme=saved;}catch(e){}
+  document.querySelector('button.theme').addEventListener('click',function(){
+    var dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme=dark?'light':'dark';
+    try{localStorage.setItem(key,root.dataset.theme);}catch(e){}
+  });
+  document.querySelectorAll('button.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var text=btn.closest('figure').querySelector('pre').innerText;
+      var done=function(){btn.textContent='已複製 ✓';setTimeout(function(){btn.textContent='複製';},1500);};
+      if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,fallback);}else{fallback();}
+      function fallback(){var t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();
+        try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}
+    });
+  });
+  var page=location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('.goals input').forEach(function(box,i){
+    var id='dart-handout-'+page+'-goal-'+i;
+    try{box.checked=localStorage.getItem(id)==='1';}catch(e){}
+    box.addEventListener('change',function(){try{localStorage.setItem(id,box.checked?'1':'0');}catch(e){}});
+  });
+  var links=document.querySelectorAll('.toc a');
+  if(links.length&&'IntersectionObserver' in window){
+    var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+    var io=new IntersectionObserver(function(entries){entries.forEach(function(en){
+      if(en.isIntersecting){links.forEach(function(a){a.classList.remove('active');});
+        var a=map[en.target.id];if(a)a.classList.add('active');}
+    });},{rootMargin:'-20% 0px -70% 0px'});
+    document.querySelectorAll('main h2[id]').forEach(function(h){io.observe(h);});
+  }
+  window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=true;});});
+})();
+</script>
+</body>
+</html>
