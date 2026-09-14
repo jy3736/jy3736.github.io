@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 14 週：檔案讀寫與資料驗證｜計算機程式及實習：C 語言講義</title>
+<meta name="description" content="開檔、關檔與錯誤檢查、讀取文字檔、寫入檔案與資料驗證">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📘</text></svg>">
+<link rel="stylesheet" href="assets/handout.css">
+<link rel="stylesheet" href="assets/highlight.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-name" href="index.html">計算機程式及實習：C 語言講義</a>
+  <button class="theme-toggle" type="button" aria-label="切換深色或淺色模式">深淺色</button>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><div>
+<ul>
+<li><a href="#sec-1">本週對照表</a></li>
+<li><a href="#sec-2">1. 開檔、關檔與錯誤檢查</a></li>
+<li><a href="#sec-3">2. 讀取文字檔</a></li>
+<li><a href="#sec-4">3. 寫入檔案與資料驗證</a></li>
+<li><a href="#sec-5">本講義未涵蓋的內容</a></li>
+<li><a href="#sec-6">延伸閱讀</a></li>
+</ul>
+</div>
+</nav>
+<main class="content">
+<h1 id="s-14872824">第 14 週：檔案讀寫與資料驗證</h1>
+<blockquote>
+<p>對應課程：第 14 週講義與實作練習</p>
+<p>本講義的觀念說明整理自文末「延伸閱讀」列出的公開教材，並附上出處。所有範例程式都是完整的程式，可以直接編譯執行。</p>
+</blockquote>
+<details class="toc-mobile"><summary>本頁目錄</summary><div>
+<ul>
+<li><a href="#sec-1">本週對照表</a></li>
+<li><a href="#sec-2">1. 開檔、關檔與錯誤檢查</a></li>
+<li><a href="#sec-3">2. 讀取文字檔</a></li>
+<li><a href="#sec-4">3. 寫入檔案與資料驗證</a></li>
+<li><a href="#sec-5">本講義未涵蓋的內容</a></li>
+<li><a href="#sec-6">延伸閱讀</a></li>
+</ul>
+</div>
+</details>
+<h2 id="sec-1">本週對照表</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>主題</th>
+<th>對應練習</th>
+<th>教材出處</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FILE*、開檔與關檔</td>
+<td>練習「單元 1：開檔、關檔與錯誤檢查」</td>
+<td>Beej §9.1、§9.2；Beej 函式庫參考 §23.5、§23.7</td>
+</tr>
+<tr>
+<td>讀取文字檔</td>
+<td>練習「單元 2：讀取文字檔內容」</td>
+<td>Beej §9.2、§9.3、§9.3.1、§9.4</td>
+</tr>
+<tr>
+<td>寫入文字檔</td>
+<td>練習「單元 3：寫入文字檔與資料驗證」</td>
+<td>Beej §9.5；Beej 函式庫參考 §23.7</td>
+</tr>
+<tr>
+<td>資料驗證</td>
+<td>練習「單元 3」</td>
+<td>Beej §9.4；Beej 函式庫參考 §23.11.0.2</td>
+</tr>
+<tr>
+<td>綜合運用</td>
+<td>練習「綜合練習：小型感測器記錄驗證系統」</td>
+<td>以上各節</td>
+</tr>
+</tbody>
+</table></div>
+<p>編譯指令與練習檔相同：</p>
+<pre><code class="language-sh hl">gcc<span class="w"> </span>-std<span class="o">=</span>c17<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-Wpedantic<span class="w"> </span>檔名.c<span class="w"> </span>-o<span class="w"> </span>檔名</code></pre>
+<p><strong>怎麼準備資料檔</strong>：本講義標示為「資料檔」的內容，請用文字編輯器建立同名檔案，存放在和程式<strong>相同的資料夾</strong>中，最後一行結尾也要按一次 Enter。Beej 提醒，為了可攜性，文字資料最好以換行結尾（Beej §9.2）。</p>
+<hr />
+<h2 id="sec-2">1. 開檔、關檔與錯誤檢查</h2>
+<h3 id="s-21931676">用白話說</h3>
+<p>到目前為止，程式的資料都來自鍵盤，結果都印在螢幕上；程式一結束，資料就不見了。<strong>檔案</strong>讓資料可以保存下來，下次執行時再讀回來。</p>
+<p>使用檔案的流程就像去圖書館借書：</p>
+<ol>
+<li><strong>開檔</strong>（<code>fopen</code>）：辦理借閱，拿到一張借閱證（<code>FILE *</code>）。</li>
+<li><strong>讀或寫</strong>：拿著借閱證讀取或寫入內容。</li>
+<li><strong>關檔</strong>（<code>fclose</code>）：歸還，讓系統收回資源。</li>
+</ol>
+<p>還有一件事一定要做：<strong>開檔可能失敗</strong>（例如檔案不存在），所以每次開檔都要先檢查。</p>
+<h3 id="s-26586765">教材怎麼說</h3>
+<ul>
+<li>C 的輸入輸出都透過 <code>FILE *</code> 型別的資料進行，它記錄了「開啟的是哪個檔案、目前讀寫到哪裡」等資訊。出處：Beej §9.1 The FILE* Data Type。</li>
+<li>程式一開始就有三個已經開好的串流：<code>stdin</code>（標準輸入，通常是鍵盤）、<code>stdout</code>（標準輸出，通常是螢幕）、<code>stderr</code>（標準錯誤，通常也是螢幕）。<code>printf(...)</code> 其實就等於 <code>fprintf(stdout, ...)</code>。出處同上。</li>
+<li><code>fopen(檔名, 模式)</code> 開啟檔案並回傳 <code>FILE *</code>；發生錯誤（例如找不到檔案）時回傳 <code>NULL</code>，所以應該檢查。出處：Beej §9.2 Reading Text Files。</li>
+<li>常用的模式如下。出處：Beej 函式庫參考 §23.7 fopen()；Beej §9.5 Writing Text Files。</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>模式</th>
+<th>用途</th>
+<th>檔案不存在時</th>
+<th>檔案已存在時</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"r"</code></td>
+<td>只讀</td>
+<td>開檔失敗</td>
+<td>從頭讀起</td>
+</tr>
+<tr>
+<td><code>"w"</code></td>
+<td>只寫</td>
+<td>建立新檔</td>
+<td><strong>立刻清空</strong>，從頭寫起</td>
+</tr>
+<tr>
+<td><code>"a"</code></td>
+<td>附加</td>
+<td>建立新檔</td>
+<td>保留原內容，寫在最後面</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><code>fclose</code> 關閉檔案並釋放系統資源。寫入的資料有可能要等到關檔時才真正寫進磁碟，所以用完一定要關檔。出處：Beej 函式庫參考 §23.5 fclose()。</li>
+</ul>
+<h3 id="s-94990093">對照練習</h3>
+<p>練習「單元 1」的基本範例開檔寫入一行文字並檢查是否成功；延伸練習用 <code>"r"</code> 模式開啟不存在的檔案，觀察如何在失敗時正常結束。下面的補充範例寫入多行資料，並把「開檔失敗」的處理包成函式。</p>
+<h3 id="s-70705305">補充範例 1-1：把購物清單寫進檔案</h3>
+<p>檔名 <code>write_list.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;shopping.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;無法建立 shopping.txt</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;milk 2</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;bread 1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;egg 12</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;已寫入 3 筆資料</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>螢幕上的輸出：</p>
+<pre><code class="language-text">已寫入 3 筆資料
+</code></pre>
+<p>執行後，<code>shopping.txt</code> 的內容：</p>
+<pre><code class="language-text">milk 2
+bread 1
+egg 12
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>fopen("shopping.txt", "w")</code>：以寫入模式開檔。檔案不存在就建立；已經存在就先清空（Beej §9.5）。</li>
+<li>立刻檢查 <code>fp == NULL</code>。失敗時印出訊息並 <code>return 1;</code>，不會對 <code>NULL</code> 繼續操作。</li>
+<li><code>fprintf(fp, ...)</code> 的用法和 <code>printf</code> 幾乎一樣，只是多了第一個參數，指定要寫到哪個檔案。</li>
+<li><code>fclose(fp);</code> 關檔。之後就不能再用這個 <code>fp</code>。</li>
+<li>把這支程式執行兩次，<code>shopping.txt</code> 仍然只有 3 行，因為 <code>"w"</code> 每次都會先清空。</li>
+</ol>
+<h3 id="s-69010897">補充範例 1-2：檔案不存在時</h3>
+<p>檔名 <code>open_check.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">showFirstChar</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">filename</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">showFirstChar</span><span class="p">(</span><span class="s">&quot;no_such_file.txt&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;請確認檔案名稱與存放位置</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;程式正常結束</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">showFirstChar</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">filename</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;無法開啟 %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;第一個字元是 %c</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出（資料夾中沒有 <code>no_such_file.txt</code> 時）：</p>
+<pre><code class="language-text">無法開啟 no_such_file.txt
+請確認檔案名稱與存放位置
+程式正常結束
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>"r"</code> 模式遇到不存在的檔案會開檔失敗，<code>fopen</code> 回傳 <code>NULL</code>。</li>
+<li>函式印出錯誤訊息後 <code>return 0;</code>，下面的 <code>fgetc</code> 和 <code>fclose</code> 都不會執行。</li>
+<li><code>main</code> 根據回傳值給出提示，程式照樣正常結束，不會當掉。</li>
+<li>檔名參數寫成 <code>const char *filename</code>，因為函式只需要讀這個字串（第 12 週）。</li>
+</ol>
+<hr />
+<h2 id="sec-3">2. 讀取文字檔</h2>
+<h3 id="s-21931676_1">用白話說</h3>
+<p>讀檔有三種常見的方式，就像讀一本書時可以「一個字一個字讀」、「一行一行讀」或「一欄一欄填表」：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>函式</th>
+<th>適合的情況</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一次讀一個字元</td>
+<td><code>fgetc</code></td>
+<td>計算字元數、找特定符號</td>
+</tr>
+<tr>
+<td>一次讀一行</td>
+<td><code>fgets</code></td>
+<td>逐行處理、需要整行檢查</td>
+</tr>
+<tr>
+<td>依格式讀取</td>
+<td><code>fscanf</code></td>
+<td>每行都是固定格式的資料</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="s-26586765_1">教材怎麼說</h3>
+<ul>
+<li><code>fgetc</code> 從檔案讀一個字元。讀到檔案結尾之後再讀，會回傳特別的值 <code>EOF</code>。因為 <code>EOF</code> 不是一般字元，所以 <code>fgetc</code> 的回傳型別是 <code>int</code>，而不是 <code>char</code>。出處：Beej §9.3 End of File: EOF。</li>
+<li><code>fgets(陣列, 大小, fp)</code> 從檔案讀一行，會自動在結尾補上空字元；讀到檔案結尾或發生錯誤時回傳 <code>NULL</code>。出處：Beej §9.3.1 Reading a Line at a Time。它和第 9 週從鍵盤讀取時一樣，會把行尾的換行也存進字串。</li>
+<li><code>fscanf</code> 用法類似 <code>scanf</code>，但從檔案讀取；它會略過前面的空白，並在檔案結尾或發生錯誤時回傳 <code>EOF</code>。出處：Beej §9.4 Formatted Input。</li>
+<li>Beej 提醒，用 <code>fgets</code> 讀一行、再用 <code>sscanf</code> 從那一行取出資料，面對格式錯誤的檔案時比較穩健。出處：Beej §9.4；Beej 函式庫參考 §23.11.0.2。</li>
+</ul>
+<h3 id="s-94990093_1">對照練習</h3>
+<p>練習「單元 2」的基本範例逐行讀回單元 1 寫入的檔案，延伸練習一邊讀一邊計算行數並移除換行。下面的補充範例依序示範三種讀法。</p>
+<h3 id="s-48500962">補充範例 2-1：一次讀一個字元</h3>
+<p>準備資料檔 <code>motto.txt</code>：</p>
+<pre><code class="language-text">Practice makes
+progress.
+</code></pre>
+<p>檔名 <code>count_chars.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;motto.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;無法開啟 motto.txt</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">chars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">EOF</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">chars</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">lines</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;共 %d 個字元（含換行），%d 行</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">chars</span><span class="p">,</span><span class="w"> </span><span class="n">lines</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">共 25 個字元（含換行），2 行
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>(c = fgetc(fp)) != EOF</code>：先把讀到的字元存進 <code>c</code>，再拿 <code>c</code> 和 <code>EOF</code> 比較。Beej 說明這是 C 很常見的寫法，看不懂時由最內層的括號開始拆解（Beej §9.3）。</li>
+<li>第一行 <code>Practice makes</code> 有 14 個字元，加上換行是 15；第二行 <code>progress.</code> 有 9 個字元，加上換行是 10，總共 25。</li>
+<li>每遇到一個 <code>'\n'</code> 就算一行。</li>
+<li><code>c</code> 宣告成 <code>int</code> 而不是 <code>char</code>，因為要能存放 <code>EOF</code>（Beej §9.3）。</li>
+</ol>
+<h3 id="s-81111540">補充範例 2-2：一次讀一行，略過空白行</h3>
+<p>準備資料檔 <code>todo.txt</code>（第 3 行是空白行）：</p>
+<pre><code class="language-text">buy printer ink
+
+return library book
+email the TA
+</code></pre>
+<p>檔名 <code>read_lines.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;todo.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;無法開啟 todo.txt</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">line</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">fp</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">continue</span><span class="p">;</span><span class="w">                  </span><span class="cm">/* 空白行：只有一個換行字元 */</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">number</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d. %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">number</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;共 %d 項待辦事項</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">number</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">1. buy printer ink
+2. return library book
+3. email the TA
+共 3 項待辦事項
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>每次 <code>fgets</code> 讀一整行。讀到檔案結尾時回傳 <code>NULL</code>，迴圈結束（Beej §9.3.1）。</li>
+<li>空白行讀進來只有一個換行字元，所以 <code>line[0] == '\n'</code>，用 <code>continue</code> 跳過（第 6 週）。</li>
+<li><code>printf("%d. %s", ...)</code> 的格式字串結尾<strong>沒有</strong> <code>\n</code>，因為 <code>line</code> 自己已經帶著換行了。</li>
+</ol>
+<h3 id="s-49316558">補充範例 2-3：依格式讀取每一筆資料</h3>
+<p>準備資料檔 <code>books.txt</code>（每行是「書名代號 頁數」）：</p>
+<pre><code class="language-text">C-Primer 480
+Algorithms 320
+Networking 256
+</code></pre>
+<p>檔名 <code>read_records.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;books.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;無法開啟 books.txt</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">title</span><span class="p">[</span><span class="mi">50</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pages</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">fscanf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%49s %d&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pages</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%-12s %4d 頁</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">pages</span><span class="p">);</span>
+<span class="w">        </span><span class="n">count</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">pages</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;共 %d 本，%d 頁</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">C-Primer      480 頁
+Algorithms    320 頁
+Networking    256 頁
+共 3 本，1056 頁
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>格式 <code>"%49s %d"</code>：讀一個不含空白的字串，再讀一個整數。<code>%49s</code> 限制最多讀 49 個字元，留一格給結尾的 <code>\0</code>。Beej 提醒，<code>%s</code> 不指定寬度可能讓讀入的資料超出陣列（Beej §9.4）。</li>
+<li><code>title</code> 前面<strong>不加</strong> <code>&amp;</code>，因為陣列名稱本身就是位址（第 12 週）；<code>pages</code> 是一般變數，要加 <code>&amp;</code>。</li>
+<li>迴圈條件寫 <code>== 2</code>，表示「兩個欄位都讀成功」才處理。和第 4 週 <code>scanf</code> 一樣，<code>fscanf</code> 回傳成功存入的項目數；遇到格式不符的資料時回傳值會小於 2，迴圈也會停止，不會把錯誤的資料算進去。</li>
+</ol>
+<h3 id="s-28923007">動手改改看</h3>
+<ul>
+<li>在 <code>todo.txt</code> 中多加兩個連續的空白行，補充範例 2-2 的輸出會改變嗎？</li>
+<li>在 <code>books.txt</code> 最後加上一行 <code>Database abc</code>，執行補充範例 2-3。迴圈在哪裡停止？總頁數有沒有被影響？</li>
+</ul>
+<hr />
+<h2 id="sec-4">3. 寫入檔案與資料驗證</h2>
+<h3 id="s-21931676_2">用白話說</h3>
+<p>檔案裡的資料可能有錯：數字打錯、欄位少了、數值超出合理範圍。處理檔案資料時，要養成「<strong>先驗證，再使用</strong>」的習慣：合格的資料照常處理，不合格的資料要記錄下來、給出提示，而不是讓整個程式出錯。</p>
+<h3 id="s-26586765_2">教材怎麼說</h3>
+<ul>
+<li>寫入文字檔可以使用 <code>fputc</code>（寫一個字元）、<code>fputs</code>（寫一個字串）、<code>fprintf</code>（依格式寫入）。出處：Beej §9.5 Writing Text Files。</li>
+<li>用 <code>"a"</code> 模式開檔時，寫入位置在檔案最後面，新資料會接在原本的內容之後；檔案不存在時會自動建立。出處：Beej 函式庫參考 §23.7 fopen()。</li>
+<li>對於不可信任的輸入，Beej 建議先整行讀進來，再從字串中取出資料，這比直接用 <code>fscanf</code> 讀取更能應付毀損的檔案。出處：Beej §9.4；Beej 函式庫參考 §23.11.0.2。</li>
+</ul>
+<h3 id="s-94990093_2">對照練習</h3>
+<p>練習「單元 3」的基本範例把一批溫度寫入檔案，延伸練習讀回來並驗證每筆溫度是否在合理範圍；綜合練習則對濕度記錄做寫入、讀取、驗證與平均。下面的補充範例示範另一種常見的處理流程：<strong>讀入原始資料，把合格的資料寫到新檔案，不合格的逐行回報原因</strong>。</p>
+<h3 id="s-79222374">補充範例 3-1：篩選合格的訂單</h3>
+<p>準備資料檔 <code>orders.txt</code>（每行是「訂單編號 數量」，數量必須是 1 到 20）：</p>
+<pre><code class="language-text">1001 3
+1002 25
+1003 abc
+1004 7
+1005 0
+</code></pre>
+<p>檔名 <code>filter_orders.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;orders.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;無法開啟 orders.txt</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;valid_orders.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;無法建立 valid_orders.txt</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">fclose</span><span class="p">(</span><span class="n">in</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">line</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">lineNo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">validCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">qty</span><span class="p">;</span>
+<span class="w">        </span><span class="n">lineNo</span><span class="o">++</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sscanf</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%d %d&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">qty</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;第 %d 行：格式錯誤，略過</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lineNo</span><span class="p">);</span>
+<span class="w">            </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">qty</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">qty</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;第 %d 行：訂單 %d 的數量 %d 超出範圍，略過</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lineNo</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">qty</span><span class="p">);</span>
+<span class="w">            </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">fprintf</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%d %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">qty</span><span class="p">);</span>
+<span class="w">        </span><span class="n">validCount</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">in</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">out</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;共讀取 %d 行，%d 筆合格</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">lineNo</span><span class="p">,</span><span class="w"> </span><span class="n">validCount</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>螢幕上的輸出：</p>
+<pre><code class="language-text">第 2 行：訂單 1002 的數量 25 超出範圍，略過
+第 3 行：格式錯誤，略過
+第 5 行：訂單 1005 的數量 0 超出範圍，略過
+共讀取 5 行，2 筆合格
+</code></pre>
+<p>執行後，<code>valid_orders.txt</code> 的內容：</p>
+<pre><code class="language-text">1001 3
+1004 7
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>行號</th>
+<th>讀到的內容</th>
+<th><code>sscanf</code> 回傳</th>
+<th>驗證結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>1001 3</code></td>
+<td>2</td>
+<td>合格，寫入新檔</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>1002 25</code></td>
+<td>2</td>
+<td>數量超過 20</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>1003 abc</code></td>
+<td>1</td>
+<td>格式錯誤</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>1004 7</code></td>
+<td>2</td>
+<td>合格，寫入新檔</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>1005 0</code></td>
+<td>2</td>
+<td>數量小於 1</td>
+</tr>
+</tbody>
+</table></div>
+<ol>
+<li>同時開了兩個檔案：<code>in</code> 用來讀，<code>out</code> 用來寫。如果 <code>out</code> 開檔失敗，要先把已經開啟的 <code>in</code> 關掉再結束。</li>
+<li><code>sscanf(line, "%d %d", &amp;id, &amp;qty)</code> 的用法和 <code>scanf</code> 一樣，只是資料來源換成字串 <code>line</code>。第 3 行的 <code>abc</code> 讀不成整數，所以只成功存入 1 項。</li>
+<li>因為是先用 <code>fgets</code> 讀整行，就算某一行格式錯誤，下一次 <code>fgets</code> 仍然會從下一行開始，不會卡住。這就是 Beej 建議「先讀整行」的原因。</li>
+<li>兩道驗證都通過，才用 <code>fprintf</code> 寫入新檔。</li>
+</ol>
+<h3 id="s-96225747">補充範例 3-2：用附加模式累積紀錄</h3>
+<p><strong>問題</strong>：每次呼叫函式都在記錄檔最後面加一行，不覆蓋舊資料。</p>
+<p>檔名 <code>append_log.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">appendLog</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">message</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;activity.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w">   </span><span class="cm">/* 先建立一個空的記錄檔 */</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">appendLog</span><span class="p">(</span><span class="s">&quot;activity.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;login&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">appendLog</span><span class="p">(</span><span class="s">&quot;activity.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;upload hw13&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">appendLog</span><span class="p">(</span><span class="s">&quot;activity.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;logout&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;記錄完成</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">appendLog</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">message</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;a&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;無法開啟 %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>螢幕上的輸出：</p>
+<pre><code class="language-text">記錄完成
+</code></pre>
+<p>執行後，<code>activity.txt</code> 的內容：</p>
+<pre><code class="language-text">login
+upload hw13
+logout
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>main</code> 先用 <code>"w"</code> 開一次再關掉，得到一個空檔案，讓範例每次執行的結果都相同。</li>
+<li><code>appendLog</code> 每次都用 <code>"a"</code> 開檔，寫入位置在檔案最後面，所以三次呼叫的內容依序累積（Beej 函式庫參考 §23.7）。</li>
+<li>如果把 <code>appendLog</code> 裡的 <code>"a"</code> 改成 <code>"w"</code>，每次開檔都會清空，最後檔案裡只剩 <code>logout</code>。</li>
+</ol>
+<h3 id="s-28923007_1">動手改改看</h3>
+<ul>
+<li>在 <code>orders.txt</code> 加上一行只有 <code>1006</code> 的資料，補充範例 3-1 會如何回報？</li>
+<li>修改補充範例 3-1，把不合格的行也寫到另一個檔案 <code>rejected_orders.txt</code>。</li>
+</ul>
+<hr />
+<h2 id="sec-5">本講義未涵蓋的內容</h2>
+<ul>
+<li><strong>Windows 與其他系統在換行字元上的差異</strong>：Beej §9.2 提到文字串流可能轉換換行的表示方式，但沒有詳細說明，本講義不展開。</li>
+<li><strong>程式執行時的「目前資料夾」如何決定</strong>：引用的教材中沒有說明。如果程式找不到資料檔，請確認資料檔和執行程式時所在的資料夾相同，或向授課教師詢問。</li>
+<li><strong>二進位檔案（binary file）的讀寫</strong>：Beej §9.6 有介紹，本課程不使用。</li>
+</ul>
+<h2 id="sec-6">延伸閱讀</h2>
+<ul>
+<li><a href="https://beej.us/guide/bgc/html/split/file-inputoutput.html">Beej's Guide to C</a> 第 9 章 File Input/Output</li>
+<li><a href="https://beej.us/guide/bgclr/html/split/stdio.html">Beej 函式庫參考</a> §23.5 fclose()、§23.7 fopen()、§23.15 fgets()</li>
+<li>K&amp;R.pdf) §7.5 File Access</li>
+</ul>
+<nav class="pager" aria-label="上一篇與下一篇"><a class="prev" href="week13.html">← 第 13 週：結構化程式與多函式設計</a><a class="next" href="week15.html">第 15 週：除錯與編譯器診斷訊息 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>觀念說明整理自：<a href="https://beej.us/guide/bgc/">Beej's Guide to C Programming</a>（CC BY-NC-ND 3.0）、
+  <a href="https://www.gnu.org/software/c-intro-and-ref/">GNU C Language Intro and Reference Manual</a>（GFDL）、
+  <a href="https://inria.hal.science/hal-02383654">Modern C</a>（CC BY-NC-ND 4.0）、
+  <a href="https://en.cppreference.com/w/c">cppreference.com</a>（CC BY-SA 3.0），並參考 Kernighan &amp; Ritchie《The C Programming Language》。
+  講義文字與範例程式為本課程自行撰寫。</p>
+</footer>
+<script src="assets/handout.js"></script>
+</body>
+</html>

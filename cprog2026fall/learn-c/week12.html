@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第 12 週：陣列、字串與指標的關係｜計算機程式及實習：C 語言講義</title>
+<meta name="description" content="陣列名稱就是「第一格的位址」、指標運算：p + i 就是往後數 i 格、把陣列傳給函式、用指標走訪字串">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📘</text></svg>">
+<link rel="stylesheet" href="assets/handout.css">
+<link rel="stylesheet" href="assets/highlight.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-name" href="index.html">計算機程式及實習：C 語言講義</a>
+  <button class="theme-toggle" type="button" aria-label="切換深色或淺色模式">深淺色</button>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><div>
+<ul>
+<li><a href="#sec-1">本週對照表</a></li>
+<li><a href="#sec-2">1. 陣列名稱就是「第一格的位址」</a></li>
+<li><a href="#sec-3">2. 指標運算：p + i 就是往後數 i 格</a></li>
+<li><a href="#sec-4">3. 把陣列傳給函式</a></li>
+<li><a href="#sec-5">4. 用指標走訪字串</a></li>
+<li><a href="#sec-6">本講義未涵蓋的內容</a></li>
+<li><a href="#sec-7">延伸閱讀</a></li>
+</ul>
+</div>
+</nav>
+<main class="content">
+<h1 id="s-45836678">第 12 週：陣列、字串與指標的關係</h1>
+<blockquote>
+<p>對應課程：第 12 週講義與實作練習</p>
+<p>本講義的觀念說明整理自文末「延伸閱讀」列出的公開教材，並附上出處。所有範例程式都是完整的程式，可以直接編譯執行。</p>
+</blockquote>
+<details class="toc-mobile"><summary>本頁目錄</summary><div>
+<ul>
+<li><a href="#sec-1">本週對照表</a></li>
+<li><a href="#sec-2">1. 陣列名稱就是「第一格的位址」</a></li>
+<li><a href="#sec-3">2. 指標運算：p + i 就是往後數 i 格</a></li>
+<li><a href="#sec-4">3. 把陣列傳給函式</a></li>
+<li><a href="#sec-5">4. 用指標走訪字串</a></li>
+<li><a href="#sec-6">本講義未涵蓋的內容</a></li>
+<li><a href="#sec-7">延伸閱讀</a></li>
+</ul>
+</div>
+</details>
+<h2 id="sec-1">本週對照表</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>主題</th>
+<th>對應練習</th>
+<th>教材出處</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>陣列名稱與指標</td>
+<td>練習「單元 1：陣列名稱與指標的關係」</td>
+<td>Beej §6.6.1；GNU C 手冊 §14.11</td>
+</tr>
+<tr>
+<td>把陣列傳給函式</td>
+<td>練習「單元 1」的延伸練習</td>
+<td>Beej §6.2、§6.6.2、§6.6.3、§11.2.1</td>
+</tr>
+<tr>
+<td>指標運算與 <code>arr[i]</code></td>
+<td>練習「單元 2：指標運算與 <code>arr[i]</code> 的等價性」</td>
+<td>Beej §11.1、§11.2；GNU C 手冊 §14.10、§14.11</td>
+</tr>
+<tr>
+<td><code>const</code> 指標參數</td>
+<td>練習中的 <code>const int *arr</code> 寫法</td>
+<td>Beej §16.1.1</td>
+</tr>
+<tr>
+<td>用指標走訪字串</td>
+<td>練習「單元 3：用指標走訪字串」</td>
+<td>Beej §11.1.2、§11.1.3、§11.2.1</td>
+</tr>
+<tr>
+<td>綜合運用</td>
+<td>練習「綜合實作：文字資料清洗小工具」</td>
+<td>以上各節</td>
+</tr>
+</tbody>
+</table></div>
+<p>編譯指令與練習檔相同；執行範例中<span class='typed'>黃底標示</span>的文字代表你用鍵盤輸入的內容。</p>
+<pre><code class="language-sh hl">gcc<span class="w"> </span>-std<span class="o">=</span>c17<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-Wpedantic<span class="w"> </span>檔名.c<span class="w"> </span>-o<span class="w"> </span>檔名</code></pre>
+<hr />
+<h2 id="sec-2">1. 陣列名稱就是「第一格的位址」</h2>
+<h3 id="s-21931676">用白話說</h3>
+<p>第 8 週把陣列比喻成一排置物櫃，第 11 週把位址比喻成門牌號碼。把兩者合起來：<strong>陣列的名字，其實就代表這排櫃子「第一格」的門牌號碼</strong>。知道第一格在哪裡，又知道每格一樣大，就能算出任何一格在哪裡。</p>
+<h3 id="s-26586765">教材怎麼說</h3>
+<ul>
+<li>一般說「指向陣列的指標」，指的是指向陣列<strong>第一個元素</strong>的指標。出處：Beej §6.6.1 Getting a Pointer to an Array。</li>
+<li><code>p = &amp;a[0];</code> 可以簡寫成 <code>p = a;</code>：單獨寫出陣列名稱，就等於取得第一個元素的指標。出處同上。</li>
+<li>陣列名稱單獨出現在運算式中時（<code>sizeof</code> 除外），代表指向第 0 個元素的指標。出處：GNU C 手冊 §14.11 Pointers and Arrays。</li>
+</ul>
+<h3 id="s-76378134">補充範例 1-1：陣列名稱和 <code>&amp;a[0]</code> 相同</h3>
+<p>檔名 <code>array_name.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rainfall</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">};</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rainfall</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;rainfall == &amp;rainfall[0] 的結果：%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rainfall</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rainfall</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;*p 是 %d，rainfall[0] 是 %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">rainfall</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;sizeof rainfall 是 %zu，sizeof p 是 %zu</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">rainfall</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>在本講義測試的電腦上，預期輸出：</p>
+<pre><code class="language-text">rainfall == &amp;rainfall[0] 的結果：1
+*p 是 12，rainfall[0] 是 12
+sizeof rainfall 是 16，sizeof p 是 8
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>比較結果是 1（真），證明 <code>rainfall</code> 和 <code>&amp;rainfall[0]</code> 是同一個位址。</li>
+<li><code>int *p = rainfall;</code> 不需要寫 <code>&amp;</code>，因為陣列名稱本身就代表第一格的位址。</li>
+<li><code>sizeof</code> 是例外（GNU C 手冊 §14.11）：<code>sizeof rainfall</code> 算的是整個陣列（4 格 × 4 位元組 = 16），<code>sizeof p</code> 算的是指標本身的大小（本講義測試的電腦上是 8）。所以陣列和指標<strong>並不是完全相同的東西</strong>。</li>
+</ol>
+<hr />
+<h2 id="sec-3">2. 指標運算：<code>p + i</code> 就是往後數 <code>i</code> 格</h2>
+<h3 id="s-21931676_1">用白話說</h3>
+<p>如果 <code>p</code> 指向某一格，<code>p + 1</code> 就是「下一格」的位址，<code>p + 2</code> 是「再下一格」。這裡的「加 1」不是位址數字加 1，而是<strong>往後移動一整格</strong>，不管那一格佔幾個位元組。</p>
+<h3 id="s-26586765_1">教材怎麼說</h3>
+<ul>
+<li>指標加上一個整數是合法的，前提是指標指向陣列中的某個元素；加正數往後移、加負數往前移，移動的單位是「陣列元素」。出處：GNU C 手冊 §14.10 Pointer Arithmetic。</li>
+<li>C 知道 <code>p</code> 指向 <code>int</code>，也知道一個 <code>int</code> 佔幾個位元組，所以 <code>p + 1</code> 會跳過一個 <code>int</code> 的大小，到達下一個元素。出處：Beej §11.1.1 Adding to Pointers。</li>
+<li>指標變數本身也可以被改變，例如 <code>p++</code> 讓 <code>p</code> 指向下一個元素。出處：Beej §11.1.2 Changing Pointers。</li>
+<li>兩個指向<strong>同一個陣列</strong>的指標可以相減，得到它們之間相隔幾個元素；指向不同東西的指標相減屬於未定義行為。出處：Beej §11.1.3 Subtracting Pointers。</li>
+</ul>
+<p><strong>最重要的公式</strong></p>
+<ul>
+<li><code>a[b]</code> 和 <code>*(a + b)</code> 完全相同，可以互換使用。出處：Beej §11.2 Array/Pointer Equivalence。</li>
+<li>C 的方括號就是<strong>用指標加法和解參照來定義的</strong>：<code>a[i]</code> 的意思就是 <code>*(a + i)</code>。出處：GNU C 手冊 §14.11；§16.1 Accessing Array Elements。</li>
+</ul>
+<h3 id="s-94990093">對照練習</h3>
+<p>練習「單元 2」的基本範例並排比較 <code>arr[i]</code> 和 <code>*(arr + i)</code>；延伸練習用 <code>int</code> 與 <code>char</code> 兩種陣列觀察指標運算實際移動了幾個位元組。下面的補充範例示範另外兩種用法：用 <code>p++</code> 走到「結束標記」，以及用指標相減算出位置。</p>
+<h3 id="s-10944463">補充範例 2-1：三種寫法，同一個結果</h3>
+<p>檔名 <code>three_ways.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">temps</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mf">21.5</span><span class="p">,</span><span class="w"> </span><span class="mf">23.0</span><span class="p">,</span><span class="w"> </span><span class="mf">19.8</span><span class="p">,</span><span class="w"> </span><span class="mf">25.1</span><span class="p">};</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temps</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;i=%d：temps[i]=%.1f  *(p+i)=%.1f  p[i]=%.1f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+<span class="w">               </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">temps</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">i=0：temps[i]=21.5  *(p+i)=21.5  p[i]=21.5
+i=1：temps[i]=23.0  *(p+i)=23.0  p[i]=23.0
+i=2：temps[i]=19.8  *(p+i)=19.8  p[i]=19.8
+i=3：temps[i]=25.1  *(p+i)=25.1  p[i]=25.1
+</code></pre>
+<p><strong>一步一步看</strong>（假設 <code>temps</code> 從位址 1000 開始，每個 <code>double</code> 佔 8 位元組）</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>i</code></th>
+<th><code>p + i</code> 的位址</th>
+<th><code>*(p + i)</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1000</td>
+<td>21.5</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1008</td>
+<td>23.0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1016</td>
+<td>19.8</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1024</td>
+<td>25.1</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>p + 1</code> 的位址多了 8，而不是 1，因為一格 <code>double</code> 佔 8 位元組（Beej §11.1.1）。三種寫法取得的都是同一格。</p>
+<h3 id="s-79740660">補充範例 2-2：用 <code>p++</code> 走到結束標記</h3>
+<p><strong>問題</strong>：一週的門票銷售量存在陣列中，最後放一個 <code>-1</code> 表示「資料到此結束」。用指標逐格前進，加總到 <code>-1</code> 為止。</p>
+<p>檔名 <code>sentinel.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tickets</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">,</span><span class="w"> </span><span class="mi">143</span><span class="p">,</span><span class="w"> </span><span class="mi">88</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">};</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tickets</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">;</span>
+<span class="w">        </span><span class="n">p</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;共 %d 張，讀了 %td 筆資料</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">tickets</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">共 446 張，讀了 4 筆資料
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>輪次</th>
+<th><code>p</code> 指向的索引</th>
+<th><code>*p</code></th>
+<th>加完後的 <code>total</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>120</td>
+<td>120</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>95</td>
+<td>215</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>143</td>
+<td>358</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>88</td>
+<td>446</td>
+</tr>
+<tr>
+<td>檢查</td>
+<td>4</td>
+<td>-1</td>
+<td>迴圈結束</td>
+</tr>
+</tbody>
+</table></div>
+<ol>
+<li>每一輪 <code>p++</code> 讓 <code>p</code> 往後移一格（Beej §11.1.2）。</li>
+<li>迴圈結束時 <code>p</code> 指向索引 4。<code>p - tickets</code> 是兩個指標相減，得到相隔 4 格（Beej §11.1.3）。</li>
+<li>兩個指標相減的結果型別是 <code>ptrdiff_t</code>，用 <code>%td</code> 印出。本講義在引用的教材中沒有找到 <code>%td</code> 的說明，這是依 <code>-Wall</code> 的要求使用的格式碼。</li>
+</ol>
+<h3 id="s-38915475">補充範例 2-3：用指標相減算出位置</h3>
+<p><strong>問題</strong>：找出第一個超過 30 度的日子是第幾天。</p>
+<p>檔名 <code>find_hot.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">temps</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">26</span><span class="p">,</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span><span class="w"> </span><span class="mi">29</span><span class="p">,</span><span class="w"> </span><span class="mi">31</span><span class="p">,</span><span class="w"> </span><span class="mi">33</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">27</span><span class="p">};</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temps</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">temps</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">30</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">p</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">end</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;這週沒有超過 30 度</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;第 %td 天首次超過 30 度（%d 度）</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">temps</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">第 4 天首次超過 30 度（31 度）
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>end = temps + 7</code> 指向「最後一格的<strong>下一個</strong>位置」，只用來比較，絕對不能解參照。</li>
+<li>條件 <code>p &lt; end &amp;&amp; *p &lt;= 30</code>：先確認 <code>p</code> 還在陣列裡，才去讀 <code>*p</code>。這利用了第 5 週的「<code>&amp;&amp;</code> 左邊為假就不算右邊」，避免讀到陣列外面。</li>
+<li><code>p</code> 停在索引 3（31 度）。<code>p - temps</code> 是 3，加 1 就是「第 4 天」。</li>
+</ol>
+<h3 id="s-28923007">動手改改看</h3>
+<ul>
+<li>把補充範例 2-3 陣列中的 31 和 33 都改成 30，程式會印出什麼？</li>
+<li>把補充範例 2-3 的條件改成 <code>*p &lt;= 30 &amp;&amp; p &lt; end</code>，說明為什麼順序對調之後可能會出問題。</li>
+</ul>
+<hr />
+<h2 id="sec-4">3. 把陣列傳給函式</h2>
+<h3 id="s-21931676_2">用白話說</h3>
+<p>第 7 週說過，傳給函式的是<strong>複本</strong>。但複製一整個陣列很浪費，所以 C 的作法是：傳陣列時，只把「第一格的位址」複製過去。函式拿到位址，就能找到呼叫端的那一整排資料，也就能<strong>修改</strong>它。</p>
+<h3 id="s-26586765_2">教材怎麼說</h3>
+<ul>
+<li>把陣列傳給函式時，實際上傳的是指向第一個元素的指標。因此函式對陣列所做的修改，在呼叫端也看得到。出處：Beej §6.6.3 Changing Arrays in Functions。</li>
+<li>函式參數寫成 <code>int *a</code>、<code>int a[]</code>、<code>int a[5]</code> 三種形式，意思完全相同；最常見的是第一種。編譯器也不會檢查 <code>a[5]</code> 裡寫的數字。出處：Beej §6.6.2 Passing Single Dimensional Arrays to Functions；§11.2.1。</li>
+<li>因為函式拿到的只是指標，在函式裡用 <code>sizeof</code> 算不出陣列長度，所以陣列長度要<strong>另外用一個參數傳進去</strong>。出處：Beej §6.2 Getting the Length of an Array。</li>
+<li>參數寫成 <code>const int *p</code>，表示「不能透過 <code>p</code> 修改它指向的資料」，想修改時編譯器會報錯。只需要讀取陣列的函式，適合用這種寫法。出處：Beej §16.1.1 const（const and Pointers）。</li>
+</ul>
+<h3 id="s-94990093_1">對照練習</h3>
+<p>練習「單元 1」的延伸練習透過指標參數修改呼叫端的陣列，驗證陣列傳給函式不是傳「副本」；練習中也大量使用 <code>const int *arr, int n</code> 這種「只讀取」的參數寫法。下面的補充範例先示範 <code>sizeof</code> 在函式裡失效，再示範「修改」與「只讀取」兩種函式的差別。</p>
+<h3 id="s-46889265">補充範例 3-1：在函式裡，<code>sizeof</code> 算不出陣列長度</h3>
+<p>檔名 <code>sizeof_param.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">showSize</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">arr</span><span class="p">[]);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">scores</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">70</span><span class="p">,</span><span class="w"> </span><span class="mi">82</span><span class="p">,</span><span class="w"> </span><span class="mi">91</span><span class="p">,</span><span class="w"> </span><span class="mi">65</span><span class="p">,</span><span class="w"> </span><span class="mi">88</span><span class="p">};</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;在 main：sizeof scores = %zu</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">scores</span><span class="p">);</span>
+<span class="w">    </span><span class="n">showSize</span><span class="p">(</span><span class="n">scores</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">showSize</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">arr</span><span class="p">[])</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;在函式裡：sizeof arr = %zu</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">arr</span><span class="p">);</span>
+<span class="p">}</span></code></pre>
+<p>編譯時會看到類似下面的警告：</p>
+<pre><code class="language-text">sizeof_param.c:16:56: warning: sizeof on array function parameter will return size of 'int *' instead of 'int[]' [-Wsizeof-array-argument]
+</code></pre>
+<p>在本講義測試的電腦上，執行後的輸出：</p>
+<pre><code class="language-text">在 main：sizeof scores = 20
+在函式裡：sizeof arr = 8
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>在 <code>main</code> 中，<code>scores</code> 是真正的陣列：5 格 × 4 位元組 = 20。</li>
+<li>傳進函式後，<code>arr</code> 雖然寫成 <code>int arr[]</code>，實際上是一個 <code>int *</code> 指標，<code>sizeof arr</code> 得到的是指標的大小 8。</li>
+<li>編譯器的警告也直接說明了這件事。所以陣列長度一定要另外傳入（Beej §6.2）。</li>
+</ol>
+<h3 id="s-27781073">補充範例 3-2：修改陣列的函式與只讀取的函式</h3>
+<p><strong>問題</strong>：商品價格全部打九折，再找出打折後最貴的價格。</p>
+<p>檔名 <code>discount.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">applyDiscount</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">rate</span><span class="p">);</span>
+<span class="kt">double</span><span class="w"> </span><span class="nf">highest</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">prices</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mf">120.0</span><span class="p">,</span><span class="w"> </span><span class="mf">80.0</span><span class="p">,</span><span class="w"> </span><span class="mf">250.0</span><span class="p">,</span><span class="w"> </span><span class="mf">45.0</span><span class="p">};</span>
+
+<span class="w">    </span><span class="n">applyDiscount</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%.1f &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">最貴：%.1f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">highest</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">));</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">applyDiscount</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">rate</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">rate</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">double</span><span class="w"> </span><span class="nf">highest</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">prices</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prices</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">best</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">best</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">108.0 72.0 225.0 40.5 
+最貴：225.0
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>applyDiscount(prices, 4, 0.9)</code>：傳進去的是 <code>prices</code> 第一格的位址。函式裡的 <code>prices[i] = ...</code> 直接改到 <code>main</code> 的陣列，所以回到 <code>main</code> 印出的已經是打折後的價格。</li>
+<li>參數寫成 <code>double *prices</code>，但函式裡照樣可以用 <code>prices[i]</code>，因為 <code>a[i]</code> 就是 <code>*(a + i)</code>（Beej §11.2）。</li>
+<li><code>highest</code> 只需要讀，所以參數寫成 <code>const double *prices</code>。如果在裡面不小心寫了 <code>prices[0] = 0;</code>，編譯器會報錯，幫你擋下誤改。</li>
+<li>兩個函式都另外接收 <code>n</code>，因為函式裡算不出陣列長度。</li>
+</ol>
+<h3 id="s-28923007_1">動手改改看</h3>
+<ul>
+<li>在補充範例 3-2 的 <code>highest</code> 裡加上一行 <code>prices[0] = 0;</code>，讀讀看編譯器的錯誤訊息。</li>
+<li>把 <code>applyDiscount</code> 的參數改寫成 <code>double prices[]</code>，程式的行為會改變嗎？（對照 Beej §6.6.2。）</li>
+</ul>
+<hr />
+<h2 id="sec-5">4. 用指標走訪字串</h2>
+<h3 id="s-21931676_3">用白話說</h3>
+<p>字串就是以 <code>\0</code> 結尾的 <code>char</code> 陣列（第 9 週），所以陣列和指標的所有規則都適用。用指標處理字串時，常見的寫法是：<strong>讓指標從第一個字元出發，一路 <code>p++</code>，遇到 <code>\0</code> 就停</strong>。這樣不需要事先知道字串有多長。</p>
+<h3 id="s-26586765_3">教材怎麼說</h3>
+<ul>
+<li>函式參數如果是 <code>char *s</code>，呼叫時傳入 <code>char</code> 陣列或 <code>char *</code> 指標都可以；<code>char *s</code> 和 <code>char s[]</code> 兩種參數寫法相同。出處：Beej §11.2.1 Array/Pointer Equivalence in Function Calls。</li>
+<li>用指標從字串開頭往後找，一直到空字元為止，再用「結尾指標減去開頭指標」，就能算出字串長度。出處：Beej §11.1.3 Subtracting Pointers。</li>
+</ul>
+<h3 id="s-94990093_2">對照練習</h3>
+<p>練習「單元 3」的基本範例用指標走訪字串，延伸練習計算母音數量；綜合實作則計算備註文字中的空白字元。下面的補充範例示範另外兩種常見處理：<strong>計算特定符號</strong>（為第 14 週讀取檔案做準備），以及<strong>逐字元替換</strong>。</p>
+<h3 id="s-52592554">補充範例 4-1：數一數一行資料有幾個欄位</h3>
+<p><strong>問題</strong>：一行用逗號分隔的資料，例如 <code>A123,Wang,88,92</code>，欄位數等於逗號數加 1。</p>
+<p>檔名 <code>count_fields.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">countChar</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">target</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">record</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;A123,Wang,88,92&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">commas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">countChar</span><span class="p">(</span><span class="n">record</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;,&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;「%s」有 %d 個逗號，共 %d 個欄位</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">record</span><span class="p">,</span><span class="w"> </span><span class="n">commas</span><span class="p">,</span><span class="w"> </span><span class="n">commas</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">countChar</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">target</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">count</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">s</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">「A123,Wang,88,92」有 3 個逗號，共 4 個欄位
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>s</code> 一開始指向 <code>'A'</code>。每一輪先看 <code>*s</code> 是不是 <code>','</code>，再用 <code>s++</code> 移到下一個字元。</li>
+<li>遇到結尾的 <code>'\0'</code> 時，<code>*s != '\0'</code> 為假，迴圈結束。</li>
+<li><code>s</code> 是參數，也就是指標的<strong>複本</strong>。在函式裡移動 <code>s</code>，不會影響 <code>main</code> 的 <code>record</code>（第 11 週）。</li>
+<li><code>const char *s</code> 表示這個函式保證不修改字串內容。</li>
+</ol>
+<h3 id="s-77118024">補充範例 4-2：把空白換成底線</h3>
+<p><strong>問題</strong>：把使用者輸入的檔案名稱中的空白換成底線，並算出名稱長度。</p>
+<p>檔名 <code>underscore.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">replaceSpaces</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">name</span><span class="p">[</span><span class="mi">40</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;請輸入檔案名稱：&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replaceSpaces</span><span class="p">(</span><span class="n">name</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;處理後：%s（%d 個字元）</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">replaceSpaces</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;_&#39;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">s</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)(</span><span class="n">s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">);</span>
+<span class="p">}</span></code></pre>
+<p>執行範例：</p>
+<pre><code class="language-text">請輸入檔案名稱：<span class="typed" title="這是你輸入的內容">my week 11 notes</span>
+處理後：my_week_11_notes（16 個字元）
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>start</code> 記住字串開頭的位址，<code>s</code> 負責往後走。</li>
+<li>遇到空白，就用 <code>*s = '_'</code> 直接修改呼叫端陣列中的那個字元；遇到 <code>fgets</code> 留下的換行，就改成 <code>'\0'</code> 並停止（第 9 週的作法）。</li>
+<li>迴圈結束時，<code>s</code> 停在字串結尾。<code>s - start</code> 是兩個指標相減，得到字元數 16（Beej §11.1.3）。</li>
+<li>這個函式需要修改字串，所以參數是 <code>char *s</code>，不能加 <code>const</code>。</li>
+</ol>
+<h3 id="s-28923007_2">動手改改看</h3>
+<ul>
+<li>用補充範例 4-1 的 <code>countChar</code> 計算一句話裡有幾個字母 <code>a</code>。</li>
+<li>在補充範例 4-2 的 <code>replaceSpaces</code> 參數加上 <code>const</code>，讀讀看編譯器怎麼說。</li>
+</ul>
+<hr />
+<h2 id="sec-6">本講義未涵蓋的內容</h2>
+<ul>
+<li><strong>「陣列退化為指標」（decay）這個名詞</strong>：本講義在引用的教材中沒有找到這個說法，這是課程講義與練習使用的術語。</li>
+<li><strong><code>%td</code> 與 <code>ptrdiff_t</code></strong>：引用的教材中沒有說明，本講義只依編譯器的要求使用。</li>
+<li><strong>判斷一個字元是不是英文字母的方法</strong>：屬於練習的學習任務，本講義不提供解法。</li>
+</ul>
+<h2 id="sec-7">延伸閱讀</h2>
+<ul>
+<li><a href="https://beej.us/guide/bgc/html/split/pointers2.html">Beej's Guide to C</a> 第 11 章 Pointers II: Arithmetic</li>
+<li><a href="https://beej.us/guide/bgc/html/split/arrays.html">Beej's Guide to C</a> §6.6 Arrays and Pointers</li>
+<li><a href="https://beej.us/guide/bgc/html/split/types-iv-qualifiers-and-specifiers.html">Beej's Guide to C §16.1.1 const</a></li>
+<li><a href="https://www.gnu.org/software/c-intro-and-ref/manual/">GNU C 手冊</a> §14.10 Pointer Arithmetic、§14.11 Pointers and Arrays</li>
+</ul>
+<nav class="pager" aria-label="上一篇與下一篇"><a class="prev" href="week11.html">← 第 11 週：指標與位址概念</a><a class="next" href="week13.html">第 13 週：結構化程式與多函式設計 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>觀念說明整理自：<a href="https://beej.us/guide/bgc/">Beej's Guide to C Programming</a>（CC BY-NC-ND 3.0）、
+  <a href="https://www.gnu.org/software/c-intro-and-ref/">GNU C Language Intro and Reference Manual</a>（GFDL）、
+  <a href="https://inria.hal.science/hal-02383654">Modern C</a>（CC BY-NC-ND 4.0）、
+  <a href="https://en.cppreference.com/w/c">cppreference.com</a>（CC BY-SA 3.0），並參考 Kernighan &amp; Ritchie《The C Programming Language》。
+  講義文字與範例程式為本課程自行撰寫。</p>
+</footer>
+<script src="assets/handout.js"></script>
+</body>
+</html>

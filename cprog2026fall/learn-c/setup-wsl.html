@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>開始之前：在 Windows 用 WSL 寫 C 程式｜計算機程式及實習：C 語言講義</title>
+<meta name="description" content="先認識幾個名詞、確認 Windows 版本、安裝 WSL、第一次開啟 Ubuntu：建立使用者名稱與密碼、更新系統並安裝 C 編譯器、建立課程資料夾：放在 Linux 這一邊、安裝 VS Code 並連線到 WSL、第一支程式：編輯、編譯、執行、每次上課的使用流程、常見問題">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📘</text></svg>">
+<link rel="stylesheet" href="assets/handout.css">
+<link rel="stylesheet" href="assets/highlight.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-name" href="index.html">計算機程式及實習：C 語言講義</a>
+  <button class="theme-toggle" type="button" aria-label="切換深色或淺色模式">深淺色</button>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><div>
+<ul>
+<li><a href="#sec-1">完成後你會得到什麼</a></li>
+<li><a href="#sec-2">0. 先認識幾個名詞</a></li>
+<li><a href="#sec-3">1. 確認 Windows 版本</a></li>
+<li><a href="#sec-4">2. 安裝 WSL</a></li>
+<li><a href="#sec-5">3. 第一次開啟 Ubuntu：建立使用者名稱與密碼</a></li>
+<li><a href="#sec-6">4. 更新系統並安裝 C 編譯器</a></li>
+<li><a href="#sec-7">5. 建立課程資料夾：放在 Linux 這一邊</a></li>
+<li><a href="#sec-8">6. 安裝 VS Code 並連線到 WSL</a></li>
+<li><a href="#sec-9">7. 第一支程式：編輯、編譯、執行</a></li>
+<li><a href="#sec-10">8. 每次上課的使用流程</a></li>
+<li><a href="#sec-11">9. 常見問題</a></li>
+<li><a href="#sec-12">參考資料</a></li>
+</ul>
+</div>
+</nav>
+<main class="content">
+<h1 id="s-1682">開始之前：在 Windows 用 WSL 寫 C 程式</h1>
+<blockquote>
+<p>適用對象：使用 Windows 10（版本 2004 以上）或 Windows 11 電腦的同學。</p>
+<p>本指南的步驟整理自 Microsoft 與 Visual Studio Code 的官方文件，每個步驟都附上出處，完整連結列在文末「參考資料」。</p>
+</blockquote>
+<details class="toc-mobile"><summary>本頁目錄</summary><div>
+<ul>
+<li><a href="#sec-1">完成後你會得到什麼</a></li>
+<li><a href="#sec-2">0. 先認識幾個名詞</a></li>
+<li><a href="#sec-3">1. 確認 Windows 版本</a></li>
+<li><a href="#sec-4">2. 安裝 WSL</a></li>
+<li><a href="#sec-5">3. 第一次開啟 Ubuntu：建立使用者名稱與密碼</a></li>
+<li><a href="#sec-6">4. 更新系統並安裝 C 編譯器</a></li>
+<li><a href="#sec-7">5. 建立課程資料夾：放在 Linux 這一邊</a></li>
+<li><a href="#sec-8">6. 安裝 VS Code 並連線到 WSL</a></li>
+<li><a href="#sec-9">7. 第一支程式：編輯、編譯、執行</a></li>
+<li><a href="#sec-10">8. 每次上課的使用流程</a></li>
+<li><a href="#sec-11">9. 常見問題</a></li>
+<li><a href="#sec-12">參考資料</a></li>
+</ul>
+</div>
+</details>
+<h2 id="sec-1">完成後你會得到什麼</h2>
+<p>依照本指南做完一次，你的電腦會具備下面這些能力，之後每一週的講義都可以直接使用：</p>
+<ul>
+<li>在 Windows 裡執行一個 Linux 系統（Ubuntu），不需要另外安裝虛擬機器或雙系統。</li>
+<li>用 <code>gcc</code> 編譯 C 程式，並在終端機中執行。</li>
+<li>用 Visual Studio Code（簡稱 VS Code）編輯程式，而且 VS Code 裡的終端機就是 Linux 終端機。</li>
+</ul>
+<p>整個過程需要<strong>網路連線</strong>，第一次安裝大約需要 20 到 40 分鐘（依網路速度而定），中間需要<strong>重新開機一次</strong>。</p>
+<hr />
+<h2 id="sec-2">0. 先認識幾個名詞</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>名詞</th>
+<th>白話說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WSL</td>
+<td>Windows Subsystem for Linux，讓 Windows 可以直接執行 Linux 程式的功能</td>
+</tr>
+<tr>
+<td>Ubuntu</td>
+<td>一種 Linux 系統，WSL 預設安裝的就是它</td>
+</tr>
+<tr>
+<td>終端機</td>
+<td>用「打字輸入指令」來操作電腦的視窗</td>
+</tr>
+<tr>
+<td>PowerShell</td>
+<td>Windows 內建的終端機</td>
+</tr>
+<tr>
+<td><code>sudo</code></td>
+<td>在 Linux 中以系統管理員身分執行指令，執行前會要求輸入密碼</td>
+</tr>
+<tr>
+<td>VS Code</td>
+<td>微軟推出的免費程式編輯器</td>
+</tr>
+</tbody>
+</table></div>
+<p>WSL 讓開發者在同一台 Windows 電腦上同時使用 Windows 與 Linux，並且可以直接執行 Linux 的命令列工具，不需要傳統虛擬機器或雙系統開機的額外負擔。出處：Microsoft Learn〈How to install Linux on Windows with WSL〉。</p>
+<p><strong>本課程為什麼使用 WSL</strong>：講義中的編譯指令 <code>gcc -std=c17 -Wall -Wextra -Wpedantic</code> 和執行方式 <code>./程式名稱</code>，都是 Linux 終端機的用法。使用 WSL，你在 Windows 上看到的結果就會和講義一致。</p>
+<hr />
+<h2 id="sec-3">1. 確認 Windows 版本</h2>
+<p>安裝指令需要 <strong>Windows 10 版本 2004（組建 19041）以上</strong>，或 <strong>Windows 11</strong>。出處：Microsoft Learn〈How to install Linux on Windows with WSL〉Prerequisites。</p>
+<p><strong>檢查方法</strong></p>
+<ol>
+<li>按下鍵盤的 <code>Windows 鍵 + R</code>，開啟「執行」視窗。</li>
+<li>輸入 <code>winver</code>，按 Enter。</li>
+<li>視窗中會顯示版本與組建編號。</li>
+</ol>
+<p>如果版本比 2004 還舊，請先執行 Windows Update 更新系統，或向授課教師詢問。</p>
+<hr />
+<h2 id="sec-4">2. 安裝 WSL</h2>
+<h3 id="s-90883067">步驟</h3>
+<ol>
+<li>在 Windows 的開始選單搜尋 <strong>PowerShell</strong>。</li>
+<li>在搜尋結果上按<strong>滑鼠右鍵</strong>，選擇 <strong>「以系統管理員身分執行」</strong>。</li>
+<li>如果出現「是否允許此應用程式變更你的裝置」，選擇「是」。</li>
+<li>在 PowerShell 視窗中輸入下面的指令，按 Enter：</li>
+</ol>
+<pre><code class="language-sh hl">wsl<span class="w"> </span>--install</code></pre>
+<ol start="5">
+<li>等待安裝完成後，<strong>重新啟動電腦</strong>。</li>
+</ol>
+<p>這個指令會開啟執行 WSL 所需的功能，並安裝 Ubuntu。出處：Microsoft Learn〈How to install Linux on Windows with WSL〉Install WSL command。</p>
+<h3 id="s-1427331">如果安裝時遇到問題</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>狀況</th>
+<th>處理方式</th>
+<th>出處</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>輸入 <code>wsl --install</code> 後，只出現一大段英文說明文字</td>
+<td>代表電腦上已經裝過 WSL 的部分功能。先輸入 <code>wsl --list --online</code> 查看可安裝的系統，再輸入 <code>wsl --install -d Ubuntu</code></td>
+<td>Microsoft Learn〈How to install Linux on Windows with WSL〉</td>
+</tr>
+<tr>
+<td>安裝進度一直停在 0.0%</td>
+<td>改用 <code>wsl --install --web-download -d Ubuntu</code></td>
+<td>同上</td>
+</tr>
+<tr>
+<td>想確認裝了哪些系統、使用哪一版 WSL</td>
+<td>輸入 <code>wsl --list --verbose</code></td>
+<td>同上</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="sec-5">3. 第一次開啟 Ubuntu：建立使用者名稱與密碼</h2>
+<h3 id="s-90883067_1">步驟</h3>
+<ol>
+<li>重新開機後，在開始選單搜尋 <strong>Ubuntu</strong> 並開啟。</li>
+<li>第一次開啟時，會看到視窗在解壓縮、安裝檔案，請耐心等候。之後再開啟通常不到一秒。出處：Microsoft Learn〈How to install Linux on Windows with WSL〉。</li>
+<li>畫面要求輸入 <strong>User Name</strong>（使用者名稱）時，輸入一個<strong>英文小寫</strong>的名稱，例如 <code>student</code>，按 Enter。</li>
+<li>畫面要求輸入 <strong>Password</strong>（密碼）時，輸入密碼後按 Enter，再輸入一次確認。</li>
+</ol>
+<h3 id="s-54901059">一定要知道的三件事</h3>
+<ul>
+<li><strong>輸入密碼時，畫面上不會出現任何字，連星號都沒有。</strong> 這是正常的，照常輸入完按 Enter 即可。出處：Microsoft Learn〈Set up a WSL development environment〉。</li>
+<li><strong>這組帳號密碼和你的 Windows 帳號無關</strong>，是 Ubuntu 專用的。請把密碼記下來，之後安裝軟體（<code>sudo</code>）時會用到。出處同上。</li>
+<li>這個帳號是 Ubuntu 的管理員，可以執行 <code>sudo</code> 指令。出處同上。</li>
+</ul>
+<h3 id="s-96302711">忘記密碼怎麼辦</h3>
+<ol>
+<li>開啟 PowerShell，輸入 <code>wsl -u root</code>，以最高權限進入 Ubuntu。</li>
+<li>輸入 <code>passwd 你的使用者名稱</code>（例如 <code>passwd student</code>），依照提示輸入兩次新密碼。</li>
+<li>輸入 <code>exit</code> 離開。</li>
+</ol>
+<p>出處：Microsoft Learn〈Set up a WSL development environment〉Set up your Linux username and password。</p>
+<hr />
+<h2 id="sec-6">4. 更新系統並安裝 C 編譯器</h2>
+<p>以下指令都在 <strong>Ubuntu 視窗</strong>中輸入。</p>
+<h3 id="s-1603163">步驟一：更新套件</h3>
+<pre><code class="language-sh hl">sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>upgrade</code></pre>
+<ul>
+<li>輸入後會要求輸入 Ubuntu 密碼（一樣看不到字）。</li>
+<li>過程中如果出現 <code>Do you want to continue? [Y/n]</code>，輸入 <code>Y</code> 再按 Enter。</li>
+</ul>
+<p>Windows 不會自動幫你更新 Ubuntu 裡的套件，官方建議定期執行這個指令。出處：Microsoft Learn〈Set up a WSL development environment〉Update and upgrade packages。另外，VS Code 官方文件也提醒，套件清單太舊時，有時會導致新軟體安裝失敗。出處：VS Code 文件〈Using C++ and WSL in VS Code〉。</p>
+<h3 id="s-64323728">步驟二：安裝編譯器與除錯器</h3>
+<pre><code class="language-sh hl">sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential<span class="w"> </span>gdb</code></pre>
+<p><code>build-essential</code> 包含 GNU 的編譯工具，<code>gdb</code> 是除錯器。出處：VS Code 文件〈Using C++ and WSL in VS Code〉Set up your Linux environment（文件中的寫法是 <code>sudo apt-get install build-essential gdb</code>，效果相同）。</p>
+<h3 id="s-38249758">步驟三：確認安裝成功</h3>
+<pre><code class="language-sh hl">gcc<span class="w"> </span>--version</code></pre>
+<p>如果看到類似下面的訊息（版本數字可能不同），就代表編譯器已經可以使用：</p>
+<pre><code class="language-plaintext">gcc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0
+Copyright (C) 2024 Free Software Foundation, Inc.
+</code></pre>
+<p>如果出現 <code>Command 'gcc' not found</code>，請重新執行步驟一和步驟二。VS Code 文件也建議，找不到工具時先再執行一次更新指令。出處：VS Code 文件〈Using C++ and WSL in VS Code〉。</p>
+<hr />
+<h2 id="sec-7">5. 建立課程資料夾：放在 Linux 這一邊</h2>
+<h3 id="s-95727354">為什麼不放在「文件」或桌面</h3>
+<p>官方建議：<strong>用 Linux 工具處理的檔案，就放在 WSL（Linux）的檔案系統裡</strong>，也就是 <code>/home/你的使用者名稱/</code> 底下。放在 Windows 的資料夾（在 Ubuntu 中看起來是 <code>/mnt/c/Users/...</code>）雖然也能使用，但速度可能明顯變慢。出處：Microsoft Learn〈Working across Windows and Linux file systems〉File storage and performance across file systems。</p>
+<h3 id="s-90883067_2">步驟</h3>
+<p>在 Ubuntu 視窗中輸入：</p>
+<pre><code class="language-sh hl"><span class="nb">cd</span><span class="w"> </span>~
+mkdir<span class="w"> </span>-p<span class="w"> </span>cprog/week02
+<span class="nb">cd</span><span class="w"> </span>cprog/week02
+<span class="nb">pwd</span></code></pre>
+<p>最後一行 <code>pwd</code> 會顯示你目前所在的資料夾，例如：</p>
+<pre><code class="language-plaintext">/home/student/cprog/week02
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cd ~</code></td>
+<td>回到自己的家目錄（<code>/home/使用者名稱</code>）</td>
+</tr>
+<tr>
+<td><code>mkdir -p cprog/week02</code></td>
+<td>建立 <code>cprog</code> 資料夾，以及裡面的 <code>week02</code> 資料夾</td>
+</tr>
+<tr>
+<td><code>cd cprog/week02</code></td>
+<td>進入那個資料夾</td>
+</tr>
+<tr>
+<td><code>pwd</code></td>
+<td>顯示目前所在的位置</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="s-11252311">用 Windows 檔案總管查看這些檔案</h3>
+<p>在 Ubuntu 視窗中輸入（<strong>最後的句點不能省略</strong>，它代表「目前這個資料夾」）：</p>
+<pre><code class="language-sh hl">explorer.exe<span class="w"> </span>.</code></pre>
+<p>Windows 檔案總管就會打開這個 Linux 資料夾。你也可以在檔案總管的網址列輸入 <code>\\wsl$</code>，看到所有 Linux 系統的檔案。出處：Microsoft Learn〈Working across Windows and Linux file systems〉View your current directory in Windows File Explorer。</p>
+<hr />
+<h2 id="sec-8">6. 安裝 VS Code 並連線到 WSL</h2>
+<h3 id="s-81690524">步驟一：在 Windows 安裝 VS Code</h3>
+<ol>
+<li>到 VS Code 官方網站下載 Windows 版並安裝。<strong>請安裝在 Windows 這一邊，不是在 Ubuntu 裡。</strong> 出處：VS Code 文件〈Developing in WSL〉Installation。</li>
+<li>安裝過程中出現「選擇附加的工作」（Select Additional Tasks）時，<strong>勾選「加入 PATH」（Add to PATH）</strong>，之後才能在 Ubuntu 中用 <code>code</code> 指令開啟 VS Code。出處同上。</li>
+</ol>
+<h3 id="s-90613054">步驟二：安裝 WSL 擴充功能</h3>
+<ol>
+<li>開啟 VS Code，按 <code>Ctrl + Shift + X</code> 開啟「擴充功能」面板。</li>
+<li>搜尋 <strong>WSL</strong>，安裝由 Microsoft 發布的 <strong>WSL</strong> 擴充功能。</li>
+</ol>
+<p>出處：VS Code 文件〈Developing in WSL〉Installation。</p>
+<h3 id="s-15553980">步驟三：從 Ubuntu 開啟 VS Code</h3>
+<p>回到 Ubuntu 視窗，確認自己在課程資料夾中，然後輸入（<strong>最後的句點不能省略</strong>）：</p>
+<pre><code class="language-sh hl"><span class="nb">cd</span><span class="w"> </span>~/cprog/week02
+code<span class="w"> </span>.</code></pre>
+<ul>
+<li>第一次執行時，會看到正在安裝「VS Code Server」的訊息。這是 VS Code 在 Linux 這一邊安裝一個小型伺服器，只需要安裝一次。出處：VS Code 文件〈Using C++ and WSL in VS Code〉Run VS Code in WSL。</li>
+<li>VS Code 視窗開啟後，<strong>左下角</strong>會顯示 <code>WSL: Ubuntu</code>，代表 VS Code 已經連線到 Ubuntu。出處同上（文件說明可以從狀態列看出目前的遠端環境）。</li>
+</ul>
+<h3 id="s-28482165">步驟四：在 WSL 中安裝 C/C++ 擴充功能</h3>
+<ol>
+<li>在 VS Code 中按 <code>Ctrl + Shift + X</code>。</li>
+<li>搜尋 <strong>C/C++</strong>，安裝由 Microsoft 發布的擴充功能。如果畫面上顯示「在 WSL: Ubuntu 中安裝」，就點那個按鈕。</li>
+</ol>
+<p>大部分擴充功能需要安裝在 WSL 這一邊才能運作；在 WSL 視窗中從擴充功能面板安裝時，VS Code 會自動裝到正確的位置。出處：VS Code 文件〈Developing in WSL〉Managing extensions；〈Using C++ and WSL in VS Code〉Install the C/C++ extension。</p>
+<hr />
+<h2 id="sec-9">7. 第一支程式：編輯、編譯、執行</h2>
+<h3 id="s-1059813">步驟一：建立檔案</h3>
+<ol>
+<li>在 VS Code 左側的檔案總管中，點「新增檔案」圖示，檔名輸入 <code>hello.c</code>。</li>
+<li>貼上下面的程式，按 <code>Ctrl + S</code> 存檔。</li>
+</ol>
+<p>檔名 <code>hello.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;WSL 環境設定完成！</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<h3 id="s-71011061">步驟二：開啟 VS Code 裡的終端機</h3>
+<p>從上方選單選擇 <strong>終端機 → 新增終端機</strong>（Terminal → New Terminal）。在 WSL 模式下，這個終端機會直接在 Ubuntu 中執行。出處：VS Code 文件〈Developing in WSL〉Opening a terminal in WSL。</p>
+<h3 id="s-23511401">步驟三：編譯並執行</h3>
+<p>在終端機中輸入（和每週講義使用的指令相同）：</p>
+<pre><code class="language-sh hl">gcc<span class="w"> </span>-std<span class="o">=</span>c17<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-Wpedantic<span class="w"> </span>hello.c<span class="w"> </span>-o<span class="w"> </span>hello
+./hello</code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">WSL 環境設定完成！
+</code></pre>
+<p>看到這一行，就代表整個環境都設定好了。</p>
+<h3 id="s-5721890">步驟四：確認檔案都在</h3>
+<pre><code class="language-sh hl">ls</code></pre>
+<p>會看到兩個檔案：</p>
+<pre><code class="language-plaintext">hello  hello.c
+</code></pre>
+<p><code>hello.c</code> 是你寫的原始碼，<code>hello</code> 是編譯出來的可執行檔。</p>
+<hr />
+<h2 id="sec-10">8. 每次上課的使用流程</h2>
+<p>環境只需要設定一次。之後每次寫程式，只要：</p>
+<ol>
+<li>開啟 <strong>Ubuntu</strong>。</li>
+<li>進入當週的資料夾，例如 <code>cd ~/cprog/week03</code>（資料夾不存在時，先用 <code>mkdir -p ~/cprog/week03</code> 建立）。</li>
+<li>輸入 <code>code .</code> 開啟 VS Code。</li>
+<li>在 VS Code 中寫程式、存檔。</li>
+<li>在 VS Code 的終端機中編譯、執行。</li>
+</ol>
+<h3 id="s-76194572">常用指令速查</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pwd</code></td>
+<td>顯示目前所在的資料夾</td>
+</tr>
+<tr>
+<td><code>ls</code></td>
+<td>列出目前資料夾中的檔案</td>
+</tr>
+<tr>
+<td><code>cd 資料夾名稱</code></td>
+<td>進入某個資料夾</td>
+</tr>
+<tr>
+<td><code>cd ..</code></td>
+<td>回到上一層資料夾</td>
+</tr>
+<tr>
+<td><code>cd ~</code></td>
+<td>回到家目錄</td>
+</tr>
+<tr>
+<td><code>mkdir -p 資料夾名稱</code></td>
+<td>建立資料夾</td>
+</tr>
+<tr>
+<td><code>code .</code></td>
+<td>用 VS Code 開啟目前的資料夾</td>
+</tr>
+<tr>
+<td><code>explorer.exe .</code></td>
+<td>用 Windows 檔案總管開啟目前的資料夾</td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td>清除終端機畫面</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="sec-11">9. 常見問題</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>問題</th>
+<th>可能的原因與處理方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>在 Ubuntu 輸入 <code>code .</code> 出現「command not found」</td>
+<td>重新開啟 Ubuntu 視窗再試一次；如果還是不行，可能是安裝 VS Code 時沒有勾選「加入 PATH」，請重新安裝並勾選。出處：VS Code 文件〈Developing in WSL〉</td>
+</tr>
+<tr>
+<td>輸入密碼時畫面沒有反應</td>
+<td>這是正常的，密碼輸入時不會顯示任何字元，照常輸入完按 Enter。出處：Microsoft Learn〈Set up a WSL development environment〉</td>
+</tr>
+<tr>
+<td>編譯或開啟檔案非常慢</td>
+<td>檢查目前資料夾是否在 <code>/mnt/c/</code> 底下（用 <code>pwd</code> 查看）。請把檔案搬到 <code>~/cprog/</code> 底下。出處：Microsoft Learn〈Working across Windows and Linux file systems〉</td>
+</tr>
+<tr>
+<td>在 Windows 的「文件」資料夾找不到程式檔</td>
+<td>程式檔存在 Linux 這一邊。在 Ubuntu 中輸入 <code>explorer.exe .</code>，或在檔案總管網址列輸入 <code>\\wsl$</code>。出處同上</td>
+</tr>
+<tr>
+<td>執行 <code>./hello</code> 出現「No such file or directory」</td>
+<td>編譯沒有成功，或目前不在程式所在的資料夾。先用 <code>ls</code> 確認有沒有 <code>hello</code> 這個檔案，再重新編譯，並閱讀編譯器的訊息</td>
+</tr>
+<tr>
+<td>VS Code 左下角沒有顯示 <code>WSL: Ubuntu</code></td>
+<td>這個視窗不是從 WSL 開啟的。關閉它，回到 Ubuntu 視窗，在資料夾中輸入 <code>code .</code></td>
+</tr>
+<tr>
+<td><code>wsl --install</code> 卡住或失敗</td>
+<td>參考第 2 節的表格；仍無法解決時，請帶著畫面的錯誤訊息向授課教師詢問</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="sec-12">參考資料</h2>
+<p>以下是本指南引用的官方文件（英文），內容可能隨軟體更新而調整，實際畫面以官方文件為準：</p>
+<ul>
+<li>Microsoft Learn：<a href="https://learn.microsoft.com/windows/wsl/install">How to install Linux on Windows with WSL</a></li>
+<li>Microsoft Learn：<a href="https://learn.microsoft.com/windows/wsl/setup/environment">Set up a WSL development environment</a></li>
+<li>Microsoft Learn：<a href="https://learn.microsoft.com/windows/wsl/filesystems">Working across Windows and Linux file systems</a></li>
+<li>Visual Studio Code 文件：<a href="https://code.visualstudio.com/docs/remote/wsl">Developing in WSL</a></li>
+<li>Visual Studio Code 文件：<a href="https://code.visualstudio.com/docs/cpp/config-wsl">Using C++ and WSL in VS Code</a></li>
+</ul>
+<nav class="pager" aria-label="上一篇與下一篇"><span></span><a class="next" href="week02.html">第 2 週：編譯流程與第一支 C 程式 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>觀念說明整理自：<a href="https://beej.us/guide/bgc/">Beej's Guide to C Programming</a>（CC BY-NC-ND 3.0）、
+  <a href="https://www.gnu.org/software/c-intro-and-ref/">GNU C Language Intro and Reference Manual</a>（GFDL）、
+  <a href="https://inria.hal.science/hal-02383654">Modern C</a>（CC BY-NC-ND 4.0）、
+  <a href="https://en.cppreference.com/w/c">cppreference.com</a>（CC BY-SA 3.0），並參考 Kernighan &amp; Ritchie《The C Programming Language》。
+  講義文字與範例程式為本課程自行撰寫。</p>
+</footer>
+<script src="assets/handout.js"></script>
+</body>
+</html>
