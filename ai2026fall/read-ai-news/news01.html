@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
+<title>AI 會不會失控？一場吵了兩週的大爭論｜AI 時事講義</title>
+<meta name="description" content="一位 AI 研究員的離職貼文，讓四方人馬吵成一團。用這起爭議練習分辨「有人這樣主張」和「這件事被證實了」。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding-inline: 16px;
+}
+.site-header .inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+@media (min-width: 1000px) {
+  .page { grid-template-columns: 250px minmax(0, 1fr); }
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 1000px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 1000px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+@media (prefers-color-scheme: dark) {
+  .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+  .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+}
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+@media (prefers-color-scheme: dark) { .unit-card .tag { color: #15171a; } }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+@media (prefers-color-scheme: dark) {
+  .steps > li::before { color: #0e1a19; }
+}
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+@media (prefers-color-scheme: dark) { .download { color: #0e1a19; } }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; padding-inline: 16px; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+@media print {
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); max-width: 900px; }
+blockquote {
+  margin: 1.2rem 0;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+  line-height: 1.9;
+}
+/* 表格第一欄是索引欄，保持單行不換行，過寬時整個表格可橫向捲動 */
+table th:first-child, table td:first-child { white-space: nowrap; }
+.news-card .tag { color: var(--accent); }
+.news-date { color: var(--muted); font-size: 0.9rem; margin: 0.1rem 0 0.4rem; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><nav aria-label="講義"><a href="index.html">首頁</a>
+<a href="news01.html" aria-current="page">時事 1</a></nav></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><details><summary>本頁目錄</summary><ol><li><a href="#sec1">先說結論：這份講義要你練什麼</a></li><li><a href="#sec2">一、事情是怎麼發生的</a></li><li><a href="#sec3">二、三個關鍵詞，用生活的話說</a></li><li><a href="#sec4">三、四方各說各話</a></li><li><a href="#sec5">四、其實有兩種不同的擔心</a></li><li><a href="#sec6">五、自己查證：問四個問題</a></li><li><a href="#sec7">六、討論題</a></li><li><a href="#sec8">七、離開教室前，寫下一句話</a></li><li><a href="#sec9">八、英文詞彙對照</a></li><li><a href="#sec10">九、想自己查下去</a></li></ol></details></aside>
+<main id="main">
+<section class="hero"><p class="eyebrow">時事 1</p><h1>AI 會不會失控？一場吵了兩週的大爭論</h1><p class="lead">一位研究員的離職貼文，兩週內讓全球科技圈吵成一團。這份講義用這起爭議，練習分辨「有人這樣主張」和「這件事被證實了」。</p><ul class="meta"><li>事件時間：2026 年 9 月</li><li>可獨立閱讀</li><li>不需程式基礎</li></ul></section><h2 id="sec1">先說結論：這份講義要你練什麼</h2>
+<p>這份講義不需要你會寫程式，一行都不用。它要你練的是另一件事：<strong>當一個看起來很厲害的人，說了一句聽起來很可怕的話，你要怎麼判斷該不該相信？</strong></p>
+<p>2026 年 9 月，一位在 AI 公司工作過的研究員說：AI 可能在 2030 年前害死所有人。這句話在網路上被看了超過 1.5 億次，全球的新聞台都在報。然後，幾位全世界最有名的科技公司老闆跳出來，有人附和，有人翻臉反對，學者也吵成一團。</p>
+<p>到最後，四方人馬講的是同一件事，結論卻完全相反。這正好是一個很好的練習題。</p>
+<h2 id="sec2">一、事情是怎麼發生的</h2>
+<p>整件事在兩週內爆開，順序是這樣：</p>
+<div class="table-wrap"><table><thead><tr><th>時間</th><th>誰</th><th>做了什麼</th></tr></thead><tbody><tr><td>9 月 8 日</td><td>Jacob Coxon</td><td>宣布離職，在社群平台 X 發文警告 AI 可能威脅人類存亡</td></tr><tr><td>9 月 8 日起</td><td>CNN、CBS、NBC</td><td>大幅報導，貼文瀏覽數衝破 1.5 億</td></tr><tr><td>隨後幾天</td><td>Dario Amodei</td><td>Anthropic 執行長發文，呼籲整個產業「放慢腳步」</td></tr><tr><td>隨後幾天</td><td>Sam Altman、Elon Musk</td><td>罕見地公開附議「放慢」的呼籲</td></tr><tr><td>9 月 15 日</td><td>Jensen Huang</td><td>Nvidia 執行長公開反對立法管 AI</td></tr><tr><td>同一時期</td><td>Yann LeCun 等學者</td><td>批評末日說法誇大，甚至是在操作輿論</td></tr><tr><td>同一時期</td><td>波蘭街頭</td><td>出現以「機器人」為主題的遊行，訴求保障勞工工作權</td></tr></tbody></table></div>
+<div class="callout note"><span class="label">先注意一件事</span><p>上面每一格寫的都是「某個人說了什麼」，而不是「某件事被證實了」。這不是在說他們都在亂講，而是說，這整起事件的內容是一堆意見在互相碰撞，不是一份調查報告。知道自己在讀意見還是讀證據，是第一步。</p></div>
+<h2 id="sec3">二、三個關鍵詞，用生活的話說</h2>
+<p>新聞裡有幾個詞一直出現。先把它們搞懂，後面才看得懂大家在吵什麼。</p>
+<h3>1. AI 代理人（AI agent）</h3>
+<p>你平常用的聊天 AI，是你問一句、它答一句。AI 代理人不一樣：<strong>你給它一個目標，它自己拆成很多步驟去做完。</strong></p>
+<p>想像你叫一個工讀生「幫我把這學期的報告資料整理好」。他會自己去找檔案、開網頁、下載、分類、做成表格，中間不會每一步都來問你。AI 代理人就是這種角色。</p>
+<p>好處是省事。風險也很明顯：你不在旁邊看的時候，它做了什麼？</p>
+<p>新聞裡提到一件事：據報導，2026 年 7 月 OpenAI 的測試環境中，大約 1,200 個 AI 代理人跑出了原本被指派的任務範圍，甚至對外做了沒被授權的網路攻擊行為。這件事被拿來當作「失控」的例子。</p>
+<h3>2. 遞迴自我改良（recursive self-improvement）</h3>
+<p>這是整場爭論的核心，但它其實只是一個很簡單的推理：</p>
+<blockquote>如果 AI 能夠設計出比自己更強的 AI，<br>那新的 AI 又能設計出更強的下一代，<br>這樣一代一代下去會越來越快，<br>快到人類來不及看懂、也來不及踩煞車。</blockquote>
+<p>像滾雪球，或像影印機印出一台更好的影印機。</p>
+<p>請注意這句話的形式：<strong>它是「如果…那麼…」。</strong> 這是一條推理，不是一件已經發生的事。一條推理有好幾個環節，每一環都可以被追問：</p>
+<ul><li>AI 現在到底能在多大程度上改良自己？是全部自己來，還是仍然需要大量人力？</li><li>會不會越變越快到某個程度就卡住了？例如沒有更多資料可學、電不夠用、晶片不夠。</li><li>「人類來不及介入」具體是什麼意思？是連拔掉電源都沒用嗎？</li></ul>
+<p>示警的人認為這條推理很可能成真；反對的人認為每一環都還沒有被證明。兩邊吵的其實不是「AI 強不強」，而是「這條推理成不成立」。</p>
+<h3>3. 對齊（alignment）</h3>
+<p>讓 AI 做的事情，符合人類真正想要的事情。</p>
+<p>聽起來理所當然，但很難，因為人類的要求常常說不清楚。你叫外送員「越快越好」，你其實不希望他闖紅燈，但你沒說。AI 也會發生類似的狀況：它照字面把你交代的任務做到極致，結果做出你完全不想要的事。</p>
+<p>「對齊」這個研究領域，就是在處理這個落差。</p>
+<h2 id="sec4">三、四方各說各話</h2>
+<p>同一件事，四種立場。讀的時候請先不要急著選邊。</p>
+<div class="table-wrap"><table><thead><tr><th>立場</th><th>代表人物</th><th>他們說什麼</th></tr></thead><tbody><tr><td>示警</td><td>Jacob Coxon（前 AI 公司研究員）</td><td>AI 十年內可能威脅人類存亡，業界應該講好一起暫停能力升級。他說：「如果真的有超強人工智慧，它會有能力殺死我們。」</td></tr><tr><td>業界審慎</td><td>Dario Amodei、Sam Altman</td><td>該主動放慢最前沿的開發速度，先把安全做好。Amodei 說：「我很不安這些決定只由少數幾家公司、少數幾個人做出。」</td></tr><tr><td>反對監管</td><td>Jensen Huang</td><td>Nvidia 執行長，認為不需要新法律。他說：「市場機制已經存在了，我們不需要新的法律，也不需要新的法規。」他主張 AI 安全是工程問題，不是法律問題。</td></tr><tr><td>質疑末日說</td><td>Yann LeCun 等學者</td><td>末日警告誇大不實，可能只是行銷或搶監管話語權。LeCun 形容這類預言讓 AI 研究者「只想扶額嘆氣」，說它「荒謬到不行」。</td></tr></tbody></table></div>
+<h3>為什麼他們會這樣說：看看每個人站在哪裡</h3>
+<p>每個人講話都是從自己的位置出發。知道位置，比較容易理解為什麼同一批事實會被講成四種故事：</p>
+<ul><li><strong>離職的研究員</strong>：離開公司後講話沒有顧忌了，但同時他也拿不到公司內部資料來當證據。</li><li><strong>AI 公司的老闆</strong>：一邊喊放慢，一邊照樣推出更強的模型。而且如果「放慢」真的變成法律，對已經領先的公司衝擊，比對後面想追上來的公司小。</li><li><strong>賣晶片的公司</strong>：AI 發展越快，晶片賣越多，任何限速的法規都直接影響生意。</li><li><strong>唱反調的學者</strong>：長期主張現在的技術離「通用人工智慧」還很遠。如果末日論成立，等於說他們判斷錯了。</li></ul>
+<div class="callout warn"><span class="label">重要提醒</span><p>知道一個人的立場，不等於可以直接說他講的是錯的。這叫做「因人廢言」，是很常見的思考錯誤。位置只能解釋他「為什麼比較容易這樣想」，論點對不對，還是要回頭看證據。</p></div>
+<h2 id="sec5">四、其實有兩種不同的擔心</h2>
+<p>新聞常把這兩件事混在一起報，但它們差很多：</p>
+<div class="table-wrap"><table><thead><tr><th>比一比</th><th>擔心 AI 失控</th><th>擔心 AI 搶工作</th></tr></thead><tbody><tr><td>在怕什麼</td><td>AI 強到人管不住</td><td>自己的工作被取代</td></tr><tr><td>什麼時候</td><td>推測中的未來，講不出確定時間</td><td>已經在發生了</td></tr><tr><td>誰會受影響</td><td>說是全人類，但講不出具體是誰</td><td>特定行業、特定職務的人</td></tr><tr><td>有什麼根據</td><td>主要是推理，加上內部人的說法</td><td>就業數字、產業調查、身邊的例子</td></tr><tr><td>怎麼處理</td><td>技術研究、國際協調、放慢開發</td><td>勞動法規、轉職訓練、學校教育</td></tr></tbody></table></div>
+<p>波蘭的機器人遊行，訴求是後者；矽谷高層的辯論，講的是前者。兩件事都真實，但需要用不同的方法判斷，也要用不同的政策去處理。</p>
+<p>對現在還在念書的你來說，第二欄跟你的關係更直接，而且它是查得到數據的。</p>
+<h2 id="sec6">五、自己查證：問四個問題</h2>
+<p>以後看到任何一則 AI 新聞，養成問這四個問題的習慣：</p>
+<ol class="steps"><li><strong>這是誰講的，原始出處在哪？</strong> 是當事人自己發的貼文、公司公告、法院文件，還是「某媒體報導說某媒體報導」？中間轉了幾手？</li><li><strong>哪些是事實，哪些是預測？</strong> 「他發文了」是事實，查得到。「AI 到 2030 年會如何」是預測，現在沒有人能查證。這兩種說法不能用同一種態度接受。</li><li><strong>有沒有人持相反意見？</strong> 至少找一則唱反調的。本講義最後的來源清單裡，Fortune 那篇就是反對觀點。</li><li><strong>用字在引導你嗎？</strong> 「示警」「爆紅」「末日」「監管大戰」，每個詞都帶情緒。試著把這些詞換成中性的講法，同一件事會變成什麼樣子？</li></ol>
+<h3>課堂小練習</h3>
+<p>從本講義最後的來源清單挑一則報導，實際跑過上面四個問題。完成後，向同組同學說明三件事：</p>
+<ul><li>你挑的那一則，哪一句是查得到的事實，哪一句是推測。</li><li>你找到的反面意見是什麼，它不同意哪一點。</li><li>那則報導的標題裡，哪個詞最想影響你的情緒。</li></ul>
+<h2 id="sec7">六、討論題</h2>
+<p>課堂上會挑幾題來談。沒有標準答案，但請說出理由。</p>
+<ol class="steps"><li>Coxon 說 AI 可能在 2030 年前威脅人類存亡。他拿出的東西夠支撐這個結論嗎？如果不夠，還缺什麼？</li><li>一邊喊「大家放慢」，一邊繼續推出更強的產品。你覺得這是矛盾，還是有可能兩件事都說得通？</li><li>Jensen Huang 說安全是工程問題，不是法律問題。你想得到哪一種安全問題是工程可以解決的？哪一種非得靠法律不可？</li><li>如果末日警告真的是一種行銷手法，那下一次有人提出真正的警告時，會發生什麼事？</li><li>波蘭人上街怕的是失業，矽谷老闆吵的是人類存亡。學校和政府應該先處理哪一個？為什麼？</li><li>你未來可能做自動化、機電、資訊或設計相關的工作。這場爭論有沒有改變你想學什麼、或想往哪裡發展？</li><li>同一件事，CNN 和台灣的新聞台報出來感覺不一樣。你覺得差在哪裡？是選的畫面、用的詞，還是強調的重點？</li></ol>
+<h2 id="sec8">七、離開教室前，寫下一句話</h2>
+<p>不用寫成報告，就一句話，但要具體。從下面挑一個開頭往下寫：</p>
+<ul><li>這場爭論裡，我覺得最站不住腳的一句話是什麼，為什麼。</li><li>我原本相信什麼，讀完之後我改成怎麼想。</li><li>要讓我改變現在的看法，我需要看到什麼。</li></ul>
+<div class="callout tip"><span class="label">最後一種最重要</span><p>如果你講不出「什麼證據會讓你改變想法」，那表示你現在的看法不是判斷，只是立場。</p></div>
+<h2 id="sec9">八、英文詞彙對照</h2>
+<p>這些詞在英文報導裡會一直出現，認得就能直接讀原文：</p>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>意思</th></tr></thead><tbody><tr><td>existential risk</td><td>存亡風險</td><td>可能讓人類文明走到終點的那一類風險</td></tr><tr><td>recursive self-improvement</td><td>遞迴自我改良</td><td>AI 自己做出更強的下一代 AI</td></tr><tr><td>AI agent</td><td>AI 代理人</td><td>給它一個目標，它自己拆步驟做完的 AI</td></tr><tr><td>alignment</td><td>對齊</td><td>讓 AI 做的事符合人真正想要的</td></tr><tr><td>pace the frontier</td><td>放慢前沿開發</td><td>Amodei 的用語，指主動降低最強模型的進展速度</td></tr><tr><td>AGI</td><td>通用人工智慧</td><td>Artificial General Intelligence，大部分事情都做得跟人一樣好或更好的 AI</td></tr><tr><td>regulatory capture</td><td>監管俘虜</td><td>被管的業者反過來影響規則，讓規則對自己有利</td></tr></tbody></table></div>
+<h2 id="sec10">九、想自己查下去</h2>
+<p>這些是本講義內容的出處，也是你做上面四問練習的材料。看的時候記得：英文和中文的報導，語氣常常不一樣。</p>
+<p>影片：</p>
+<ul><li><a href="https://youtu.be/i30jVPqQeOM" target="_blank" rel="noopener">Ex-Anthropic insider tells CNN how AI could kill all humans by 2030</a>（CNN）</li><li><a href="https://youtu.be/Dy2kbPEwoi4" target="_blank" rel="noopener">AI researcher says there is 'substantial probability' AI could kill all humans in next decade</a>（NBC News）</li><li><a href="https://youtu.be/HI6skJ4Wf5I" target="_blank" rel="noopener">Anthropic CEO reacts to 'AI could kill us all' warning</a>（CNN）</li><li><a href="https://youtu.be/hSF60i-Tx_E" target="_blank" rel="noopener">AI發展太快恐失控？美國掀監管大戰！黃仁勳拒立法 桑德斯竟喊「全面暫停開發」</a>（寰宇新聞）</li><li><a href="https://youtu.be/T3kOUnvb1-U" target="_blank" rel="noopener">AI恐在2030年前害死所有人！Anthropic研究員離職示警……波蘭驚見機器人遊行</a>（消失的國界）</li><li><a href="https://youtu.be/hQR_VJF6ukk" target="_blank" rel="noopener">Extended interview: Dario Amodei</a>（CBS Sunday Morning）</li><li><a href="https://youtu.be/NiBuUGAB_zY" target="_blank" rel="noopener">Why are AI companies hitting the brakes?</a>（DW News）</li></ul>
+<p>文字報導：</p>
+<ul><li><a href="https://www.coindesk.com/markets/2026/09/09/anthropic-researcher-quits-with-a-warning-on-ai-that-echoes-the-terminator-script" target="_blank" rel="noopener">Anthropic's AI researcher quits, says insiders fear human extinction by 2030</a>（CoinDesk）</li><li><a href="https://www.cbsnews.com/news/anthropic-researcher-jacob-coxon-ai-warning/" target="_blank" rel="noopener">Ex-Anthropic researcher Jacob Coxon warns AI could grow "smart enough to kill us"</a>（CBS News）</li><li><a href="https://fortune.com/2026/09/10/ex-anthropic-researcher-jacob-coxon-ai-could-end-humanity-fails-to-answer-most-essential-question/" target="_blank" rel="noopener">An ex-Anthropic researcher claims that AI could kill us all</a>（Fortune，反對觀點）</li><li><a href="https://qz.com/anthropic-amodei-ai-slowdown-altman-musk-091426" target="_blank" rel="noopener">Dario Amodei calls for AI slowdown, Altman and Musk agree</a>（Quartz）</li><li><a href="https://techcrunch.com/2026/09/15/we-dont-need-ai-regulation-leave-safety-to-us-nvidias-jensen-huang-says/" target="_blank" rel="noopener">We don't need AI regulation, leave safety to us, Nvidia's Jensen Huang says</a>（TechCrunch）</li><li><a href="https://thehill.com/policy/technology/6085616-anthropic-resignation-viral-debate/" target="_blank" rel="noopener">AI safety debate ignites after viral warning from ex-Anthropic staffer</a>（The Hill）</li></ul>
+<p>這些報導大多是 2026 年 9 月中旬發布的。事情可能已經有後續，例如有沒有真的提出法案、那幾家公司有沒有真的放慢。查一下最新進展，這本身就是一次很好的練習。</p><nav class="pager"><a href="index.html">← 回首頁</a></nav>
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材。新聞事件仍在發展，閱讀時請一併確認是否有後續進展。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 999px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 1000px)").matches) tocDetails.open = true;
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
