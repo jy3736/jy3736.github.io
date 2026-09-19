@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>第 6 週：LED 調光與數值換算｜Arduino 程式設計講義</title>
+<title>第 5 單元：LED 調光與數值換算｜Arduino 程式設計講義</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A1%3C/text%3E%3C/svg%3E">
 <style>
 :root{
@@ -158,13 +158,13 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 <a class="skip" href="#main">跳到主要內容</a>
 <header class="site">
   <a class="brand" href="index.html">Arduino 程式設計講義</a>
-  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="week02.html">第 2 週</a><a href="week03.html">第 3 週</a><a href="week04.html">第 4 週</a><a href="week05.html">第 5 週</a><a href="week06.html" aria-current="page">第 6 週</a><a href="week07.html">第 7 週</a><a href="week08.html">第 8 週</a></nav>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="unit01.html">第 1 單元</a><a href="unit02.html">第 2 單元</a><a href="unit03.html">第 3 單元</a><a href="unit04.html">第 4 單元</a><a href="unit05.html" aria-current="page">第 5 單元</a><a href="unit06.html">第 6 單元</a><a href="unit07.html">第 7 單元</a></nav>
   <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
 </header>
-<div class="layout"><nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><ol><li><a href="#pwm">1. 認識 PWM：用開關的快慢調亮度</a></li><li><a href="#fading">2. 範例 Fading：呼吸燈</a></li><li><a href="#map">3. 範例 Analog In, Out Serial：旋鈕調光器</a></li><li><a href="#more">4. 加碼範例：按鈕段數調光</a></li><li><a href="#practice">5. 綜合練習</a></li><li><a href="#errors">6. 常見錯誤</a></li><li><a href="#review">7. 自我檢核與重點回顧</a></li><li><a href="#notice">圖片使用聲明</a></li></ol></nav><main id="main"><h1>第 6 週：LED 調光與數值換算</h1>
-<p class="lead"><code>digitalWrite()</code> 只能讓 LED 全亮或全滅。這週學習 <code>analogWrite()</code>，讓 LED 呈現不同亮度，做出「呼吸燈」效果。接著把第 4 週的可變電阻接回來，用 <code>map()</code> 把讀值換算成亮度，做出一個「旋鈕調光器」。</p>
+<div class="layout"><nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><ol><li><a href="#pwm">1. 認識 PWM：用開關的快慢調亮度</a></li><li><a href="#fading">2. 範例 Fading：呼吸燈</a></li><li><a href="#map">3. 範例 Analog In, Out Serial：旋鈕調光器</a></li><li><a href="#more">4. 加碼範例：按鈕段數調光</a></li><li><a href="#practice">5. 綜合練習</a></li><li><a href="#errors">6. 常見錯誤</a></li><li><a href="#review">7. 自我檢核與重點回顧</a></li><li><a href="#notice">圖片使用聲明</a></li></ol></nav><main id="main"><h1>第 5 單元：LED 調光與數值換算</h1>
+<p class="lead"><code>digitalWrite()</code> 只能讓 LED 全亮或全滅。這個單元學習 <code>analogWrite()</code>，讓 LED 呈現不同亮度，做出「呼吸燈」效果。接著把第 3 單元的可變電阻接回來，用 <code>map()</code> 把讀值換算成亮度，做出一個「旋鈕調光器」。</p>
 
-<h3>本週你會學到（學會了就打勾）</h3>
+<h3>本單元你會學到（學會了就打勾）</h3>
 <ul class="goals">
   <li><input type="checkbox" id="g1"><label for="g1">找出 UNO 上可以調光的 PWM 腳位</label></li>
   <li><input type="checkbox" id="g2"><label for="g2">用 <code>analogWrite()</code> 設定 0 到 255 的亮度</label></li>
@@ -309,7 +309,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 <tr><td><code>x += 5</code></td><td><code>x = x + 5</code></td><td>x 加 5 以後，再存回 x</td></tr>
 <tr><td><code>x -= 5</code></td><td><code>x = x - 5</code></td><td>x 減 5 以後，再存回 x</td></tr>
 </table></div>
-<p>第 7 週會更深入練習 <code>for</code> 迴圈。</p>
+<p>第 6 單元會更深入練習 <code>for</code> 迴圈。</p>
 
 <h3><span class="tag">改一改</span></h3>
 <ol>
@@ -434,7 +434,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 <ol>
   <li>把 <code>map()</code> 的最後兩個數字對調成 <code>255, 0</code>，旋鈕和亮度的關係變成什麼？</li>
   <li>把新範圍改成 <code>0, 100</code>，LED 最亮能到多亮？</li>
-  <li>挑戰：結合第 5 週的 <code>if</code>，當亮度超過 200 時，讓板上第 13 號腳位的 LED 也亮起來，提醒「太亮了」。</li>
+  <li>挑戰：結合第 4 單元的 <code>if</code>，當亮度超過 200 時，讓板上第 13 號腳位的 LED 也亮起來，提醒「太亮了」。</li>
 </ol>
 <details><summary>第 1、2 題：看說明</summary>
 <p><strong>第 1 題</strong>：關係反過來。原本轉越多越亮，現在轉越多越暗。</p>
@@ -472,7 +472,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 <p>注意解答中第 13 號腳位用的是 <code>digitalWrite()</code>，所以要在 <code>setup()</code> 用 <code>pinMode()</code> 設定成輸出；第 9 號腳位用 <code>analogWrite()</code>，就不用。</p>
 
 <h2 id="more">4. 加碼範例：按鈕段數調光</h2>
-<p>把第 5 週的「狀態改變偵測」和這週的 <code>analogWrite()</code> 結合：每按一下按鈕，亮度往上一段，共 6 段，按到最亮後再按一下就回到全滅。按鈕使用兩線接法（第 2 號腳位與 GND，內建上拉電阻），LED 接法和第 2 節相同。</p>
+<p>把第 4 單元的「狀態改變偵測」和這個單元的 <code>analogWrite()</code> 結合：每按一下按鈕，亮度往上一段，共 6 段，按到最亮後再按一下就回到全滅。按鈕使用兩線接法（第 2 號腳位與 GND，內建上拉電阻），LED 接法和第 2 節相同。</p>
 <figure class="code"><figcaption><span class="file">ButtonDimmer.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 按鈕段數調光：每按一下亮一段，共 6 段（0、51、102、153、204、255），再按回到全滅</span>
 <span class="t-com">// 接線：LED 經 220 歐姆電阻接第 9 號腳位；按鈕接第 2 號腳位與 GND（內建上拉電阻）</span>
 
@@ -600,7 +600,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 </ol>
 </details>
 
-<h3>本週重點回顧</h3>
+<h3>本單元重點回顧</h3>
 <ul>
   <li>PWM 用快速開關讓 LED 呈現不同亮度，UNO 的 PWM 腳位是 3、5、6、9、10、11。</li>
   <li><code>analogWrite(腳位, 0 到 255)</code> 設定亮度，不需要先設定 <code>pinMode()</code>。</li>
@@ -608,12 +608,12 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
   <li><code>map()</code> 把數值從一個範圍換算到另一個範圍，結果是整數，小數會被捨去。</li>
 </ul>
 
-<h3>下週預告</h3>
-<p>一顆 LED 已經能自由控制了。下週一次控制 <strong>6 到 10 顆 LED</strong>，用迴圈和陣列做出跑馬燈，以及隨旋鈕變化的 LED 長條圖。</p>
+<h3>下一單元預告</h3>
+<p>一顆 LED 已經能自由控制了。下一單元一次控制 <strong>6 到 10 顆 LED</strong>，用迴圈和陣列做出跑馬燈，以及隨旋鈕變化的 LED 長條圖。</p>
 
 <h2 id="notice">圖片使用聲明</h2>
 <p class="notice">本講義中的電路圖取自 Arduino 官方文件，每張圖下方皆註明原始網址與授權方式。本講義僅供教學使用，只提供給修課學生，不作其他用途。若原作者或權利人希望移除相關圖片，請來信 <a href="mailto:p306teaching@gmail.com">p306teaching@gmail.com</a>，我們將依作者要求盡快移除。</p>
-<nav class="pager" aria-label="上一週與下一週"><a class="prev" href="week05.html">← 第 5 週：讓程式做判斷</a><a class="next" href="week07.html">第 7 週：用迴圈與陣列控制多顆 LED →</a></nav></main></div>
+<nav class="pager" aria-label="上一單元與下一單元"><a class="prev" href="unit04.html">← 第 4 單元：讓程式做判斷</a><a class="next" href="unit06.html">第 6 單元：用迴圈與陣列控制多顆 LED →</a></nav></main></div>
 <footer class="site">參考資料：Arduino 官方文件 <a href="https://docs.arduino.cc/" target="_blank" rel="noopener">docs.arduino.cc</a>。電路圖取自 Arduino 官方範例，依 CC BY-SA 4.0 授權使用。</footer>
 <script>
 (function(){

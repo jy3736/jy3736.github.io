@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>第 3 週：按鈕與序列埠監控視窗｜Arduino 程式設計講義</title>
+<title>第 2 單元：按鈕與序列埠監控視窗｜Arduino 程式設計講義</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A1%3C/text%3E%3C/svg%3E">
 <style>
 :root{
@@ -158,13 +158,13 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 <a class="skip" href="#main">跳到主要內容</a>
 <header class="site">
   <a class="brand" href="index.html">Arduino 程式設計講義</a>
-  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="week02.html">第 2 週</a><a href="week03.html" aria-current="page">第 3 週</a><a href="week04.html">第 4 週</a><a href="week05.html">第 5 週</a><a href="week06.html">第 6 週</a><a href="week07.html">第 7 週</a><a href="week08.html">第 8 週</a></nav>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="unit01.html">第 1 單元</a><a href="unit02.html" aria-current="page">第 2 單元</a><a href="unit03.html">第 3 單元</a><a href="unit04.html">第 4 單元</a><a href="unit05.html">第 5 單元</a><a href="unit06.html">第 6 單元</a><a href="unit07.html">第 7 單元</a></nav>
   <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
 </header>
-<div class="layout"><nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><ol><li><a href="#warmup">1. 暖身：輸出與輸入</a></li><li><a href="#digitalread">2. 範例 Digital Read Serial：看見按鈕的狀態</a></li><li><a href="#button">3. 範例 Button：用按鈕控制 LED</a></li><li><a href="#pullup">4. 範例 Input Pullup Serial：少一顆電阻的接法</a></li><li><a href="#more">5. 加碼範例</a></li><li><a href="#practice">6. 綜合練習</a></li><li><a href="#errors">7. 常見錯誤</a></li><li><a href="#review">8. 自我檢核與重點回顧</a></li><li><a href="#notice">圖片使用聲明</a></li></ol></nav><main id="main"><h1>第 3 週：按鈕與序列埠監控視窗</h1>
-<p class="lead">上週板子負責「輸出」，這週換成「輸入」：讓板子讀取按鈕有沒有被按下。為了看見板子讀到了什麼，我們會使用 Arduino IDE 的<strong>序列埠監控視窗</strong>，把板子內部的數值顯示在電腦螢幕上。以後不論程式出了什麼問題，這個視窗都是你最好用的檢查工具。</p>
+<div class="layout"><nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><ol><li><a href="#warmup">1. 暖身：輸出與輸入</a></li><li><a href="#digitalread">2. 範例 Digital Read Serial：看見按鈕的狀態</a></li><li><a href="#button">3. 範例 Button：用按鈕控制 LED</a></li><li><a href="#pullup">4. 範例 Input Pullup Serial：少一顆電阻的接法</a></li><li><a href="#more">5. 加碼範例</a></li><li><a href="#practice">6. 綜合練習</a></li><li><a href="#errors">7. 常見錯誤</a></li><li><a href="#review">8. 自我檢核與重點回顧</a></li><li><a href="#notice">圖片使用聲明</a></li></ol></nav><main id="main"><h1>第 2 單元：按鈕與序列埠監控視窗</h1>
+<p class="lead">上一單元板子負責「輸出」，這個單元換成「輸入」：讓板子讀取按鈕有沒有被按下。為了看見板子讀到了什麼，我們會使用 Arduino IDE 的<strong>序列埠監控視窗</strong>，把板子內部的數值顯示在電腦螢幕上。以後不論程式出了什麼問題，這個視窗都是你最好用的檢查工具。</p>
 
-<h3>本週你會學到（學會了就打勾）</h3>
+<h3>本單元你會學到（學會了就打勾）</h3>
 <ul class="goals">
   <li><input type="checkbox" id="g1"><label for="g1">在麵包板上接好按鈕電路</label></li>
   <li><input type="checkbox" id="g2"><label for="g2">用 <code>digitalRead()</code> 讀取按鈕狀態，說出讀值 <code>HIGH</code> 與 <code>LOW</code> 的意思</label></li>
@@ -184,7 +184,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 </table></div>
 
 <h2 id="warmup">1. 暖身：輸出與輸入</h2>
-<p>上週學到的 <code>digitalWrite()</code> 是「板子把訊號送出去」。這週的 <code>digitalRead()</code> 方向相反，是「板子把外面的訊號讀進來」。</p>
+<p>上一單元學到的 <code>digitalWrite()</code> 是「板子把訊號送出去」。這個單元的 <code>digitalRead()</code> 方向相反，是「板子把外面的訊號讀進來」。</p>
 <div class="table-wrap"><table>
 <tr><th>方向</th><th>訊號怎麼走</th><th>腳位設定</th><th>指令</th><th>例子</th></tr>
 <tr><td>輸出</td><td>板子 → 元件</td><td><code>pinMode(腳位, OUTPUT)</code></td><td><code>digitalWrite()</code></td><td>點亮 LED</td></tr>
@@ -265,7 +265,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 </table></div>
 
 <div class="callout key"><p class="callout-title">為什麼要寫 <code>int buttonPin = 2;</code>，不直接寫 2？</p>
-<p>用一個有意義的名字代表腳位，程式讀起來就像句子：<code>digitalRead(buttonPin)</code> 一看就知道在讀按鈕。而且如果按鈕改接到第 4 號腳位，只要改最上面那一行，下面所有用到 <code>buttonPin</code> 的地方都會跟著改。變數下週會再詳細說明。</p></div>
+<p>用一個有意義的名字代表腳位，程式讀起來就像句子：<code>digitalRead(buttonPin)</code> 一看就知道在讀按鈕。而且如果按鈕改接到第 4 號腳位，只要改最上面那一行，下面所有用到 <code>buttonPin</code> 的地方都會跟著改。變數下一單元會再詳細說明。</p></div>
 
 <div class="callout key"><p class="callout-title"><code>int buttonState = digitalRead(buttonPin);</code> 由右往左讀</p>
 <p>先執行等號右邊的 <code>digitalRead(buttonPin)</code>，得到 0 或 1；再把這個結果放進等號左邊的 <code>buttonState</code>。之後要用讀值，就直接用 <code>buttonState</code>。</p></div>
@@ -309,7 +309,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
     <span class="t-fn">digitalWrite</span>(ledPin, <span class="t-const">LOW</span>);   <span class="t-com">// LED 滅</span>
   }
 }</code></pre></figure>
-<p>這裡先偷看一下 <code>if ... else</code>：它的意思是「<strong>如果</strong>條件成立就做第一段，<strong>否則</strong>做第二段」。兩段一定只會做其中一段。第 5 週會仔細學它。</p>
+<p>這裡先偷看一下 <code>if ... else</code>：它的意思是「<strong>如果</strong>條件成立就做第一段，<strong>否則</strong>做第二段」。兩段一定只會做其中一段。第 4 單元會仔細學它。</p>
 <div class="table-wrap"><table>
 <tr><th>寫法</th><th>意思</th></tr>
 <tr><td><code>if (buttonState == HIGH)</code></td><td>如果 <code>buttonState</code> 等於 <code>HIGH</code>（按鈕被按下）</td></tr>
@@ -456,7 +456,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 <p><code>Serial.print("讀值")</code> 印出的是文字「讀值」；<code>Serial.print(state)</code> 沒有引號，印出的是變數 <code>state</code> 裡面的數字。引號有沒有加，意思完全不同。</p></div>
 
 <h3>範例 B：按住快閃，放開慢閃</h3>
-<p>把第 2 週的閃爍和這週的按鈕結合。重點是用一個變數 <code>waitTime</code> 決定等待時間：先預設為 500，如果按鈕按下，就改成 100。後面的閃爍程式不用分成兩份。</p>
+<p>把第 1 單元的閃爍和這個單元的按鈕結合。重點是用一個變數 <code>waitTime</code> 決定等待時間：先預設為 500，如果按鈕按下，就改成 100。後面的閃爍程式不用分成兩份。</p>
 <figure class="code"><figcaption><span class="file">ButtonBlinkSpeed.ino</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 按住按鈕時 LED 快閃，放開時 LED 慢閃</span>
 <span class="t-com">// 接線：第 2 號腳位與 GND 各接按鈕一隻腳（使用內建上拉電阻）</span>
 
@@ -563,7 +563,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 </ol>
 </details>
 
-<h3>本週重點回顧</h3>
+<h3>本單元重點回顧</h3>
 <ul>
   <li><code>digitalRead()</code> 讀取數位腳位，結果只有 <code>HIGH</code> 或 <code>LOW</code>。</li>
   <li>輸入腳位需要上拉或下拉電阻，避免浮接造成讀值亂跳。</li>
@@ -571,12 +571,12 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
   <li><code>INPUT_PULLUP</code> 啟用內建上拉電阻，接線更簡單，但讀值是「按下為 LOW」。</li>
 </ul>
 
-<h3>下週預告</h3>
-<p>按鈕只有「按下」和「放開」兩種狀態。下週要認識可以轉動的<strong>可變電阻</strong>，它能讓板子讀到 0 到 1023 之間的各種數值。</p>
+<h3>下一單元預告</h3>
+<p>按鈕只有「按下」和「放開」兩種狀態。下一單元要認識可以轉動的<strong>可變電阻</strong>，它能讓板子讀到 0 到 1023 之間的各種數值。</p>
 
 <h2 id="notice">圖片使用聲明</h2>
 <p class="notice">本講義中的電路圖取自 Arduino 官方文件，每張圖下方皆註明原始網址與授權方式。本講義僅供教學使用，只提供給修課學生，不作其他用途。若原作者或權利人希望移除相關圖片，請來信 <a href="mailto:p306teaching@gmail.com">p306teaching@gmail.com</a>，我們將依作者要求盡快移除。</p>
-<nav class="pager" aria-label="上一週與下一週"><a class="prev" href="week02.html">← 第 2 週：讓 LED 閃爍，認識 Arduino 程式</a><a class="next" href="week04.html">第 4 週：可變電阻與類比讀值 →</a></nav></main></div>
+<nav class="pager" aria-label="上一單元與下一單元"><a class="prev" href="unit01.html">← 第 1 單元：讓 LED 閃爍，認識 Arduino 程式</a><a class="next" href="unit03.html">第 3 單元：可變電阻與類比讀值 →</a></nav></main></div>
 <footer class="site">參考資料：Arduino 官方文件 <a href="https://docs.arduino.cc/" target="_blank" rel="noopener">docs.arduino.cc</a>。電路圖取自 Arduino 官方範例，依 CC BY-SA 4.0 授權使用。</footer>
 <script>
 (function(){

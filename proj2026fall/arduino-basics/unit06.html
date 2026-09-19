@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>第 7 週：用迴圈與陣列控制多顆 LED｜Arduino 程式設計講義</title>
+<title>第 6 單元：用迴圈與陣列控制多顆 LED｜Arduino 程式設計講義</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%A1%3C/text%3E%3C/svg%3E">
 <style>
 :root{
@@ -158,13 +158,13 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 <a class="skip" href="#main">跳到主要內容</a>
 <header class="site">
   <a class="brand" href="index.html">Arduino 程式設計講義</a>
-  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="week02.html">第 2 週</a><a href="week03.html">第 3 週</a><a href="week04.html">第 4 週</a><a href="week05.html">第 5 週</a><a href="week06.html">第 6 週</a><a href="week07.html" aria-current="page">第 7 週</a><a href="week08.html">第 8 週</a></nav>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="unit01.html">第 1 單元</a><a href="unit02.html">第 2 單元</a><a href="unit03.html">第 3 單元</a><a href="unit04.html">第 4 單元</a><a href="unit05.html">第 5 單元</a><a href="unit06.html" aria-current="page">第 6 單元</a><a href="unit07.html">第 7 單元</a></nav>
   <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
 </header>
-<div class="layout"><nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><ol><li><a href="#for">1. 範例 For Loop Iteration：來回跑馬燈</a></li><li><a href="#arrays">2. 範例 Arrays：自訂順序的跑馬燈</a></li><li><a href="#bargraph">3. 範例 LED Bar Graph：旋鈕長條圖</a></li><li><a href="#more">4. 加碼範例：進度條燈號</a></li><li><a href="#practice">5. 綜合練習</a></li><li><a href="#errors">6. 常見錯誤</a></li><li><a href="#review">7. 自我檢核與重點回顧</a></li><li><a href="#notice">圖片使用聲明</a></li></ol></nav><main id="main"><h1>第 7 週：用迴圈與陣列控制多顆 LED</h1>
-<p class="lead">如果要控制 6 顆 LED，照前幾週的寫法，同樣的指令就得重複寫 6 次，又長又容易出錯。這週用 <strong>for 迴圈</strong>把重複的工作交給程式，再用<strong>陣列</strong>把一群腳位編號收在一起。最後結合可變電阻，做出一條會跟著旋鈕變長變短的 LED 長條圖。</p>
+<div class="layout"><nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><ol><li><a href="#for">1. 範例 For Loop Iteration：來回跑馬燈</a></li><li><a href="#arrays">2. 範例 Arrays：自訂順序的跑馬燈</a></li><li><a href="#bargraph">3. 範例 LED Bar Graph：旋鈕長條圖</a></li><li><a href="#more">4. 加碼範例：進度條燈號</a></li><li><a href="#practice">5. 綜合練習</a></li><li><a href="#errors">6. 常見錯誤</a></li><li><a href="#review">7. 自我檢核與重點回顧</a></li><li><a href="#notice">圖片使用聲明</a></li></ol></nav><main id="main"><h1>第 6 單元：用迴圈與陣列控制多顆 LED</h1>
+<p class="lead">如果要控制 6 顆 LED，照前幾個單元的寫法，同樣的指令就得重複寫 6 次，又長又容易出錯。這個單元用 <strong>for 迴圈</strong>把重複的工作交給程式，再用<strong>陣列</strong>把一群腳位編號收在一起。最後結合可變電阻，做出一條會跟著旋鈕變長變短的 LED 長條圖。</p>
 
-<h3>本週你會學到（學會了就打勾）</h3>
+<h3>本單元你會學到（學會了就打勾）</h3>
 <ul class="goals">
   <li><input type="checkbox" id="g1"><label for="g1">用 <code>for</code> 迴圈設定多個腳位，並依序點亮 LED</label></li>
   <li><input type="checkbox" id="g2"><label for="g2">寫出往前數與往回數的 <code>for</code> 迴圈</label></li>
@@ -335,7 +335,7 @@ pinMode(7, OUTPUT);</pre>
 
 <h3><span class="tag">看一看</span>陣列是一排編號的盒子</h3>
 <p>第 1 節的迴圈只能處理「連續」的腳位（2、3、4…）。如果 LED 要照 2、7、4、6、5、3 這種跳來跳去的順序亮，就需要<strong>陣列</strong>。</p>
-<p>第 4 週說過，變數是一個貼了標籤的盒子。陣列則是<strong>一排連在一起的盒子</strong>，整排共用一個名字，每一格都有一個<strong>索引編號</strong>。要特別注意：<strong>索引從 0 開始算</strong>。</p>
+<p>第 3 單元說過，變數是一個貼了標籤的盒子。陣列則是<strong>一排連在一起的盒子</strong>，整排共用一個名字，每一格都有一個<strong>索引編號</strong>。要特別注意：<strong>索引從 0 開始算</strong>。</p>
 <pre class="plain">int ledPins[] = {2, 7, 4, 6, 5, 3};</pre>
 <div class="boxes" aria-label="陣列 ledPins 的六格：索引 0 到 5 分別存放 2、7、4、6、5、3">
   <div><small>[0]</small><span>2</span></div><div><small>[1]</small><span>7</span></div><div><small>[2]</small><span>4</span></div>
@@ -653,7 +653,7 @@ ledPins[5] = 3</pre></div>
 </ol>
 </details>
 
-<h3>本週重點回顧</h3>
+<h3>本單元重點回顧</h3>
 <ul>
   <li><code>for</code> 迴圈讓重複的工作只需寫一次，<code>++</code> 加 1，<code>--</code> 減 1。</li>
   <li>陣列把一群資料排在一起，用索引存取，索引從 0 開始；編譯器不會檢查索引是否超過範圍。</li>
@@ -661,12 +661,12 @@ ledPins[5] = 3</pre></div>
   <li><code>analogRead()</code>、<code>map()</code>、<code>for</code> 與 <code>if</code> 組合起來，就能做出長條圖。</li>
 </ul>
 
-<h3>下週預告</h3>
-<p>最後一週要讓作品<strong>發出聲音</strong>，並把七週學到的輸入元件與輸出元件組合起來，完成一個屬於你們這一組的小作品。</p>
+<h3>下一單元預告</h3>
+<p>最後一個單元要讓作品<strong>發出聲音</strong>，並把七個單元學到的輸入元件與輸出元件組合起來，完成一個屬於你們這一組的小作品。</p>
 
 <h2 id="notice">圖片使用聲明</h2>
 <p class="notice">本講義中的電路圖取自 Arduino 官方文件，每張圖下方皆註明原始網址與授權方式。本講義僅供教學使用，只提供給修課學生，不作其他用途。若原作者或權利人希望移除相關圖片，請來信 <a href="mailto:p306teaching@gmail.com">p306teaching@gmail.com</a>，我們將依作者要求盡快移除。</p>
-<nav class="pager" aria-label="上一週與下一週"><a class="prev" href="week06.html">← 第 6 週：LED 調光與數值換算</a><a class="next" href="week08.html">第 8 週：發出聲音與整合小作品 →</a></nav></main></div>
+<nav class="pager" aria-label="上一單元與下一單元"><a class="prev" href="unit05.html">← 第 5 單元：LED 調光與數值換算</a><a class="next" href="unit07.html">第 7 單元：發出聲音與整合小作品 →</a></nav></main></div>
 <footer class="site">參考資料：Arduino 官方文件 <a href="https://docs.arduino.cc/" target="_blank" rel="noopener">docs.arduino.cc</a>。電路圖取自 Arduino 官方範例，依 CC BY-SA 4.0 授權使用。</footer>
 <script>
 (function(){
