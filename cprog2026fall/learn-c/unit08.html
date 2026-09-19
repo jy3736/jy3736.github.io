@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 8：字串與基礎整合｜計算機程式及實習：C 語言講義</title>
+<meta name="description" content="字串就是「以 \0 結尾的字元陣列」、用 fgets 讀取一行文字、strlen 與 strcmp、期中複習：自我檢核清單">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📘</text></svg>">
+<link rel="stylesheet" href="assets/handout.css">
+<link rel="stylesheet" href="assets/highlight.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-name" href="index.html">計算機程式及實習：C 語言講義</a>
+  <button class="theme-toggle" type="button" aria-label="切換深色或淺色模式">深淺色</button>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><div>
+<ul>
+<li><a href="#sec-1">本週對照表</a></li>
+<li><a href="#sec-2">1. 字串就是「以 \0 結尾的字元陣列」</a></li>
+<li><a href="#sec-3">2. 用 fgets 讀取一行文字</a></li>
+<li><a href="#sec-4">3. strlen 與 strcmp</a></li>
+<li><a href="#sec-5">4. 期中複習：自我檢核清單</a></li>
+<li><a href="#sec-6">本講義未涵蓋的內容</a></li>
+<li><a href="#sec-7">延伸閱讀</a></li>
+</ul>
+</div>
+</nav>
+<main class="content">
+<h1 id="s-91104859">Unit 8：字串與基礎整合</h1>
+<blockquote>
+<p>對應課程：第 9 週講義與實作練習</p>
+<p>本講義的觀念說明整理自文末「延伸閱讀」列出的公開教材，並附上出處。所有範例程式都是完整的程式，可以直接編譯執行。</p>
+</blockquote>
+<details class="toc-mobile"><summary>本頁目錄</summary><div>
+<ul>
+<li><a href="#sec-1">本週對照表</a></li>
+<li><a href="#sec-2">1. 字串就是「以 \0 結尾的字元陣列」</a></li>
+<li><a href="#sec-3">2. 用 fgets 讀取一行文字</a></li>
+<li><a href="#sec-4">3. strlen 與 strcmp</a></li>
+<li><a href="#sec-5">4. 期中複習：自我檢核清單</a></li>
+<li><a href="#sec-6">本講義未涵蓋的內容</a></li>
+<li><a href="#sec-7">延伸閱讀</a></li>
+</ul>
+</div>
+</details>
+<h2 id="sec-1">本週對照表</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>主題</th>
+<th>對應練習</th>
+<th>教材出處</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>字串的本質</td>
+<td>練習「單元一：字串的本質（字元陣列與 <code>\0</code>）」</td>
+<td>GNU C 手冊 §16.3；Beej §7.1、§7.3、§7.6</td>
+</tr>
+<tr>
+<td>用 fgets 讀取一行</td>
+<td>練習「單元二：安全讀取一行文字（fgets）」</td>
+<td>Beej 函式庫參考 §23.15</td>
+</tr>
+<tr>
+<td>strlen 與 strcmp</td>
+<td>練習「單元三：字串長度與比對」</td>
+<td>Beej §7.5、§7.7；Beej 函式庫參考 §26.5、§26.15</td>
+</tr>
+<tr>
+<td>期中整合</td>
+<td>練習「綜合迷你專案：期中複習整合練習」</td>
+<td>第 2 至 8 週的講義</td>
+</tr>
+</tbody>
+</table></div>
+<p>編譯指令與練習檔相同；執行範例中<span class='typed'>黃底標示</span>的文字代表你用鍵盤輸入的內容。</p>
+<pre><code class="language-sh hl">gcc<span class="w"> </span>-std<span class="o">=</span>c17<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-Wpedantic<span class="w"> </span>檔名.c<span class="w"> </span>-o<span class="w"> </span>檔名</code></pre>
+<hr />
+<h2 id="sec-2">1. 字串就是「以 <code>\0</code> 結尾的字元陣列」</h2>
+<h3 id="s-41138635">用白話說</h3>
+<p>姓名、學號、一句話，這些文字資料在 C 裡稱為<strong>字串</strong>。C 沒有專門的「字串型別」，而是用上週學的陣列來存：每一格放一個字元（<code>char</code>），最後再多放一個特別的字元 <code>\0</code>，表示「字串到這裡結束」。</p>
+<p>可以想像成一排座位坐滿了人，最後放一塊「此處為止」的牌子。<code>printf</code>、<code>strlen</code> 這些函式都是一格一格往後看，看到牌子就停下來。</p>
+<h3 id="s-39850936">教材怎麼說</h3>
+<ul>
+<li>字串是一串 <code>char</code> 元素，以數值為 0 的<strong>空字元</strong>（null character）作為結尾。出處：GNU C 手冊 §16.3 Strings。</li>
+<li>用雙引號包起來的文字，例如 <code>"Hello"</code>，稱為<strong>字串字面量</strong>（string literal）；單引號包起來的是單一字元，兩者不同。出處：Beej §7.1 String Literals。</li>
+<li>要存放可以修改的字串，就宣告 <code>char</code> 陣列，而且長度要<strong>多留一格</strong>給結尾的空字元。例如 <code>char text[] = "Hello";</code> 會得到 6 格：5 個字母加上結尾的空字元。出處：GNU C 手冊 §16.3。</li>
+<li>宣告成陣列之後，就可以用 <code>s[i]</code> 取出個別字元，並用 <code>%c</code> 印出單一字元；用 <code>%s</code> 則印出整個字串。出處：Beej §7.2、§7.3。</li>
+<li>C 用「結尾的 0 值位元組」來標記字串的結束，而不是另外記錄長度。出處：Beej §7.6 String Termination。</li>
+</ul>
+<h3 id="s-63159717">對照練習</h3>
+<p>練習「單元一」的最小程式先用 <code>%s</code> 印出整個字串，再逐字元印出直到遇到 <code>'\0'</code>；變化版本手動一格一格建立座位代碼。下面的補充範例讓你親眼看到那個看不見的 <code>\0</code>，並示範「把 <code>\0</code> 放在不同位置，字串就在那裡結束」。</p>
+<h3 id="s-22396935">補充範例 1-1：看見結尾的 <code>\0</code></h3>
+<p>檔名 <code>see_null.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">word</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;cat&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;陣列共 %zu 格</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">word</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;word[%d] 的數值是 %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">word</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">陣列共 4 格
+word[0] 的數值是 99
+word[1] 的數值是 97
+word[2] 的數值是 116
+word[3] 的數值是 0
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>"cat"</code> 只有 3 個字母，但 <code>sizeof word</code> 是 4，多出來的一格就是結尾的空字元（GNU C 手冊 §16.3）。</li>
+<li>字元在電腦裡是用數字存放的，用 <code>%d</code> 印出來就會看到它的編碼。本講義不要求記住 99、97、116 這些數字。</li>
+<li>最後一格的數值是 0，這就是 <code>'\0'</code>。</li>
+</ol>
+<h3 id="s-3643585">補充範例 1-2：修改字元，以及提早結束字串</h3>
+<p>檔名 <code>cut_string.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">code</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;EE-101&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;原本：%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">code</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">code</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;2&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;改第 4 個字元後：%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">code</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">date</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;2026-09-14&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">date</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;只留年份：%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">date</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">原本：EE-101
+改第 4 個字元後：EE-201
+只留年份：2026
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>陣列 <code>date</code> 的索引</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>修改前</td>
+<td><code>2</code></td>
+<td><code>0</code></td>
+<td><code>2</code></td>
+<td><code>6</code></td>
+<td><code>-</code></td>
+<td><code>0</code></td>
+<td><code>9</code></td>
+<td>...</td>
+</tr>
+<tr>
+<td>執行 <code>date[4] = '\0';</code> 後</td>
+<td><code>2</code></td>
+<td><code>0</code></td>
+<td><code>2</code></td>
+<td><code>6</code></td>
+<td><code>\0</code></td>
+<td><code>0</code></td>
+<td><code>9</code></td>
+<td>...</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>printf</code> 的 <code>%s</code> 從索引 0 開始印，遇到索引 4 的 <code>\0</code> 就停止，所以只印出 <code>2026</code>。後面的字元其實還在陣列裡，只是不會被當成字串的一部分。</p>
+<h3 id="s-41858521">補充範例 1-3：用迴圈數字元</h3>
+<p><strong>問題</strong>：不用任何字串函式，自己數出一句話裡有幾個空白。</p>
+<p>檔名 <code>count_space.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">sentence</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;C is fun to learn&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">spaces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">sentence</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sentence</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">spaces</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;「%s」裡有 %d 個空白</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sentence</span><span class="p">,</span><span class="w"> </span><span class="n">spaces</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">「C is fun to learn」裡有 4 個空白
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>迴圈條件是 <code>sentence[i] != '\0'</code>：還沒遇到結尾就繼續。這樣不需要事先知道字串有多長。</li>
+<li><code>' '</code> 是單引號包起來的<strong>一個空白字元</strong>。每遇到一個就把 <code>spaces</code> 加 1。</li>
+<li>字串中有 4 個空白，迴圈遇到結尾的 <code>\0</code> 時停止。</li>
+</ol>
+<h3 id="s-25237660">動手改改看</h3>
+<ul>
+<li>在補充範例 1-1 中，把 <code>"cat"</code> 改成 <code>"lion"</code>，迴圈的次數要改成多少才能看到結尾的 0？能不能改用 <code>sizeof word</code> 當迴圈條件？</li>
+<li>修改補充範例 1-3，改成計算字母 <code>n</code> 出現幾次。</li>
+</ul>
+<hr />
+<h2 id="sec-3">2. 用 <code>fgets</code> 讀取一行文字</h2>
+<h3 id="s-41138635_1">用白話說</h3>
+<p>第 4 週的 <code>scanf("%d", ...)</code> 很適合讀數字，但如果要讀「一整句話」，例如含有空白的地址或姓名，就需要能一次讀一整行的函式，也就是 <code>fgets</code>。它最大的好處是：你可以告訴它<strong>最多讀多少</strong>，避免讀進來的文字超出陣列的空間。</p>
+<h3 id="s-39850936_1">教材怎麼說</h3>
+<ul>
+<li><code>fgets</code> 從主控台或檔案讀取<strong>一行文字</strong>。出處：Beej 函式庫參考 §23.15 gets(), fgets()。</li>
+<li>從鍵盤讀取的寫法是 <code>fgets(陣列, sizeof 陣列, stdin)</code>。這裡的 <code>sizeof</code> 會得到陣列的總位元組數，因為一個 <code>char</code> 就是一個位元組，剛好等於陣列的格數。出處同上。</li>
+<li><code>fgets</code> <strong>最多讀取「大小減 1」個字元</strong>，然後在後面補上結尾的空字元。出處同上。</li>
+<li><code>fgets</code> 會把行尾的<strong>換行字元也存進字串</strong>（空間足夠的話）。如果不需要這個換行，要自己把它去掉。出處同上。</li>
+<li>另一個讀一行的函式 <code>gets</code> 無法指定陣列大小，輸入太長時會寫到陣列外面，所以從 C11 起已經從標準中移除，不要使用。出處同上。</li>
+<li>讀取失敗或已經到了輸入結尾時，<code>fgets</code> 回傳 <code>NULL</code>。出處：Beej 函式庫參考 §23.15 Return Value。</li>
+</ul>
+<h3 id="s-63159717_1">對照練習</h3>
+<p>練習「單元二」的最小程式用 <code>fgets</code> 讀入一句話並印出；變化版本讀入代號、移除結尾的換行，再加上前後綴印出。下面的補充範例先把「換行被存進去」這件事看清楚，再示範「最多讀取大小減 1 個字元」。</p>
+<h3 id="s-43799807">補充範例 2-1：換行字元跟著進來了</h3>
+<p>檔名 <code>see_newline.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">line</span><span class="p">[</span><span class="mi">50</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;請輸入一句話：&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">line</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;讀取失敗</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;[%s]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>執行範例：</p>
+<pre><code class="language-text">請輸入一句話：<span class="typed" title="這是你輸入的內容">Hello C</span>
+[Hello C
+]
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>輸入 <code>Hello C</code> 並按 Enter。<code>fgets</code> 會把 <code>Hello C</code> 和按下 Enter 產生的換行字元一起存進 <code>line</code>。</li>
+<li>用方括號把字串框起來印出，右方括號跑到下一行，證明字串的最後有一個換行字元。</li>
+<li>空白也被完整讀進來了，這是 <code>scanf("%s", ...)</code> 做不到的（<code>%s</code> 讀到空白就停止，見 Beej 函式庫參考 §23.11）。</li>
+</ol>
+<h3 id="s-90430077">補充範例 2-2：去掉結尾的換行</h3>
+<p><strong>問題</strong>：沿用第 1 節「在某個位置放 <code>\0</code>，字串就在那裡結束」的觀念，把換行字元換成 <code>\0</code>。</p>
+<p>檔名 <code>trim_newline.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">name</span><span class="p">[</span><span class="mi">30</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;請輸入姓名：&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;[%s] 你好！</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>執行範例：</p>
+<pre><code class="language-text">請輸入姓名：<span class="typed" title="這是你輸入的內容">Lin Mei</span>
+[Lin Mei] 你好！
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>讀入後，<code>name</code> 的內容是 <code>Lin Mei</code>、換行字元、<code>\0</code>。</li>
+<li>迴圈逐格尋找，找到換行字元（索引 7）時，把它改成 <code>\0</code>，然後 <code>break</code>。</li>
+<li>現在字串在索引 7 就結束了，印出時右方括號緊接在 <code>Mei</code> 後面。</li>
+</ol>
+<h3 id="s-55025406">補充範例 2-3：<code>fgets</code> 不會讀超過陣列</h3>
+<p>檔名 <code>limit.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">small</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;請輸入一個長單字：&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">fgets</span><span class="p">(</span><span class="n">small</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">small</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;存進去的是：[%s]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">small</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>執行範例：</p>
+<pre><code class="language-text">請輸入一個長單字：<span class="typed" title="這是你輸入的內容">abcdefghij</span>
+存進去的是：[abcde]
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>small</code> 有 6 格，所以 <code>fgets</code> 最多讀 <code>6 - 1 = 5</code> 個字元，第 6 格留給結尾的 <code>\0</code>（Beej 函式庫參考 §23.15）。</li>
+<li>只存進了 <code>abcde</code>，其餘的字元沒有被寫到陣列外面。這就是 <code>fgets</code> 比 <code>gets</code> 安全的原因。</li>
+<li>這次輸入太長，所以換行字元沒有被讀進來；補充範例 2-2 的迴圈找不到換行時什麼都不改，一樣可以正常運作。</li>
+</ol>
+<h3 id="s-25237660_1">動手改改看</h3>
+<ul>
+<li>在補充範例 2-1 中，把陣列改成 <code>char line[5];</code>，輸入 <code>Hello C</code>，方括號裡會印出什麼？</li>
+<li>把補充範例 2-2 的去換行迴圈拿掉，比較輸出的差異。</li>
+</ul>
+<hr />
+<h2 id="sec-4">3. <code>strlen</code> 與 <code>strcmp</code></h2>
+<h3 id="s-41138635_2">用白話說</h3>
+<ul>
+<li><code>strlen</code>：告訴你字串「有幾個字元」，不包含結尾的 <code>\0</code>。</li>
+<li><code>strcmp</code>：比較兩個字串是否相同，或誰排在前面。</li>
+</ul>
+<p>使用這兩個函式，要加上 <code>#include &lt;string.h&gt;</code>。</p>
+<h3 id="s-39850936_2">教材怎麼說</h3>
+<p><strong><code>strlen</code></strong></p>
+<ul>
+<li><code>strlen</code> 回傳字串的長度，<strong>不包含</strong>結尾的空字元。它的做法是從頭往後數，數到空字元為止，所以需要花一點時間；同一個字串要重複使用長度時，可以先存進變數。出處：Beej 函式庫參考 §26.15 strlen()。</li>
+<li>回傳型別是 <code>size_t</code>，用 <code>%zu</code> 印出。出處：Beej §7.5 Getting String Length。</li>
+<li>回傳的是<strong>位元組數</strong>。對於中文這類一個字佔多個位元組的文字，位元組數可能和字數不同。出處：Beej 函式庫參考 §26.15 Return Value。</li>
+</ul>
+<p><strong><code>strcmp</code></strong></p>
+<ul>
+<li><code>strcmp(s1, s2)</code> 比較兩個字串：完全相同時回傳 <strong>0</strong>；不同時，找到第一個不同的字元，<code>s1</code> 的字元比較小就回傳小於 0 的值，比較大就回傳大於 0 的值。出處：Beej 函式庫參考 §26.5 strcmp()。</li>
+<li>所以判斷「兩個字串相同」要寫 <code>strcmp(a, b) == 0</code>。</li>
+<li>不能用 <code>=</code> 複製字串，也不能用 <code>==</code> 比較字串內容。Beej 說明，用 <code>=</code> 只會複製「指向第一個字元的位置」，不會複製字串本身。出處：Beej §7.7 Copying a String。</li>
+</ul>
+<h3 id="s-63159717_2">對照練習</h3>
+<p>練習「單元三」的最小程式比較同一個字串的 <code>strlen</code> 和 <code>sizeof</code>；變化版本用 <code>strcmp</code> 比對使用者輸入的科系代碼。下面的補充範例示範 <code>strcmp</code> 的三種結果，以及用 <code>==</code> 比較字串時編譯器的警告。</p>
+<h3 id="s-88753927">補充範例 3-1：<code>strlen</code> 不算 <code>\0</code>，中文算位元組</h3>
+<p>檔名 <code>length_bytes.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">english</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;hello&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">chinese</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;你好&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;english：strlen = %zu，sizeof = %zu</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">english</span><span class="p">),</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">english</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;chinese：strlen = %zu，sizeof = %zu</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">chinese</span><span class="p">),</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">chinese</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>在使用 UTF-8 編碼的環境下，預期輸出：</p>
+<pre><code class="language-text">english：strlen = 5，sizeof = 6
+chinese：strlen = 6，sizeof = 7
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>"hello"</code> 有 5 個字元，<code>strlen</code> 是 5；陣列多一格放 <code>\0</code>，<code>sizeof</code> 是 6。</li>
+<li><code>"你好"</code> 只有兩個字，但在 UTF-8 中每個中文字佔 3 個位元組，所以 <code>strlen</code> 是 6。這對應到 Beej 函式庫參考「回傳的是位元組數」的說明。</li>
+<li>本講義沒有在引用的教材中找到 UTF-8 每個中文字佔幾個位元組的說明，「3 個位元組」是依本講義測試環境的執行結果。</li>
+</ol>
+<h3 id="s-59056302">補充範例 3-2：<code>strcmp</code> 的三種結果</h3>
+<p>檔名 <code>compare.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">showOrder</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">b</span><span class="p">[]);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">showOrder</span><span class="p">(</span><span class="s">&quot;apple&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;banana&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">showOrder</span><span class="p">(</span><span class="s">&quot;cherry&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;banana&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">showOrder</span><span class="p">(</span><span class="s">&quot;kiwi&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;kiwi&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">showOrder</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="n">a</span><span class="p">[],</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">b</span><span class="p">[])</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strcmp</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%s 和 %s 相同</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%s 排在 %s 前面</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%s 排在 %s 後面</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">apple 排在 banana 前面
+cherry 排在 banana 後面
+kiwi 和 kiwi 相同
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>"apple"</code> 和 <code>"banana"</code> 的第一個字元就不同，<code>a</code> 比 <code>b</code> 小，所以回傳小於 0 的值。</li>
+<li><code>"cherry"</code> 的 <code>c</code> 比 <code>b</code> 大，回傳大於 0 的值。</li>
+<li>兩個 <code>"kiwi"</code> 完全相同，回傳 0。</li>
+<li>程式只判斷結果是「等於 0、小於 0、大於 0」，不去依賴實際的數值，因為教材只保證正負號（Beej 函式庫參考 §26.5）。</li>
+<li><code>showOrder</code> 的參數寫成 <code>char a[]</code>，表示接收一個字串。為什麼這樣寫就能把字串傳進函式，會在第 12 週說明。</li>
+</ol>
+<h3 id="s-98410681">補充範例 3-3：輸入口令</h3>
+<p>檔名 <code>passcode.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;請輸入通關口令：&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">stdin</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;open sesame&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;歡迎進入</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;口令錯誤（你輸入了 %zu 個字元）</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">input</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>執行範例（正確）：</p>
+<pre><code class="language-text">請輸入通關口令：<span class="typed" title="這是你輸入的內容">open sesame</span>
+歡迎進入
+</code></pre>
+<p>執行範例（錯誤）：</p>
+<pre><code class="language-text">請輸入通關口令：<span class="typed" title="這是你輸入的內容">open</span>
+口令錯誤（你輸入了 4 個字元）
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>如果<strong>沒有</strong>去掉換行，<code>input</code> 會是 <code>open sesame</code> 加上換行字元，和 <code>"open sesame"</code> 不相同，永遠比對失敗。這就是第 2 節要先去掉換行的原因。</li>
+<li><code>fgets</code> 讓口令中的空白也能被讀進來。</li>
+</ol>
+<h3 id="s-4299994">常見錯誤：用 <code>==</code> 比較字串</h3>
+<p>檔名 <code>wrong_compare.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">answer</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">answer</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;相同</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;不同</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>編譯時會看到類似下面的警告：</p>
+<pre><code class="language-text">wrong_compare.c:7:16: warning: result of comparison against a string literal is unspecified (use an explicit string comparison function instead) [-Wstring-compare]
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>==</code> 比較的不是兩個字串的內容，而是它們在記憶體中的位置（Beej §7.7 說明字串變數代表的是「第一個字元的位置」）。</li>
+<li>編譯器建議「改用明確的字串比較函式」，也就是 <code>strcmp(answer, "yes") == 0</code>。</li>
+<li>這個程式的執行結果是「未指定的」，所以本講義不列出輸出。</li>
+</ol>
+<h3 id="s-25237660_2">動手改改看</h3>
+<ul>
+<li>在補充範例 3-2 加上一行 <code>showOrder("Apple", "apple");</code>，執行看看。大寫和小寫會被當成相同嗎？</li>
+<li>修改補充範例 3-3：輸入錯誤時，允許再試一次，最多三次（提示：第 6 週的迴圈）。</li>
+</ul>
+<hr />
+<h2 id="sec-5">4. 期中複習：自我檢核清單</h2>
+<p>以下每一題都能在前幾週的講義中找到答案與範例。回答不出來時，請回到對應的講義重新閱讀並執行範例。</p>
+<ul>
+<li>第 2 週：為什麼修改了 <code>.c</code> 檔之後，一定要重新編譯才能看到新結果？（<a href="unit01.html">第 2 週講義</a>第 1 節）</li>
+<li>第 3 週：<code>7 / 2</code> 和 <code>7 / 2.0</code> 的結果為什麼不同？（<a href="unit02.html">第 3 週講義</a>第 3 節）</li>
+<li>第 4 週：讀取 <code>double</code> 時，<code>scanf</code> 要用哪一個格式碼？怎麼知道 <code>scanf</code> 有沒有讀取成功？（<a href="unit03.html">第 4 週講義</a>第 1 節）</li>
+<li>第 5 週：<code>else if</code> 鏈的條件順序寫反了，會發生什麼事？<code>switch</code> 忘了 <code>break</code> 呢？（<a href="unit04.html">第 5 週講義</a>第 2、3 節）</li>
+<li>第 6 週：<code>while</code> 和 <code>do-while</code> 在什麼情況下結果不同？<code>continue</code> 之後，<code>for</code> 的 <code>i++</code> 還會執行嗎？（<a href="unit05.html">第 6 週講義</a>第 1、3 節）</li>
+<li>第 7 週：在函式中修改參數，為什麼不會改到呼叫端的變數？（<a href="unit06.html">第 7 週講義</a>第 2 節）</li>
+<li>第 8 週：5 格的陣列，合法的索引範圍是多少？超出範圍時 C 會阻止你嗎？（<a href="unit07.html">第 8 週講義</a>第 1、4 節）</li>
+<li>第 9 週：<code>char s[] = "abc";</code> 的 <code>sizeof s</code> 和 <code>strlen(s)</code> 各是多少？為什麼？（本講義第 1、3 節）</li>
+</ul>
+<hr />
+<h2 id="sec-6">本講義未涵蓋的內容</h2>
+<ul>
+<li><strong>先用 <code>scanf</code> 讀數字、再用 <code>fgets</code> 讀一行時，<code>fgets</code> 會讀到殘留換行的問題</strong>：本次檢索的資料沒有說明這個情況的原因與處理方式，請以課程講義和練習為準。</li>
+<li><strong>字元編碼（例如 99 代表 <code>c</code>）的對照表</strong>：引用的教材中沒有直接列出，本講義不要求記憶。</li>
+<li><strong><code>strcpy</code>、<code>strncpy</code> 等複製字串的函式</strong>：Beej §7.7 與 GNU C 手冊 §16.3 有提到，但本週講義與練習沒有使用，這裡不展開。</li>
+</ul>
+<h2 id="sec-7">延伸閱讀</h2>
+<ul>
+<li><a href="https://beej.us/guide/bgc/html/split/strings.html">Beej's Guide to C</a> 第 7 章 Strings</li>
+<li><a href="https://beej.us/guide/bgclr/html/split/stdio.html">Beej 函式庫參考 §23.15 fgets()</a>、<a href="https://beej.us/guide/bgclr/html/split/stringref.html">§26.5 strcmp()、§26.15 strlen()</a></li>
+<li><a href="https://www.gnu.org/software/c-intro-and-ref/manual/">GNU C 手冊</a> §16.3 Strings</li>
+</ul>
+<nav class="pager" aria-label="上一篇與下一篇"><a class="prev" href="unit07.html">← Unit 7：陣列與基本資料處理</a><a class="next" href="unit09.html">Unit 9：指標與位址概念 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>觀念說明整理自：<a href="https://beej.us/guide/bgc/">Beej's Guide to C Programming</a>（CC BY-NC-ND 3.0）、
+  <a href="https://www.gnu.org/software/c-intro-and-ref/">GNU C Language Intro and Reference Manual</a>（GFDL）、
+  <a href="https://inria.hal.science/hal-02383654">Modern C</a>（CC BY-NC-ND 4.0）、
+  <a href="https://en.cppreference.com/w/c">cppreference.com</a>（CC BY-SA 3.0），並參考 Kernighan &amp; Ritchie《The C Programming Language》。
+  講義文字與範例程式為本課程自行撰寫。</p>
+</footer>
+<script src="assets/handout.js"></script>
+</body>
+</html>

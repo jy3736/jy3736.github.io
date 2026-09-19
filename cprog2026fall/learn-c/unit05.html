@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 5：迴圈與重複處理｜計算機程式及實習：C 語言講義</title>
+<meta name="description" content="while 與 do-while、for 迴圈、break 與 continue">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📘</text></svg>">
+<link rel="stylesheet" href="assets/handout.css">
+<link rel="stylesheet" href="assets/highlight.css">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-name" href="index.html">計算機程式及實習：C 語言講義</a>
+  <button class="theme-toggle" type="button" aria-label="切換深色或淺色模式">深淺色</button>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><div>
+<ul>
+<li><a href="#sec-1">本週對照表</a></li>
+<li><a href="#sec-2">1. while 與 do-while</a></li>
+<li><a href="#sec-3">2. for 迴圈</a></li>
+<li><a href="#sec-4">3. break 與 continue</a></li>
+<li><a href="#sec-5">本講義未涵蓋的內容</a></li>
+<li><a href="#sec-6">延伸閱讀</a></li>
+</ul>
+</div>
+</nav>
+<main class="content">
+<h1 id="s-41157806">Unit 5：迴圈與重複處理</h1>
+<blockquote>
+<p>對應課程：第 6 週講義與實作練習</p>
+<p>本講義的觀念說明整理自文末「延伸閱讀」列出的公開教材，並附上出處。所有範例程式都是完整的程式，可以直接編譯執行。</p>
+</blockquote>
+<details class="toc-mobile"><summary>本頁目錄</summary><div>
+<ul>
+<li><a href="#sec-1">本週對照表</a></li>
+<li><a href="#sec-2">1. while 與 do-while</a></li>
+<li><a href="#sec-3">2. for 迴圈</a></li>
+<li><a href="#sec-4">3. break 與 continue</a></li>
+<li><a href="#sec-5">本講義未涵蓋的內容</a></li>
+<li><a href="#sec-6">延伸閱讀</a></li>
+</ul>
+</div>
+</details>
+<h2 id="sec-1">本週對照表</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>主題</th>
+<th>對應練習</th>
+<th>教材出處</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>while 與 do-while</td>
+<td>練習「單元一：while 與 do-while」</td>
+<td>GNU C 手冊 §19.6.1、§19.6.2；Beej §3.3.2、§3.3.3</td>
+</tr>
+<tr>
+<td>for 迴圈</td>
+<td>練習「單元二：for 迴圈與計數迴圈」</td>
+<td>GNU C 手冊 §19.6.4、§19.6.7；Beej §3.3.4、§13.3</td>
+</tr>
+<tr>
+<td>遞增與遞減</td>
+<td>練習「單元二」的程式中的 <code>i++</code></td>
+<td>Beej §3.2.3</td>
+</tr>
+<tr>
+<td>break 與 continue</td>
+<td>練習「單元三：累計與搜尋樣式」</td>
+<td>GNU C 手冊 §19.6.3、§19.6.8</td>
+</tr>
+<tr>
+<td>綜合運用</td>
+<td>練習「綜合迷你專案：班級分組報到統計程式」</td>
+<td>以上各節</td>
+</tr>
+</tbody>
+</table></div>
+<p>編譯指令與練習檔相同；執行範例中<span class='typed'>黃底標示</span>的文字代表你用鍵盤輸入的內容。</p>
+<pre><code class="language-sh hl">gcc<span class="w"> </span>-std<span class="o">=</span>c17<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-Wpedantic<span class="w"> </span>檔名.c<span class="w"> </span>-o<span class="w"> </span>檔名</code></pre>
+<hr />
+<h2 id="sec-2">1. <code>while</code> 與 <code>do-while</code></h2>
+<h3 id="s-41138635">用白話說</h3>
+<p>如果要印出 1 到 100，寫 100 行 <code>printf</code> 顯然不是好辦法。<strong>迴圈</strong>讓同一段程式碼重複執行，每一輪之前（或之後）檢查一個條件，決定要不要再來一次。</p>
+<ul>
+<li><code>while</code>：先檢查，再執行。像是「還有作業沒寫完，就繼續寫」。</li>
+<li><code>do-while</code>：先執行，再檢查。像是「先試吃一口，好吃就再吃一口」。</li>
+</ul>
+<h3 id="s-39850936">教材怎麼說</h3>
+<ul>
+<li><code>while</code> 每一輪開始時先計算條件；條件為真（不是 0）就執行迴圈主體，然後回到開頭再檢查。出處：GNU C 手冊 §19.6.1 while Statement。</li>
+<li><code>do-while</code> 先執行主體，每一輪<strong>結束時</strong>才計算條件；條件為真就再執行一次。出處：GNU C 手冊 §19.6.2 do-while Statement。</li>
+<li>兩者的差別在第一輪：如果條件一開始就是假，<code>while</code> 的主體一次都不執行，<code>do-while</code> 的主體仍會執行一次。出處：Beej §3.3.3 The do-while statement。</li>
+<li><code>while (1)</code> 的條件永遠為真，會一直重複下去，形成<strong>無窮迴圈</strong>。出處：Beej §3.3.2 The while statement。</li>
+</ul>
+<h3 id="s-63159717">對照練習</h3>
+<p>練習「單元一」的最小程式用 <code>while</code> 印出 1 到 4 的平方；變化版本則改成 <code>do-while</code>，並說明「要讓條件一開始就是假，才看得出兩者的差異」。下面的補充範例 1-2 就把這個差異直接跑出來。</p>
+<h3 id="s-50081282">補充範例 1-1：存錢存到目標</h3>
+<p><strong>問題</strong>：每個月存 1200 元，存款要到達 5000 元以上需要幾個月？</p>
+<p>檔名 <code>saving.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">months</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">balance</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">balance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">balance</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1200</span><span class="p">;</span>
+<span class="w">        </span><span class="n">months</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">months</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;第 %d 個月：存款 %d 元</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">months</span><span class="p">,</span><span class="w"> </span><span class="n">balance</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;共需要 %d 個月</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">months</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">第 1 個月：存款 1200 元
+第 2 個月：存款 2400 元
+第 3 個月：存款 3600 元
+第 4 個月：存款 4800 元
+第 5 個月：存款 6000 元
+共需要 5 個月
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>輪次</th>
+<th>檢查 <code>balance &lt; 5000</code> 時的 <code>balance</code></th>
+<th>條件</th>
+<th>執行後的 <code>balance</code></th>
+<th>執行後的 <code>months</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>真</td>
+<td>1200</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1200</td>
+<td>真</td>
+<td>2400</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2400</td>
+<td>真</td>
+<td>3600</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3600</td>
+<td>真</td>
+<td>4800</td>
+<td>4</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4800</td>
+<td>真</td>
+<td>6000</td>
+<td>5</td>
+</tr>
+<tr>
+<td>第 6 次檢查</td>
+<td>6000</td>
+<td>假</td>
+<td>離開迴圈</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>每一輪都會改變 <code>balance</code>，所以條件總有一天會變成假。如果忘了寫 <code>balance = balance + 1200;</code>，<code>balance</code> 永遠是 0，程式就會變成無窮迴圈。</p>
+<h3 id="s-85767975">補充範例 1-2：條件一開始就是假</h3>
+<p>檔名 <code>first_round.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;while 執行了一次</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="w">    </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;do-while 執行了一次</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;結束</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">do-while 執行了一次
+結束
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>while</code>：一開始 <code>10 &lt; 3</code> 就是假，主體完全沒有執行，所以沒有印出「while 執行了一次」。</li>
+<li><code>do-while</code>：先執行主體，印出一行，<code>count</code> 變成 11；接著才檢查 <code>11 &lt; 3</code>，是假，離開迴圈。</li>
+<li>注意 <code>do-while</code> 的 <code>while (count &lt; 3);</code> 後面<strong>要有分號</strong>。</li>
+</ol>
+<h3 id="s-89928632">補充範例 1-3：輸入不合法就重問</h3>
+<p><strong>問題</strong>：<code>do-while</code> 很適合「至少要問一次」的情況。要求使用者輸入 1 到 3 的選項，輸入錯了就再問一次。</p>
+<p>檔名 <code>menu.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">choice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">do</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;請選擇（1 查詢、2 新增、3 離開）：&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">choice</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;讀取失敗</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">choice</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">choice</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;你選擇了 %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">choice</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>執行範例：</p>
+<pre><code class="language-text">請選擇（1 查詢、2 新增、3 離開）：<span class="typed" title="這是你輸入的內容">7</span>
+請選擇（1 查詢、2 新增、3 離開）：<span class="typed" title="這是你輸入的內容">0</span>
+請選擇（1 查詢、2 新增、3 離開）：<span class="typed" title="這是你輸入的內容">2</span>
+你選擇了 2
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>輪次</th>
+<th>輸入</th>
+<th><code>choice &lt; 1 \|\| choice &gt; 3</code></th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>7</td>
+<td><code>7 &gt; 3</code> 為真</td>
+<td>再問一次</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+<td><code>0 &lt; 1</code> 為真</td>
+<td>再問一次</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>兩邊都假</td>
+<td>離開迴圈</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="s-25237660">動手改改看</h3>
+<ul>
+<li>把補充範例 1-1 的目標改成 6000，需要幾個月？先想再執行。</li>
+<li>刪掉補充範例 1-2 <code>do-while</code> 結尾的分號，重新編譯，讀讀看錯誤訊息。</li>
+</ul>
+<hr />
+<h2 id="sec-3">2. <code>for</code> 迴圈</h2>
+<h3 id="s-41138635_1">用白話說</h3>
+<p>很多時候我們事先就知道要重複幾次，例如「印出 1 到 9」。<code>for</code> 把「從哪裡開始、做到什麼時候、每次怎麼前進」這三件事寫在同一行，一眼就看得出迴圈會跑幾次。</p>
+<h3 id="s-39850936_1">教材怎麼說</h3>
+<p><code>for</code> 的小括號裡有三個部分，用分號隔開。出處：GNU C 手冊 §19.6.4 for Statement；Beej §3.3.4 The for statement。</p>
+<pre><code class="language-plaintext">for (起始; 繼續條件; 前進)
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>部分</th>
+<th>作用</th>
+<th>什麼時候執行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>起始</td>
+<td>準備迴圈，例如 <code>int i = 1</code></td>
+<td>只在最開始執行一次</td>
+</tr>
+<tr>
+<td>繼續條件</td>
+<td>決定要不要再跑一輪，例如 <code>i &lt;= 9</code></td>
+<td>每一輪開始前</td>
+</tr>
+<tr>
+<td>前進</td>
+<td>為下一輪做準備，例如 <code>i++</code></td>
+<td>每一輪主體執行完之後</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>如果繼續條件一開始就是假，主體一次都不會執行。出處：GNU C 手冊 §19.6.4；Beej §3.3.4。</li>
+<li>同樣的迴圈也能用 <code>while</code> 寫出來，但 <code>for</code> 把控制迴圈的三件事集中在一起，比較精簡；事先知道次數時特別合適。出處：Beej §3.3.4。</li>
+<li>可以在起始的部分直接宣告變數，例如 <code>for (int i = 0; ...)</code>。這樣宣告的變數只在這個 <code>for</code> 裡面有效，離開迴圈後就不能再使用。這種變數一定要給初始值。出處：GNU C 手冊 §19.6.7 for-Index Declarations；Beej §13.3 for-loop Scope。</li>
+</ul>
+<h3 id="s-77297074"><code>i++</code> 是什麼</h3>
+<ul>
+<li><code>i++</code> 單獨成一行時，意思就是 <code>i = i + 1</code>；<code>i--</code> 則是 <code>i = i - 1</code>。出處：Beej §3.2.3 Pre-and-Post Increment-and-Decrement。</li>
+<li>如果放在更長的算式中，<code>i++</code> 和 <code>++i</code> 就有差別，見補充範例 2-3。</li>
+</ul>
+<h3 id="s-63159717_1">對照練習</h3>
+<p>練習「單元二」的最小程式用 <code>for</code> 計算 1 到 20 的總和，變化版本只加總能被 3 整除的數字。下面的補充範例示範另外兩種常見用法：依照輸入決定次數，以及用 <code>for</code> 和 <code>while</code> 寫出相同的迴圈來互相比較。</p>
+<h3 id="s-1545700">補充範例 2-1：九九乘法表的一列</h3>
+<p>檔名 <code>times.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;要印哪一個數字的乘法表？&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d x %d = %2d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>執行範例：</p>
+<pre><code class="language-text">要印哪一個數字的乘法表？<span class="typed" title="這是你輸入的內容">7</span>
+7 x 1 =  7
+7 x 2 = 14
+7 x 3 = 21
+7 x 4 = 28
+7 x 5 = 35
+7 x 6 = 42
+7 x 7 = 49
+7 x 8 = 56
+7 x 9 = 63
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>起始：<code>int i = 1</code>，只做一次。</li>
+<li>檢查 <code>i &lt;= 9</code>：1 小於等於 9，為真，執行主體，印出 <code>7 x 1 =  7</code>。</li>
+<li>前進：<code>i++</code>，<code>i</code> 變成 2。再檢查條件、執行主體，如此重複。</li>
+<li>當 <code>i</code> 變成 10，<code>10 &lt;= 9</code> 為假，迴圈結束，總共執行 9 次。</li>
+<li><code>%2d</code> 讓結果佔 2 格，所以個位數前面會補一個空白，等號後面的數字才會對齊（第 4 週的欄寬）。</li>
+</ol>
+<h3 id="s-58632689">補充範例 2-2：同一件事，兩種寫法</h3>
+<p><strong>問題</strong>：計算 1 到 n 之間所有奇數的總和，分別用 <code>for</code> 和 <code>while</code> 完成。</p>
+<p>檔名 <code>odd_sum.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;請輸入 n：&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sumFor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">sumFor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sumFor</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sumWhile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">sumWhile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sumWhile</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">;</span>
+<span class="w">        </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;for 的結果：%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sumFor</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;while 的結果：%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sumWhile</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>執行範例：</p>
+<pre><code class="language-text">請輸入 n：<span class="typed" title="這是你輸入的內容">9</span>
+for 的結果：25
+while 的結果：25
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>for</code> 的部分</th>
+<th>對應到 <code>while</code> 寫法的哪裡</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int i = 1</code></td>
+<td>迴圈前面的 <code>int j = 1;</code></td>
+</tr>
+<tr>
+<td><code>i &lt;= n</code></td>
+<td><code>while</code> 小括號裡的 <code>j &lt;= n</code></td>
+</tr>
+<tr>
+<td><code>i = i + 2</code></td>
+<td>主體最後的 <code>j = j + 2;</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>兩個迴圈都依序加上 1、3、5、7、9，總和 25。前進的部分不一定是 <code>i++</code>，這裡每次加 2，只挑奇數。</p>
+<h3 id="s-41787724">補充範例 2-3：<code>i++</code> 和 <code>++i</code> 的差別</h3>
+<p>檔名 <code>increment.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;a = %d, i = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;b = %d, j = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">a = 15, i = 6
+b = 16, j = 6
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li><code>10 + i++</code>：先用 <code>i</code> 原本的值 5 計算，<code>a</code> 得到 15；算完之後 <code>i</code> 才變成 6。</li>
+<li><code>10 + ++j</code>：<code>j</code> 先變成 6，再用 6 計算，<code>b</code> 得到 16。</li>
+<li>出處：Beej §3.2.3。為了避免混淆，建議把 <code>i++</code> 單獨寫成一行，或只用在 <code>for</code> 的前進部分。</li>
+</ol>
+<h3 id="s-35171468">常見錯誤：<code>for</code> 後面多了分號</h3>
+<p>檔名 <code>extra_semicolon.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">);</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;total = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>編譯時會看到類似下面的警告（程式仍然可以執行）：</p>
+<pre><code class="language-text">extra_semicolon.c:7:33: warning: for loop has empty body [-Wempty-body]
+</code></pre>
+<p>執行後的輸出：</p>
+<pre><code class="language-text">total = 1
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>單獨一個分號是<strong>空敘述</strong>，什麼事都不做。出處：GNU C 手冊 §19.11 Null Statement。</li>
+<li><code>for (...);</code> 的迴圈主體變成了這個空敘述，所以迴圈空轉 3 次，什麼都沒做。</li>
+<li>下面大括號裡的程式碼已經不屬於迴圈，只執行一次，所以 <code>total</code> 是 1，不是 3。</li>
+<li>GNU C 手冊也提醒，空敘述容易和迴圈結構混淆，要用明顯的寫法區分。出處：GNU C 手冊 §19.6.2。開啟 <code>-Wall</code> 等警告選項時，編譯器會指出「迴圈主體是空的」，這正是第 2 週說的「程式可以跑，不代表沒問題」。</li>
+</ol>
+<h3 id="s-25237660_1">動手改改看</h3>
+<ul>
+<li>把補充範例 2-1 改成印出 <code>n x 9</code> 到 <code>n x 1</code>（倒過來）。提示：起始、條件、前進三個部分都要改。</li>
+<li>在補充範例 2-2 的迴圈結束後加上 <code>printf("%d\n", i);</code>，重新編譯，讀讀看編譯器怎麼說。為什麼 <code>j</code> 可以印，<code>i</code> 卻不行？</li>
+</ul>
+<hr />
+<h2 id="sec-4">3. <code>break</code> 與 <code>continue</code></h2>
+<h3 id="s-41138635_2">用白話說</h3>
+<ul>
+<li><code>break</code>：「找到了，不用再找了」，立刻離開整個迴圈。</li>
+<li><code>continue</code>：「這一筆跳過，看下一筆」，放棄這一輪剩下的步驟，直接進入下一輪。</li>
+</ul>
+<h3 id="s-39850936_2">教材怎麼說</h3>
+<ul>
+<li><code>break;</code> 會立刻離開<strong>最內層</strong>的迴圈（或 <code>switch</code>）。迴圈有好幾層時，只會離開包住它的那一層。出處：GNU C 手冊 §19.6.3 break Statement。</li>
+<li><code>continue;</code> 會立刻跳到最內層迴圈這一輪的結尾。如果是 <code>for</code> 迴圈，接下來仍然會執行前進的部分。出處：GNU C 手冊 §19.6.8 continue Statement。</li>
+<li>使用 <code>continue</code> 可以減少 <code>if</code> 一層包一層的情況，讓程式比較好讀。出處同上。</li>
+</ul>
+<h3 id="s-63159717_2">對照練習</h3>
+<p>練習「單元三」的最小程式讀入 5 個整數，用 <code>break</code> 在找到 0 時提前結束；變化版本用 <code>continue</code> 跳過偶數。「綜合迷你專案」則同時用到兩者：請假的學生用 <code>continue</code> 跳過，資料格式錯誤就用 <code>break</code> 停止。下面的補充範例分別示範單獨使用和多層迴圈的情況。</p>
+<h3 id="s-54502556">補充範例 3-1：找出第一個符合條件的數</h3>
+<p><strong>問題</strong>：從 100 開始往上找，第一個 7 的倍數是多少？</p>
+<p>檔名 <code>first_multiple.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">answer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">200</span><span class="p">;</span><span class="w"> </span><span class="n">n</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">answer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">;</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;第一個 7 的倍數：%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">answer</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">第一個 7 的倍數：105
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>n</code></th>
+<th><code>n % 7</code></th>
+<th>動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>2</td>
+<td>繼續</td>
+</tr>
+<tr>
+<td>101</td>
+<td>3</td>
+<td>繼續</td>
+</tr>
+<tr>
+<td>102</td>
+<td>4</td>
+<td>繼續</td>
+</tr>
+<tr>
+<td>103</td>
+<td>5</td>
+<td>繼續</td>
+</tr>
+<tr>
+<td>104</td>
+<td>6</td>
+<td>繼續</td>
+</tr>
+<tr>
+<td>105</td>
+<td>0</td>
+<td>記錄 105，<code>break</code> 離開迴圈</td>
+</tr>
+</tbody>
+</table></div>
+<p>雖然條件寫到 200，但找到 105 之後就不再檢查 106 到 200。</p>
+<h3 id="s-65670811">補充範例 3-2：跳過不合理的成績</h3>
+<p><strong>問題</strong>：讀入 6 筆成績，超出 0 到 100 範圍的成績不列入計算，最後印出有效筆數與及格人數。</p>
+<p>檔名 <code>valid_scores.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">score</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">validCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">passCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;第 %d 筆成績：&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="w">        </span><span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">score</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">score</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  超出範圍，略過</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="n">validCount</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">60</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">passCount</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;有效 %d 筆，及格 %d 人</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">validCount</span><span class="p">,</span><span class="w"> </span><span class="n">passCount</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>執行範例：</p>
+<pre><code class="language-text">第 1 筆成績：<span class="typed" title="這是你輸入的內容">88</span>
+第 2 筆成績：<span class="typed" title="這是你輸入的內容">-5</span>
+  超出範圍，略過
+第 3 筆成績：<span class="typed" title="這是你輸入的內容">72</span>
+第 4 筆成績：<span class="typed" title="這是你輸入的內容">101</span>
+  超出範圍，略過
+第 5 筆成績：<span class="typed" title="這是你輸入的內容">45</span>
+第 6 筆成績：<span class="typed" title="這是你輸入的內容">90</span>
+有效 4 筆，及格 3 人
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>輸入</th>
+<th>超出範圍？</th>
+<th>動作</th>
+<th><code>validCount</code></th>
+<th><code>passCount</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>88</td>
+<td>否</td>
+<td>計入，及格</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>-5</td>
+<td>是</td>
+<td><code>continue</code>，下面的計數都跳過</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>72</td>
+<td>否</td>
+<td>計入，及格</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>101</td>
+<td>是</td>
+<td><code>continue</code></td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>45</td>
+<td>否</td>
+<td>計入，不及格</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>90</td>
+<td>否</td>
+<td>計入，及格</td>
+<td>4</td>
+<td>3</td>
+</tr>
+</tbody>
+</table></div>
+<p>即使執行了 <code>continue</code>，<code>for</code> 的前進部分 <code>i++</code> 仍然會執行，所以總共還是讀 6 筆。</p>
+<h3 id="s-50120157">補充範例 3-3：<code>break</code> 只離開一層</h3>
+<p><strong>問題</strong>：用兩層迴圈印出三角形，觀察內層的 <code>break</code> 不會影響外層。</p>
+<p>檔名 <code>triangle.c</code>：</p>
+<pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">row</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="n">row</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w"> </span><span class="n">col</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">col</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">row</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;* &quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre>
+<p>預期輸出：</p>
+<pre><code class="language-text">*
+* *
+* * *
+* * * *
+</code></pre>
+<p><strong>一步一步看</strong></p>
+<ol>
+<li>外層每跑一輪（<code>row</code> 從 1 到 4），內層就從 <code>col = 1</code> 重新開始。</li>
+<li>當 <code>col</code> 超過 <code>row</code>，內層的 <code>break</code> 只會離開<strong>內層</strong>迴圈，接著執行外層的 <code>printf("\n")</code> 換行。</li>
+<li>外層迴圈不受影響，繼續下一個 <code>row</code>。所以第 1 列印 1 顆星，第 4 列印 4 顆星。</li>
+</ol>
+<h3 id="s-25237660_2">動手改改看</h3>
+<ul>
+<li>把補充範例 3-1 的 7 改成 13，並把範圍改成 100 到 110，找不到時 <code>answer</code> 會是多少？怎麼讓程式印出「找不到」？</li>
+<li>把補充範例 3-3 的 <code>break</code> 改成 <code>continue</code>，輸出會有什麼不同？為什麼迴圈的次數變多了，印出來的星號卻一樣？</li>
+</ul>
+<hr />
+<h2 id="sec-5">本講義未涵蓋的內容</h2>
+<ul>
+<li><strong>「累計樣式」「搜尋樣式」這些名稱</strong>：本講義在引用的教材中沒有找到這樣的分類說法，這是課程講義的整理方式。</li>
+<li><strong>哨兵值（sentinel value）的設計方法</strong>：練習檔有使用，但本次檢索的段落沒有說明。</li>
+<li><strong>無窮迴圈卡住時如何強制結束程式</strong>：引用的教材中沒有說明終端機的操作方式，請向授課教師詢問。</li>
+</ul>
+<h2 id="sec-6">延伸閱讀</h2>
+<ul>
+<li><a href="https://beej.us/guide/bgc/html/split/variables-and-statements.html">Beej's Guide to C</a> §3.3.2 至 §3.3.4</li>
+<li><a href="https://beej.us/guide/bgc/html/split/scope.html">Beej's Guide to C §13.3 for-loop Scope</a></li>
+<li><a href="https://www.gnu.org/software/c-intro-and-ref/manual/">GNU C 手冊</a> §19.6 Loop Statements</li>
+<li><a href="https://en.cppreference.com/w/c/language/for">cppreference：for 迴圈</a>、<a href="https://en.cppreference.com/w/c/language/while">while 迴圈</a></li>
+</ul>
+<nav class="pager" aria-label="上一篇與下一篇"><a class="prev" href="unit04.html">← Unit 4：選擇結構與條件判斷</a><a class="next" href="unit06.html">Unit 6：函式、參數、回傳值與作用域 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">
+  <p>觀念說明整理自：<a href="https://beej.us/guide/bgc/">Beej's Guide to C Programming</a>（CC BY-NC-ND 3.0）、
+  <a href="https://www.gnu.org/software/c-intro-and-ref/">GNU C Language Intro and Reference Manual</a>（GFDL）、
+  <a href="https://inria.hal.science/hal-02383654">Modern C</a>（CC BY-NC-ND 4.0）、
+  <a href="https://en.cppreference.com/w/c">cppreference.com</a>（CC BY-SA 3.0），並參考 Kernighan &amp; Ritchie《The C Programming Language》。
+  講義文字與範例程式為本課程自行撰寫。</p>
+</footer>
+<script src="assets/handout.js"></script>
+</body>
+</html>
