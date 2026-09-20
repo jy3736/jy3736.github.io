@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
+<title>不會講話的 AI：一個只做選擇題的新模型｜AI 時事講義</title>
+<meta name="description" content="一家新創推出不會產生文字的 AI，標題寫著快 200 倍、便宜 400 倍、不會幻覺。用這則新聞練習拆解科技新聞裡的效能數字。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding-inline: 16px;
+}
+.site-header .inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+@media (min-width: 1000px) {
+  .page { grid-template-columns: 250px minmax(0, 1fr); }
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 1000px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 1000px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+@media (prefers-color-scheme: dark) {
+  .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+  .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+}
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+@media (prefers-color-scheme: dark) { .unit-card .tag { color: #15171a; } }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+@media (prefers-color-scheme: dark) {
+  .steps > li::before { color: #0e1a19; }
+}
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+@media (prefers-color-scheme: dark) { .download { color: #0e1a19; } }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; padding-inline: 16px; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+@media print {
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); max-width: 900px; }
+blockquote {
+  margin: 1.2rem 0;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+  line-height: 1.9;
+}
+/* 表格第一欄是索引欄，保持單行不換行，過寬時整個表格可橫向捲動 */
+table th:first-child, table td:first-child { white-space: nowrap; }
+.news-card .tag { color: var(--accent); }
+.news-date { color: var(--muted); font-size: 0.9rem; margin: 0.1rem 0 0.4rem; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><nav aria-label="講義"><a href="index.html">首頁</a>
+<a href="news01.html">時事 1</a>
+<a href="news02.html" aria-current="page">時事 2</a></nav></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><details><summary>本頁目錄</summary><ol><li><a href="#sec1">先說結論：這份講義要你練什麼</a></li><li><a href="#sec2">一、事情是怎麼發生的</a></li><li><a href="#sec3">二、這個 AI 跟你在用的 AI 差在哪</a></li><li><a href="#sec4">三、三個賣點數字，一個一個拆</a></li><li><a href="#sec5">四、最關鍵的一題：誰來出標準答案</a></li><li><a href="#sec6">五、其實是分工，不是取代</a></li><li><a href="#sec7">六、自己查證：問四個問題</a></li><li><a href="#sec8">七、討論題</a></li><li><a href="#sec9">八、離開教室前，寫下一句話</a></li><li><a href="#sec10">九、英文詞彙對照</a></li><li><a href="#sec11">十、想自己查下去</a></li></ol></details></aside>
+<main id="main">
+<section class="hero"><p class="eyebrow">時事 2</p><h1>不會講話的 AI：一個只做選擇題的新模型</h1><p class="lead">一家新創推出了一個完全不會產生文字的 AI，新聞標題寫著「快 200 倍、便宜 400 倍、不會幻覺」。這份講義用這則新聞，練習拆解科技新聞裡的數字。</p><ul class="meta"><li>事件時間：2026 年 9 月</li><li>可獨立閱讀</li><li>不需程式基礎</li><li>語音導讀：約 13 分鐘</li></ul>
+<div class="callout tip" style="margin-top: 1.5rem;">
+  <span class="label">🎧 本講次語音導讀 Podcast（單人深度解析・台灣華語）</span>
+  <p style="margin-bottom: 0.5rem;">想用聽的快速掌握本講次核心？歡迎收聽單人口語深入導讀（全長 12 分 51 秒）：</p>
+  <audio controls preload="metadata" style="width: 100%; margin-top: 0.3rem;">
+    <source src="audio/news02-podcast.mp3" type="audio/mpeg">
+    您的瀏覽器不支援 HTML5 音訊播放。
+  </audio>
+  <p style="margin-top: 0.4rem; font-size: 0.85rem; color: var(--muted); margin-bottom: 0;">檔案載點：<a href="audio/news02-podcast.mp3" download>下載 MP3</a> ｜ <a href="../podcasts/news02-podcast-transcript.md" target="_blank">閱讀完整文字講稿</a></p>
+</div>
+</section><h2 id="sec1">先說結論：這份講義要你練什麼</h2>
+<p>上一份講義練的是「有人這樣主張」和「這件事被證實了」怎麼分。這一份練的是下一步：<strong>當新聞丟給你一個很誇張的數字，你要怎麼判斷它是真的，還是只是「在某種情況下是真的」？</strong></p>
+<p>2026 年 9 月，一家叫 TypeSafe AI 的新創公司推出一個叫 Jev 的模型。它最奇怪的地方是：<strong>它完全不會講話。</strong> 你沒辦法跟它聊天，它不會寫作業，不會寫程式，也不會回你一句完整的話。</p>
+<p>但媒體一片叫好，標題寫著它比 ChatGPT 這類模型快 200 倍、便宜 400 倍，而且「不會產生幻覺」。</p>
+<p>三個數字，三種不同程度的真實。這正好是一個很好的練習題。</p>
+<h2 id="sec2">一、事情是怎麼發生的</h2>
+<p>整件事在一週內爆開，順序是這樣：</p>
+<div class="table-wrap"><table><thead><tr><th>時間</th><th>誰</th><th>做了什麼</th></tr></thead><tbody><tr><td>9 月 15 日</td><td>TypeSafe AI</td><td>結束隱形期，同時宣布募到 4,000 萬美元、提出新模型類別、發表第一個產品 Jev</td></tr><tr><td>9 月 15 日起</td><td>開發者社群</td><td>官方發表文在 Hacker News 兩天內累積超過 470 則留言</td></tr><tr><td>9 月 16 至 18 日</td><td>TechCrunch、The Register 等</td><td>英文科技媒體跟進，角度多為「一位 ChatGPT 發明者做了完全相反的東西」</td></tr><tr><td>9 月 17 至 19 日</td><td>科技新報、INSIDE 等</td><td>台灣媒體跟進，標題強調「快 200 倍、便宜 400 倍、不會幻覺」</td></tr><tr><td>同一時期</td><td>獨立開發者與評論者</td><td>開始質疑官方數據的測法，並自己做了對照測試</td></tr></tbody></table></div>
+<p>創辦人 Diogo Almeida 是前 OpenAI 研究員，參與過 ChatGPT 的關鍵訓練方法。這個身分是新聞能傳這麼快的原因之一。</p>
+<div class="callout note"><span class="label">先分清楚兩種東西</span><p>「9 月 15 日發表」「募到 4,000 萬美元」「470 則留言」，這些都查得到，是事實。「快 200 倍」「不會幻覺」是公司自己講的，是<strong>主張</strong>。主張不一定是假的，但它需要被檢查，而不是直接接受。</p></div>
+<h2 id="sec3">二、這個 AI 跟你在用的 AI 差在哪</h2>
+<p>最快的理解方式，是把兩種 AI 想成兩種考試題型。</p>
+<h3>你平常用的 AI：申論題</h3>
+<p>你打一段字問它，它一個字一個字寫回答給你。好處是什麼都能問；壞處是你事先不知道它會寫什麼、寫多長、格式對不對，而且它有可能把不存在的東西寫得煞有介事。</p>
+<h3>Jev：選擇題，而且要寫下你有幾成把握</h3>
+<p>用 Jev 的人要先把<strong>題目和選項都出好</strong>，再把資料丟給它。例如你把一封客訴信交給它，同時規定：</p>
+<blockquote>第一題，這封信的情緒是「生氣／普通／滿意」，三選一。<br>第二題，需不需要真人處理？是或否。<br>第三題，急迫程度打幾分？1 到 5 分。</blockquote>
+<p>Jev 回傳的不是一段話，而是三個被填好的格子，而且每一格還附上一個數字，代表它有幾成把握。</p>
+<p>它不會、也做不到回你一句話。<strong>選項以外的答案，它根本寫不出來。</strong></p>
+<div class="callout tip"><span class="label">一句話記住</span><p>你平常用的 AI 是寫給<strong>人</strong>看的；Jev 是寫給<strong>其他程式</strong>看的。使用者根本不是人類，而是軟體。</p></div>
+<h3>三個會一直出現的詞</h3>
+<p><strong>1. 決策模型（decision model）</strong><br>只負責做判斷、不負責講話的 AI。判斷完就把結果交給下一段程式去用。</p>
+<p><strong>2. 型別化輸出（typed output）</strong><br>「型別」就是規定這一格只能填什麼。像報名表上的「性別」欄只能勾選項，不能自由發揮。Jev 的每一個回答格都被這樣限制住。</p>
+<p><strong>3. 校準機率（calibrated probability）</strong><br>模型說「我有 80% 把握」的時候，這個 80% 準不準？如果它說 80% 的那些題目，實際上真的對了八成左右，這個機率就叫「校準得好」。這個數字比答案本身還重要，因為程式要靠它決定「要不要叫真人來看一下」。</p>
+<h3>公司自己的示範：讓它玩 Doom</h3>
+<p>TypeSafe 的公開示範，是讓 Jev 玩經典射擊遊戲 Doom，每秒做大約 10 次判斷。</p>
+<p>但有兩件事官方自己就講了：它讀的不是畫面，而是整理好的遊戲數據；而且<strong>「一個不用 AI 的傳統程式可以打得更好」</strong>。</p>
+<div class="callout warn"><span class="label">這個示範到底在證明什麼</span><p>它不是在證明「Jev 很會打電動」，而是在證明「Jev 的反應快到可以塞進一個即時運作的系統裡」。這兩件事差很多，但新聞標題很容易寫成前者。看示範的時候，先問一句：<strong>這個示範真正想證明的是哪一點？</strong></p></div>
+<h2 id="sec4">三、三個賣點數字，一個一個拆</h2>
+<p>中文報導的標題幾乎都繞著三個賣點打轉。它們都不是騙人的，但每一個都少講了一段條件。</p>
+<div class="table-wrap"><table><thead><tr><th>賣點</th><th>原本的說法</th><th>少講的那一段</th></tr></thead><tbody><tr><td>快 200 倍</td><td>回應時間約 70 到 500 毫秒，比前沿模型快 40 到 200 倍</td><td>是一個「40 到 200」的區間，不是固定 200 倍；而且是在特定測試任務下測的，換個任務就不一樣</td></tr><tr><td>便宜 400 倍</td><td>每一百萬個輸入字元單位收費 0.042 美元，輸出幾乎免費</td><td>比較對象是最貴的高階模型；而且 Jev 根本不產生長篇文字，本來就省掉了最貴的那一半</td></tr><tr><td>不會幻覺</td><td>輸出被限制在事先定好的選項裡，結構上不可能寫出格式錯誤的東西</td><td>保證的是「不會答出選項以外的東西」，不是「不會答錯」</td></tr></tbody></table></div>
+<h3>「不會幻覺」這句話，值得停下來講清楚</h3>
+<p>用考試來比喻就很好懂：</p>
+<blockquote>選擇題確實不可能寫出一個不存在的選項，<br>但你還是可以選到錯的那一個。</blockquote>
+<p>Jev 保證的是<strong>形式正確</strong>，不是<strong>內容正確</strong>。它不會憑空捏造一個選項，但在你給的選項裡，它照樣可能選錯，只是這時候它給的把握程度應該會偏低。</p>
+<div class="callout warn"><span class="label">這是整則新聞最容易被誤讀的一句</span><p>很多報導把「結構上不會產生幻覺」直接寫成「不會出錯」。這兩句話差很遠。下次看到任何「保證不會怎樣」的說法，先問：<strong>它保證的到底是哪一種正確？</strong></p></div>
+<h3>還有一個反對意見</h3>
+<p>開發者社群裡最常見的質疑是：用選項限制 AI 的回答，這件事以前就有人做過，並不是全新的想法。</p>
+<p>那 Jev 新在哪？支持的人說，新的不是概念，而是把速度和成本壓到一個以前做不到的程度。這個說法成不成立，是你自己可以判斷的一題。</p>
+<h2 id="sec5">四、最關鍵的一題：誰來出標準答案</h2>
+<p>這是本講義最重要的一段，也是最值得帶走的一個思考習慣。</p>
+<p>公司公布的「準確度」數據，聽起來很客觀。但如果你去翻它怎麼測的，會發現一件事：</p>
+<blockquote>這份測驗的標準答案，<br>不是人寫的，<br>是另外兩個 AI 模型寫的。</blockquote>
+<p>具體做法是：拿 GPT-6 Astra 和 Claude Fable 5.1 兩個模型的答案平均起來，當成正確答案，再看 Jev 答得跟它們有多像。整份評測裡，<strong>沒有任何一題的答案是人類確認過的</strong>。</p>
+<p>這會造成三個問題：</p>
+<ol class="steps"><li><strong>「準確度」其實是「像不像」。</strong> 分數高只代表 Jev 跟那兩個模型想得很接近，不代表它想得對。</li><li><strong>分數的天花板被鎖死了。</strong> 如果出題的那兩個模型本身就答錯，那跟著一起答錯的模型，分數反而更高。</li><li><strong>題目是公司自己出的。</strong> 公司也承認測試方式可能有偏誤，並說「我們自己也是懷疑論者」。</li></ol>
+<h3>後來有人自己去測了</h3>
+<p>事件之後很快有開發者做了獨立測試：出 200 道題，把 Jev 跟五個主流模型一起考，而且這次找了 100 位真人來標答案。結果大致是：</p>
+<ul><li>準確度上，Jev 略輸給最強的幾個模型（Claude Fable 5.1 領先約 11.5 個百分點）。</li><li>但它換來的是便宜非常多、快非常多。</li><li>在「說自己有幾成把握，準不準」這一項，Jev 明顯比不上 Claude Fable 5.1。</li></ul>
+<div class="callout note"><span class="label">但這份測試也不是定論</span><p>它是一位開發者做的，只有 200 題。「有人做了獨立測試」不等於「結論定案了」。它的價值在於：<strong>終於出現了一個不是廠商自己講的版本。</strong> 讀科技新聞的時候，找到這種第二個聲音，往往比多讀五篇轉述更有用。</p></div>
+<h2 id="sec6">五、其實是分工，不是取代</h2>
+<p>有些標題把 Jev 寫成「聊天 AI 的殺手」。但看清楚它能做什麼之後，會發現兩者比較像分工。</p>
+<div class="table-wrap"><table><thead><tr><th>比一比</th><th>會講話的 AI</th><th>只做判斷的 AI</th></tr></thead><tbody><tr><td>代表產品</td><td>ChatGPT、Claude 這一類</td><td>Jev</td></tr><tr><td>回你什麼</td><td>一段文字、程式碼、文件</td><td>填好的格子加上把握程度</td></tr><tr><td>誰在用它</td><td>人</td><td>其他程式</td></tr><tr><td>厲害在哪</td><td>開放式的任務、創作、解釋、推理</td><td>大量重複的判斷、分類、把關</td></tr><tr><td>弱在哪</td><td>慢、貴、格式不穩定</td><td>只能在你事先框好的範圍裡作答</td></tr><tr><td>用在哪</td><td>寫報告、討論、寫程式</td><td>即時控制、海量資料分類、動作前的安全檢查</td></tr></tbody></table></div>
+<p>實務上常被提到的組合是這樣：由會講話的 AI 決定「接下來要做什麼」，再由 Jev 這種模型在每一步動手之前快速把關，例如判斷「這個動作危不危險」「這筆資料該送去哪裡」。</p>
+<p>在這種架構裡，決策模型是藏在底下的基礎設施，使用者根本看不到它。</p>
+<div class="callout tip"><span class="label">對你的意義</span><p>以後跟 AI 有關的工作，不會只有「跟 AI 聊天」這一種。另一種是：<strong>決定 AI 在整個系統裡負責哪一段。</strong> 而後者需要的能力，是把一個模糊的問題，拆成幾個明確的選項。這件事跟會不會寫程式無關，是可以現在就開始練的。</p></div>
+<h2 id="sec7">六、自己查證：問四個問題</h2>
+<p>跟上一份講義同樣的四個問題，這次拿來對付技術新聞：</p>
+<ol class="steps"><li><strong>這是誰講的，原始出處在哪？</strong> 是公司官網的發表文、募資新聞稿、第三方測試，還是「某媒體報導說某媒體報導」？</li><li><strong>哪些是規格，哪些是承諾？</strong> 「每百萬單位 0.042 美元」是規格，查得到。「會改變 AI 產業」是承諾，現在查不到。</li><li><strong>有沒有人持相反意見？</strong> 至少找一則指出限制、或質疑測法的報導。本講義最後有一整區是這種來源。</li><li><strong>用字在引導你嗎？</strong> 「爆紅」「顛覆」「反 LLM」「殺死聊天」，每個詞都帶情緒。換成中性講法，這則新聞會變成什麼樣子？</li></ol>
+<h3>課堂小練習</h3>
+<p>從最後的來源清單裡挑一則中文報導和一則英文報導，比對同一件事。完成後向同組同學說明三件事：</p>
+<ul><li>兩則報導都提到的數字，條件講得一樣清楚嗎？誰講得比較完整？</li><li>哪一則有提到限制或質疑？它質疑的是哪一點？</li><li>兩個標題裡，各有哪個詞是原始資料沒有、編輯自己加上去的？</li></ul>
+<h2 id="sec8">七、討論題</h2>
+<p>課堂上會挑幾題來談。沒有標準答案，但請說出理由。</p>
+<ol class="steps"><li>用選擇題的比喻，向一個完全沒聽過這則新聞的同學解釋：「不會幻覺」保證了什麼、沒保證什麼。</li><li>如果一場考試的標準答案是另外兩個考生寫的，你會怎麼看待「答對 67.8%」這個成績？要怎麼改才比較可信？</li><li>公司自己說「一個不用 AI 的傳統程式可以打 Doom 打得更好」。既然如此，為什麼還要做這個示範？主動講出這句話，對這家公司是加分還是扣分？</li><li>有人說「用選項限制 AI 不是新東西」。一項技術如果想法不新、但把速度和成本做到前所未有，算不算創新？請舉一個不是 AI 的例子來支持你的看法。</li><li>比較台灣媒體和英文媒體的標題用詞，哪些詞是原始資料裡就有的，哪些是編輯加上去的？</li><li>假設你要幫學校做一個「自動分類學生報修單」的小工具，你會選會講話的 AI，還是只做判斷的 AI？你會怎麼設計那幾個選項？</li><li>如果以後大量 AI 都在系統內部互相溝通，不產生任何人看得懂的文字，那「AI 做了什麼要能被檢查」這件事會變得更容易還是更難？</li></ol>
+<h2 id="sec9">八、離開教室前，寫下一句話</h2>
+<p>不用寫成報告，就一句話，但要具體。從下面挑一個開頭往下寫：</p>
+<ul><li>這則新聞裡，我覺得最查不到根據的一句話是什麼，為什麼。</li><li>我原本以為「AI」就是會聊天的那種，讀完之後我改成怎麼想。</li><li>要讓我相信「快 200 倍」這個數字，我需要看到什麼樣的資料。</li></ul>
+<div class="callout tip"><span class="label">最後一種最重要</span><p>能講出「什麼資料會說服我」，表示你已經在判斷了。講不出來的話，你接受的其實只是一個標題。</p></div>
+<h2 id="sec10">九、英文詞彙對照</h2>
+<p>這些詞在英文報導裡會一直出現，認得就能直接讀原文：</p>
+<div class="table-wrap"><table><thead><tr><th>英文</th><th>中文</th><th>意思</th></tr></thead><tbody><tr><td>decision model</td><td>決策模型</td><td>只給判斷結果、不產生文字的 AI</td></tr><tr><td>System One Model</td><td>系統一模型</td><td>這家公司提出的類別名稱，取自「快思慢想」裡快而直覺的那一套</td></tr><tr><td>typed output</td><td>型別化輸出</td><td>回答只能填在事先規定好的格子和選項裡</td></tr><tr><td>calibrated probability</td><td>校準機率</td><td>模型說「我有幾成把握」，而且這個數字本身要夠準</td></tr><tr><td>hallucination</td><td>幻覺</td><td>AI 講得頭頭是道，但內容是編出來的</td></tr><tr><td>latency</td><td>延遲</td><td>從問出去到拿到答案要等多久，通常用毫秒算</td></tr><tr><td>AI agent</td><td>AI 代理人</td><td>給它一個目標，它自己拆步驟做完的 AI</td></tr><tr><td>stealth mode</td><td>隱形期</td><td>新創公司正式公開前，刻意不對外講產品的階段</td></tr><tr><td>seed round</td><td>種子輪</td><td>新創公司最早期的一輪募資</td></tr><tr><td>benchmark</td><td>基準測試</td><td>用同一套題目比較不同模型表現的測驗</td></tr></tbody></table></div>
+<h2 id="sec11">十、想自己查下去</h2>
+<p>這些是本講義內容的出處，也是你做四問練習的材料。看的時候記得：公司自己發的、媒體轉述的、獨立測試的，三種來源的可信程度不一樣。</p>
+<p>中文報導：</p>
+<ul><li><a href="https://technews.tw/2026/09/18/typesafe-ai-introduces-system-one-models-and-jev/" target="_blank" rel="noopener">OpenAI 前研究員打造新模型 Jev，反應快、成本極低顛覆傳統 LLM</a>（TechNews 科技新報）</li><li><a href="https://www.inside.com.tw/article/42416-typesafe-jev-decision-model-agentic-ai" target="_blank" rel="noopener">語言模型沒效率？OpenAI 元老創辦 TypeSafe 以 $40M 種子輪揭 Jev「決策模型」</a>（INSIDE）</li><li><a href="https://www.blocktempo.com/jev-typesafe-ai-openai-system-one-model-diogo-almeida-explained/" target="_blank" rel="noopener">爆紅的 Jev 模型是什麼？OpenAI 元老打造只做決策的 AI</a>（動區動趨 BlockTempo）</li><li><a href="https://klab.tw/2026/09/jev-system-one-ai-model-guide/" target="_blank" rel="noopener">Jev 是什麼？TypeSafe System One 決策模型｜功能、價格、用法與限制</a>（KodeLab）</li><li><a href="https://frankchiu.io/ai-jev-intro/" target="_blank" rel="noopener">Jev 是什麼？AI 決策模型的用途、費用與限制</a>（Frank Chiu，個人技術部落格）</li><li><a href="https://news.pchome.com.tw/science/sunmedia/20260919/index-78978690820892329005.html" target="_blank" rel="noopener">軟體自動化迎高效 AI 模型 Jev 強化代理安全與成本效益</a>（商傳媒／PChome 新聞）</li></ul>
+<p>英文報導：</p>
+<ul><li><a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener">Introducing System One Models &amp; Jev</a>（TypeSafe AI 官方部落格，一手來源）</li><li><a href="https://techcrunch.com/2026/09/18/a-new-kind-of-ai-model-from-a-chatgpt-inventor-is-thrilling-developers/" target="_blank" rel="noopener">A new kind of AI model from a ChatGPT inventor is thrilling developers</a>（TechCrunch）</li><li><a href="https://www.theregister.com/ai-and-ml/2026/09/16/typesafe-ai-debuts-model-for-machines-that-plays-doom/5296711" target="_blank" rel="noopener">TypeSafe AI debuts model for machines that plays Doom</a>（The Register）</li><li><a href="https://siliconangle.com/2026/09/16/typesafe-ai-exits-stealth-with-40m-to-build-ai-for-use-by-software/" target="_blank" rel="noopener">TypeSafe AI exits stealth with $40M to build AI for use by software</a>（SiliconANGLE）</li><li><a href="https://www.marktechpost.com/2026/09/19/typesafe-ai-releases-jev/" target="_blank" rel="noopener">TypeSafe AI Releases Jev: A System One Model That Returns Typed, Calibrated Decisions Instead of Text</a>（MarkTechPost）</li><li><a href="https://dealroom.co/news/151032-typesafe-exits-stealth-with-40m-seed-to-build-ai-for-software-not-people/" target="_blank" rel="noopener">TypeSafe exits stealth with $40M seed to build AI for software, not people</a>（Dealroom，募資資料）</li><li><a href="https://www.artificialintelligence-news.com/news/chatgpt-pioneer-launches-jev-model-for-programmatic-logic/" target="_blank" rel="noopener">ChatGPT pioneer launches Jev model for programmatic logic</a>（AI News）</li><li><a href="https://www.heise.de/en/news/AI-model-Jev-to-make-machines-decide-faster-11457071.html" target="_blank" rel="noopener">AI model "Jev" to make machines decide faster</a>（heise online，德國）</li></ul>
+<p>質疑與獨立測試（做第三個問題時請一定要看這一區）：</p>
+<ul><li><a href="https://github.com/manjunathshiva/jev-frontier-bench" target="_blank" rel="noopener">jev-frontier-bench：200 題、六個模型、100 位真人標註的對照測試</a>（獨立開發者）</li><li><a href="https://arize.com/blog/typesafe-jev-llm-judge/" target="_blank" rel="noopener">TypeSafe Jev: Can Decision Models Replace LLM Judges?</a>（Arize AI，檢視測法與適用範圍）</li><li><a href="https://pearpages.com/blog/2026/09/16/jev-sorted-what-typesafes-system-one-model-actually-is-and-what-is-still-just-a-claim" target="_blank" rel="noopener">Jev, Sorted: What Is Actually True, and What Is Still Just a Claim</a>（把已驗證的事實和未驗證的主張分開）</li><li><a href="https://kingy.ai/blog/typesafe-jev-review-the-ai-model-that-doesnt-generate-text/" target="_blank" rel="noopener">TypeSafe Jev Review: The AI Model That Doesn't Generate Text</a>（Kingy AI，指出「不會幻覺」講得太滿）</li></ul>
+<p>這些報導都是 2026 年 9 月 15 日到 20 日之間發布的，而且當時 Jev 還在少數人才能用的試用階段。等你讀到的時候，可能已經開放一般人使用，也可能出現了更可信的獨立測試。查一下最新進展再來討論，這本身就是最好的練習。</p><nav class="pager"><a href="news01.html">← 時事 1</a><a href="index.html">回首頁 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材。新聞事件仍在發展，閱讀時請一併確認是否有後續進展。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 999px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 1000px)").matches) tocDetails.open = true;
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
