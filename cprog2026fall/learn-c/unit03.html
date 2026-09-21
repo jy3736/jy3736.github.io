@@ -1,22 +1,32 @@
 <!doctype html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant-TW" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Unit 3：主控台輸入／輸出與格式化｜計算機程式及實習：C 語言講義</title>
 <meta name="description" content="用 scanf 讀取使用者輸入、printf 格式化輸出">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📘</text></svg>">
+<script>(function(){var t='dark';try{if(localStorage.getItem('learn-c-theme')==='light')t='light';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();</script>
 <link rel="stylesheet" href="assets/handout.css">
 <link rel="stylesheet" href="assets/highlight.css">
-<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
 <body>
-<header class="site-header">
+<header class="site-header"><div class="inner">
   <a class="site-name" href="index.html">計算機程式及實習：C 語言講義</a>
-  <button class="theme-toggle" type="button" aria-label="切換深色或淺色模式">深淺色</button>
-</header>
+  <button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button>
+</div></header>
 <div class="layout">
-<nav class="toc" aria-label="本頁目錄"><p class="toc-title">本頁目錄</p><div>
+<nav class="toc toc-has-audio" aria-label="本頁目錄"><div class="toc-audio">
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">09:55</span></div>
+<audio id="podcast-audio" preload="metadata"><source src="audio/unit03-podcast.mp3" type="audio/mpeg"></audio>
+<div class="toc-audio-controls">
+<button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
+<div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
+</div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 09:55</span></div>
+<div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
+</div>
+<p class="toc-title">本頁目錄</p><div>
 <ul>
 <li><a href="#sec-1">本週對照表</a></li>
 <li><a href="#sec-2">1. 用 scanf 讀取使用者輸入</a></li>
@@ -25,9 +35,9 @@
 <li><a href="#sec-5">延伸閱讀</a></li>
 </ul>
 </div>
-</nav>
+<div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m4 0h1m4 0h1m1 0h2m2 0h3m1 0h7m-33 1h1m5 0h1m2 0h4m2 0h4m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m3 0h1m1 0h1m2 0h1m1 0h4m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m7 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h6m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h4m1 0h2m2 0h1m4 0h1m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m2 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m-24 1h1m1 0h5m2 0h3m1 0h1m3 0h1m5 0h1m2 0h5m-31 1h3m1 0h1m2 0h1m1 0h6m1 0h6m1 0h2m1 0h2m1 0h4m-33 1h1m5 0h1m1 0h3m2 0h3m1 0h1m2 0h1m4 0h2m1 0h1m1 0h1m-31 1h4m4 0h1m3 0h2m4 0h1m1 0h4m1 0h2m1 0h3m1 0h1m-33 1h2m1 0h2m1 0h7m1 0h2m1 0h1m2 0h1m3 0h2m1 0h3m-30 1h1m1 0h2m5 0h3m3 0h1m1 0h3m3 0h1m2 0h2m1 0h4m-33 1h4m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h1m1 0h4m3 0h1m-28 1h2m1 0h3m4 0h2m4 0h2m1 0h4m1 0h3m-31 1h4m2 0h1m2 0h1m1 0h7m2 0h1m1 0h1m2 0h1m1 0h2m3 0h1m-33 1h1m3 0h1m2 0h2m1 0h1m1 0h1m3 0h5m2 0h2m1 0h2m1 0h4m-33 1h7m1 0h2m2 0h4m2 0h1m3 0h1m2 0h4m1 0h1m-31 1h2m2 0h1m4 0h4m1 0h2m2 0h1m2 0h4m2 0h4m-28 1h5m2 0h3m2 0h1m1 0h1m1 0h2m1 0h1m2 0h1m1 0h3m-30 1h1m1 0h3m2 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h5m2 0h1m2 0h2m1 0h1m-33 1h1m1 0h2m1 0h2m1 0h1m1 0h6m1 0h1m2 0h1m1 0h1m3 0h2m3 0h1m-32 1h1m2 0h3m1 0h3m1 0h1m2 0h3m4 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m2 0h7m4 0h1m1 0h4m2 0h1m1 0h5m3 0h1m-25 1h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h4m1 0h2m3 0h1m1 0h3m-33 1h7m2 0h1m2 0h1m1 0h3m4 0h4m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m2 0h4m3 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m6 0h1m1 0h1m4 0h1m1 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m1 0h1m5 0h5m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h4m3 0h1m3 0h3m1 0h2m-31 1h1m5 0h1m2 0h1m2 0h1m2 0h2m2 0h4m2 0h1m2 0h3m-31 1h7m1 0h2m2 0h3m2 0h1m1 0h2m1 0h4m1 0h1m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></nav>
 <main class="content">
-<h1 id="s-18062807">Unit 3：主控台輸入／輸出與格式化</h1>
+<h1 id="s-18541214">Unit 3：主控台輸入／輸出與格式化</h1>
 <blockquote>
 <p>對應課程：第 4 週講義與實作練習</p>
 <p>本講義的觀念說明整理自文末「延伸閱讀」列出的公開教材，並附上出處。所有範例程式都是完整的程式，可以直接編譯執行。</p>
@@ -74,9 +84,9 @@
 <p><strong>怎麼看執行範例</strong>：執行範例中<span class='typed'>黃底標示</span>的文字代表你用鍵盤輸入的內容，輸入完按 Enter。</p>
 <hr />
 <h2 id="sec-2">1. 用 <code>scanf</code> 讀取使用者輸入</h2>
-<h3 id="s-41138635">用白話說</h3>
+<h3 id="s-55263126">用白話說</h3>
 <p>到上週為止，程式裡的數字都是事先寫好的。<code>scanf</code> 讓程式在執行時停下來，等你從鍵盤輸入資料，再把輸入的內容存進變數。這樣同一支程式就能處理不同的資料。</p>
-<h3 id="s-39850936">教材怎麼說</h3>
+<h3 id="s-98342303">教材怎麼說</h3>
 <ul>
 <li><code>scanf</code> 會讀取輸入、依照格式字串解析，再把結果存進你提供的變數。格式字串的寫法和 <code>printf</code> 很像，例如 <code>"%d"</code> 表示讀一個 <code>int</code>。出處：Beej 函式庫參考 §23.11 scanf()。</li>
 <li><code>scanf</code> 需要<strong>改變</strong>變數的內容，所以要把變數的位址交給它，做法是在變數前面加上 <code>&amp;</code>。出處同上。</li>
@@ -112,9 +122,9 @@
 <li><code>scanf</code> 會<strong>回傳成功存進變數的項目數</strong>。輸入不符合格式時，讀取會在那裡停止，回傳值就會比預期少。出處：Beej 函式庫參考 §23.11 Return Value；cppreference <code>fscanf</code> Return value。</li>
 <li>除了 <code>%c</code>、<code>%s</code>、<code>%[</code> 之外，其他格式碼在讀取前會自動跳過空白和換行。出處：Beej 函式庫參考 §23.11.0.4 The Deep Details。</li>
 </ul>
-<h3 id="s-63159717">對照練習</h3>
+<h3 id="s-35121786">對照練習</h3>
 <p>練習「單元一」的基本範例讀入一個整數，印出加 10 之後的值。下面的補充範例依序加上三件事：一次讀兩個數、讀有小數的數、以及檢查使用者是否真的輸入了數字。</p>
-<h3 id="s-30624784">補充範例 1-1：一次讀入兩個整數</h3>
+<h3 id="s-27873478">補充範例 1-1：一次讀入兩個整數</h3>
 <p>檔名 <code>sum_two.c</code>：</p>
 <pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
 
@@ -139,7 +149,7 @@
 <li>輸入 <code>12 30</code> 並按 Enter。第一個 <code>%d</code> 讀到 12，存進 <code>first</code>；第二個 <code>%d</code> 先跳過空白，再讀到 30，存進 <code>second</code>。</li>
 <li>因為 <code>%d</code> 會自動跳過空白與換行，所以分兩行輸入 12 和 30，結果也一樣。</li>
 </ol>
-<h3 id="s-23625897">補充範例 1-2：讀入有小數的數字</h3>
+<h3 id="s-36161303">補充範例 1-2：讀入有小數的數字</h3>
 <p><strong>問題</strong>：輸入攝氏溫度，換算成華氏溫度（華氏 = 攝氏 × 9 ÷ 5 + 32）。</p>
 <p>檔名 <code>temp.c</code>：</p>
 <pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
@@ -160,7 +170,7 @@
 華氏溫度：97.7
 </code></pre>
 <p><strong>注意</strong>：讀取 <code>double</code> 要用 <code>%lf</code>。<code>printf</code> 印 <code>double</code> 則用 <code>%f</code>，<code>%.1f</code> 表示印到小數點後 1 位（第 2 節說明）。</p>
-<h3 id="s-39680083">補充範例 1-3：檢查輸入是否成功</h3>
+<h3 id="s-75181808">補充範例 1-3：檢查輸入是否成功</h3>
 <p><strong>問題</strong>：使用者可能輸入不是數字的內容。利用 <code>scanf</code> 的回傳值檢查。</p>
 <p>檔名 <code>check_input.c</code>：</p>
 <pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
@@ -189,7 +199,7 @@ scanf 成功讀取了 0 個項目
 <li>輸入 <code>abc</code> 時，<code>%d</code> 讀不到整數，沒有任何值被存進 <code>age</code>，回傳 0。此時 <code>age</code> 裡的值是不可靠的，不應該拿來計算。</li>
 <li>第 5 週學會 <code>if</code> 之後，就能根據回傳值決定「顯示錯誤訊息」或「繼續計算」。練習檔的程式也都用這個方式檢查輸入。</li>
 </ol>
-<h3 id="s-38234207">補充範例 1-4：依照固定格式輸入日期</h3>
+<h3 id="s-83259049">補充範例 1-4：依照固定格式輸入日期</h3>
 <p><strong>問題</strong>：讓使用者用 <code>2026-09-14</code> 這種格式輸入日期。</p>
 <p>檔名 <code>date.c</code>：</p>
 <pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
@@ -211,18 +221,18 @@ scanf 成功讀取了 0 個項目
 2026 年 9 月 14 日
 </code></pre>
 <p>格式字串中的 <code>-</code> 是一般字元，輸入中必須在相同位置出現 <code>-</code>；對不上時，<code>scanf</code> 會在那裡停止。出處：Beej 函式庫參考 §23.11.0.1 Consuming Other Characters。</p>
-<h3 id="s-68374234">使用 <code>scanf</code> 要小心的地方</h3>
+<h3 id="s-81940125">使用 <code>scanf</code> 要小心的地方</h3>
 <p>Beej 提醒，直接用 <code>scanf</code> 讀鍵盤輸入時，只要使用者輸入了錯誤的資料，<code>scanf</code> 很容易停在半路，後面的讀取也會跟著出錯。他建議的作法是先用 <code>fgets</code> 讀入一整行，再從那一行取出資料。出處：Beej 函式庫參考 §23.11.0.2 Problems with scanf()。<code>fgets</code> 會在第 9 週介紹，本週先養成「檢查回傳值」的習慣。</p>
-<h3 id="s-25237660">動手改改看</h3>
+<h3 id="s-31039665">動手改改看</h3>
 <ul>
 <li>執行補充範例 1-1，只輸入 <code>12</code> 就按 Enter，程式會怎麼樣？再輸入 <code>30</code> 呢？</li>
 <li>把補充範例 1-2 的 <code>%lf</code> 改成 <code>%f</code> 重新編譯，讀讀看編譯器的警告。</li>
 </ul>
 <hr />
 <h2 id="sec-3">2. <code>printf</code> 格式化輸出</h2>
-<h3 id="s-41138635_1">用白話說</h3>
+<h3 id="s-55263126_1">用白話說</h3>
 <p>同樣是印出數字，有時候需要排成整齊的表格，有時候只想顯示到小數點後兩位。<code>printf</code> 的格式碼可以控制「佔多寬」和「印幾位小數」。</p>
-<h3 id="s-39850936_1">教材怎麼說</h3>
+<h3 id="s-98342303_1">教材怎麼說</h3>
 <p>Beej 把一個完整的格式碼整理成以下順序，方括號內的部分都可以省略。出處：Beej 函式庫參考 §23.10.0.1 Format Specifier Layout。</p>
 <pre><code class="language-plaintext">%[旗標][欄寬][.精度][長度修飾]轉換字元
 </code></pre>
@@ -271,9 +281,9 @@ scanf 成功讀取了 0 個項目
 <ul>
 <li>如果內容比指定的欄寬還長，欄寬會被忽略，內容會完整印出。出處：§23.10.0.5。</li>
 </ul>
-<h3 id="s-63159717_1">對照練習</h3>
+<h3 id="s-35121786_1">對照練習</h3>
 <p>練習「單元二」的基本範例比較了不同欄寬對整數輸出的影響。下面的補充範例把欄寬、對齊、精度組合起來，做出對齊的收據。</p>
-<h3 id="s-26954407">補充範例 2-1：看見欄寬</h3>
+<h3 id="s-87758521">補充範例 2-1：看見欄寬</h3>
 <p><strong>目的</strong>：用方括號把輸出框起來，就能看清楚補了幾個空白。</p>
 <p>檔名 <code>width.c</code>：</p>
 <pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
@@ -327,7 +337,7 @@ scanf 成功讀取了 0 個項目
 </tr>
 </tbody>
 </table></div>
-<h3 id="s-20854518">補充範例 2-2：控制小數位數</h3>
+<h3 id="s-59224472">補充範例 2-2：控制小數位數</h3>
 <p>檔名 <code>precision.c</code>：</p>
 <pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
 
@@ -348,7 +358,7 @@ scanf 成功讀取了 0 個項目
 不留小數：78
 </code></pre>
 <p>指定精度時，印出的數字會取到那一位（以本例來說是四捨五入的效果），但變數 <code>average</code> 本身的值沒有改變。</p>
-<h3 id="s-90466327">補充範例 2-3：排列整齊的收據</h3>
+<h3 id="s-53921522">補充範例 2-3：排列整齊的收據</h3>
 <p><strong>問題</strong>：結合 <code>scanf</code> 與 <code>printf</code>，讀入兩項商品的數量，印出對齊的收據。</p>
 <p>檔名 <code>receipt.c</code>：</p>
 <pre><code class="language-c hl"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
@@ -390,7 +400,7 @@ total            255
 <li>最後一行用 <code>%14d</code>：6（數量欄）加 8（金額欄）等於 14，讓總金額對齊金額欄的右邊。</li>
 <li>表格用英文品名，是因為欄寬以「字元位置」計算。本講義在引用的教材中沒有找到中文字寬度如何影響對齊的說明，所以先用英文觀察效果。</li>
 </ol>
-<h3 id="s-25237660_1">動手改改看</h3>
+<h3 id="s-31039665_1">動手改改看</h3>
 <ul>
 <li>把補充範例 2-1 的 <code>score</code> 改成 123456，五行輸出各會變成什麼？</li>
 <li>在補充範例 2-3 加上第三項商品（例如 <code>cookie</code>，單價 25），並維持表格對齊。</li>
