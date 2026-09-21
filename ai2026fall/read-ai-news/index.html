@@ -1,13 +1,42 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var t='dark';try{if(localStorage.getItem('news-theme')==='light')t='light';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
 <title>AI 時事講義</title>
 <meta name="description" content="讀懂一則 AI 新聞，不需要會寫程式">
 <style>
+/* 預設深色主題；<html data-theme="light"> 時切換成淺色（由頁首按鈕切換並記在 localStorage）。 */
 :root {
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --bg: #14171a;
+  --surface: #1b1f23;
+  --surface-2: #22272c;
+  --text: #e6e8eb;
+  --muted: #a0a7af;
+  --border: #30363d;
+  --accent: #5cc8bf;
+  --accent-soft: #173432;
+  --code-bg: #0f1215;
+  --code-text: #e6e8eb;
+  --tip: #5cc8bf;
+  --tip-bg: #15302e;
+  --note: #86a8ec;
+  --note-bg: #1a2638;
+  --warn: #eaa860;
+  --warn-bg: #33261a;
+  --try: #c49bf0;
+  --try-bg: #2a2036;
+  --shadow: none;
+  --on-accent: #0e1a19;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
   --bg: #fbfaf7;
   --surface: #ffffff;
   --surface-2: #f3f1ec;
@@ -27,33 +56,8 @@
   --try: #7a3fb0;
   --try-bg: #f3ecfa;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
-  --radius: 12px;
-  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14171a;
-    --surface: #1b1f23;
-    --surface-2: #22272c;
-    --text: #e6e8eb;
-    --muted: #a0a7af;
-    --border: #30363d;
-    --accent: #5cc8bf;
-    --accent-soft: #173432;
-    --code-bg: #0f1215;
-    --code-text: #e6e8eb;
-    --tip: #5cc8bf;
-    --tip-bg: #15302e;
-    --note: #86a8ec;
-    --note-bg: #1a2638;
-    --warn: #eaa860;
-    --warn-bg: #33261a;
-    --try: #c49bf0;
-    --try-bg: #2a2036;
-    --shadow: none;
-  }
+  --on-accent: #ffffff;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -90,10 +94,10 @@ img { max-width: 100%; }
 .site-header {
   border-bottom: 1px solid var(--border);
   background: var(--surface);
-  padding-inline: 16px;
 }
+/* 頁首內容與 .page 同寬，兩側留白在每個斷點都對齊 */
 .site-header .inner {
-  max-width: 1180px;
+  width: var(--layout-w);
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -107,23 +111,25 @@ img { max-width: 100%; }
 .site-header nav a { text-decoration: none; color: var(--muted); }
 .site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
 
+/* 版面佔父層 90% 寬，不設固定上限；目錄欄隨視窗伸縮，讓條目盡量維持單行 */
+:root { --layout-w: 90%; }
 .page {
-  max-width: 1180px;
+  width: var(--layout-w);
   margin: 0 auto;
-  padding-inline: 16px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 2.5rem;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
 }
-@media (min-width: 1000px) {
-  .page { grid-template-columns: 250px minmax(0, 1fr); }
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
 }
 
 .toc {
   font-size: 0.92rem;
   line-height: 1.5;
 }
-@media (min-width: 1000px) {
+@media (min-width: 961px) {
   .toc {
     position: sticky;
     top: 0;
@@ -134,8 +140,10 @@ img { max-width: 100%; }
   }
 }
 .toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
-@media (min-width: 1000px) {
+@media (min-width: 961px) {
   .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+  /* 目錄欄在 240px 下限時，字級跟著縮一點，讓一般長度的標題維持單行 */
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
 }
 .toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
 .toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
@@ -161,6 +169,8 @@ h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0
 .lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
 .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
 .meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+.meta a { text-decoration: none; }
+.meta a:hover { text-decoration: underline; }
 
 h2 {
   font-size: 1.6rem;
@@ -226,10 +236,8 @@ kbd {
 }
 .unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
 .unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
-@media (prefers-color-scheme: dark) {
-  .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
-  .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
-}
+:root:not([data-theme="light"]) .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root:not([data-theme="light"]) .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
 .unit-card .tag {
   align-self: flex-start;
   color: #fff;
@@ -237,7 +245,7 @@ kbd {
   border-radius: 999px;
   padding: 0.1rem 0.7rem;
 }
-@media (prefers-color-scheme: dark) { .unit-card .tag { color: #15171a; } }
+:root:not([data-theme="light"]) .unit-card .tag { color: #15171a; }
 .unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
 .unit-card .card-link { color: var(--text); text-decoration: none; }
 .unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
@@ -296,9 +304,7 @@ th:first-child, td:first-child { white-space: nowrap; }
   display: grid;
   place-items: center;
 }
-@media (prefers-color-scheme: dark) {
-  .steps > li::before { color: #0e1a19; }
-}
+:root:not([data-theme="light"]) .steps > li::before { color: #0e1a19; }
 .steps > li > :first-child { margin-top: 0; }
 
 .code {
@@ -414,12 +420,12 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   padding: 0.45rem 0.95rem;
   margin: 0.3rem 0.5rem 0.3rem 0;
 }
-@media (prefers-color-scheme: dark) { .download { color: #0e1a19; } }
+:root:not([data-theme="light"]) .download { color: #0e1a19; }
 
 .pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
 .pager a { text-decoration: none; }
 
-.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; padding-inline: 16px; }
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
 
 .to-top {
   position: fixed;
@@ -437,8 +443,184 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 }
 .to-top[hidden] { display: none; }
 
+/* ---------- Theme toggle ---------- */
+
+.header-end { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  min-height: 2rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar, generating-podcast contract) ---------- */
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+
+/* 側邊欄底部：本頁公開網址的 QR Code，手機掃描即可開啟；窄螢幕本來就在手機上，不顯示 */
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+@media (max-width: 960px) { .toc-qr { display: none; } }
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible, .seek-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+
+/* Transcript page: section timestamps jump the player to that point. */
+.seek-btn {
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  vertical-align: 0.2em;
+  margin-right: 0.35rem;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+  cursor: pointer;
+}
+.seek-btn:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Narrow phones ---------- */
+
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  .hero { margin-bottom: 1.8rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  .lead { font-size: 1.02rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+  .site-header .inner { padding-block: 0.55rem; }
+}
+
 @media print {
-  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  /* 列印一律用淺色 */
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --surface-2: #f3f1ec;
+    --text: #1f2328;
+    --muted: #5b6168;
+    --border: #e2ded6;
+    --accent: #0b6e69;
+    --accent-soft: #e3f2f0;
+    --code-bg: #f6f5f1;
+    --code-text: #24292f;
+    --tip: #0b6e69;
+    --tip-bg: #e8f5f3;
+    --note: #2f5fb3;
+    --note-bg: #eaf0fb;
+    --warn: #a4570b;
+    --warn-bg: #fdf1e3;
+    --try: #7a3fb0;
+    --try-bg: #f3ecfa;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+    --on-accent: #ffffff;
+    color-scheme: light;
+  }
+  .toc, .toc-qr, .site-header nav, .theme-toggle, .seek-btn, .copy-btn, .to-top, .skip-link { display: none !important; }
   .page { display: block; }
   details.explain > div { display: block; }
   body { font-size: 12pt; background: #fff; color: #000; }
@@ -447,7 +629,7 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 }
 
 
-.page.no-toc { grid-template-columns: minmax(0, 1fr); max-width: 900px; }
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
 blockquote {
   margin: 1.2rem 0;
   padding: 1rem 1.2rem;
@@ -461,14 +643,15 @@ blockquote {
 table th:first-child, table td:first-child { white-space: nowrap; }
 .news-card .tag { color: var(--accent); }
 .news-date { color: var(--muted); font-size: 0.9rem; margin: 0.1rem 0 0.4rem; }
+.news-audio { color: var(--muted); font-size: 0.88rem; margin: 0.3rem 0; }
 
 </style>
 </head>
 <body>
 <a class="skip-link" href="#main">跳到主要內容</a>
-<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><nav aria-label="講義"><a href="index.html" aria-current="page">首頁</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><div class="header-end"><nav aria-label="講義"><a href="index.html" aria-current="page">首頁</a>
 <a href="news01.html">時事 1</a>
-<a href="news02.html">時事 2</a></nav></div></header>
+<a href="news02.html">時事 2</a></nav><button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button></div></div></header>
 <div class="page no-toc">
 
 <main id="main">
@@ -478,7 +661,7 @@ table th:first-child, table td:first-child { white-space: nowrap; }
   <p class="lead">每一則都是當期真實發生的 AI 新聞。重點不是背下事件，而是練習一件事：看到一個說法時，判斷它是「有人這樣主張」，還是「這件事被證實了」。每份講義都可以單獨閱讀，不需要任何程式基礎。</p>
 </section>
 
-<div class="card-grid"><article class="card news-card"><span class="tag">時事 1</span><p class="news-date">2026 年 9 月・🎧 語音導讀 12 分鐘</p><h4><a class="card-link" href="news01.html">AI 會不會失控？一場吵了兩週的大爭論</a></h4><p>一位 AI 研究員的離職貼文，讓四方人馬吵成一團。用這起爭議練習分辨「有人這樣主張」和「這件事被證實了」。</p><div style="margin-top: 0.8rem; position: relative; z-index: 2;"><audio controls preload="none" style="width: 100%; height: 36px;"><source src="audio/news01-podcast.mp3" type="audio/mpeg">您的瀏覽器不支援 HTML5 音訊播放。</audio></div><p class="card-cta" aria-hidden="true" style="margin-top: 0.6rem;">閱讀講義 →</p></article><article class="card news-card"><span class="tag">時事 2</span><p class="news-date">2026 年 9 月・🎧 語音導讀 13 分鐘</p><h4><a class="card-link" href="news02.html">不會講話的 AI：一個只做選擇題的新模型</a></h4><p>一家新創推出完全不產生文字的 AI，標題寫著快 200 倍、便宜 400 倍、不會幻覺。用這則新聞練習拆解科技新聞裡的數字。</p><div style="margin-top: 0.8rem; position: relative; z-index: 2;"><audio controls preload="none" style="width: 100%; height: 36px;"><source src="audio/news02-podcast.mp3" type="audio/mpeg">您的瀏覽器不支援 HTML5 音訊播放。</audio></div><p class="card-cta" aria-hidden="true" style="margin-top: 0.6rem;">閱讀講義 →</p></article></div>
+<div class="card-grid"><article class="card news-card"><span class="tag">時事 1</span><p class="news-date">2026 年 9 月</p><h4><a class="card-link" href="news01.html">AI 會不會失控？一場吵了兩週的大爭論</a></h4><p>一位 AI 研究員的離職貼文，讓四方人馬吵成一團。用這起爭議練習分辨「有人這樣主張」和「這件事被證實了」。</p><p class="news-audio">🎧 語音導讀：12 分 12 秒</p><p class="card-cta" aria-hidden="true">閱讀講義 →</p></article><article class="card news-card"><span class="tag">時事 2</span><p class="news-date">2026 年 9 月</p><h4><a class="card-link" href="news02.html">不會講話的 AI：一個只做選擇題的新模型</a></h4><p>一家新創推出完全不產生文字的 AI，標題寫著快 200 倍、便宜 400 倍、不會幻覺。用這則新聞練習拆解科技新聞裡的數字。</p><p class="news-audio">🎧 語音導讀：12 分 51 秒</p><p class="card-cta" aria-hidden="true">閱讀講義 →</p></article></div>
 
 <h3>怎麼使用這些講義</h3>
 <ul>
@@ -569,10 +752,114 @@ table th:first-child, table td:first-child { white-space: nowrap; }
   var tocDetails = document.querySelector(".toc details");
   links.forEach(function (a) {
     a.addEventListener("click", function () {
-      if (tocDetails && window.matchMedia("(max-width: 999px)").matches) tocDetails.open = false;
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
     });
   });
-  if (tocDetails && window.matchMedia("(min-width: 1000px)").matches) tocDetails.open = true;
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: dark by default; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") === "light";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("news-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+
+    // Transcript page: a section timestamp starts playback from that point.
+    document.querySelectorAll(".seek-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        seekTo(parseFloat(btn.getAttribute("data-t")) || 0);
+        audio.play();
+      });
+    });
+  }
 
   // Back-to-top button.
   var toTop = document.querySelector(".to-top");
