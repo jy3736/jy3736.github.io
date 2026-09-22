@@ -636,14 +636,44 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
     try{box.checked=localStorage.getItem(id)==='1';}catch(e){}
     box.addEventListener('change',function(){try{localStorage.setItem(id,box.checked?'1':'0');}catch(e){}});
   });
-  var links=document.querySelectorAll('.toc a');
-  if(links.length&&'IntersectionObserver' in window){
-    var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
-    var io=new IntersectionObserver(function(entries){entries.forEach(function(en){
-      if(en.isIntersecting){links.forEach(function(a){a.classList.remove('active');});
-        var a=map[en.target.id];if(a)a.classList.add('active');}
-    });},{rootMargin:'-20% 0px -70% 0px'});
-    document.querySelectorAll('main h2[id]').forEach(function(h){io.observe(h);});
+  // Catalog scroll-spy: the current section is the last h2 that has scrolled past the reading line
+  // (the scroll-padding under the sticky header); at the bottom of the page it is the last section.
+  // A clicked catalog link stays current until the reader scrolls, so a jump to one of the short
+  // sections at the end is not overridden by the bottom-of-page rule.
+  var toc=document.querySelector('.toc'),links=Array.prototype.slice.call(document.querySelectorAll('.toc ol a'));
+  var heads=links.map(function(a){return document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));});
+  if(links.length&&heads.every(Boolean)){
+    var pinned=-1,current=-2,ticking=false;
+    var setActive=function(i){
+      if(i===current)return;current=i;
+      links.forEach(function(a,k){a.classList.toggle('active',k===i);
+        if(k===i)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current');});
+      var a=links[i];
+      if(a&&toc.scrollHeight>toc.clientHeight){
+        var ar=a.getBoundingClientRect(),tr=toc.getBoundingClientRect();
+        if(ar.top<tr.top+8)toc.scrollTop-=tr.top+8-ar.top;
+        else if(ar.bottom>tr.bottom-8)toc.scrollTop+=ar.bottom-(tr.bottom-8);
+      }
+    };
+    var spy=function(){
+      ticking=false;
+      if(pinned>=0){setActive(pinned);return;}
+      var line=(parseFloat(getComputedStyle(root).scrollPaddingTop)||0)+8,idx=-1;
+      for(var k=0;k<heads.length;k++){if(heads[k].getBoundingClientRect().top<=line)idx=k;else break;}
+      if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-2)idx=heads.length-1;
+      setActive(idx);
+    };
+    var request=function(){if(!ticking){ticking=true;requestAnimationFrame(spy);}};
+    var unpin=function(){if(pinned>=0){pinned=-1;request();}};
+    links.forEach(function(a,k){a.addEventListener('click',function(){pinned=k;setActive(k);});});
+    ['wheel','touchstart','keydown','mousedown'].forEach(function(ev){
+      window.addEventListener(ev,function(e){if(!(e.target.closest&&e.target.closest('.toc ol a')))unpin();},{passive:true});
+    });
+    window.addEventListener('scroll',request,{passive:true});
+    window.addEventListener('resize',request);
+    window.addEventListener('hashchange',request);
+    window.addEventListener('load',request);
+    request();
   }
   var audio=document.getElementById('podcast-audio');
   if(audio){
