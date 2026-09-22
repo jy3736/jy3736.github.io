@@ -591,8 +591,9 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
     try{box.checked=localStorage.getItem(id)==='1';}catch(e){}
     box.addEventListener('change',function(){try{localStorage.setItem(id,box.checked?'1':'0');}catch(e){}});
   });
-  // Catalog scroll-spy: the current section is the last h2 that has scrolled past the reading line
-  // (the scroll-padding under the sticky header); at the bottom of the page it is the last section.
+  // Catalog scroll-spy: the current section is the last h2 above the reading line, about a third of
+  // the way down the visible area below the sticky header, so the highlight matches the heading the
+  // reader sees near the top. At the page bottom the short last section wins once its heading is in view.
   // A clicked catalog link stays current until the reader scrolls, so a jump to one of the short
   // sections at the end is not overridden by the bottom-of-page rule.
   var toc=document.querySelector('.toc'),links=Array.prototype.slice.call(document.querySelectorAll('.toc ol a'));
@@ -613,9 +614,12 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
     var spy=function(){
       ticking=false;
       if(pinned>=0){setActive(pinned);return;}
-      var line=(parseFloat(getComputedStyle(root).scrollPaddingTop)||0)+8,idx=-1;
+      var top=parseFloat(getComputedStyle(root).scrollPaddingTop)||0;
+      var line=top+(window.innerHeight-top)*0.35,idx=-1;
       for(var k=0;k<heads.length;k++){if(heads[k].getBoundingClientRect().top<=line)idx=k;else break;}
-      if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-2)idx=heads.length-1;
+      if(window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-2){
+        for(var j=heads.length-1;j>idx;j--){if(heads[j].getBoundingClientRect().top<=window.innerHeight*0.75){idx=j;break;}}
+      }
       setActive(idx);
     };
     var request=function(){if(!ticking){ticking=true;requestAnimationFrame(spy);}};
@@ -626,9 +630,12 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
     });
     window.addEventListener('scroll',request,{passive:true});
     window.addEventListener('resize',request);
-    window.addEventListener('hashchange',request);
+    // A #section link (opened directly or changed later) keeps that section current, like a click.
+    var pinHash=function(){var id=decodeURIComponent(location.hash.slice(1));
+      for(var k=0;k<heads.length;k++){if(heads[k].id===id){pinned=k;break;}}request();};
+    window.addEventListener('hashchange',pinHash);
     window.addEventListener('load',request);
-    request();
+    pinHash();
   }
   var audio=document.getElementById('podcast-audio');
   if(audio){
