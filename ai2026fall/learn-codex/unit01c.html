@@ -5,8 +5,8 @@
 <script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
-<title>第 1 單元：用 ChatGPT 與 Codex 學習和做專題</title>
-<meta name="description" content="認識 Chat、ChatGPT Work 與 Codex，學會寫提示、檢查答案，並看 Codex 如何修好一個小程式。">
+<title>第 1 單元 1-3：認識 Codex：安全網與專案規則</title>
+<meta name="description" content="看懂程式專案的樣子與 Codex 的使用介面，設定沙箱、核准與 Git 檢查點，並用 AGENTS.md 交代專案規則。">
 <style>
 :root {
   --bg: #fbfaf7;
@@ -610,107 +610,154 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 <a href="unit02.html">第 2 單元</a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
 <div class="page">
 <aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
-<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">08:21</span></div>
-<audio id="podcast-audio" preload="metadata"><source src="audio/unit01-podcast.mp3" type="audio/mpeg"></audio>
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">10:16</span></div>
+<audio id="podcast-audio" preload="metadata"><source src="audio/unit01c-podcast.mp3" type="audio/mpeg"></audio>
 <div class="toc-audio-controls">
 <button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
 <div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
 </div>
-<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 08:21</span></div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 10:16</span></div>
 <div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
-</div><details><summary>本頁目錄</summary><ol><li><a href="#parts"><span class="toc-num">01</span>本單元的五個部分</a></li>
-<li><a href="#words"><span class="toc-num">02</span>先認識幾個會一直出現的名詞</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m3 0h1m1 0h3m3 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m2 0h1m3 0h3m2 0h1m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h3m2 0h1m2 0h1m1 0h2m1 0h1m-24 1h1m1 0h5m3 0h4m1 0h3m5 0h1m2 0h5m-31 1h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-33 1h3m2 0h4m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3m5 0h1m1 0h2m-31 1h2m1 0h2m2 0h2m1 0h1m2 0h1m5 0h4m1 0h1m2 0h4m-30 1h1m3 0h1m1 0h5m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-25 1h1m1 0h2m3 0h4m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m-31 1h6m4 0h1m2 0h1m2 0h1m1 0h1m1 0h1m2 0h2m3 0h2m-32 1h2m2 0h2m5 0h6m4 0h1m1 0h4m2 0h2m-31 1h2m1 0h1m2 0h2m2 0h1m1 0h3m1 0h2m1 0h2m1 0h1m2 0h1m1 0h2m3 0h1m-32 1h1m1 0h1m4 0h2m1 0h1m2 0h1m2 0h4m2 0h2m1 0h2m1 0h2m1 0h1m-32 1h1m4 0h4m1 0h1m1 0h1m1 0h3m3 0h1m5 0h2m1 0h2m-32 1h3m2 0h1m1 0h3m2 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h5m1 0h1m-33 1h2m4 0h1m1 0h3m3 0h1m2 0h1m1 0h1m4 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h6m1 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m2 0h1m1 0h3m1 0h1m1 0h1m2 0h4m4 0h1m3 0h2m2 0h2m-32 1h1m3 0h1m3 0h2m1 0h6m2 0h4m3 0h1m1 0h1m1 0h3m-33 1h1m1 0h3m1 0h2m2 0h1m2 0h1m3 0h3m2 0h7m3 0h1m-25 1h5m1 0h1m1 0h5m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m2 0h4m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h2m1 0h2m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h1m1 0h1m4 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m2 0h4m1 0h2m1 0h2m1 0h4m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m5 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m5 0h2m1 0h2m3 0h3m2 0h2m1 0h3m-31 1h7m1 0h4m2 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#codex"><span class="toc-num">01</span>認識 Codex</a></li>
+<li><a href="#safety"><span class="toc-num">02</span>先設好安全網</a></li>
+<li><a href="#agents-md"><span class="toc-num">03</span>用 AGENTS.md 交代專案規則</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h1m1 0h4m2 0h3m1 0h2m2 0h1m1 0h7m-33 1h1m5 0h1m1 0h4m1 0h2m3 0h3m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m2 0h4m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h1m1 0h3m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h2m3 0h3m4 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m1 0h2m2 0h1m4 0h1m1 0h1m2 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-23 1h2m1 0h2m1 0h1m1 0h2m3 0h1m-24 1h1m2 0h6m2 0h1m5 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h3m-32 1h3m3 0h1m3 0h3m1 0h2m1 0h2m2 0h3m3 0h3m-29 1h1m1 0h1m1 0h1m5 0h2m1 0h1m1 0h2m2 0h3m2 0h1m1 0h5m-29 1h2m1 0h2m1 0h4m1 0h3m2 0h1m4 0h1m1 0h1m2 0h2m-31 1h2m1 0h1m1 0h3m2 0h1m1 0h1m1 0h2m2 0h1m3 0h2m1 0h2m3 0h2m-33 1h1m1 0h1m6 0h3m1 0h6m2 0h3m3 0h1m1 0h1m-30 1h3m2 0h3m1 0h1m1 0h1m1 0h1m1 0h1m2 0h3m5 0h1m1 0h1m1 0h1m-27 1h1m2 0h3m2 0h2m6 0h1m1 0h4m1 0h4m1 0h1m-32 1h2m1 0h3m4 0h3m2 0h1m2 0h1m2 0h2m1 0h5m-30 1h2m2 0h2m1 0h6m2 0h8m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m-32 1h1m3 0h6m3 0h2m2 0h6m1 0h3m1 0h2m1 0h1m-33 1h2m2 0h1m2 0h7m5 0h2m2 0h3m2 0h4m-30 1h1m1 0h1m1 0h2m2 0h2m2 0h1m1 0h3m3 0h1m1 0h1m2 0h1m1 0h1m-30 1h2m1 0h2m2 0h1m1 0h3m3 0h1m1 0h3m2 0h2m3 0h3m-30 1h1m1 0h1m2 0h6m2 0h1m1 0h1m4 0h1m1 0h2m3 0h1m1 0h4m-33 1h1m1 0h4m6 0h1m4 0h1m1 0h2m2 0h1m2 0h2m1 0h2m-31 1h3m1 0h3m3 0h2m1 0h1m1 0h2m1 0h1m1 0h1m3 0h6m-22 1h4m1 0h6m2 0h1m1 0h2m3 0h1m1 0h2m-32 1h7m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m1 0h1m5 0h1m1 0h1m5 0h1m3 0h3m-31 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2m3 0h1m1 0h7m2 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h4m2 0h2m1 0h1m3 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h6m2 0h1m1 0h3m3 0h2m2 0h2m-33 1h1m5 0h1m2 0h3m1 0h1m5 0h1m2 0h1m4 0h6m-33 1h7m1 0h4m1 0h2m1 0h2m1 0h2m3 0h5"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
 <main id="main">
 <section class="hero">
-  <p class="eyebrow">第 1 單元講義</p>
-  <h1>用 ChatGPT 與 Codex 學習和做專題</h1>
-  <p class="lead">這一週要學會三件事：分辨 ChatGPT 的三種工作方式、把需求說清楚、以及確認 AI 做出來的東西真的是對的。最後會一步一步看 Codex 怎麼修好一個有錯的小程式。</p>
-  <ul class="meta">
-    <li>課堂時間 120 分鐘</li>
-    <li>需要：ChatGPT 帳號</li>
-    <li>選用：VS Code、Git、Python</li>
-  </ul>
+  <p class="eyebrow">第 1 單元</p>
+  <h1>認識 Codex：安全網與專案規則</h1>
+  <p class="lead">碰到程式碼就換 Codex。動手之前，先把安全網張好，再把「這個專案該怎麼做事」寫成檔案放進專案裡。</p>
+  <p class="meta-back"><a href="unit01.html">← 回第 1 單元導覽</a></p>
 </section>
 
+<h2 id="codex"><span class="num">01</span>認識 Codex</h2>
+
+<h3>程式專案長什麼樣子</h3>
+<p>一個程式專案其實就是<strong>一個資料夾</strong>，裡面放著程式檔、資料檔、說明文件。例如一個「計算平均分數」的小專案：</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">專案資料夾結構</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="average-bug/">average-bug/</span>
+<span class="line" data-text="├── before/">├── before/</span>
+<span class="line" data-text="│   └── average.py        ← 有錯的版本">│   └── average.py        ← 有錯的版本</span>
+<span class="line" data-text="└── after/">└── after/</span>
+<span class="line" data-text="    ├── average.py        ← 修好的版本">    ├── average.py        ← 修好的版本</span>
+<span class="line" data-text="    └── test_average.py   ← 自動檢查用的測試">    └── test_average.py   ← 自動檢查用的測試</span></code></pre></figure>
+<p>Codex 做的事，就是在這樣的資料夾裡<strong>讀檔案、修改檔案、執行指令</strong>，最後告訴你改了什麼。</p>
+
+<h3>在哪裡使用 Codex</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>使用介面</th><th>適合的情境</th><th>開始方式</th></tr></thead>
+  <tbody>
+    <tr><td>ChatGPT 桌面版</td><td>用滑鼠操作，方便看修改內容與審查</td><td>在產品選單選 <strong>Codex</strong>，開啟專案資料夾</td></tr>
+    <tr><td>VS Code 擴充套件</td><td>一邊寫程式一邊問，修改顯示在程式碼旁邊</td><td>在 VS Code 安裝擴充套件，點 Codex 圖示</td></tr>
+    <tr><td>Codex CLI</td><td>在終端機裡用打字操作，也能寫進自動化腳本</td><td>在專案資料夾執行 <code>codex</code></td></tr>
+    <tr><td>Codex 雲端</td><td>長時間任務、同時跑多個任務、從 GitHub 發起</td><td>到 chatgpt.com/codex 連接 GitHub 並建立環境</td></tr>
+  </tbody>
+</table></div>
+<p>VS Code 是一個免費的程式編輯器，下週會詳細介紹。如果只想先體驗，桌面版最直覺。</p>
+
+<h3>打開終端機</h3>
+<p>安裝 CLI 或執行程式時需要終端機：</p>
+<ul>
+  <li><strong>macOS</strong>：按 <kbd>Cmd</kbd>+<kbd>Space</kbd> 開啟 Spotlight，輸入「終端機」或「Terminal」後按 Enter。</li>
+  <li><strong>Windows</strong>：按開始鍵，輸入「PowerShell」後按 Enter。</li>
+</ul>
+<p>終端機打開後會看到一行提示符號（例如 <code>%</code> 或 <code>&gt;</code>），在後面輸入指令、按 Enter 執行。</p>
+
+<h3>安裝 Codex CLI（選一種方式即可）</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">macOS 或 Linux</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="curl -fsSL https://chatgpt.com/codex/install.sh | sh">curl -fsSL https://chatgpt.com/codex/install.sh | sh</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">Windows PowerShell</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="powershell -ExecutionPolicy ByPass -c &quot;irm https://chatgpt.com/codex/install.ps1 | iex&quot;">powershell -ExecutionPolicy ByPass -c &quot;irm https://chatgpt.com/codex/install.ps1 | iex&quot;</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">已經安裝 Node.js 的話，也可以用 npm</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="npm install -g @openai/codex">npm install -g @openai/codex</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">已經安裝 Homebrew 的話，也可以用 brew（macOS）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="brew install --cask codex">brew install --cask codex</span></code></pre></figure>
+
+<details class="explain">
+  <summary>這些指令在做什麼？</summary>
+  <div>
+    <ul>
+      <li><code>curl ... | sh</code>：<code>curl</code> 從網址下載安裝程式，<code>|</code>（管線）把下載的內容交給 <code>sh</code> 執行。</li>
+      <li><code>irm ... | iex</code>：PowerShell 版的同一件事，<code>irm</code> 下載、<code>iex</code> 執行。</li>
+      <li><code>npm install -g</code>：用 Node.js 的套件管理工具安裝，<code>-g</code> 表示安裝成整台電腦都能用的指令。</li>
+    </ul>
+    <p>從網路下載並執行程式前，一定要確認網址是官方來源。</p>
+  </div>
+</details>
+
+<p>安裝好之後，用終端機進到專案資料夾，輸入 <code>codex</code> 啟動。第一次使用時選擇 <strong>Sign in with ChatGPT</strong> 登入。Codex 會把你啟動它時所在的資料夾當成這次工作的專案。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">進入資料夾並啟動 Codex</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="cd Desktop/average-bug">cd Desktop/average-bug</span>
+<span class="line" data-text="codex">codex</span></code></pre></figure>
+<p><code>cd</code> 是 change directory（切換資料夾）的縮寫，後面接要進去的資料夾路徑。</p>
+
+<h2 id="safety"><span class="num">02</span>先設好安全網</h2>
+
+<p>Codex 會讀檔案、改檔案、執行指令。為了確保一切在你的掌控之中，有兩個機制一起運作：</p>
+
 <div class="card-grid">
-  <div class="card"><span class="tag">目標 1</span><p>分辨 <strong>Chat</strong>、<strong>ChatGPT Work</strong>、<strong>Codex</strong>，依任務選對工具。</p></div>
-  <div class="card"><span class="tag">目標 2</span><p>用「目標、脈絡、產出、界線」四個要素寫出清楚的提示。</p></div>
-  <div class="card"><span class="tag">目標 3</span><p>追問 AI 的依據與假設，親自檢查重要的內容。</p></div>
-  <div class="card"><span class="tag">目標 4</span><p>看懂 Codex 修改程式的過程，並知道如何用 Git 保留退路。</p></div>
+  <div class="card"><h4>沙箱（Sandbox）</h4><p>像是一道圍籬，技術上限制 Codex 能碰哪些檔案、能不能連網。Codex 執行的其他工具（例如 Git、測試工具）也都在圍籬內。</p></div>
+  <div class="card"><h4>核准（Approvals）</h4><p>決定 Codex 什麼時候要停下來問你。例如要跨出圍籬時，先徵求你同意。</p></div>
 </div>
 
-<h2 id="parts"><span class="num">01</span>本單元的五個部分</h2>
-<p>這個單元的內容分成五頁，依順序閱讀效果最好；也可以只挑需要的那一頁。每一頁都有自己的目錄、語音導讀與 QR Code。</p>
+<p>大多數情況建議使用 <strong>Ask for approval</strong> 模式：Codex 可以在目前的專案資料夾內自由工作，要超出範圍時會先暫停問你。在 CLI 中輸入 <code>/permissions</code> 可以查看和切換模式。</p>
 
-<div class="card-grid">
-  <article class="card unit-card unit-1">
-    <span class="tag">1-1</span>
-    <h4><a class="card-link" href="unit01a.html">三種工作方式與清楚的提示</a></h4>
-    <p>三種工作方式各自適合什麼任務、提示的四個要素怎麼寫，以及拿到答案後要親自檢查哪些地方。</p>
-    <p class="card-audio">🎧 語音導讀：9 分 42 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-2</span>
-    <h4><a class="card-link" href="unit01b.html">專案、檔案與 ChatGPT Work</a></h4>
-    <p>什麼時候該建立專案、上傳檔案可以做什麼，以及寫給 ChatGPT Work 的提示長什麼樣子。</p>
-    <p class="card-audio">🎧 語音導讀：10 分 32 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-3</span>
-    <h4><a class="card-link" href="unit01c.html">認識 Codex：安全網與專案規則</a></h4>
-    <p>程式專案長什麼樣子、在哪裡使用 Codex、沙箱與核准怎麼設定，以及 AGENTS.md 該寫些什麼。</p>
-    <p class="card-audio">🎧 語音導讀：10 分 16 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-4</span>
-    <h4><a class="card-link" href="unit01d.html">動手看一次：Codex 修好一個有錯的程式</a></h4>
-    <p>一個平均分數的小程式哪裡算錯了、怎麼請 Codex 修、以及怎麼確認它真的修對了。</p>
-    <p class="card-audio">🎧 語音導讀：8 分 44 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-    <p><a class="download" href="downloads/unit01-average-bug.zip">下載本節範例</a></p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-5</span>
-    <h4><a class="card-link" href="unit01e.html">常用工作流程、整合演練與總結</a></h4>
-    <p>六個常用的 Codex 工作流程與提示範例、其他實用功能，以及整合演練、使用守則與課後練習。</p>
-    <p class="card-audio">🎧 語音導讀：11 分 29 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-</div>
+<h3>用 Git 建立存檔點</h3>
+<p><strong>每次請 Codex 動手前後，都建立一個 Git 存檔點。</strong>如果結果不滿意，就能回到修改前的狀態。第一次在一個資料夾使用 Git 時：</p>
 
-<h2 id="words"><span class="num">02</span>先認識幾個會一直出現的名詞</h2>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">第一次：讓資料夾開始被 Git 記錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git init">git init</span>
+<span class="line" data-text="git add -A">git add -A</span>
+<span class="line" data-text="git commit -m &quot;checkpoint: 請 Codex 修改之前&quot;">git commit -m &quot;checkpoint: 請 Codex 修改之前&quot;</span></code></pre></figure>
 
-<p>這份講義會用到一些電腦與程式的名詞。先把它們用生活化的方式講清楚，後面讀起來會輕鬆很多。不必一次背起來，看到不懂的詞再回來查就好。</p>
+<details class="explain" open>
+  <summary>逐行解說</summary>
+  <div>
+    <ul>
+      <li><code>git init</code>：讓 Git 開始記錄這個資料夾。每個資料夾只需要做一次。</li>
+      <li><code>git add -A</code>：把「所有檔案目前的樣子」放進準備存檔的區域。<code>-A</code> 代表全部。</li>
+      <li><code>git commit -m "..."</code>：正式建立存檔點，<code>-m</code> 後面引號裡是這個存檔點的說明，寫給未來的自己看。</li>
+    </ul>
+    <p>之後每次要存檔，只需要執行後面兩行。第一次使用 Git 時，它可能會要求你先設定姓名與 email，照畫面提示輸入即可。</p>
+  </div>
+</details>
 
-<dl class="glossary">
-  <dt>AI 代理（agent）</dt>
-  <dd>不只會回答問題，還能<strong>自己規劃步驟、使用工具、把事情做完</strong>的 AI。像一位助理：你交代目標，它會自己查資料、開檔案、做出成果給你檢查。</dd>
-  <dt>提示（prompt）</dt>
-  <dd>你輸入給 AI 的文字，可以是一個問題、一個指令或一個目標。</dd>
-  <dt>脈絡（context）</dt>
-  <dd>AI 在回答時能參考的背景資訊，例如你上傳的檔案、之前的對話、你說明的情況。脈絡越貼切，答案越符合你的需要。</dd>
-  <dt>檔案與資料夾</dt>
-  <dd>檔案是一份資料（一篇文件、一張圖、一個程式）；資料夾是裝檔案的容器，資料夾裡還可以有資料夾。</dd>
-  <dt>路徑（path）</dt>
-  <dd>檔案在電腦裡的「地址」，例如 <code>專題/程式/main.py</code> 表示「專題」資料夾裡的「程式」資料夾裡的 <code>main.py</code>。</dd>
-  <dt>程式碼（code）</dt>
-  <dd>用程式語言寫給電腦執行的指示。副檔名常透露它是哪種語言，例如 <code>.py</code> 是 Python，<code>.js</code> 是 JavaScript，<code>.html</code> 是網頁。</dd>
-  <dt>終端機（terminal）</dt>
-  <dd>一個用「打字下指令」操作電腦的視窗。在圖形介面裡你用滑鼠點「開啟」，在終端機裡你輸入一行指令讓電腦做同樣的事。macOS 叫「終端機」，Windows 常用「PowerShell」。</dd>
-  <dt>Bug</dt>
-  <dd>程式中的錯誤，讓程式的結果和預期不一樣，或直接當掉。</dd>
-  <dt>測試（test）</dt>
-  <dd>另外寫一小段程式，自動檢查「輸入這些資料時，結果是不是我們預期的」。每次修改後跑一次測試，就知道有沒有改壞東西。</dd>
-  <dt>Git</dt>
-  <dd>記錄檔案每一次變化的工具，像是遊戲的「存檔點」。改壞了可以回到之前的存檔。</dd>
-  <dt>Commit</dt>
-  <dd>在 Git 裡建立一個存檔點的動作，會記下「這個時間點所有檔案的樣子」和一句說明。</dd>
-</dl>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">查看修改了什麼、回到上一個存檔點</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git status">git status</span>
+<span class="line" data-text="git diff">git diff</span>
+<span class="line" data-text="git restore .">git restore .</span></code></pre></figure>
+<ul>
+  <li><code>git status</code>：列出哪些檔案被改過。</li>
+  <li><code>git diff</code>：逐行顯示改了哪些內容，<code>-</code> 開頭是刪掉的行，<code>+</code> 開頭是新增的行。</li>
+  <li><code>git restore .</code>：放棄所有還沒存檔的修改，回到上一個存檔點。<strong>這個動作無法復原</strong>，執行前先用 <code>git diff</code> 確認。</li>
+</ul>
 
-<nav class="pager" aria-label="上下頁"><a href="index.html">回講義首頁</a><a href="unit01a.html">下一頁：1-1 三種工作方式與清楚的提示</a></nav>
+<h2 id="agents-md"><span class="num">03</span>用 AGENTS.md 交代專案規則</h2>
+
+<p>每次請 Codex 做事，你可能都要重複交代「修改後要跑測試」、「不要改原始資料」。把這些規則寫進專案資料夾裡一個叫 <code>AGENTS.md</code> 的檔案，Codex 開始工作前會自動讀取，就不用每次重講。</p>
+
+<h3>Markdown 是什麼</h3>
+<p><code>.md</code> 結尾的檔案是 Markdown 格式，一種用簡單符號標示格式的純文字檔：</p>
+<ul>
+  <li><code># 標題</code>：一個 <code>#</code> 是大標題，<code>##</code> 是小一級的標題。</li>
+  <li><code>- 項目</code>：減號加空格開頭，是條列項目。</li>
+  <li><code>`文字`</code>：用反引號包起來，表示這是指令或程式名稱。</li>
+</ul>
+
+<h3>範例：畢業專題的 AGENTS.md</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">AGENTS.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# AGENTS.md"># AGENTS.md</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="## 專案說明">## 專案說明</span>
+<span class="line" data-text="- 這是「校園二手書交易平台」畢業專題，前端 Flutter，後端 Python FastAPI。">- 這是「校園二手書交易平台」畢業專題，前端 Flutter，後端 Python FastAPI。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="## 工作規則">## 工作規則</span>
+<span class="line" data-text="- 修改 Python 程式後，執行 `pytest` 並回報結果。">- 修改 Python 程式後，執行 `pytest` 並回報結果。</span>
+<span class="line" data-text="- 修改 Dart 程式後，執行 `flutter analyze` 與 `flutter test`。">- 修改 Dart 程式後，執行 `flutter analyze` 與 `flutter test`。</span>
+<span class="line" data-text="- 新增任何套件前，先問我們並說明理由。">- 新增任何套件前，先問我們並說明理由。</span>
+<span class="line" data-text="- 程式碼註解使用繁體中文，變數與函式名稱使用英文。">- 程式碼註解使用繁體中文，變數與函式名稱使用英文。</span>
+<span class="line" data-text="- 不要修改 `docs/proposal/` 裡的計畫書檔案。">- 不要修改 `docs/proposal/` 裡的計畫書檔案。</span></code></pre></figure>
+
+<h3>Codex 怎麼找 AGENTS.md</h3>
+<ol class="steps">
+  <li><p><strong>全域</strong>：先讀你個人的 <code>~/.codex/AGENTS.md</code>，套用到所有專案。（<code>~</code> 代表你的使用者家目錄。）</p></li>
+  <li><p><strong>專案</strong>：從專案最上層的資料夾一路往下到目前的資料夾，每一層最多讀一個規則檔。</p></li>
+  <li><p><strong>合併</strong>：越靠近目前資料夾的規則越晚讀到，所以會覆蓋前面的規則。</p></li>
+</ol>
+<p>懶得從零寫？在專案資料夾中對 Codex 輸入 <code>/init</code>，它會產生一份 <code>AGENTS.md</code> 草稿，你再修改成自己的規則。</p>
+
+<nav class="pager" aria-label="上下頁"><a href="unit01b.html">上一頁：1-2 專案、檔案與 ChatGPT Work</a><a href="unit01d.html">下一頁：1-4 動手看一次：Codex 修好一個有錯的程式</a></nav>
 
 </main>
 </div>

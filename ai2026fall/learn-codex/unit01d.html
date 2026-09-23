@@ -5,8 +5,8 @@
 <script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
-<title>第 1 單元：用 ChatGPT 與 Codex 學習和做專題</title>
-<meta name="description" content="認識 Chat、ChatGPT Work 與 Codex，學會寫提示、檢查答案，並看 Codex 如何修好一個小程式。">
+<title>第 1 單元 1-4：動手看一次：Codex 修好一個有錯的程式</title>
+<meta name="description" content="用一個很小的 Python 程式，完整走一遍發現錯誤、請 Codex 修正、檢查結果的過程。">
 <style>
 :root {
   --bg: #fbfaf7;
@@ -610,107 +610,205 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 <a href="unit02.html">第 2 單元</a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
 <div class="page">
 <aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
-<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">08:21</span></div>
-<audio id="podcast-audio" preload="metadata"><source src="audio/unit01-podcast.mp3" type="audio/mpeg"></audio>
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">08:44</span></div>
+<audio id="podcast-audio" preload="metadata"><source src="audio/unit01d-podcast.mp3" type="audio/mpeg"></audio>
 <div class="toc-audio-controls">
 <button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
 <div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
 </div>
-<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 08:21</span></div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 08:44</span></div>
 <div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
-</div><details><summary>本頁目錄</summary><ol><li><a href="#parts"><span class="toc-num">01</span>本單元的五個部分</a></li>
-<li><a href="#words"><span class="toc-num">02</span>先認識幾個會一直出現的名詞</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m3 0h1m1 0h3m3 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m2 0h1m3 0h3m2 0h1m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h3m2 0h1m2 0h1m1 0h2m1 0h1m-24 1h1m1 0h5m3 0h4m1 0h3m5 0h1m2 0h5m-31 1h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-33 1h3m2 0h4m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3m5 0h1m1 0h2m-31 1h2m1 0h2m2 0h2m1 0h1m2 0h1m5 0h4m1 0h1m2 0h4m-30 1h1m3 0h1m1 0h5m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-25 1h1m1 0h2m3 0h4m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m-31 1h6m4 0h1m2 0h1m2 0h1m1 0h1m1 0h1m2 0h2m3 0h2m-32 1h2m2 0h2m5 0h6m4 0h1m1 0h4m2 0h2m-31 1h2m1 0h1m2 0h2m2 0h1m1 0h3m1 0h2m1 0h2m1 0h1m2 0h1m1 0h2m3 0h1m-32 1h1m1 0h1m4 0h2m1 0h1m2 0h1m2 0h4m2 0h2m1 0h2m1 0h2m1 0h1m-32 1h1m4 0h4m1 0h1m1 0h1m1 0h3m3 0h1m5 0h2m1 0h2m-32 1h3m2 0h1m1 0h3m2 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h5m1 0h1m-33 1h2m4 0h1m1 0h3m3 0h1m2 0h1m1 0h1m4 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h6m1 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m2 0h1m1 0h3m1 0h1m1 0h1m2 0h4m4 0h1m3 0h2m2 0h2m-32 1h1m3 0h1m3 0h2m1 0h6m2 0h4m3 0h1m1 0h1m1 0h3m-33 1h1m1 0h3m1 0h2m2 0h1m2 0h1m3 0h3m2 0h7m3 0h1m-25 1h5m1 0h1m1 0h5m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m2 0h4m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h2m1 0h2m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h1m1 0h1m4 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m2 0h4m1 0h2m1 0h2m1 0h4m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m5 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m5 0h2m1 0h2m3 0h3m2 0h2m1 0h3m-31 1h7m1 0h4m2 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#see-it"><span class="toc-num">01</span>動手看一次：Codex 修好一個有錯的程式</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m5 0h1m1 0h1m3 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m3 0h2m3 0h1m2 0h1m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m2 0h2m1 0h1m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h5m2 0h2m1 0h1m1 0h2m1 0h1m-24 1h1m1 0h5m3 0h1m2 0h1m2 0h2m5 0h1m2 0h5m-31 1h2m5 0h2m1 0h5m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-29 1h3m1 0h2m1 0h5m2 0h1m1 0h3m5 0h1m1 0h2m-32 1h1m2 0h1m3 0h4m1 0h2m6 0h4m1 0h1m2 0h4m-28 1h3m5 0h1m1 0h2m1 0h1m2 0h1m1 0h1m1 0h2m1 0h3m-30 1h2m3 0h1m4 0h3m3 0h5m1 0h2m1 0h2m2 0h1m1 0h2m-33 1h1m3 0h3m1 0h3m4 0h2m1 0h1m1 0h1m1 0h1m2 0h2m3 0h2m-29 1h1m4 0h1m1 0h2m1 0h4m4 0h1m1 0h4m2 0h2m-30 1h1m2 0h1m1 0h1m1 0h1m3 0h3m1 0h2m1 0h2m1 0h1m2 0h1m1 0h2m3 0h1m-33 1h2m1 0h1m3 0h3m2 0h2m4 0h3m2 0h2m1 0h2m1 0h2m1 0h1m-31 1h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h3m4 0h1m5 0h2m1 0h2m-30 1h2m1 0h1m4 0h3m2 0h1m2 0h1m2 0h1m1 0h2m1 0h5m1 0h1m-33 1h1m1 0h1m1 0h3m2 0h1m1 0h1m2 0h1m2 0h3m4 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m5 0h1m1 0h1m5 0h6m1 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h2m2 0h2m1 0h2m2 0h3m1 0h1m4 0h1m3 0h2m2 0h2m-32 1h1m1 0h2m3 0h4m1 0h1m2 0h2m2 0h4m3 0h1m1 0h1m1 0h1m-31 1h1m1 0h1m3 0h1m1 0h1m5 0h2m1 0h3m2 0h7m2 0h2m-25 1h1m1 0h2m4 0h5m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m1 0h1m1 0h4m4 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h3m4 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h2m2 0h2m2 0h5m1 0h4m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h3m4 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m3 0h1m1 0h1m1 0h2m4 0h3m2 0h2m1 0h3m-31 1h7m1 0h2m1 0h1m2 0h1m2 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
 <main id="main">
 <section class="hero">
-  <p class="eyebrow">第 1 單元講義</p>
-  <h1>用 ChatGPT 與 Codex 學習和做專題</h1>
-  <p class="lead">這一週要學會三件事：分辨 ChatGPT 的三種工作方式、把需求說清楚、以及確認 AI 做出來的東西真的是對的。最後會一步一步看 Codex 怎麼修好一個有錯的小程式。</p>
-  <ul class="meta">
-    <li>課堂時間 120 分鐘</li>
-    <li>需要：ChatGPT 帳號</li>
-    <li>選用：VS Code、Git、Python</li>
-  </ul>
+  <p class="eyebrow">第 1 單元</p>
+  <h1>動手看一次：Codex 修好一個有錯的程式</h1>
+  <p class="lead">這一節從頭到尾走一次完整流程。就算你從來沒寫過程式，也能照著看懂每一步發生了什麼事。</p>
+  <p class="meta-back"><a href="unit01.html">← 回第 1 單元導覽</a></p>
 </section>
 
-<div class="card-grid">
-  <div class="card"><span class="tag">目標 1</span><p>分辨 <strong>Chat</strong>、<strong>ChatGPT Work</strong>、<strong>Codex</strong>，依任務選對工具。</p></div>
-  <div class="card"><span class="tag">目標 2</span><p>用「目標、脈絡、產出、界線」四個要素寫出清楚的提示。</p></div>
-  <div class="card"><span class="tag">目標 3</span><p>追問 AI 的依據與假設，親自檢查重要的內容。</p></div>
-  <div class="card"><span class="tag">目標 4</span><p>看懂 Codex 修改程式的過程，並知道如何用 Git 保留退路。</p></div>
+<h2 id="see-it"><span class="num">01</span>動手看一次：Codex 修好一個有錯的程式</h2>
+
+<p>這一節用一個很小的 Python 程式，完整走一遍「發現錯誤、請 Codex 修、檢查結果」的過程。就算你從來沒寫過程式，也能照著看懂。</p>
+
+<p><a class="download" href="downloads/unit01-average-bug.zip">下載本節範例（unit01-average-bug.zip）</a></p>
+
+<h3>第 1 步：看懂這個程式想做什麼</h3>
+<p>這個程式想計算一串分數的<strong>平均</strong>。平均的算法是：把所有分數加起來，再除以分數的個數。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">before/average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def average(scores):"><span class="ln">1</span>def average(scores):</span>
+<span class="line" data-text="    total = 0"><span class="ln">2</span>    total = 0</span>
+<span class="line" data-text="    for score in scores:"><span class="ln">3</span>    for score in scores:</span>
+<span class="line" data-text="        total = total + score"><span class="ln">4</span>        total = total + score</span>
+<span class="line" data-text="    return total / 3"><span class="ln">5</span>    return total / 3</span>
+<span class="line" data-text=""><span class="ln">6</span></span>
+<span class="line" data-text=""><span class="ln">7</span></span>
+<span class="line" data-text="print(average([80, 90, 70]))"><span class="ln">8</span>print(average([80, 90, 70]))</span>
+<span class="line" data-text="print(average([100, 60]))"><span class="ln">9</span>print(average([100, 60]))</span>
+<span class="line" data-text="print(average([]))"><span class="ln">10</span>print(average([]))</span></code></pre></figure>
+
+<details class="explain" open>
+  <summary>逐行解說</summary>
+  <div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>行號</th><th>程式碼的意思</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>def average(scores):</code> 定義一個叫 <code>average</code> 的<strong>函式</strong>。函式像一台機器：把資料（這裡叫 <code>scores</code>，一串分數）放進去，它會算出結果。冒號後面縮排的幾行，都是這台機器的內部步驟。</td></tr>
+        <tr><td>2</td><td><code>total = 0</code> 建立一個叫 <code>total</code> 的<strong>變數</strong>，先放入 0。變數像一個貼了標籤的盒子，用來暫存數字。</td></tr>
+        <tr><td>3</td><td><code>for score in scores:</code> <strong>迴圈</strong>：從分數串列中一次拿出一個分數，叫它 <code>score</code>，對每個分數都執行下一行。</td></tr>
+        <tr><td>4</td><td><code>total = total + score</code> 把目前的總和加上這個分數，再存回 <code>total</code>。迴圈跑完，<code>total</code> 就是全部分數的總和。</td></tr>
+        <tr><td>5</td><td><code>return total / 3</code> 把總和除以 3，當成結果交回去。<strong>問題就在這裡。</strong></td></tr>
+        <tr><td>8-10</td><td><code>print(...)</code> 把結果顯示在畫面上。<code>[80, 90, 70]</code> 是一個有三個分數的<strong>串列</strong>，<code>[]</code> 是一個空的串列。</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</details>
+
+<h3>第 2 步：執行，發現結果不對</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">在 before 資料夾中執行程式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="cd before">cd before</span>
+<span class="line" data-text="python3 average.py">python3 average.py</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="80.0">80.0</span>
+<span class="line" data-text="53.333333333333336">53.333333333333336</span>
+<span class="line" data-text="0.0">0.0</span></code></pre></figure>
+
+<p>逐一檢查：</p>
+<ul>
+  <li>80、90、70 的平均是 80，<strong>正確</strong>。</li>
+  <li>100、60 的平均應該是 80，程式卻算出 53.33，<strong>錯誤</strong>。因為程式固定除以 3，但這裡只有 2 個分數。</li>
+  <li>沒有任何分數時，程式回答 0.0。但「沒有分數」不等於「平均 0 分」，這個結果會<strong>誤導</strong>人。</li>
+</ul>
+<div class="callout tip">
+  <span class="label">觀察重點</span>
+  <p>第一個例子剛好是 3 個分數，所以結果看起來正確。<strong>只測一種情況，很容易漏掉錯誤</strong>，這就是為什麼需要多種情況的測試。</p>
 </div>
 
-<h2 id="parts"><span class="num">01</span>本單元的五個部分</h2>
-<p>這個單元的內容分成五頁，依順序閱讀效果最好；也可以只挑需要的那一頁。每一頁都有自己的目錄、語音導讀與 QR Code。</p>
+<h3>第 3 步：把問題描述清楚，交給 Codex</h3>
+<p>在 <code>average-bug</code> 資料夾中啟動 Codex（或在桌面版、VS Code 開啟這個資料夾），輸入：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="before/average.py 的 average 函式計算平均時有錯。">before/average.py 的 average 函式計算平均時有錯。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="重現方式：">重現方式：</span>
+<span class="line" data-text="1) 執行 python3 before/average.py">1) 執行 python3 before/average.py</span>
+<span class="line" data-text="2) average([100, 60]) 印出 53.333333333333336，預期是 80">2) average([100, 60]) 印出 53.333333333333336，預期是 80</span>
+<span class="line" data-text="3) average([]) 印出 0.0，但沒有分數時應該回傳 None，表示「沒有平均」">3) average([]) 印出 0.0，但沒有分數時應該回傳 None，表示「沒有平均」</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="限制：">限制：</span>
+<span class="line" data-text="- 只修改 average 函式，不要改其他行">- 只修改 average 函式，不要改其他行</span>
+<span class="line" data-text="- 修正盡量小">- 修正盡量小</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請修正後再執行一次程式，並新增一個測試檔，涵蓋三個分數、兩個分數、沒有分數三種情況，">請修正後再執行一次程式，並新增一個測試檔，涵蓋三個分數、兩個分數、沒有分數三種情況，</span>
+<span class="line" data-text="執行測試並回報指令與結果。">執行測試並回報指令與結果。</span></code></pre></figure>
 
-<div class="card-grid">
-  <article class="card unit-card unit-1">
-    <span class="tag">1-1</span>
-    <h4><a class="card-link" href="unit01a.html">三種工作方式與清楚的提示</a></h4>
-    <p>三種工作方式各自適合什麼任務、提示的四個要素怎麼寫，以及拿到答案後要親自檢查哪些地方。</p>
-    <p class="card-audio">🎧 語音導讀：9 分 42 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-2</span>
-    <h4><a class="card-link" href="unit01b.html">專案、檔案與 ChatGPT Work</a></h4>
-    <p>什麼時候該建立專案、上傳檔案可以做什麼，以及寫給 ChatGPT Work 的提示長什麼樣子。</p>
-    <p class="card-audio">🎧 語音導讀：10 分 32 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-3</span>
-    <h4><a class="card-link" href="unit01c.html">認識 Codex：安全網與專案規則</a></h4>
-    <p>程式專案長什麼樣子、在哪裡使用 Codex、沙箱與核准怎麼設定，以及 AGENTS.md 該寫些什麼。</p>
-    <p class="card-audio">🎧 語音導讀：10 分 16 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-4</span>
-    <h4><a class="card-link" href="unit01d.html">動手看一次：Codex 修好一個有錯的程式</a></h4>
-    <p>一個平均分數的小程式哪裡算錯了、怎麼請 Codex 修、以及怎麼確認它真的修對了。</p>
-    <p class="card-audio">🎧 語音導讀：8 分 44 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-    <p><a class="download" href="downloads/unit01-average-bug.zip">下載本節範例</a></p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-5</span>
-    <h4><a class="card-link" href="unit01e.html">常用工作流程、整合演練與總結</a></h4>
-    <p>六個常用的 Codex 工作流程與提示範例、其他實用功能，以及整合演練、使用守則與課後練習。</p>
-    <p class="card-audio">🎧 語音導讀：11 分 29 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
+<details class="explain">
+  <summary>為什麼要這樣寫提示？</summary>
+  <div>
+    <ul>
+      <li><strong>重現方式</strong>：給出「怎麼執行、看到什麼、預期什麼」，Codex 可以自己跑一次確認問題，比「平均算錯了」精確得多。</li>
+      <li><strong>限制</strong>：避免 Codex 順手改了其他地方，讓你難以檢查。</li>
+      <li><strong>驗證方式</strong>：要求它修完後再執行、加測試、回報結果，你不用盲目相信「我修好了」。</li>
+    </ul>
+  </div>
+</details>
+
+<h3>第 4 步：看 Codex 改了什麼</h3>
+<p>Codex 會顯示它修改的內容（稱為 diff）。下面是一份參考解答，Codex 實際的寫法可能略有不同，但重點一樣：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">after/average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def average(scores):"><span class="ln">1</span>def average(scores):</span>
+<span class="line" data-text="    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;"><span class="ln">2</span>    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;</span>
+<span class="line" data-text="    if len(scores) == 0:"><span class="ln">3</span>    if len(scores) == 0:</span>
+<span class="line" data-text="        return None"><span class="ln">4</span>        return None</span>
+<span class="line" data-text="    total = 0"><span class="ln">5</span>    total = 0</span>
+<span class="line" data-text="    for score in scores:"><span class="ln">6</span>    for score in scores:</span>
+<span class="line" data-text="        total = total + score"><span class="ln">7</span>        total = total + score</span>
+<span class="line" data-text="    return total / len(scores)"><span class="ln">8</span>    return total / len(scores)</span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text=""><span class="ln">10</span></span>
+<span class="line" data-text="print(average([80, 90, 70]))"><span class="ln">11</span>print(average([80, 90, 70]))</span>
+<span class="line" data-text="print(average([100, 60]))"><span class="ln">12</span>print(average([100, 60]))</span>
+<span class="line" data-text="print(average([]))"><span class="ln">13</span>print(average([]))</span></code></pre></figure>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind ">diff</span><span class="code-title">修改內容（diff）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text=" def average(scores):"> def average(scores):</span>
+<span class="line" data-text="+    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;">+    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;</span>
+<span class="line" data-text="+    if len(scores) == 0:">+    if len(scores) == 0:</span>
+<span class="line" data-text="+        return None">+        return None</span>
+<span class="line" data-text="     total = 0">     total = 0</span>
+<span class="line" data-text="     for score in scores:">     for score in scores:</span>
+<span class="line" data-text="         total = total + score">         total = total + score</span>
+<span class="line" data-text="-    return total / 3">-    return total / 3</span>
+<span class="line" data-text="+    return total / len(scores)">+    return total / len(scores)</span></code></pre></figure>
+
+<details class="explain" open>
+  <summary>改了哪裡、為什麼</summary>
+  <div>
+    <ul>
+      <li><code>+</code> 開頭是新增的行，<code>-</code> 開頭是刪掉的行，前面是空格的行沒有變。</li>
+      <li>第 2 行三個引號包起來的文字是<strong>說明文字</strong>，寫給閱讀程式的人看，不影響執行。</li>
+      <li>第 3-4 行：<code>len(scores)</code> 是串列裡有幾個分數。如果是 0 個，就直接回傳 <code>None</code>（Python 裡代表「沒有值」），不往下算。</li>
+      <li>第 8 行：除以 <code>len(scores)</code>，也就是「實際的分數個數」，不再固定除以 3。</li>
+    </ul>
+  </div>
+</details>
+
+<h3>第 5 步：用測試確認真的修好了</h3>
+<p>參考的測試檔如下（Codex 寫的測試名稱或順序可能不同）：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">after/test_average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="import unittest"><span class="ln">1</span>import unittest</span>
+<span class="line" data-text=""><span class="ln">2</span></span>
+<span class="line" data-text="from average import average"><span class="ln">3</span>from average import average</span>
+<span class="line" data-text=""><span class="ln">4</span></span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="class AverageTest(unittest.TestCase):"><span class="ln">6</span>class AverageTest(unittest.TestCase):</span>
+<span class="line" data-text="    def test_three_scores(self):"><span class="ln">7</span>    def test_three_scores(self):</span>
+<span class="line" data-text="        self.assertEqual(average([80, 90, 70]), 80)"><span class="ln">8</span>        self.assertEqual(average([80, 90, 70]), 80)</span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text="    def test_two_scores(self):"><span class="ln">10</span>    def test_two_scores(self):</span>
+<span class="line" data-text="        self.assertEqual(average([100, 60]), 80)"><span class="ln">11</span>        self.assertEqual(average([100, 60]), 80)</span>
+<span class="line" data-text=""><span class="ln">12</span></span>
+<span class="line" data-text="    def test_no_scores(self):"><span class="ln">13</span>    def test_no_scores(self):</span>
+<span class="line" data-text="        self.assertIsNone(average([]))"><span class="ln">14</span>        self.assertIsNone(average([]))</span>
+<span class="line" data-text=""><span class="ln">15</span></span>
+<span class="line" data-text=""><span class="ln">16</span></span>
+<span class="line" data-text="if __name__ == &quot;__main__&quot;:"><span class="ln">17</span>if __name__ == &quot;__main__&quot;:</span>
+<span class="line" data-text="    unittest.main()"><span class="ln">18</span>    unittest.main()</span></code></pre></figure>
+
+<details class="explain">
+  <summary>逐行解說</summary>
+  <div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>行號</th><th>程式碼的意思</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>載入 Python 內建的測試工具 <code>unittest</code>。</td></tr>
+        <tr><td>3</td><td>從 <code>average.py</code> 取出 <code>average</code> 函式來測試。</td></tr>
+        <tr><td>6</td><td>建立一組測試，名字叫 <code>AverageTest</code>。</td></tr>
+        <tr><td>7-8</td><td>第一個測試：<code>assertEqual</code> 意思是「斷定兩者相等」。算出來的平均必須等於 80，否則測試失敗。</td></tr>
+        <tr><td>10-11</td><td>第二個測試：兩個分數的平均也必須是 80。<strong>原本的錯誤就會在這裡被抓到。</strong></td></tr>
+        <tr><td>13-14</td><td>第三個測試：<code>assertIsNone</code> 斷定沒有分數時結果是 <code>None</code>。</td></tr>
+        <tr><td>17-18</td><td>直接執行這個檔案時，跑所有測試。</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</details>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">在 after 資料夾中執行測試</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="cd after">cd after</span>
+<span class="line" data-text="python3 -m unittest -v">python3 -m unittest -v</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="test_no_scores (test_average.AverageTest.test_no_scores) ... ok">test_no_scores (test_average.AverageTest.test_no_scores) ... ok</span>
+<span class="line" data-text="test_three_scores (test_average.AverageTest.test_three_scores) ... ok">test_three_scores (test_average.AverageTest.test_three_scores) ... ok</span>
+<span class="line" data-text="test_two_scores (test_average.AverageTest.test_two_scores) ... ok">test_two_scores (test_average.AverageTest.test_two_scores) ... ok</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="----------------------------------------------------------------------">----------------------------------------------------------------------</span>
+<span class="line" data-text="Ran 3 tests in 0.000s">Ran 3 tests in 0.000s</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="OK">OK</span></code></pre></figure>
+<p>三個測試都顯示 <code>ok</code>，最後一行是 <code>OK</code>，代表全部通過。以後不管誰修改 <code>average</code>，只要再跑一次測試，就知道有沒有改壞。</p>
+
+<div class="callout try">
+  <span class="label">試試看</span>
+  <p>把 <code>after/average.py</code> 第 8 行暫時改回 <code>return total / 3</code>，再執行一次測試。你會看到哪一個測試失敗？失敗訊息說了什麼？看完後記得改回來。</p>
 </div>
 
-<h2 id="words"><span class="num">02</span>先認識幾個會一直出現的名詞</h2>
+<div class="callout note">
+  <span class="label">Windows 使用者</span>
+  <p>如果終端機說找不到 <code>python3</code>，改用 <code>python</code> 或 <code>py</code>，例如 <code>py -m unittest -v</code>。</p>
+</div>
 
-<p>這份講義會用到一些電腦與程式的名詞。先把它們用生活化的方式講清楚，後面讀起來會輕鬆很多。不必一次背起來，看到不懂的詞再回來查就好。</p>
-
-<dl class="glossary">
-  <dt>AI 代理（agent）</dt>
-  <dd>不只會回答問題，還能<strong>自己規劃步驟、使用工具、把事情做完</strong>的 AI。像一位助理：你交代目標，它會自己查資料、開檔案、做出成果給你檢查。</dd>
-  <dt>提示（prompt）</dt>
-  <dd>你輸入給 AI 的文字，可以是一個問題、一個指令或一個目標。</dd>
-  <dt>脈絡（context）</dt>
-  <dd>AI 在回答時能參考的背景資訊，例如你上傳的檔案、之前的對話、你說明的情況。脈絡越貼切，答案越符合你的需要。</dd>
-  <dt>檔案與資料夾</dt>
-  <dd>檔案是一份資料（一篇文件、一張圖、一個程式）；資料夾是裝檔案的容器，資料夾裡還可以有資料夾。</dd>
-  <dt>路徑（path）</dt>
-  <dd>檔案在電腦裡的「地址」，例如 <code>專題/程式/main.py</code> 表示「專題」資料夾裡的「程式」資料夾裡的 <code>main.py</code>。</dd>
-  <dt>程式碼（code）</dt>
-  <dd>用程式語言寫給電腦執行的指示。副檔名常透露它是哪種語言，例如 <code>.py</code> 是 Python，<code>.js</code> 是 JavaScript，<code>.html</code> 是網頁。</dd>
-  <dt>終端機（terminal）</dt>
-  <dd>一個用「打字下指令」操作電腦的視窗。在圖形介面裡你用滑鼠點「開啟」，在終端機裡你輸入一行指令讓電腦做同樣的事。macOS 叫「終端機」，Windows 常用「PowerShell」。</dd>
-  <dt>Bug</dt>
-  <dd>程式中的錯誤，讓程式的結果和預期不一樣，或直接當掉。</dd>
-  <dt>測試（test）</dt>
-  <dd>另外寫一小段程式，自動檢查「輸入這些資料時，結果是不是我們預期的」。每次修改後跑一次測試，就知道有沒有改壞東西。</dd>
-  <dt>Git</dt>
-  <dd>記錄檔案每一次變化的工具，像是遊戲的「存檔點」。改壞了可以回到之前的存檔。</dd>
-  <dt>Commit</dt>
-  <dd>在 Git 裡建立一個存檔點的動作，會記下「這個時間點所有檔案的樣子」和一句說明。</dd>
-</dl>
-
-<nav class="pager" aria-label="上下頁"><a href="index.html">回講義首頁</a><a href="unit01a.html">下一頁：1-1 三種工作方式與清楚的提示</a></nav>
+<nav class="pager" aria-label="上下頁"><a href="unit01c.html">上一頁：1-3 認識 Codex：安全網與專案規則</a><a href="unit01e.html">下一頁：1-5 常用工作流程、整合演練與總結</a></nav>
 
 </main>
 </div>
