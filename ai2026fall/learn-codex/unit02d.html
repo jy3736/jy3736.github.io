@@ -1,0 +1,1298 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
+<title>第 2 單元 2-4：範例二：截止日看板與平行作業</title>
+<meta name="description" content="用截止日看板練習 worktree 平行作業、技能重現與整合審查，並完成本單元的檢核與課後練習。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .theme-toggle, .toc-qr { display: none !important; }
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI Agent 創作實務講義</a><nav aria-label="講義"><a href="index.html">課程講義首頁</a>
+<a href="unit01.html">第 1 單元</a>
+<a href="unit02.html" aria-current="page">第 2 單元</a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">10:27</span></div>
+<audio id="podcast-audio" preload="metadata"><source src="audio/unit02d-podcast.mp3" type="audio/mpeg"></audio>
+<div class="toc-audio-controls">
+<button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
+<div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
+</div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 10:27</span></div>
+<div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#sample2"><span class="toc-num">01</span>範例二：截止日看板與平行作業</a></li>
+<li><a href="#summary"><span class="toc-num">02</span>總結與課後練習</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h6m2 0h3m1 0h2m2 0h1m1 0h7m-33 1h1m5 0h1m1 0h1m2 0h1m1 0h2m3 0h3m1 0h1m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m2 0h4m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m3 0h1m1 0h3m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h2m3 0h3m4 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h2m1 0h1m2 0h1m4 0h1m1 0h1m2 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-23 1h2m1 0h2m1 0h1m1 0h2m3 0h1m-24 1h1m2 0h6m2 0h1m5 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h3m-33 1h5m2 0h1m1 0h1m1 0h3m1 0h2m1 0h2m2 0h3m3 0h3m-31 1h1m1 0h1m1 0h1m1 0h1m3 0h1m1 0h2m1 0h1m2 0h1m2 0h3m2 0h1m1 0h5m-33 1h2m3 0h1m1 0h7m1 0h4m1 0h1m4 0h1m1 0h1m2 0h2m-31 1h2m2 0h4m2 0h3m1 0h2m2 0h1m3 0h2m1 0h2m3 0h2m-33 1h4m3 0h3m1 0h8m2 0h3m3 0h1m1 0h1m-30 1h2m3 0h2m2 0h1m1 0h3m1 0h1m2 0h3m5 0h1m1 0h1m1 0h1m-29 1h1m1 0h1m3 0h2m1 0h3m6 0h1m1 0h4m1 0h4m1 0h1m-32 1h1m2 0h4m3 0h3m2 0h1m2 0h1m2 0h2m1 0h5m-29 1h1m2 0h2m1 0h7m1 0h8m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m-33 1h1m3 0h1m1 0h3m1 0h1m4 0h1m1 0h1m1 0h5m1 0h3m1 0h2m1 0h1m-29 1h2m1 0h8m3 0h3m2 0h3m2 0h4m-31 1h2m1 0h1m1 0h4m1 0h1m1 0h2m1 0h3m3 0h1m1 0h1m2 0h1m1 0h1m-30 1h1m3 0h1m4 0h1m1 0h2m2 0h1m1 0h3m2 0h2m3 0h3m-30 1h1m1 0h1m2 0h2m2 0h5m1 0h1m4 0h1m1 0h2m3 0h1m1 0h4m-33 1h1m2 0h3m1 0h2m2 0h1m5 0h1m1 0h2m2 0h1m2 0h2m1 0h2m-31 1h2m2 0h3m3 0h1m2 0h1m1 0h2m1 0h1m1 0h1m3 0h6m-22 1h4m1 0h6m2 0h1m1 0h2m3 0h1m1 0h2m-32 1h7m1 0h3m1 0h4m1 0h1m1 0h1m3 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m1 0h1m5 0h1m1 0h1m5 0h1m3 0h3m-31 1h1m1 0h3m1 0h1m1 0h1m2 0h1m3 0h2m3 0h1m1 0h7m2 0h2m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h4m1 0h1m2 0h4m2 0h2m1 0h1m3 0h2m-33 1h1m1 0h3m1 0h1m2 0h1m2 0h5m2 0h1m1 0h3m3 0h2m2 0h2m-33 1h1m5 0h1m2 0h5m5 0h1m2 0h1m4 0h6m-33 1h7m1 0h4m1 0h2m1 0h2m1 0h2m3 0h5"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero">
+  <p class="eyebrow">第 2 單元 · 2-4</p>
+  <h1>範例二：截止日看板與平行作業</h1>
+  <p class="lead">第二個範例把資料變成一頁看得懂的網頁，並用 worktree 同時進行兩個功能，最後整合、審查，收尾本單元。</p>
+  <p class="meta-back"><a href="unit02.html">← 回第 2 單元導覽</a></p>
+</section>
+
+<h2 id="sample2"><span class="num">01</span>範例二：截止日看板與平行作業</h2>
+
+<h3>這個程式要做什麼</h3>
+<p>讀取各科作業、考試、報告的截止日，依一個「基準日」算出每一項還剩幾天，分成「已過期、緊急、本週、之後」四區，產生一個可以用瀏覽器打開的網頁。基準日一律由指令指定，所以不論哪一天執行，結果都一樣，方便檢查與重現。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-title">02-deadline-board 的檔案</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="02-deadline-board/">02-deadline-board/</span>
+<span class="line" data-text="├── AGENTS.md                                  ← 專案規則">├── AGENTS.md                                  ← 專案規則</span>
+<span class="line" data-text="├── package.json                               ← npm test、npm run build 的設定">├── package.json                               ← npm test、npm run build 的設定</span>
+<span class="line" data-text="├── data/deadlines.json                        ← 7 筆截止日">├── data/deadlines.json                        ← 7 筆截止日</span>
+<span class="line" data-text="├── src/board.mjs                              ← 計算與產生網頁的函式（不讀寫檔案）">├── src/board.mjs                              ← 計算與產生網頁的函式（不讀寫檔案）</span>
+<span class="line" data-text="├── build.mjs                                  ← 命令列：讀資料、寫出網頁">├── build.mjs                                  ← 命令列：讀資料、寫出網頁</span>
+<span class="line" data-text="├── test/board.test.mjs                        ← 6 個自動測試">├── test/board.test.mjs                        ← 6 個自動測試</span>
+<span class="line" data-text="└── .agents/skills/deadline-board/">└── .agents/skills/deadline-board/</span>
+<span class="line" data-text="    ├── SKILL.md                               ← 技能：重現並驗證網頁">    ├── SKILL.md                               ← 技能：重現並驗證網頁</span>
+<span class="line" data-text="    ├── references/spec.md                     ← 分類、排序與頁面規格">    ├── references/spec.md                     ← 分類、排序與頁面規格</span>
+<span class="line" data-text="    └── assets/expected-index.html             ← 基準日 2026-09-21 的預期網頁">    └── assets/expected-index.html             ← 基準日 2026-09-21 的預期網頁</span></code></pre></figure>
+
+<p>先照第 08 節的方式，用 VS Code 開啟 <code>02-deadline-board</code>，執行 <code>git init</code>、<code>git add -A</code>、<code>git commit</code> 建立存檔點。</p>
+
+<h3>輸入資料</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JSON</span><span class="code-title">data/deadlines.json</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="["><span class="ln">1</span>[</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業三：鏈結串列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-23&quot; },"><span class="ln">2</span>  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業三：鏈結串列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-23&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;第一次小考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-09-25&quot; },"><span class="ln">3</span>  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;第一次小考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-09-25&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;分組報告：網路協定&quot;, &quot;type&quot;: &quot;報告&quot;, &quot;due&quot;: &quot;2026-10-02&quot; },"><span class="ln">4</span>  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;分組報告：網路協定&quot;, &quot;type&quot;: &quot;報告&quot;, &quot;due&quot;: &quot;2026-10-02&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業二：堆疊與佇列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-18&quot; },"><span class="ln">5</span>  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業二：堆疊與佇列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-18&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;英文閱讀&quot;, &quot;title&quot;: &quot;讀書心得&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-28&quot; },"><span class="ln">6</span>  { &quot;course&quot;: &quot;英文閱讀&quot;, &quot;title&quot;: &quot;讀書心得&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-28&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;期中考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-10-20&quot; },"><span class="ln">7</span>  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;期中考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-10-20&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;實習二：Git 操作&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-21&quot; }"><span class="ln">8</span>  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;實習二：Git 操作&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-21&quot; }</span>
+<span class="line" data-text="]"><span class="ln">9</span>]</span></code></pre></figure>
+<p>整份資料是一個串列 <code>[ ]</code>，裡面每一組 <code>{ }</code> 是一筆截止日，有四個欄位：科目 <code>course</code>、名稱 <code>title</code>、類型 <code>type</code>、截止日 <code>due</code>。</p>
+
+<h3>分類規則</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>剩餘天數</th><th>分到哪一區</th><th>顯示文字</th></tr></thead>
+  <tbody>
+    <tr><td>小於 0</td><td>已過期</td><td>逾期 N 天</td></tr>
+    <tr><td>0</td><td>緊急</td><td>今天到期</td></tr>
+    <tr><td>1 到 3</td><td>緊急</td><td>剩 N 天</td></tr>
+    <tr><td>4 到 7</td><td>本週</td><td>剩 N 天</td></tr>
+    <tr><td>8 以上</td><td>之後</td><td>剩 N 天</td></tr>
+  </tbody>
+</table></div>
+
+<h3>程式碼逐段解說</h3>
+<p>範例二用 JavaScript 寫成，在 Node.js 上執行。程式分成兩個檔案：<code>src/board.mjs</code> 只負責<strong>計算</strong>，<code>build.mjs</code> 負責<strong>讀寫檔案</strong>。這樣分工，測試時只要把資料交給計算函式、檢查結果，不必真的讀寫檔案。</p>
+
+<h4>第 1 段：把日期文字轉成日期</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">src/board.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="// Pure functions for the deadline board. No I/O, so every function is easy to test."><span class="ln">1</span>// Pure functions for the deadline board. No I/O, so every function is easy to test.</span>
+<span class="line" data-text=""><span class="ln">2</span></span>
+<span class="line" data-text="export const STATUS_ORDER = [&quot;已過期&quot;, &quot;緊急&quot;, &quot;本週&quot;, &quot;之後&quot;];"><span class="ln">3</span>export const STATUS_ORDER = [&quot;已過期&quot;, &quot;緊急&quot;, &quot;本週&quot;, &quot;之後&quot;];</span>
+<span class="line" data-text=""><span class="ln">4</span></span>
+<span class="line" data-text="const DAY_MS = 24 * 60 * 60 * 1000;"><span class="ln">5</span>const DAY_MS = 24 * 60 * 60 * 1000;</span>
+<span class="line" data-text=""><span class="ln">6</span></span>
+<span class="line" data-text="function parseDate(text) {"><span class="ln">7</span>function parseDate(text) {</span>
+<span class="line" data-text="  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) throw new Error(`日期格式錯誤：${text}`);"><span class="ln">8</span>  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) throw new Error(`日期格式錯誤：${text}`);</span>
+<span class="line" data-text="  const [y, m, d] = text.split(&quot;-&quot;).map(Number);"><span class="ln">9</span>  const [y, m, d] = text.split(&quot;-&quot;).map(Number);</span>
+<span class="line" data-text="  const date = new Date(Date.UTC(y, m - 1, d));"><span class="ln">10</span>  const date = new Date(Date.UTC(y, m - 1, d));</span>
+<span class="line" data-text="  if (date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) throw new Error(`日期不存在：${text}`);"><span class="ln">11</span>  if (date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) throw new Error(`日期不存在：${text}`);</span>
+<span class="line" data-text="  return date;"><span class="ln">12</span>  return date;</span>
+<span class="line" data-text="}"><span class="ln">13</span>}</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 1 行</strong>：<code>//</code> 開頭是註解。</li>
+      <li><strong>第 3 行</strong>：<code>export const</code> 定義一個固定值，並讓其他檔案可以使用。這裡是四個區的顯示順序。</li>
+      <li><strong>第 5 行</strong>：一天有幾毫秒（24 小時 × 60 分 × 60 秒 × 1000 毫秒）。電腦裡的時間常以毫秒計算。</li>
+      <li><strong>第 8 行</strong>：用<strong>正規表示式</strong>檢查格式是不是「4 位數-2 位數-2 位數」。<code>\d{4}</code> 意思是「4 個數字」。不符合就用 <code>throw</code> 丟出錯誤訊息。</li>
+      <li><strong>第 9 行</strong>：用 <code>-</code> 把文字切成年、月、日三段，並轉成數字。</li>
+      <li><strong>第 10 行</strong>：建立日期。JavaScript 的月份從 0 開始算（1 月是 0），所以要 <code>m - 1</code>。用 UTC 可以避免不同時區算出不同天數。</li>
+      <li><strong>第 11 行</strong>：像 2 月 30 日這種不存在的日期，電腦會自動變成 3 月 2 日。這行檢查月和日有沒有被改掉，有的話就回報「日期不存在」。</li>
+    </ul>
+  </div>
+</details>
+
+<h4>第 2 段：算天數、分區、顯示文字</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">src/board.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="export function daysLeft(due, today) {"><span class="ln">15</span>export function daysLeft(due, today) {</span>
+<span class="line" data-text="  return Math.round((parseDate(due) - parseDate(today)) / DAY_MS);"><span class="ln">16</span>  return Math.round((parseDate(due) - parseDate(today)) / DAY_MS);</span>
+<span class="line" data-text="}"><span class="ln">17</span>}</span>
+<span class="line" data-text=""><span class="ln">18</span></span>
+<span class="line" data-text="export function statusOf(days) {"><span class="ln">19</span>export function statusOf(days) {</span>
+<span class="line" data-text="  if (days &lt; 0) return &quot;已過期&quot;;"><span class="ln">20</span>  if (days &lt; 0) return &quot;已過期&quot;;</span>
+<span class="line" data-text="  if (days &lt;= 3) return &quot;緊急&quot;;"><span class="ln">21</span>  if (days &lt;= 3) return &quot;緊急&quot;;</span>
+<span class="line" data-text="  if (days &lt;= 7) return &quot;本週&quot;;"><span class="ln">22</span>  if (days &lt;= 7) return &quot;本週&quot;;</span>
+<span class="line" data-text="  return &quot;之後&quot;;"><span class="ln">23</span>  return &quot;之後&quot;;</span>
+<span class="line" data-text="}"><span class="ln">24</span>}</span>
+<span class="line" data-text=""><span class="ln">25</span></span>
+<span class="line" data-text="export function label(days) {"><span class="ln">26</span>export function label(days) {</span>
+<span class="line" data-text="  if (days &lt; 0) return `逾期 ${-days} 天`;"><span class="ln">27</span>  if (days &lt; 0) return `逾期 ${-days} 天`;</span>
+<span class="line" data-text="  if (days === 0) return &quot;今天到期&quot;;"><span class="ln">28</span>  if (days === 0) return &quot;今天到期&quot;;</span>
+<span class="line" data-text="  return `剩 ${days} 天`;"><span class="ln">29</span>  return `剩 ${days} 天`;</span>
+<span class="line" data-text="}"><span class="ln">30</span>}</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong><code>daysLeft</code></strong>：截止日減基準日得到毫秒數，除以一天的毫秒數就是天數。例如 2026-10-02 減 2026-09-21 是 11 天。</li>
+      <li><strong><code>statusOf</code></strong>：依剩餘天數，從上往下判斷分到哪一區。一碰到符合的條件就 <code>return</code>，後面不再判斷。</li>
+      <li><strong><code>label</code></strong>：產生顯示文字。反引號 <code>`...`</code> 裡的 <code>${days}</code> 會換成實際的數字。</li>
+    </ul>
+  </div>
+</details>
+
+<h4>第 3 段：整理成四個區</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">src/board.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="export function buildBoard(items, today) {"><span class="ln">32</span>export function buildBoard(items, today) {</span>
+<span class="line" data-text="  const enriched = items"><span class="ln">33</span>  const enriched = items</span>
+<span class="line" data-text="    .map((item) =&gt; {"><span class="ln">34</span>    .map((item) =&gt; {</span>
+<span class="line" data-text="      const days = daysLeft(item.due, today);"><span class="ln">35</span>      const days = daysLeft(item.due, today);</span>
+<span class="line" data-text="      return { ...item, days, status: statusOf(days) };"><span class="ln">36</span>      return { ...item, days, status: statusOf(days) };</span>
+<span class="line" data-text="    })"><span class="ln">37</span>    })</span>
+<span class="line" data-text="    .sort((a, b) =&gt; a.days - b.days || a.course.localeCompare(b.course, &quot;zh-Hant&quot;));"><span class="ln">38</span>    .sort((a, b) =&gt; a.days - b.days || a.course.localeCompare(b.course, &quot;zh-Hant&quot;));</span>
+<span class="line" data-text="  return STATUS_ORDER.map((status) =&gt; ({ status, items: enriched.filter((i) =&gt; i.status === status) }));"><span class="ln">39</span>  return STATUS_ORDER.map((status) =&gt; ({ status, items: enriched.filter((i) =&gt; i.status === status) }));</span>
+<span class="line" data-text="}"><span class="ln">40</span>}</span></code></pre></figure>
+<details class="explain" open>
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 34-37 行</strong>：<code>map</code> 對每一筆資料做同一件事：算出天數與分區，連同原本的欄位（<code>...item</code> 表示「複製原本所有欄位」）組成新資料。</li>
+      <li><strong>第 38 行</strong>：<code>sort</code> 排序。先比天數，天數少的在前；天數相同再依科目名稱排序。</li>
+      <li><strong>第 39 行</strong>：依「已過期、緊急、本週、之後」的順序，用 <code>filter</code> 挑出每一區的項目。</li>
+    </ul>
+  </div>
+</details>
+
+<h4>第 4 段：安全地產生網頁</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">src/board.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="const escapeHtml = (text) =&gt;"><span class="ln">42</span>const escapeHtml = (text) =&gt;</span>
+<span class="line" data-text="  String(text).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g, (c) =&gt; ({ &quot;&amp;&quot;: &quot;&amp;amp;&quot;, &quot;&lt;&quot;: &quot;&amp;lt;&quot;, &quot;&gt;&quot;: &quot;&amp;gt;&quot;, &#x27;&quot;&#x27;: &quot;&amp;quot;&quot;, &quot;&#x27;&quot;: &quot;&amp;#39;&quot; })[c]);"><span class="ln">43</span>  String(text).replace(/[&amp;&lt;&gt;&quot;&#x27;]/g, (c) =&gt; ({ &quot;&amp;&quot;: &quot;&amp;amp;&quot;, &quot;&lt;&quot;: &quot;&amp;lt;&quot;, &quot;&gt;&quot;: &quot;&amp;gt;&quot;, &#x27;&quot;&#x27;: &quot;&amp;quot;&quot;, &quot;&#x27;&quot;: &quot;&amp;#39;&quot; })[c]);</span>
+<span class="line" data-text=""><span class="ln">44</span></span>
+<span class="line" data-text="export function renderHtml(groups, today) {"><span class="ln">45</span>export function renderHtml(groups, today) {</span>
+<span class="line" data-text="  const sections = groups"><span class="ln">46</span>  const sections = groups</span>
+<span class="line" data-text="    .map(({ status, items }) =&gt; {"><span class="ln">47</span>    .map(({ status, items }) =&gt; {</span>
+<span class="line" data-text="      const rows = items.length"><span class="ln">48</span>      const rows = items.length</span>
+<span class="line" data-text="        ? items"><span class="ln">49</span>        ? items</span>
+<span class="line" data-text="            .map("><span class="ln">50</span>            .map(</span>
+<span class="line" data-text="              (i) =&gt;"><span class="ln">51</span>              (i) =&gt;</span>
+<span class="line" data-text="                `      &lt;li class=&quot;${i.status}&quot;&gt;&lt;span class=&quot;due&quot;&gt;${i.due}&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;${escapeHtml(i.type)}&lt;/span&gt; &lt;strong&gt;${escapeHtml(i.course)}&lt;/strong&gt; ${escapeHtml(i.title)} &lt;em&gt;${label(i.days)}&lt;/em&gt;&lt;/li&gt;`"><span class="ln">52</span>                `      &lt;li class=&quot;${i.status}&quot;&gt;&lt;span class=&quot;due&quot;&gt;${i.due}&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;${escapeHtml(i.type)}&lt;/span&gt; &lt;strong&gt;${escapeHtml(i.course)}&lt;/strong&gt; ${escapeHtml(i.title)} &lt;em&gt;${label(i.days)}&lt;/em&gt;&lt;/li&gt;`</span>
+<span class="line" data-text="            )"><span class="ln">53</span>            )</span>
+<span class="line" data-text="            .join(&quot;\n&quot;)"><span class="ln">54</span>            .join(&quot;\n&quot;)</span>
+<span class="line" data-text="        : `      &lt;li class=&quot;empty&quot;&gt;沒有項目&lt;/li&gt;`;"><span class="ln">55</span>        : `      &lt;li class=&quot;empty&quot;&gt;沒有項目&lt;/li&gt;`;</span>
+<span class="line" data-text="      return `  &lt;section&gt;\n    &lt;h2&gt;${status}（${items.length}）&lt;/h2&gt;\n    &lt;ul&gt;\n${rows}\n    &lt;/ul&gt;\n  &lt;/section&gt;`;"><span class="ln">56</span>      return `  &lt;section&gt;\n    &lt;h2&gt;${status}（${items.length}）&lt;/h2&gt;\n    &lt;ul&gt;\n${rows}\n    &lt;/ul&gt;\n  &lt;/section&gt;`;</span>
+<span class="line" data-text="    })"><span class="ln">57</span>    })</span>
+<span class="line" data-text="    .join(&quot;\n&quot;);"><span class="ln">58</span>    .join(&quot;\n&quot;);</span>
+<span class="line" data-text="  return `&lt;!doctype html&gt;"><span class="ln">59</span>  return `&lt;!doctype html&gt;</span>
+<span class="line" data-text="&lt;html lang=&quot;zh-Hant&quot;&gt;"><span class="ln">60</span>&lt;html lang=&quot;zh-Hant&quot;&gt;</span>
+<span class="line" data-text="&lt;head&gt;"><span class="ln">61</span>&lt;head&gt;</span>
+<span class="line" data-text="  &lt;meta charset=&quot;utf-8&quot;&gt;"><span class="ln">62</span>  &lt;meta charset=&quot;utf-8&quot;&gt;</span>
+<span class="line" data-text="  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;"><span class="ln">63</span>  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;</span>
+<span class="line" data-text="  &lt;title&gt;截止日看板&lt;/title&gt;"><span class="ln">64</span>  &lt;title&gt;截止日看板&lt;/title&gt;</span>
+<span class="line" data-text="  &lt;style&gt;"><span class="ln">65</span>  &lt;style&gt;</span>
+<span class="line" data-text="    body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }"><span class="ln">66</span>    body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }</span>
+<span class="line" data-text="    li { margin: 0.4rem 0; list-style: none; }"><span class="ln">67</span>    li { margin: 0.4rem 0; list-style: none; }</span>
+<span class="line" data-text="    .due { font-family: monospace; }"><span class="ln">68</span>    .due { font-family: monospace; }</span>
+<span class="line" data-text="    .type { padding: 0 0.4rem; border-radius: 0.3rem; background: #eee; }"><span class="ln">69</span>    .type { padding: 0 0.4rem; border-radius: 0.3rem; background: #eee; }</span>
+<span class="line" data-text="    .緊急 em { color: #b00020; }"><span class="ln">70</span>    .緊急 em { color: #b00020; }</span>
+<span class="line" data-text="    .已過期 { color: #888; text-decoration: line-through; }"><span class="ln">71</span>    .已過期 { color: #888; text-decoration: line-through; }</span>
+<span class="line" data-text="  &lt;/style&gt;"><span class="ln">72</span>  &lt;/style&gt;</span>
+<span class="line" data-text="&lt;/head&gt;"><span class="ln">73</span>&lt;/head&gt;</span>
+<span class="line" data-text="&lt;body&gt;"><span class="ln">74</span>&lt;body&gt;</span>
+<span class="line" data-text="  &lt;h1&gt;截止日看板&lt;/h1&gt;"><span class="ln">75</span>  &lt;h1&gt;截止日看板&lt;/h1&gt;</span>
+<span class="line" data-text="  &lt;p&gt;基準日：${today}&lt;/p&gt;"><span class="ln">76</span>  &lt;p&gt;基準日：${today}&lt;/p&gt;</span>
+<span class="line" data-text="${sections}"><span class="ln">77</span>${sections}</span>
+<span class="line" data-text="&lt;/body&gt;"><span class="ln">78</span>&lt;/body&gt;</span>
+<span class="line" data-text="&lt;/html&gt;"><span class="ln">79</span>&lt;/html&gt;</span>
+<span class="line" data-text="`;"><span class="ln">80</span>`;</span>
+<span class="line" data-text="}"><span class="ln">81</span>}</span></code></pre></figure>
+<details class="explain">
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong><code>escapeHtml</code>（第 42-43 行）</strong>：把 <code>&lt;</code>、<code>&gt;</code>、<code>&amp;</code> 這類在網頁中有特殊意義的符號換成安全的寫法。如果有人把科目名稱填成一段網頁程式碼，它只會被當成文字顯示，不會被執行。</li>
+      <li><strong><code>renderHtml</code>（第 45 行起）</strong>：把每一區組成一個 <code>&lt;section&gt;</code>，區裡每個項目是一個 <code>&lt;li&gt;</code>；沒有項目時顯示「沒有項目」。</li>
+      <li><strong>第 59 行起</strong>：整份網頁的外框，包含標題、基準日、簡單的樣式（<code>&lt;style&gt;</code>），以及各區內容。</li>
+    </ul>
+    <p>網頁裡沒有放「產生時間」，所以同樣的資料和基準日，每次產生的檔案都一模一樣，才能和預期結果逐字比對。</p>
+  </div>
+</details>
+
+<h4>第 5 段：命令列程式</h4>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">build.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="// Usage: node build.mjs [--today YYYY-MM-DD] [--input data/deadlines.json] [--output dist/index.html]"><span class="ln">1</span>// Usage: node build.mjs [--today YYYY-MM-DD] [--input data/deadlines.json] [--output dist/index.html]</span>
+<span class="line" data-text="import { mkdirSync, readFileSync, writeFileSync } from &quot;node:fs&quot;;"><span class="ln">2</span>import { mkdirSync, readFileSync, writeFileSync } from &quot;node:fs&quot;;</span>
+<span class="line" data-text="import { dirname } from &quot;node:path&quot;;"><span class="ln">3</span>import { dirname } from &quot;node:path&quot;;</span>
+<span class="line" data-text="import { buildBoard, renderHtml } from &quot;./src/board.mjs&quot;;"><span class="ln">4</span>import { buildBoard, renderHtml } from &quot;./src/board.mjs&quot;;</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="function option(name, fallback) {"><span class="ln">6</span>function option(name, fallback) {</span>
+<span class="line" data-text="  const index = process.argv.indexOf(`--${name}`);"><span class="ln">7</span>  const index = process.argv.indexOf(`--${name}`);</span>
+<span class="line" data-text="  return index &gt; -1 ? process.argv[index + 1] : fallback;"><span class="ln">8</span>  return index &gt; -1 ? process.argv[index + 1] : fallback;</span>
+<span class="line" data-text="}"><span class="ln">9</span>}</span>
+<span class="line" data-text=""><span class="ln">10</span></span>
+<span class="line" data-text="const today = option(&quot;today&quot;, new Date().toISOString().slice(0, 10));"><span class="ln">11</span>const today = option(&quot;today&quot;, new Date().toISOString().slice(0, 10));</span>
+<span class="line" data-text="const input = option(&quot;input&quot;, &quot;data/deadlines.json&quot;);"><span class="ln">12</span>const input = option(&quot;input&quot;, &quot;data/deadlines.json&quot;);</span>
+<span class="line" data-text="const output = option(&quot;output&quot;, &quot;dist/index.html&quot;);"><span class="ln">13</span>const output = option(&quot;output&quot;, &quot;dist/index.html&quot;);</span>
+<span class="line" data-text=""><span class="ln">14</span></span>
+<span class="line" data-text="const groups = buildBoard(JSON.parse(readFileSync(input, &quot;utf8&quot;)), today);"><span class="ln">15</span>const groups = buildBoard(JSON.parse(readFileSync(input, &quot;utf8&quot;)), today);</span>
+<span class="line" data-text="mkdirSync(dirname(output), { recursive: true });"><span class="ln">16</span>mkdirSync(dirname(output), { recursive: true });</span>
+<span class="line" data-text="writeFileSync(output, renderHtml(groups, today));"><span class="ln">17</span>writeFileSync(output, renderHtml(groups, today));</span>
+<span class="line" data-text="console.log(`寫入 ${output}：${groups.map((g) =&gt; `${g.status} ${g.items.length}`).join(&quot;、&quot;)}`);"><span class="ln">18</span>console.log(`寫入 ${output}：${groups.map((g) =&gt; `${g.status} ${g.items.length}`).join(&quot;、&quot;)}`);</span></code></pre></figure>
+<details class="explain">
+  <summary>解說</summary>
+  <div>
+    <ul>
+      <li><strong>第 2-4 行</strong>：載入 Node.js 內建的讀寫檔案工具，以及 <code>board.mjs</code> 裡的兩個函式。</li>
+      <li><strong>第 6-9 行</strong>：<code>option</code> 從指令中找出 <code>--today</code> 這類參數後面的值，找不到就用預設值。</li>
+      <li><strong>第 11-13 行</strong>：基準日、輸入檔、輸出檔。沒指定基準日時才用今天的日期。</li>
+      <li><strong>第 15-18 行</strong>：讀 JSON、整理分區、建立輸出資料夾、寫出網頁，最後印出每區的數量。</li>
+    </ul>
+  </div>
+</details>
+
+<h3>執行測試與產生網頁</h3>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JSON</span><span class="code-title">package.json</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="{"><span class="ln">1</span>{</span>
+<span class="line" data-text="  &quot;name&quot;: &quot;deadline-board&quot;,"><span class="ln">2</span>  &quot;name&quot;: &quot;deadline-board&quot;,</span>
+<span class="line" data-text="  &quot;private&quot;: true,"><span class="ln">3</span>  &quot;private&quot;: true,</span>
+<span class="line" data-text="  &quot;type&quot;: &quot;module&quot;,"><span class="ln">4</span>  &quot;type&quot;: &quot;module&quot;,</span>
+<span class="line" data-text="  &quot;scripts&quot;: {"><span class="ln">5</span>  &quot;scripts&quot;: {</span>
+<span class="line" data-text="    &quot;build&quot;: &quot;node build.mjs --today 2026-09-21&quot;,"><span class="ln">6</span>    &quot;build&quot;: &quot;node build.mjs --today 2026-09-21&quot;,</span>
+<span class="line" data-text="    &quot;test&quot;: &quot;node --test&quot;"><span class="ln">7</span>    &quot;test&quot;: &quot;node --test&quot;</span>
+<span class="line" data-text="  }"><span class="ln">8</span>  }</span>
+<span class="line" data-text="}"><span class="ln">9</span>}</span></code></pre></figure>
+<p><code>package.json</code> 裡的 <code>scripts</code> 定義了捷徑：<code>npm test</code> 會執行 <code>node --test</code>，<code>npm run build</code> 會用基準日 2026-09-21 產生網頁。範例不需要安裝任何套件，所以不用執行 <code>npm install</code>。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="npm test">npm test</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span><span class="code-title">結果的最後幾行</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# tests 6"># tests 6</span>
+<span class="line" data-text="# suites 0"># suites 0</span>
+<span class="line" data-text="# pass 6"># pass 6</span>
+<span class="line" data-text="# fail 0"># fail 0</span></code></pre></figure>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="node build.mjs --today 2026-09-21">node build.mjs --today 2026-09-21</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="寫入 dist/index.html：已過期 1、緊急 2、本週 2、之後 2">寫入 dist/index.html：已過期 1、緊急 2、本週 2、之後 2</span></code></pre></figure>
+<p>在 VS Code 檔案總管中對 <code>dist/index.html</code> 按右鍵，選 <strong>在檔案總管中顯示</strong>（Windows）或 <strong>在 Finder 中顯示</strong>（macOS），再用瀏覽器打開。</p>
+
+<details class="explain">
+  <summary>看產生出來的網頁原始碼</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-kind ">HTML</span><span class="code-title">dist/index.html</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="&lt;!doctype html&gt;"><span class="ln">1</span>&lt;!doctype html&gt;</span>
+<span class="line" data-text="&lt;html lang=&quot;zh-Hant&quot;&gt;"><span class="ln">2</span>&lt;html lang=&quot;zh-Hant&quot;&gt;</span>
+<span class="line" data-text="&lt;head&gt;"><span class="ln">3</span>&lt;head&gt;</span>
+<span class="line" data-text="  &lt;meta charset=&quot;utf-8&quot;&gt;"><span class="ln">4</span>  &lt;meta charset=&quot;utf-8&quot;&gt;</span>
+<span class="line" data-text="  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;"><span class="ln">5</span>  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;</span>
+<span class="line" data-text="  &lt;title&gt;截止日看板&lt;/title&gt;"><span class="ln">6</span>  &lt;title&gt;截止日看板&lt;/title&gt;</span>
+<span class="line" data-text="  &lt;style&gt;"><span class="ln">7</span>  &lt;style&gt;</span>
+<span class="line" data-text="    body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }"><span class="ln">8</span>    body { font-family: system-ui, sans-serif; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }</span>
+<span class="line" data-text="    li { margin: 0.4rem 0; list-style: none; }"><span class="ln">9</span>    li { margin: 0.4rem 0; list-style: none; }</span>
+<span class="line" data-text="    .due { font-family: monospace; }"><span class="ln">10</span>    .due { font-family: monospace; }</span>
+<span class="line" data-text="    .type { padding: 0 0.4rem; border-radius: 0.3rem; background: #eee; }"><span class="ln">11</span>    .type { padding: 0 0.4rem; border-radius: 0.3rem; background: #eee; }</span>
+<span class="line" data-text="    .緊急 em { color: #b00020; }"><span class="ln">12</span>    .緊急 em { color: #b00020; }</span>
+<span class="line" data-text="    .已過期 { color: #888; text-decoration: line-through; }"><span class="ln">13</span>    .已過期 { color: #888; text-decoration: line-through; }</span>
+<span class="line" data-text="  &lt;/style&gt;"><span class="ln">14</span>  &lt;/style&gt;</span>
+<span class="line" data-text="&lt;/head&gt;"><span class="ln">15</span>&lt;/head&gt;</span>
+<span class="line" data-text="&lt;body&gt;"><span class="ln">16</span>&lt;body&gt;</span>
+<span class="line" data-text="  &lt;h1&gt;截止日看板&lt;/h1&gt;"><span class="ln">17</span>  &lt;h1&gt;截止日看板&lt;/h1&gt;</span>
+<span class="line" data-text="  &lt;p&gt;基準日：2026-09-21&lt;/p&gt;"><span class="ln">18</span>  &lt;p&gt;基準日：2026-09-21&lt;/p&gt;</span>
+<span class="line" data-text="  &lt;section&gt;"><span class="ln">19</span>  &lt;section&gt;</span>
+<span class="line" data-text="    &lt;h2&gt;已過期（1）&lt;/h2&gt;"><span class="ln">20</span>    &lt;h2&gt;已過期（1）&lt;/h2&gt;</span>
+<span class="line" data-text="    &lt;ul&gt;"><span class="ln">21</span>    &lt;ul&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;已過期&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-18&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;資料結構&lt;/strong&gt; 作業二：堆疊與佇列 &lt;em&gt;逾期 3 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">22</span>      &lt;li class=&quot;已過期&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-18&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;資料結構&lt;/strong&gt; 作業二：堆疊與佇列 &lt;em&gt;逾期 3 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="    &lt;/ul&gt;"><span class="ln">23</span>    &lt;/ul&gt;</span>
+<span class="line" data-text="  &lt;/section&gt;"><span class="ln">24</span>  &lt;/section&gt;</span>
+<span class="line" data-text="  &lt;section&gt;"><span class="ln">25</span>  &lt;section&gt;</span>
+<span class="line" data-text="    &lt;h2&gt;緊急（2）&lt;/h2&gt;"><span class="ln">26</span>    &lt;h2&gt;緊急（2）&lt;/h2&gt;</span>
+<span class="line" data-text="    &lt;ul&gt;"><span class="ln">27</span>    &lt;ul&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;緊急&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-21&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;計算機概論&lt;/strong&gt; 實習二：Git 操作 &lt;em&gt;今天到期&lt;/em&gt;&lt;/li&gt;"><span class="ln">28</span>      &lt;li class=&quot;緊急&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-21&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;計算機概論&lt;/strong&gt; 實習二：Git 操作 &lt;em&gt;今天到期&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;緊急&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-23&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;資料結構&lt;/strong&gt; 作業三：鏈結串列 &lt;em&gt;剩 2 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">29</span>      &lt;li class=&quot;緊急&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-23&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;資料結構&lt;/strong&gt; 作業三：鏈結串列 &lt;em&gt;剩 2 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="    &lt;/ul&gt;"><span class="ln">30</span>    &lt;/ul&gt;</span>
+<span class="line" data-text="  &lt;/section&gt;"><span class="ln">31</span>  &lt;/section&gt;</span>
+<span class="line" data-text="  &lt;section&gt;"><span class="ln">32</span>  &lt;section&gt;</span>
+<span class="line" data-text="    &lt;h2&gt;本週（2）&lt;/h2&gt;"><span class="ln">33</span>    &lt;h2&gt;本週（2）&lt;/h2&gt;</span>
+<span class="line" data-text="    &lt;ul&gt;"><span class="ln">34</span>    &lt;ul&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;本週&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-25&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;考試&lt;/span&gt; &lt;strong&gt;線性代數&lt;/strong&gt; 第一次小考 &lt;em&gt;剩 4 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">35</span>      &lt;li class=&quot;本週&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-25&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;考試&lt;/span&gt; &lt;strong&gt;線性代數&lt;/strong&gt; 第一次小考 &lt;em&gt;剩 4 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;本週&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-28&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;英文閱讀&lt;/strong&gt; 讀書心得 &lt;em&gt;剩 7 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">36</span>      &lt;li class=&quot;本週&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-09-28&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;作業&lt;/span&gt; &lt;strong&gt;英文閱讀&lt;/strong&gt; 讀書心得 &lt;em&gt;剩 7 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="    &lt;/ul&gt;"><span class="ln">37</span>    &lt;/ul&gt;</span>
+<span class="line" data-text="  &lt;/section&gt;"><span class="ln">38</span>  &lt;/section&gt;</span>
+<span class="line" data-text="  &lt;section&gt;"><span class="ln">39</span>  &lt;section&gt;</span>
+<span class="line" data-text="    &lt;h2&gt;之後（2）&lt;/h2&gt;"><span class="ln">40</span>    &lt;h2&gt;之後（2）&lt;/h2&gt;</span>
+<span class="line" data-text="    &lt;ul&gt;"><span class="ln">41</span>    &lt;ul&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;之後&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-10-02&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;報告&lt;/span&gt; &lt;strong&gt;計算機概論&lt;/strong&gt; 分組報告：網路協定 &lt;em&gt;剩 11 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">42</span>      &lt;li class=&quot;之後&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-10-02&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;報告&lt;/span&gt; &lt;strong&gt;計算機概論&lt;/strong&gt; 分組報告：網路協定 &lt;em&gt;剩 11 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="      &lt;li class=&quot;之後&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-10-20&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;考試&lt;/span&gt; &lt;strong&gt;線性代數&lt;/strong&gt; 期中考 &lt;em&gt;剩 29 天&lt;/em&gt;&lt;/li&gt;"><span class="ln">43</span>      &lt;li class=&quot;之後&quot;&gt;&lt;span class=&quot;due&quot;&gt;2026-10-20&lt;/span&gt; &lt;span class=&quot;type&quot;&gt;考試&lt;/span&gt; &lt;strong&gt;線性代數&lt;/strong&gt; 期中考 &lt;em&gt;剩 29 天&lt;/em&gt;&lt;/li&gt;</span>
+<span class="line" data-text="    &lt;/ul&gt;"><span class="ln">44</span>    &lt;/ul&gt;</span>
+<span class="line" data-text="  &lt;/section&gt;"><span class="ln">45</span>  &lt;/section&gt;</span>
+<span class="line" data-text="&lt;/body&gt;"><span class="ln">46</span>&lt;/body&gt;</span>
+<span class="line" data-text="&lt;/html&gt;"><span class="ln">47</span>&lt;/html&gt;</span></code></pre></figure>
+  </div>
+</details>
+
+<details class="explain">
+  <summary>看測試檔：每個測試在檢查什麼</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-kind ">JavaScript</span><span class="code-title">test/board.test.mjs</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="import assert from &quot;node:assert/strict&quot;;"><span class="ln">1</span>import assert from &quot;node:assert/strict&quot;;</span>
+<span class="line" data-text="import { readFileSync } from &quot;node:fs&quot;;"><span class="ln">2</span>import { readFileSync } from &quot;node:fs&quot;;</span>
+<span class="line" data-text="import { test } from &quot;node:test&quot;;"><span class="ln">3</span>import { test } from &quot;node:test&quot;;</span>
+<span class="line" data-text="import { buildBoard, daysLeft, label, renderHtml, statusOf } from &quot;../src/board.mjs&quot;;"><span class="ln">4</span>import { buildBoard, daysLeft, label, renderHtml, statusOf } from &quot;../src/board.mjs&quot;;</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="test(&quot;daysLeft counts calendar days across months&quot;, () =&gt; {"><span class="ln">6</span>test(&quot;daysLeft counts calendar days across months&quot;, () =&gt; {</span>
+<span class="line" data-text="  assert.equal(daysLeft(&quot;2026-10-02&quot;, &quot;2026-09-21&quot;), 11);"><span class="ln">7</span>  assert.equal(daysLeft(&quot;2026-10-02&quot;, &quot;2026-09-21&quot;), 11);</span>
+<span class="line" data-text="  assert.equal(daysLeft(&quot;2026-09-18&quot;, &quot;2026-09-21&quot;), -3);"><span class="ln">8</span>  assert.equal(daysLeft(&quot;2026-09-18&quot;, &quot;2026-09-21&quot;), -3);</span>
+<span class="line" data-text="});"><span class="ln">9</span>});</span>
+<span class="line" data-text=""><span class="ln">10</span></span>
+<span class="line" data-text="test(&quot;daysLeft rejects malformed and impossible dates&quot;, () =&gt; {"><span class="ln">11</span>test(&quot;daysLeft rejects malformed and impossible dates&quot;, () =&gt; {</span>
+<span class="line" data-text="  assert.throws(() =&gt; daysLeft(&quot;2026/09/21&quot;, &quot;2026-09-21&quot;), /格式錯誤/);"><span class="ln">12</span>  assert.throws(() =&gt; daysLeft(&quot;2026/09/21&quot;, &quot;2026-09-21&quot;), /格式錯誤/);</span>
+<span class="line" data-text="  assert.throws(() =&gt; daysLeft(&quot;2026-02-30&quot;, &quot;2026-09-21&quot;), /不存在/);"><span class="ln">13</span>  assert.throws(() =&gt; daysLeft(&quot;2026-02-30&quot;, &quot;2026-09-21&quot;), /不存在/);</span>
+<span class="line" data-text="});"><span class="ln">14</span>});</span>
+<span class="line" data-text=""><span class="ln">15</span></span>
+<span class="line" data-text="test(&quot;statusOf uses 0-3 urgent, 4-7 this week&quot;, () =&gt; {"><span class="ln">16</span>test(&quot;statusOf uses 0-3 urgent, 4-7 this week&quot;, () =&gt; {</span>
+<span class="line" data-text="  assert.deepEqual([-1, 0, 3, 4, 7, 8].map(statusOf), [&quot;已過期&quot;, &quot;緊急&quot;, &quot;緊急&quot;, &quot;本週&quot;, &quot;本週&quot;, &quot;之後&quot;]);"><span class="ln">17</span>  assert.deepEqual([-1, 0, 3, 4, 7, 8].map(statusOf), [&quot;已過期&quot;, &quot;緊急&quot;, &quot;緊急&quot;, &quot;本週&quot;, &quot;本週&quot;, &quot;之後&quot;]);</span>
+<span class="line" data-text="});"><span class="ln">18</span>});</span>
+<span class="line" data-text=""><span class="ln">19</span></span>
+<span class="line" data-text="test(&quot;label wording&quot;, () =&gt; {"><span class="ln">20</span>test(&quot;label wording&quot;, () =&gt; {</span>
+<span class="line" data-text="  assert.deepEqual([-2, 0, 5].map(label), [&quot;逾期 2 天&quot;, &quot;今天到期&quot;, &quot;剩 5 天&quot;]);"><span class="ln">21</span>  assert.deepEqual([-2, 0, 5].map(label), [&quot;逾期 2 天&quot;, &quot;今天到期&quot;, &quot;剩 5 天&quot;]);</span>
+<span class="line" data-text="});"><span class="ln">22</span>});</span>
+<span class="line" data-text=""><span class="ln">23</span></span>
+<span class="line" data-text="test(&quot;renderHtml escapes user text&quot;, () =&gt; {"><span class="ln">24</span>test(&quot;renderHtml escapes user text&quot;, () =&gt; {</span>
+<span class="line" data-text="  const groups = buildBoard([{ course: &quot;A&amp;B&quot;, title: &quot;&lt;script&gt;&quot;, type: &quot;作業&quot;, due: &quot;2026-09-22&quot; }], &quot;2026-09-21&quot;);"><span class="ln">25</span>  const groups = buildBoard([{ course: &quot;A&amp;B&quot;, title: &quot;&lt;script&gt;&quot;, type: &quot;作業&quot;, due: &quot;2026-09-22&quot; }], &quot;2026-09-21&quot;);</span>
+<span class="line" data-text="  const html = renderHtml(groups, &quot;2026-09-21&quot;);"><span class="ln">26</span>  const html = renderHtml(groups, &quot;2026-09-21&quot;);</span>
+<span class="line" data-text="  assert.match(html, /A&amp;amp;B/);"><span class="ln">27</span>  assert.match(html, /A&amp;amp;B/);</span>
+<span class="line" data-text="  assert.doesNotMatch(html, /&lt;script&gt;/);"><span class="ln">28</span>  assert.doesNotMatch(html, /&lt;script&gt;/);</span>
+<span class="line" data-text="});"><span class="ln">29</span>});</span>
+<span class="line" data-text=""><span class="ln">30</span></span>
+<span class="line" data-text="test(&quot;sample data matches the expected page&quot;, () =&gt; {"><span class="ln">31</span>test(&quot;sample data matches the expected page&quot;, () =&gt; {</span>
+<span class="line" data-text="  const items = JSON.parse(readFileSync(new URL(&quot;../data/deadlines.json&quot;, import.meta.url), &quot;utf8&quot;));"><span class="ln">32</span>  const items = JSON.parse(readFileSync(new URL(&quot;../data/deadlines.json&quot;, import.meta.url), &quot;utf8&quot;));</span>
+<span class="line" data-text="  const expected = readFileSync(new URL(&quot;../.agents/skills/deadline-board/assets/expected-index.html&quot;, import.meta.url), &quot;utf8&quot;);"><span class="ln">33</span>  const expected = readFileSync(new URL(&quot;../.agents/skills/deadline-board/assets/expected-index.html&quot;, import.meta.url), &quot;utf8&quot;);</span>
+<span class="line" data-text="  assert.equal(renderHtml(buildBoard(items, &quot;2026-09-21&quot;), &quot;2026-09-21&quot;), expected);"><span class="ln">34</span>  assert.equal(renderHtml(buildBoard(items, &quot;2026-09-21&quot;), &quot;2026-09-21&quot;), expected);</span>
+<span class="line" data-text="});"><span class="ln">35</span>});</span></code></pre></figure>
+    <div class="table-wrap"><table>
+      <thead><tr><th>測試</th><th>檢查的事</th></tr></thead>
+      <tbody>
+        <tr><td>daysLeft counts calendar days</td><td>跨月份的天數計算正確，過期會是負數</td></tr>
+        <tr><td>daysLeft rejects malformed dates</td><td>格式錯誤或不存在的日期會回報錯誤</td></tr>
+        <tr><td>statusOf uses 0-3 urgent</td><td>-1、0、3、4、7、8 天分別落在正確的區</td></tr>
+        <tr><td>label wording</td><td>逾期、今天到期、剩 N 天的文字正確</td></tr>
+        <tr><td>renderHtml escapes user text</td><td>資料中的特殊符號會被安全轉換，不會變成網頁程式碼</td></tr>
+        <tr><td>sample data matches the expected page</td><td>範例資料產生的網頁和預期網頁一字不差</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</details>
+
+<h3>用技能重現</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="$deadline-board 用基準日 2026-09-21 重現範例看板，並確認與預期頁面一致。">$deadline-board 用基準日 2026-09-21 重現範例看板，並確認與預期頁面一致。</span></code></pre></figure>
+<p>預期回報：6 個測試通過；已過期 1、緊急 2、本週 2、之後 2；<code>dist/index.html</code> 與預期頁面一致。</p>
+<details class="explain">
+  <summary>看技能檔 SKILL.md</summary>
+  <div>
+    <figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">.agents/skills/deadline-board/SKILL.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="---"><span class="ln">1</span>---</span>
+<span class="line" data-text="name: deadline-board"><span class="ln">2</span>name: deadline-board</span>
+<span class="line" data-text="description: Build and verify the static course deadline board page (dist/index.html) from data/deadlines.json in this repository. Use when asked to build, rebuild, reproduce, or check the deadline board; do not use for calendars, reminders, or other web pages."><span class="ln">3</span>description: Build and verify the static course deadline board page (dist/index.html) from data/deadlines.json in this repository. Use when asked to build, rebuild, reproduce, or check the deadline board; do not use for calendars, reminders, or other web pages.</span>
+<span class="line" data-text="---"><span class="ln">4</span>---</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="# Deadline board"><span class="ln">6</span># Deadline board</span>
+<span class="line" data-text=""><span class="ln">7</span></span>
+<span class="line" data-text="Reproduce the deadline board page for this project and prove it matches the specification."><span class="ln">8</span>Reproduce the deadline board page for this project and prove it matches the specification.</span>
+<span class="line" data-text=""><span class="ln">9</span></span>
+<span class="line" data-text="## Inputs"><span class="ln">10</span>## Inputs</span>
+<span class="line" data-text=""><span class="ln">11</span></span>
+<span class="line" data-text="- Deadline data: the path the user gives, otherwise `data/deadlines.json`."><span class="ln">12</span>- Deadline data: the path the user gives, otherwise `data/deadlines.json`.</span>
+<span class="line" data-text="- Reference date: the date the user gives; when reproducing the sample, use `2026-09-21`. Never rely on today&#x27;s system date for a reproducible build."><span class="ln">13</span>- Reference date: the date the user gives; when reproducing the sample, use `2026-09-21`. Never rely on today&#x27;s system date for a reproducible build.</span>
+<span class="line" data-text="- Specification: `references/spec.md` in this skill folder, the single source of truth for status rules, sorting, and page structure."><span class="ln">14</span>- Specification: `references/spec.md` in this skill folder, the single source of truth for status rules, sorting, and page structure.</span>
+<span class="line" data-text="- Expected page for the sample data at 2026-09-21: `assets/expected-index.html` in this skill folder."><span class="ln">15</span>- Expected page for the sample data at 2026-09-21: `assets/expected-index.html` in this skill folder.</span>
+<span class="line" data-text=""><span class="ln">16</span></span>
+<span class="line" data-text="## Workflow"><span class="ln">17</span>## Workflow</span>
+<span class="line" data-text=""><span class="ln">18</span></span>
+<span class="line" data-text="1. Read `references/spec.md`."><span class="ln">19</span>1. Read `references/spec.md`.</span>
+<span class="line" data-text="2. If `src/board.mjs`, `build.mjs`, or `test/board.test.mjs` is missing, implement it from the specification with Node.js built-in modules only. Otherwise do not rewrite working code."><span class="ln">20</span>2. If `src/board.mjs`, `build.mjs`, or `test/board.test.mjs` is missing, implement it from the specification with Node.js built-in modules only. Otherwise do not rewrite working code.</span>
+<span class="line" data-text="3. Run `npm test`. If a test fails, fix the implementation (never the expected file or the specification), then rerun until every test passes."><span class="ln">21</span>3. Run `npm test`. If a test fails, fix the implementation (never the expected file or the specification), then rerun until every test passes.</span>
+<span class="line" data-text="4. Run `node build.mjs --today &lt;date&gt; --input &lt;data&gt; --output dist/index.html`."><span class="ln">22</span>4. Run `node build.mjs --today &lt;date&gt; --input &lt;data&gt; --output dist/index.html`.</span>
+<span class="line" data-text="5. For the sample data at 2026-09-21, compare byte for byte: `diff dist/index.html .agents/skills/deadline-board/assets/expected-index.html`. Any difference is a failure to fix before finishing."><span class="ln">23</span>5. For the sample data at 2026-09-21, compare byte for byte: `diff dist/index.html .agents/skills/deadline-board/assets/expected-index.html`. Any difference is a failure to fix before finishing.</span>
+<span class="line" data-text="6. Do not edit the input JSON. If an entry has an invalid date, report it instead of changing the data."><span class="ln">24</span>6. Do not edit the input JSON. If an entry has an invalid date, report it instead of changing the data.</span>
+<span class="line" data-text=""><span class="ln">25</span></span>
+<span class="line" data-text="## Final response"><span class="ln">26</span>## Final response</span>
+<span class="line" data-text=""><span class="ln">27</span></span>
+<span class="line" data-text="Reply in Traditional Chinese with:"><span class="ln">28</span>Reply in Traditional Chinese with:</span>
+<span class="line" data-text=""><span class="ln">29</span></span>
+<span class="line" data-text="- The commands you ran and whether each passed."><span class="ln">30</span>- The commands you ran and whether each passed.</span>
+<span class="line" data-text="- The item count for each status (已過期, 緊急, 本週, 之後), copied from the build output."><span class="ln">31</span>- The item count for each status (已過期, 緊急, 本週, 之後), copied from the build output.</span>
+<span class="line" data-text="- The output path, whether it matched the expected page (or that no expected file applies), and how to open it in a browser."><span class="ln">32</span>- The output path, whether it matched the expected page (or that no expected file applies), and how to open it in a browser.</span></code></pre></figure>
+    <p>和範例一的技能結構相同。特別的是 <strong>Inputs</strong> 規定「重現時一律用基準日 2026-09-21，不能用今天的日期」，否則每天產生的網頁都不同，就無法比對。</p>
+  </div>
+</details>
+
+<h3>用 worktree 平行做兩個功能</h3>
+<p>現在要同時加兩個功能，而且不希望兩份修改互相干擾：</p>
+<div class="card-grid">
+  <div class="card"><h4>功能一：類型顏色</h4><p>作業、考試、報告顯示不同的標籤顏色。</p></div>
+  <div class="card"><h4>功能二：統計列</h4><p>在標題下方顯示「共 7 項，其中作業 4 項、考試 2 項、報告 1 項」。</p></div>
+</div>
+
+<div class="callout note">
+  <span class="label">為什麼要用 worktree</span>
+  <p>如果兩個對話同時修改同一個資料夾，它們會改到彼此的檔案，很難分清楚哪個修改是誰做的。Worktree 讓每個對話有自己的一份檔案副本，<strong>本機（Local）像是前景，worktree 像是背景</strong>，兩邊互不打擾，完成後再整合。</p>
+</div>
+
+<h4>做法一：在 VS Code 的 Codex 擴充套件中</h4>
+<ol class="steps">
+  <li><p>對話一在本機做功能一：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="在網頁中讓作業、考試、報告的類型標籤顯示不同的背景色。">在網頁中讓作業、考試、報告的類型標籤顯示不同的背景色。</span>
+<span class="line" data-text="只修改 src/board.mjs 的樣式與標籤 class，更新 spec.md 的 Output 段落。">只修改 src/board.mjs 的樣式與標籤 class，更新 spec.md 的 Output 段落。</span>
+<span class="line" data-text="完成後執行 npm test 與 node build.mjs --today 2026-09-21，回報結果。">完成後執行 npm test 與 node build.mjs --today 2026-09-21，回報結果。</span></code></pre></figure>
+  </li>
+  <li><p>開新對話，先輸入 <code>/worktree</code>，讓這個對話在新的 Git worktree 裡做功能二：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/worktree">/worktree</span>
+<span class="line" data-text="在頁面標題下方加一行統計：「共 N 項，其中作業 A 項、考試 B 項、報告 C 項」。">在頁面標題下方加一行統計：「共 N 項，其中作業 A 項、考試 B 項、報告 C 項」。</span>
+<span class="line" data-text="統計邏輯寫成 src/board.mjs 的純函式並加測試，更新 spec.md 的 Output 段落。">統計邏輯寫成 src/board.mjs 的純函式並加測試，更新 spec.md 的 Output 段落。</span>
+<span class="line" data-text="完成後執行 npm test 與 node build.mjs --today 2026-09-21，回報結果。">完成後執行 npm test 與 node build.mjs --today 2026-09-21，回報結果。</span></code></pre></figure>
+  </li>
+</ol>
+<p>兩個功能都會讓測試中的「和預期網頁一字不差」失敗，這是正常的，因為網頁內容本來就改變了。整合時再更新預期網頁（見下方「整合與審查」）。</p>
+
+<h4>做法二：在 ChatGPT 桌面版中</h4>
+<ol class="steps">
+  <li><p>在新對話畫面的輸入框下方選擇 <strong>Worktree</strong>，並選擇起始分支（例如 <code>main</code>）。</p></li>
+  <li><p>送出提示。Codex 會以這個分支建立 worktree，預設處於「detached HEAD」狀態，也就是還沒有掛在任何分支名稱上。</p></li>
+  <li><p>完成後二選一：</p>
+    <ul>
+      <li>在 worktree 上按 <strong>Create branch here</strong> 建立分支，再 commit、push、開 PR。</li>
+      <li>按 <strong>Hand off</strong> 把對話和程式碼移回 <strong>Local</strong>，在你平常的 VS Code 視窗中檢查。</li>
+    </ul>
+  </li>
+</ol>
+
+<h4>做法三：在 VS Code 的 Agents window 中</h4>
+<p>開新工作階段，<strong>Session Target</strong> 選 <strong>Codex</strong>，勾選 <strong>New Worktree</strong> 並選擇基準分支。記得 worktree 只包含已 commit 的檔案，開始前要先 commit。</p>
+
+<h3>Worktree 的注意事項</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>狀況</th><th>說明與做法</th></tr></thead>
+  <tbody>
+    <tr><td>同一分支不能兩處同時使用</td><td>在 worktree 建了 <code>feature/a</code> 分支後，本機就無法切換到它。想在本機檢查，改用 <strong>Hand off</strong></td></tr>
+    <tr><td>被 Git 忽略的檔案不會跟過去</td><td>桌面版可在儲存庫根目錄建立 <code>.worktreeinclude</code>，列出要複製的忽略檔（例如 <code>.env</code>）</td></tr>
+    <tr><td>新 worktree 缺少套件</td><td>在桌面版本機環境設定 setup script，建立 worktree 時自動安裝</td></tr>
+    <tr><td>占用磁碟空間</td><td>桌面版預設保留最近 15 個 Codex 管理的 worktree；刪除前會存快照，重新打開對話可以還原</td></tr>
+    <tr><td>需要長期使用</td><td>從側邊欄專案的三點選單建立 permanent worktree，不會被自動刪除</td></tr>
+  </tbody>
+</table></div>
+
+<figure class="code"><div class="code-head"><div><span class="code-title">.worktreeinclude 範例</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="# 建立 worktree 時要一起複製的忽略檔"># 建立 worktree 時要一起複製的忽略檔</span>
+<span class="line" data-text=".env">.env</span>
+<span class="line" data-text=".env.local">.env.local</span></code></pre></figure>
+
+<h3>整合與審查</h3>
+<p>兩個功能都完成並合併後，先審查：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/review 比較目前分支與 main，特別注意兩個功能是否修改到同一段 renderHtml 程式碼。">/review 比較目前分支與 main，特別注意兩個功能是否修改到同一段 renderHtml 程式碼。</span></code></pre></figure>
+<p>接著更新預期網頁。記住順序：<strong>規格與測試先更新，人親自檢查過網頁，最後才更新預期結果。</strong></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="兩個功能已合併。請執行 npm test 與 node build.mjs --today 2026-09-21，">兩個功能已合併。請執行 npm test 與 node build.mjs --today 2026-09-21，</span>
+<span class="line" data-text="告訴我如何用瀏覽器打開 dist/index.html。">告訴我如何用瀏覽器打開 dist/index.html。</span>
+<span class="line" data-text="等我確認頁面正確後，再把 dist/index.html 複製為新的">等我確認頁面正確後，再把 dist/index.html 複製為新的</span>
+<span class="line" data-text=".agents/skills/deadline-board/assets/expected-index.html，">.agents/skills/deadline-board/assets/expected-index.html，</span>
+<span class="line" data-text="並說明預期頁面有哪些差異。">並說明預期頁面有哪些差異。</span></code></pre></figure>
+
+<h2 id="summary"><span class="num">02</span>總結與課後練習</h2>
+
+<h3>檢核清單</h3>
+<ul class="checklist">
+  <li>我知道桌面版、CLI、VS Code 擴充套件各自把什麼當作專案。</li>
+  <li>我的專案有 <code>AGENTS.md</code>，並確認 Codex 讀到了它。</li>
+  <li>我知道 <code>.codex/config.toml</code> 只在信任的專案生效，以及設定的優先順序。</li>
+  <li>我能在 VS Code 中把選取的程式碼加入對話，並使用 <code>/plan</code>、<code>/review</code>、<code>/worktree</code>。</li>
+  <li>我分得清 Codex 設定（<code>config.toml</code>）和編輯器設定（<code>chatgpt.</code> 開頭）。</li>
+  <li>我完成了兩個範例，並用 <code>$grade-report</code>、<code>$deadline-board</code> 重現結果。</li>
+  <li>我知道 worktree 隔離的是程式碼修改，不是安全邊界。</li>
+</ul>
+
+<h3>課後練習</h3>
+<ol>
+  <li><strong>整理專案</strong>：為自己的期末專題建立 Codex 專案，釘選專案、把現有對話改成描述成果的標題，並封存已完成的對話。</li>
+  <li><strong>寫規則</strong>：在專題中執行 <code>/init</code>，把產生的 <code>AGENTS.md</code> 改寫成至少 5 條你們組的規則，並請 Codex 列出它載入的指示來源。</li>
+  <li><strong>做一個技能</strong>：挑一件專題中會重複做的事（例如「產生週報」或「執行全部檢查並彙整結果」），用 <code>$skill-creator</code> 或手動建立技能，並準備一份預期結果讓技能自我驗證。</li>
+  <li><strong>平行作業</strong>：在範例二用 worktree 完成兩個功能，最後用 <code>/review</code> 審查，截圖記錄 Hand off 或 Create branch here 的過程。</li>
+</ol>
+
+<h3>延伸閱讀（官方文件）</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>主題</th><th>網址</th></tr></thead>
+  <tbody>
+    <tr><td>專案與對話</td><td><a href="https://learn.chatgpt.com/docs/projects">learn.chatgpt.com/docs/projects</a></td></tr>
+    <tr><td>AGENTS.md</td><td><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">learn.chatgpt.com/docs/agent-configuration/agents-md</a></td></tr>
+    <tr><td>設定基礎</td><td><a href="https://learn.chatgpt.com/docs/config-file/config-basic">learn.chatgpt.com/docs/config-file/config-basic</a></td></tr>
+    <tr><td>建立技能</td><td><a href="https://learn.chatgpt.com/docs/build-skills">learn.chatgpt.com/docs/build-skills</a></td></tr>
+    <tr><td>本機環境</td><td><a href="https://learn.chatgpt.com/docs/environments/local-environment">learn.chatgpt.com/docs/environments/local-environment</a></td></tr>
+    <tr><td>開發者指令</td><td><a href="https://learn.chatgpt.com/docs/developer-commands">learn.chatgpt.com/docs/developer-commands</a></td></tr>
+    <tr><td>開發者設定</td><td><a href="https://learn.chatgpt.com/docs/developer-settings">learn.chatgpt.com/docs/developer-settings</a></td></tr>
+    <tr><td>Worktrees</td><td><a href="https://learn.chatgpt.com/docs/environments/git-worktrees">learn.chatgpt.com/docs/environments/git-worktrees</a></td></tr>
+    <tr><td>VS Code 代理</td><td><a href="https://code.visualstudio.com/docs/agents/overview">code.visualstudio.com/docs/agents/overview</a></td></tr>
+    <tr><td>VS Code 代理 harness</td><td><a href="https://code.visualstudio.com/docs/agents/run/agent-harnesses">code.visualstudio.com/docs/agents/run/agent-harnesses</a></td></tr>
+  </tbody>
+</table></div>
+
+<nav class="pager" aria-label="上下頁"><a href="unit02c.html">上一頁：2-3 範例一：成績報告產生器</a><a href="unit02.html">回第 2 單元導覽</a></nav>
+
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("learn-codex-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
