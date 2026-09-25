@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="迷你賣場基本排班系統規格摘要與下載。">
+  <title>排班系統規格說明｜迷你賣場排班實作</title>
+  <style>
+    :root { color-scheme:light; --ink:#18232b; --muted:#53636e; --paper:#f3f7f5; --card:#fff; --line:#d9e3df; --green:#176b57; --green-dark:#104d40; --button-hover:#104d40; --mint:#e3f1eb; --table-ink:#214a3e; }
+    :root[data-theme="dark"] { color-scheme:dark; --ink:#e7eeeb; --muted:#adbbb6; --paper:#121917; --card:#1b2521; --line:#35453e; --green:#176b57; --green-dark:#b8ead7; --button-hover:#0f5946; --mint:#263b33; --table-ink:#c7e9da; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",sans-serif; line-height:1.75; }
+    a { color:var(--green-dark); }
+    a:focus-visible { outline:3px solid #df9145; outline-offset:3px; }
+    .top { padding:18px 0; background:var(--card); border-bottom:1px solid var(--line); }
+    .bar,.wrap { width:min(840px,calc(100% - 36px)); margin:0 auto; }
+    .bar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .download { display:inline-flex; padding:10px 15px; border-radius:9px; background:var(--green); color:#fff; font-weight:700; text-decoration:none; }
+    .download:hover { background:var(--button-hover); }
+    .theme-switch { display:inline-flex; align-items:center; gap:2px; padding:3px; border:1px solid var(--line); border-radius:999px; background:var(--card); }
+    .theme-choice { width:36px; height:32px; display:grid; place-items:center; border:0; border-radius:999px; background:transparent; color:var(--muted); cursor:pointer; }
+    .theme-choice[aria-pressed="true"] { background:var(--green); color:#fff; }
+    .theme-choice:hover:not([aria-pressed="true"]) { background:var(--mint); color:var(--green-dark); }
+    .theme-choice svg { width:19px; height:19px; }
+    main { padding:42px 0 64px; }
+    .eyebrow { color:var(--green); font-weight:750; letter-spacing:.06em; }
+    h1 { margin:8px 0 12px; font-size:clamp(2rem,5vw,3rem); line-height:1.2; }
+    h2 { margin:28px 0 8px; font-size:1.25rem; }
+    .lead { color:var(--muted); font-size:1.08rem; }
+    .card { margin-top:22px; padding:22px clamp(18px,4vw,30px); border:1px solid var(--line); border-radius:16px; background:var(--card); }
+    ul { padding-left:1.3rem; }
+    li { margin:6px 0; }
+    .pillrow { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+    .pill { padding:5px 10px; border-radius:999px; background:var(--mint); color:var(--green-dark); font-size:.94rem; }
+    .back { color:var(--muted); font-size:.94rem; }
+    footer { padding:0 0 30px; color:var(--muted); text-align:center; font-size:.9rem; }
+    @media(max-width:520px) { .bar { align-items:flex-start; flex-direction:column; } }
+  </style>
+  <script src="./theme.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="bar">
+      <a class="download" href="./學生用規格-基本排班系統.md" download="學生用規格-基本排班系統.md">↓ 下載排班系統規格</a>
+      <div class="theme-switch" role="group" aria-label="選擇顯示模式">
+        <button class="theme-choice" type="button" data-theme-choice="light" aria-label="淺色模式" title="淺色模式" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button>
+        <button class="theme-choice" type="button" data-theme-choice="dark" aria-label="深色模式" title="深色模式" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.4 15.1A8.5 8.5 0 0 1 8.9 3.6 8.6 8.6 0 1 0 20.4 15.1Z"/></svg></button>
+      </div>
+      <a class="back" href="./index.html">回到實作教案</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="eyebrow">教材檔案說明</div>
+    <h1>迷你賣場排班系統規格</h1>
+    <p class="lead">這份規格說明基本排班工具要解決的問題、使用的資料、排班規則、畫面需求及完成條件。</p>
+    <article class="card">
+      <h2>規格內容</h2>
+      <p>規格定義一個供迷你會員制賣場主管使用的每週排班工具。系統依職員的主要職務、技能及可工作時間產生班表，檢查重複排班及人力缺額，並將班表標示為待主管確認的建議草稿。</p>
+      <div class="pillrow" aria-label="排班工作角色">
+        <span class="pill">主管</span><span class="pill">收銀人員</span><span class="pill">賣場服務人員</span><span class="pill">倉儲理貨人員</span><span class="pill">清潔人員</span><span class="pill">保全人員</span>
+      </div>
+      <p>排班範圍為星期一至星期日，每天分為早班、中班及晚班。規格要求人員符合職務與可排班條件、每日最多一個時段、每週最多六個時段；若需求未滿，系統須明確列出缺額。</p>
+      <h2>下載後如何使用</h2>
+      <p>將此規格檔與「虛構職員資料庫.json」一併提供給 AI Agent，請它依照規格建立可在本機瀏覽器操作的排班工具。完成後依規格中的驗收條件檢查結果，再以具體的操作步驟、實際結果及預期結果描述需要修正的地方。</p>
+      <p>規格中的人員與排班資料只供教學使用，不可直接套用於真實賣場或真實員工。</p>
+    </article>
+  </main>
+  <footer class="wrap">教學用虛構範例｜排班結果須由主管確認</footer>
+</body>
+</html>

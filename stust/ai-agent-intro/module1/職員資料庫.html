@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="迷你賣場排班練習的虛構職員資料庫摘要與下載。">
+  <title>虛構職員資料庫說明｜迷你賣場排班實作</title>
+  <style>
+    :root { color-scheme:light; --ink:#18232b; --muted:#53636e; --paper:#f3f7f5; --card:#fff; --line:#d9e3df; --green:#176b57; --green-dark:#104d40; --button-hover:#104d40; --mint:#e3f1eb; --table-ink:#214a3e; }
+    :root[data-theme="dark"] { color-scheme:dark; --ink:#e7eeeb; --muted:#adbbb6; --paper:#121917; --card:#1b2521; --line:#35453e; --green:#176b57; --green-dark:#b8ead7; --button-hover:#0f5946; --mint:#263b33; --table-ink:#c7e9da; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",sans-serif; line-height:1.75; }
+    a { color:var(--green-dark); }
+    a:focus-visible { outline:3px solid #df9145; outline-offset:3px; }
+    .top { padding:18px 0; background:var(--card); border-bottom:1px solid var(--line); }
+    .bar,.wrap { width:min(900px,calc(100% - 36px)); margin:0 auto; }
+    .bar { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .download { display:inline-flex; padding:10px 15px; border-radius:9px; background:var(--green); color:#fff; font-weight:700; text-decoration:none; }
+    .download:hover { background:var(--button-hover); }
+    .theme-switch { display:inline-flex; align-items:center; gap:2px; padding:3px; border:1px solid var(--line); border-radius:999px; background:var(--card); }
+    .theme-choice { width:36px; height:32px; display:grid; place-items:center; border:0; border-radius:999px; background:transparent; color:var(--muted); cursor:pointer; }
+    .theme-choice[aria-pressed="true"] { background:var(--green); color:#fff; }
+    .theme-choice:hover:not([aria-pressed="true"]) { background:var(--mint); color:var(--green-dark); }
+    .theme-choice svg { width:19px; height:19px; }
+    main { padding:42px 0 64px; }
+    .eyebrow { color:var(--green); font-weight:750; letter-spacing:.06em; }
+    h1 { margin:8px 0 12px; font-size:clamp(2rem,5vw,3rem); line-height:1.2; }
+    h2 { margin:26px 0 8px; font-size:1.25rem; }
+    .lead { color:var(--muted); font-size:1.08rem; }
+    .card { margin-top:22px; padding:22px clamp(18px,4vw,30px); border:1px solid var(--line); border-radius:16px; background:var(--card); }
+    .stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:18px 0; }
+    .stat { padding:14px 16px; border-radius:12px; background:var(--mint); color:var(--green-dark); }
+    .stat strong { display:block; font-size:1.4rem; }
+    .table-scroll { overflow-x:auto; margin-top:12px; }
+    table { width:100%; min-width:600px; border-collapse:collapse; }
+    th,td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { background:var(--mint); color:var(--table-ink); }
+    .status { color:var(--muted); }
+    .back { color:var(--muted); font-size:.94rem; }
+    footer { padding:0 0 30px; color:var(--muted); text-align:center; font-size:.9rem; }
+    @media(max-width:520px) { .bar { align-items:flex-start; flex-direction:column; } .stats { grid-template-columns:1fr; } .card { padding:20px 16px; } }
+  </style>
+  <script src="./theme.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="bar">
+      <a class="download" href="./虛構職員資料庫.json" download="虛構職員資料庫.json">↓ 下載虛構職員資料庫</a>
+      <div class="theme-switch" role="group" aria-label="選擇顯示模式">
+        <button class="theme-choice" type="button" data-theme-choice="light" aria-label="淺色模式" title="淺色模式" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button>
+        <button class="theme-choice" type="button" data-theme-choice="dark" aria-label="深色模式" title="深色模式" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.4 15.1A8.5 8.5 0 0 1 8.9 3.6 8.6 8.6 0 1 0 20.4 15.1Z"/></svg></button>
+      </div>
+      <a class="back" href="./index.html">回到實作教案</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="eyebrow">教材檔案說明</div>
+    <h1>迷你賣場虛構職員資料庫</h1>
+    <p class="lead">這份 JSON 範例資料供排班系統讀取，包含職員姓名、主要職務、技能、可排班日及可排時段。</p>
+    <article class="card">
+      <h2>資料內容</h2>
+      <p>資料庫共有 27 名取自小說的虛構角色，分屬六種賣場職務。姓名、職務與技能皆為教學情境設定，不代表角色在原著中的職業，也不是任何真實企業或員工的資料。</p>
+      <div class="stats" id="stats" aria-live="polite">
+        <div class="stat"><strong>27 名</strong>虛構職員</div>
+        <div class="stat"><strong>6 種</strong>賣場職務</div>
+      </div>
+      <h2>職員名單摘要</h2>
+      <p class="status" id="load-status" role="status">正在讀取職員資料……</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th scope="col">姓名</th><th scope="col">主要職務</th><th scope="col">技能</th></tr></thead>
+          <tbody id="staff-list"></tbody>
+        </table>
+      </div>
+      <h2>下載後如何使用</h2>
+      <p>請將此 JSON 檔與「學生用規格-基本排班系統.md」一併提供給 AI Agent，作為排班工具的範例人員資料。系統需依這份資料安排人員，並檢查主要職務、技能及可排班時間。這些資料只供教學示範，不可作為真實人員排班資料。</p>
+    </article>
+  </main>
+  <footer class="wrap">職員名單由本頁同資料夾的 JSON 檔載入</footer>
+  <script>
+    (async () => {
+      const status = document.getElementById('load-status');
+      const body = document.getElementById('staff-list');
+      try {
+        const response = await fetch('./虛構職員資料庫.json');
+        if (!response.ok) throw new Error('資料檔讀取失敗');
+        const data = await response.json();
+        const roles = ['主管', '收銀人員', '賣場服務人員', '倉儲理貨人員', '清潔人員', '保全人員'];
+        const roleCounts = Object.fromEntries(roles.map(role => [role, data['人員'].filter(person => person['主要職務'] === role).length]));
+        const stats = document.getElementById('stats');
+        stats.replaceChildren();
+        for (const [label, value] of [['虛構職員', `${data['人員'].length} 名`], ['賣場職務', `${roles.length} 種`]]) {
+          const card = document.createElement('div');
+          card.className = 'stat';
+          const number = document.createElement('strong');
+          number.textContent = value;
+          card.append(number, document.createTextNode(label));
+          stats.append(card);
+        }
+        const summary = document.createElement('p');
+        summary.className = 'status';
+        summary.textContent = roles.map(role => `${role} ${roleCounts[role]} 名`).join('、');
+        stats.after(summary);
+        for (const person of data['人員']) {
+          const row = document.createElement('tr');
+          for (const value of [person['姓名'], person['主要職務'], person['技能'].join('、')]) {
+            const cell = document.createElement('td');
+            cell.textContent = value;
+            row.append(cell);
+          }
+          body.append(row);
+        }
+        status.textContent = `已載入 ${data['人員'].length} 名虛構職員。`;
+      } catch (error) {
+        status.textContent = '目前無法顯示名單摘要。請使用頁面上方的下載按鈕取得 JSON 檔，並與排班規格一併提供給 AI Agent。';
+      }
+    })();
+  </script>
+</body>
+</html>

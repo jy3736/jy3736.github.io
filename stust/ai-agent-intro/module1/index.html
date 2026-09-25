@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="使用 AI Agent 從清楚的系統規格建立迷你賣場排班工具，再在原有作品上追加臨時請假後的排班重組功能。">
+  <title>AI Agent 協作實作｜迷你賣場排班系統</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18232b;
+      --muted: #53636e;
+      --paper: #f3f7f5;
+      --card: #fff;
+      --line: #d9e3df;
+      --green: #176b57;
+      --green-dark: #104d40;
+      --button-hover: #104d40;
+      --mint: #e3f1eb;
+      --amber: #fff2df;
+      --shadow: 0 14px 36px rgba(26, 56, 48, .08);
+      --hero-start: #fbfdfb;
+      --hero-end: #e8f2ed;
+      --hero-glow: #d4ecdf;
+      --notice-bg: rgba(255,255,255,.8);
+      --tile-bg: #fbfdfc;
+      --prompt-bg: #f4faf7;
+      --table-ink: #214a3e;
+      --callout-ink: #603614;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --ink: #e7eeeb;
+      --muted: #adbbb6;
+      --paper: #121917;
+      --card: #1b2521;
+      --line: #35453e;
+      --green: #176b57;
+      --green-dark: #b8ead7;
+      --button-hover: #0f5946;
+      --mint: #263b33;
+      --amber: #45351f;
+      --shadow: 0 14px 36px rgba(0,0,0,.2);
+      --hero-start: #17231e;
+      --hero-end: #111815;
+      --hero-glow: #274b3b;
+      --notice-bg: rgba(27,37,33,.92);
+      --tile-bg: #202c27;
+      --prompt-bg: #202f29;
+      --table-ink: #c7e9da;
+      --callout-ink: #f0cca0;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif; line-height: 1.75; }
+    a { color: var(--green-dark); }
+    a:focus-visible { outline: 3px solid #df9145; outline-offset: 3px; }
+    .wrap { width: min(1060px, calc(100% - 36px)); margin: 0 auto; }
+    .hero { padding: 66px 0 48px; background: radial-gradient(ellipse at 84% 14%, var(--hero-glow) 0, transparent 38%), linear-gradient(145deg, var(--hero-start), var(--hero-end)); border-bottom: 1px solid var(--line); }
+    .eyebrow { color: var(--green); font-weight: 750; letter-spacing: .08em; }
+    h1 { max-width: 820px; margin: 12px 0; font-size: clamp(2rem, 5vw, 3.55rem); line-height: 1.2; letter-spacing: -.035em; }
+    .lead { max-width: 770px; color: var(--muted); font-size: 1.12rem; }
+    .notice { max-width: 830px; margin-top: 22px; padding: 14px 18px; border-left: 4px solid var(--green); border-radius: 0 12px 12px 0; background: var(--notice-bg); }
+    .downloads { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border: 1px solid var(--green); border-radius: 10px; background: var(--green); color: #fff; font-weight: 700; text-decoration: none; }
+    .button.secondary { background: var(--card); color: var(--green-dark); }
+    .button:hover { background: var(--button-hover); color: #fff; }
+    .theme-switch { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); }
+    .theme-choice { width: 36px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; }
+    .theme-choice[aria-pressed="true"] { background: var(--green); color: #fff; }
+    .theme-choice:hover:not([aria-pressed="true"]) { background: var(--mint); color: var(--green-dark); }
+    .theme-choice svg { width: 19px; height: 19px; }
+    main { padding: 38px 0 68px; }
+    section { margin-bottom: 25px; padding: 27px clamp(20px, 4vw, 38px); border: 1px solid var(--line); border-radius: 18px; background: var(--card); box-shadow: var(--shadow); }
+    h2 { margin: 0 0 14px; font-size: clamp(1.4rem, 3vw, 1.95rem); line-height: 1.35; }
+    h3 { margin: 22px 0 8px; font-size: 1.16rem; }
+    p { margin: 10px 0; }
+    .muted { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .tile { padding: 16px; border: 1px solid var(--line); border-radius: 13px; background: var(--tile-bg); }
+    .tile strong { display: block; color: var(--green-dark); }
+    .table-scroll { overflow-x: auto; margin-top: 12px; }
+    table { width: 100%; min-width: 540px; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--mint); color: var(--table-ink); }
+    ol, ul { padding-left: 1.35rem; }
+    li { margin: 6px 0; }
+    .steps { display: grid; gap: 10px; padding: 0; list-style: none; counter-reset: item; }
+    .steps li { counter-increment: item; position: relative; margin: 0; padding: 14px 15px 14px 54px; border: 1px solid var(--line); border-radius: 12px; }
+    .steps li::before { content: counter(item); position: absolute; left: 14px; top: 13px; width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; background: var(--mint); color: var(--green-dark); font-weight: 800; }
+    .steps strong { display: block; }
+    .prompt { margin-top: 14px; padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: var(--prompt-bg); }
+    .prompt p:first-child { margin-top: 0; }
+    .prompt p:last-child { margin-bottom: 0; }
+    .callout { padding: 15px 18px; border-radius: 12px; background: var(--amber); color: var(--callout-ink); }
+    .checks { columns: 2; column-gap: 34px; }
+    .checks li { break-inside: avoid; }
+    footer { padding: 18px 0 34px; color: var(--muted); text-align: center; font-size: .92rem; }
+    @media (max-width: 680px) {
+      .hero { padding: 44px 0 34px; }
+      .grid { grid-template-columns: 1fr; }
+      .checks { columns: 1; }
+      section { padding: 22px 18px; }
+      .downloads { flex-direction: column; align-items: stretch; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+  <script src="./theme.js" defer></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">商管學院｜AI Agent 協作實作</div>
+      <h1>從排班規格到可用工具</h1>
+      <p class="lead">使用迷你賣場排班情境，練習如何清楚描述系統需求，讓 AI Agent 協助建立數位工具，再從已完成的作品上逐步追加功能。</p>
+      <div class="notice"><strong>實作重點：</strong>清楚描述使用者需求、資料、規則及驗收條件。程式碼可由 AI Agent 協助產生；學生負責檢查工具是否符合規格，並決定是否接受修改。</div>
+      <nav class="downloads" aria-label="規格與資料庫說明頁">
+        <a class="button" href="./規格說明.html">查看排班系統規格</a>
+        <a class="button secondary" href="./職員資料庫.html">查看虛構職員資料庫</a>
+        <div class="theme-switch" role="group" aria-label="選擇顯示模式">
+          <button class="theme-choice" type="button" data-theme-choice="light" aria-label="淺色模式" title="淺色模式" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg></button>
+          <button class="theme-choice" type="button" data-theme-choice="dark" aria-label="深色模式" title="深色模式" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.4 15.1A8.5 8.5 0 0 1 8.9 3.6 8.6 8.6 0 1 0 20.4 15.1Z"/></svg></button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="goals">
+      <h2 id="goals">實作目標</h2>
+      <div class="grid">
+        <div class="tile"><strong>描述清楚</strong>辨認系統使用者、資料、排班規則與完成條件。</div>
+        <div class="tile"><strong>產生工具</strong>使用規格與虛構職員資料，請 AI Agent 建立基本排班系統。</div>
+        <div class="tile"><strong>檢查結果</strong>操作系統，確認班表是否遵守規則並正確顯示人力缺額。</div>
+        <div class="tile"><strong>逐步追加</strong>保留已確認的基本作品，只針對新需求做必要修改。</div>
+      </div>
+      <p class="muted">情境是教學用的迷你會員制賣場；不是好市多的官方系統，也不代表任何真實企業的作業規定。所有職員與排班資料皆為虛構，班表是待主管確認的建議草稿。</p>
+    </section>
+
+    <section aria-labelledby="activities">
+      <h2 id="activities">活動主軸與學生產出</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th scope="col">活動主軸</th><th scope="col">學生產出</th></tr></thead>
+          <tbody>
+            <tr><td>閱讀規格與職員資料</td><td>能說明系統目標、主要排班規則及完成條件。</td></tr>
+            <tr><td>使用 AI Agent 產生基本排班工具</td><td>可在瀏覽器操作的基本版本。</td></tr>
+            <tr><td>檢查與修正基本版本</td><td>排班規則檢查結果及至少一項具體修正。</td></tr>
+            <tr><td>規劃臨時請假後的排班重組功能</td><td>新功能需求及驗收條件。</td></tr>
+            <tr><td>在原作品上追加功能</td><td>保留原功能，並提供請假後的排班重組方案。</td></tr>
+            <tr><td>檢查與分享成果</td><td>新舊功能檢查結果，以及對規格描述與逐步修改的簡短反思。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="basic">
+      <h2 id="basic">第一階段｜依規格產生基本排班工具</h2>
+      <p>將本頁提供的規格檔與職員資料檔一併交給 AI Agent。規格已描述賣場角色、班別、人力需求、排班規則、畫面需求及驗收條件。每位學生產生的介面可以不同，但功能須符合相同的規格與驗收條件。</p>
+      <ol class="steps">
+        <li><strong>閱讀規格及資料</strong>找出系統目標、職員資料、排班規則與驗收條件。</li>
+        <li><strong>產生基本版本</strong>請 AI Agent 建立可在本機瀏覽器操作的一週排班工具。</li>
+        <li><strong>操作並檢查</strong>查看職員資格、可排班時間、重複排班及人力缺額。</li>
+        <li><strong>描述問題並修正</strong>提供操作步驟、實際結果與預期結果，請 AI Agent 針對問題修正。</li>
+        <li><strong>確認基本版本</strong>符合規格後，將此版本作為第二階段的既有系統基礎。</li>
+      </ol>
+      <div class="prompt">
+        <p><strong>可提供給 AI Agent 的起始指令</strong></p>
+        <p>請先閱讀「學生用規格-基本排班系統.md」與「虛構職員資料庫.json」，再依照規格在目前專案中建立可於本機瀏覽器操作的迷你賣場排班工具。請使用 JSON 檔中的虛構職員資料，不要加入真實人員。開始製作前，請先簡短整理你理解的系統目標、主要排班規則及驗收條件。完成後請說明如何開啟工具，以及如何逐項檢查驗收條件。</p>
+      </div>
+      <h3>基本版本檢查重點</h3>
+      <ul class="checks">
+        <li>工具可在本機瀏覽器開啟。</li>
+        <li>使用提供的虛構職員資料。</li>
+        <li>可產生一週、每天三個時段的班表。</li>
+        <li>只安排合格且當時有空的人員。</li>
+        <li>不重複排班，也不超過每週時段上限。</li>
+        <li>明確顯示各時段的人力缺額。</li>
+        <li>班表標示為待主管確認的建議草稿。</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="extension">
+      <h2 id="extension">第二階段｜在原作品上追加臨時請假功能</h2>
+      <div class="callout"><strong>修改原則：</strong>已確認的基本版本就是修改起點。不要重新產生整個系統或全面改寫；先理解目前作品，再只做新增功能所需的最小修改，保留既有畫面、資料、排班流程及已完成的功能。</div>
+      <h3>新增功能需求</h3>
+      <ol>
+        <li>主管可選擇日期、時段及已排班人員，標記該人員臨時無法出勤；不須輸入病情或私人原因。</li>
+        <li>系統移除該員在受影響時段的指派，依可工作時間、職務、技能、撞班及每週排班上限重新計算。</li>
+        <li>最多提供三個彼此不同且符合規則的重組方案；若實際只有一至兩個，就只顯示這些方案。</li>
+        <li>每個方案說明人員與班別如何調整、調整原因，以及調整後仍未補足的人力。</li>
+        <li>主管選擇方案後才套用；若取消，原班表維持不變。未受影響的班表應保持原樣。</li>
+        <li>若沒有可行方案，清楚警示目前無法以現有人力完成重排，提醒主管考慮安排臨時人員或請總部支援。</li>
+      </ol>
+      <h3>追加修改步驟</h3>
+      <ol class="steps">
+        <li><strong>檢視目前作品</strong>先確認現有畫面、資料、排班方式及已完成的功能。</li>
+        <li><strong>提出最小修改計畫</strong>列出預計調整的檔案與保留原有功能的方式；先不修改檔案。</li>
+        <li><strong>檢視並確認計畫</strong>確認修改範圍只涉及新增功能所需的部分。</li>
+        <li><strong>追加功能並檢查</strong>確認後才修改，並重新檢查新舊功能。</li>
+      </ol>
+      <div class="prompt">
+        <p><strong>可提供給 AI Agent 的追加指令</strong></p>
+        <p>請先檢視目前專案中的排班工具，確認現有畫面、資料結構、班表產生方式及已完成的功能。這是已確認可用的基本版本，請勿重新產生整個系統、全面改寫程式或更換整體架構。先提出最小修改計畫，列出預計新增或修改的檔案，以及如何保留現有功能；先不要修改檔案，等我檢視並確認後再進行。</p>
+        <p>新增臨時無法出勤與排班重組功能：主管選擇已排班人員、日期及時段，將該人員標記為該時段無法出勤。系統須移除該員在該時段的指派，依現有排班規則提出最多三個不同且可行的重組方案。顯示每個方案的人員與班別變動及尚未補足的需求；若方案少於三個，只顯示實際可行的方案。主管選擇後才套用，取消時保留原班表。若無可行方案，顯示警示並提醒主管考慮安排臨時人員或請總部支援。不得詢問病情或私人原因。未受影響的班表與所有基本功能都須保留。</p>
+      </div>
+      <h3>第二階段檢查重點</h3>
+      <ul class="checks">
+        <li>基本版本原有功能仍可使用。</li>
+        <li>請假人員不再被計入該時段人力。</li>
+        <li>所有方案均符合資格、時間及排班限制。</li>
+        <li>未受影響的班表沒有被更動。</li>
+        <li>主管選擇前不會自動套用方案。</li>
+        <li>沒有方案時會警示並提示支援選項。</li>
+        <li>不詢問私人請假原因，也不要求請假人員回來工作。</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="reflection">
+      <h2 id="reflection">成果分享與反思</h2>
+      <ul>
+        <li>哪一項規格描述最影響 AI Agent 產生的結果？</li>
+        <li>你如何確認基本版本符合排班規則？</li>
+        <li>第二階段如何讓 AI Agent 保留原有系統並只追加需要的功能？</li>
+        <li>找不到可行方案時，為什麼應該如實提醒主管，而不能產生違反規則的班表？</li>
+      </ul>
+    </section>
+  </main>
+  <footer class="wrap">教學用虛構範例｜所有排班建議均須由人員檢視與確認</footer>
+</body>
+</html>
