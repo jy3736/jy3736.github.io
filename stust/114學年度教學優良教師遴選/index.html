@@ -9,12 +9,18 @@
   --ink:#163D40; --teal:#167C80; --teal-soft:#D5E5DF; --muted:#637674;
   --cream:#F6F4EE; --gold:#AD672E; --gold-soft:#F1E2D3; --white:#FFFFFF; --rule:#DDE3E0;
   --font:"Heiti TC","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  /* 左右翻頁箭頭的專屬通道，投影片寬度會自動讓開 */
+  --arrow-size:84px; --arrow-gap:16px;
+  --arrow-lane:calc(var(--arrow-size) + var(--arrow-gap) * 2);
 }
 *{box-sizing:border-box}
+html{scroll-snap-type:y mandatory}
 html,body{width:100%;min-height:100%;margin:0;background:#163D40;font-family:var(--font);color:var(--ink)}
-main{display:flex;flex-direction:column;align-items:center;width:100%;min-height:100dvh;gap:28px;padding:28px 16px 60px}
+main{display:flex;flex-direction:column;align-items:center;width:100%;min-height:100dvh;gap:28px;padding:var(--lead-in,28px) 16px var(--lead-out,60px);scroll-behavior:auto}
 .slide{
-  container-type:inline-size;position:relative;width:min(1280px,100%);max-width:100%;height:auto;aspect-ratio:16/9;
+  container-type:inline-size;position:relative;scroll-snap-align:center;scroll-snap-stop:always;
+  /* 90% of the parent, but never taller than 90% of the viewport */
+  width:min(90%,calc(100% - var(--arrow-lane) * 2),calc(90dvh * 16 / 9));max-width:calc(100% - var(--arrow-lane) * 2);height:auto;aspect-ratio:16/9;flex:none;
   background:var(--cream); overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,.35); border-radius:6px;
 }
 .pad{position:absolute;inset:0;padding:4.2cqw 5cqw 4.6cqw}
@@ -186,6 +192,34 @@ h1 small{display:block;font-size:1.8cqw;font-weight:400;color:var(--muted);margi
 .notes b{color:var(--teal)}
 .catalog-toggle{position:fixed;left:1.2cqw;bottom:1.2cqw;z-index:42;border:0;border-radius:999px;padding:.7cqw 1.15cqw;background:var(--teal);color:#fff;font:700 1.2cqw var(--font);letter-spacing:.08em;box-shadow:0 .35cqw 1.1cqw rgba(22,61,64,.22);cursor:pointer}
 .catalog-toggle:focus-visible,.catalog-close:focus-visible,.slide-catalog a:focus-visible{outline:.25cqw solid var(--gold);outline-offset:.2cqw}
+.deck-toggle{display:flex;align-items:center;justify-content:space-between;gap:.8cqw;width:100%;box-sizing:border-box;margin:.2cqw 0 .9cqw;border:.12cqw solid rgba(255,255,255,.35);border-radius:.5cqw;padding:.7cqw .8cqw;background:var(--white);color:var(--ink);font:800 1.16cqw var(--font);letter-spacing:.06em;cursor:pointer;text-align:left;box-shadow:0 .2cqw .7cqw rgba(0,0,0,.18);transition:background .16s ease,color .16s ease}
+.deck-toggle .mode{font-weight:800;display:flex;align-items:center;gap:.5cqw}
+.deck-toggle .mode::before{content:"⇄";font-size:1.25cqw;font-weight:700;color:var(--gold)}
+.deck-toggle .cnt{font-weight:700;font-size:.95cqw;font-variant-numeric:tabular-nums;color:var(--muted)}
+.deck-toggle:hover{background:var(--cream)}
+.deck-toggle:focus-visible{outline:.25cqw solid var(--gold);outline-offset:.2cqw}
+.nav-arrow{position:fixed;top:50%;transform:translateY(-50%);z-index:41;display:flex;align-items:center;justify-content:center;width:var(--arrow-size);height:var(--arrow-size);padding:0 0 6px;border:3px solid rgba(255,255,255,.82);border-radius:999px;background:var(--teal);color:#fff;font-size:calc(var(--arrow-size) * .55);font-weight:700;line-height:1;cursor:pointer;box-shadow:0 8px 26px rgba(0,0,0,.42);transition:background .18s ease,transform .18s ease,box-shadow .18s ease,opacity .18s ease}
+.nav-arrow:hover{background:var(--gold);border-color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.5);transform:translateY(-50%) scale(1.08)}
+.nav-arrow:active{transform:translateY(-50%) scale(.96)}
+.nav-arrow:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+.nav-arrow[disabled]{opacity:.28;box-shadow:none;cursor:default}
+.nav-arrow[disabled]:hover{background:var(--teal);border-color:rgba(255,255,255,.82);transform:translateY(-50%)}
+.nav-arrow.prev{left:var(--arrow-gap)}
+.nav-arrow.next{right:var(--arrow-gap)}
+@media (max-width:1500px){:root{--arrow-size:64px;--arrow-gap:14px}.nav-arrow{border-width:2px}}
+@media (max-width:1000px){:root{--arrow-size:52px;--arrow-gap:10px}}
+/* Ctrl+F：滿版簡報模式 —— 投影片吃滿畫面，箭頭與目錄淡出待命 */
+html.present{background:#0E2B2C}
+html.present body{background:#0E2B2C}
+html.present main{gap:0;padding-inline:0}
+html.present .slide{width:min(100%,calc(100dvh * 16 / 9));max-width:100%;border-radius:0;box-shadow:none}
+html.present .nav-arrow,html.present .catalog-toggle{opacity:.12}
+html.present .nav-arrow:hover,html.present .catalog-toggle:hover{opacity:1}
+html.present .nav-arrow[disabled]{opacity:.06}
+html.present .nav-arrow[disabled]:hover{opacity:.06}
+.present-hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:45;padding:8px 16px;border-radius:999px;background:rgba(14,43,44,.82);color:#fff;font:700 13px var(--font);letter-spacing:.08em;pointer-events:none;opacity:0;transition:opacity .25s ease}
+.present-hint.show{opacity:1}
+.slide.is-off,.notes.is-off,.slide-catalog a.is-off{display:none!important}
 .slide-catalog{position:fixed;inset:0 auto 0 0;z-index:44;width:min(26cqw,84vw);box-sizing:border-box;padding:1.8cqw 1.4cqw;background:var(--teal);color:#fff;box-shadow:.5cqw 0 1.8cqw rgba(22,61,64,.24);transform:translateX(-105%);transition:transform .24s ease;overflow-y:auto}
 .slide-catalog.open{transform:translateX(0)}
 .catalog-head{display:flex;align-items:center;justify-content:space-between;padding:0 .25cqw 1.1cqw;border-bottom:.12cqw solid rgba(255,255,255,.28);margin-bottom:.8cqw}
@@ -198,10 +232,12 @@ h1 small{display:block;font-size:1.8cqw;font-weight:400;color:var(--muted);margi
 .catalog-backdrop{position:fixed;inset:0;z-index:43;background:rgba(16,42,43,.35);opacity:0;pointer-events:none;transition:opacity .24s ease}
 .catalog-backdrop.open{opacity:1;pointer-events:auto}
 @media print{
+  html{scroll-snap-type:none}
   html,body{background:#fff}
   main{padding:0;gap:0}
+  .slide{scroll-snap-align:none}
   .slide{width:1280px;box-shadow:none;border-radius:0;break-after:page}
-  .notes,.catalog-toggle,.slide-catalog,.catalog-backdrop{display:none!important}
+  .notes,.catalog-toggle,.deck-toggle,.nav-arrow,.present-hint,.slide-catalog,.catalog-backdrop{display:none!important}
   @page{size:1280px 720px;margin:0}
 }
 
@@ -431,8 +467,12 @@ h1 small{display:block;font-size:1.8cqw;font-weight:400;color:var(--muted);margi
 <body>
 <button class="catalog-toggle" type="button" aria-expanded="false" aria-controls="slide-catalog">目錄</button>
 <div class="catalog-backdrop" aria-hidden="true"></div>
+<button class="nav-arrow prev" type="button" aria-label="上一頁">&#8249;</button>
+<button class="nav-arrow next" type="button" aria-label="下一頁">&#8250;</button>
+<div class="present-hint" role="status" aria-live="polite"></div>
 <nav class="slide-catalog" id="slide-catalog" aria-label="簡報目錄" aria-hidden="true">
   <div class="catalog-head"><strong>簡報目錄</strong><button class="catalog-close" type="button">關閉</button></div>
+  <button class="deck-toggle" type="button" aria-pressed="true"><span class="mode">切換為完整版</span><span class="cnt"></span></button>
   <a href="#s0"><span>開場與簡報架構</span><span class="page">00</span></a>
   <div class="catalog-group">教學傑出／榮譽事項</div>
   <a href="#s1"><span>課堂問題與教學研究</span><span class="page">01</span></a>
@@ -833,11 +873,48 @@ function setCatalog(open){
 catalogToggle.addEventListener('click',()=>setCatalog(!catalog.classList.contains('open')));
 catalogClose.addEventListener('click',()=>setCatalog(false));
 catalogBackdrop.addEventListener('click',()=>setCatalog(false));
-const slides=[...document.querySelectorAll('.slide')];
-function centerSlide(slide){
+const allSlides=[...document.querySelectorAll('.slide')];
+let slides=allSlides.slice();
+const main=document.querySelector('main');
+let activeIndex=0;
+/* 讓第一頁與最後一頁也能真正置中：把 main 的上下留白撐到半個空白視窗高 */
+function syncLeadSpace(){
+  const first=slides[0],last=slides[slides.length-1];
+  if(!first||!last)return;
+  main.style.setProperty('--lead-in',Math.max(28,(window.innerHeight-first.offsetHeight)/2)+'px');
+  main.style.setProperty('--lead-out',Math.max(60,(window.innerHeight-last.offsetHeight)/2)+'px');
+}
+/* 自訂捲動動畫：比瀏覽器預設的 smooth 快一截，換頁更俐落 */
+const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+let scrollAnim=null;
+function glideTo(top){
+  cancelAnimationFrame(scrollAnim);
+  const start=window.scrollY,delta=top-start;
+  if(Math.abs(delta)<2){window.scrollTo(0,top);return;}
+  /* 動畫期間先關掉 scroll-snap，免得逐格被吸附打斷 */
+  const root=document.documentElement;
+  root.style.scrollSnapType='none';
+  const duration=Math.min(240,Math.max(110,Math.abs(delta)*0.15));
+  const startedAt=performance.now();
+  const tick=now=>{
+    const progress=Math.min(1,(now-startedAt)/duration);
+    window.scrollTo(0,start+delta*easeInOutCubic(progress));
+    if(progress<1){scrollAnim=requestAnimationFrame(tick);}
+    else{root.style.scrollSnapType='';}
+  };
+  scrollAnim=requestAnimationFrame(tick);
+}
+function centerSlide(slide,behavior='smooth'){
   if(!slide)return;
-  slide.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});
+  const index=slides.indexOf(slide);
+  if(index>=0)activeIndex=index;
+  const rect=slide.getBoundingClientRect();
+  const limit=document.documentElement.scrollHeight-window.innerHeight;
+  const top=Math.max(0,Math.min(limit,Math.round(window.scrollY+rect.top+rect.height/2-window.innerHeight/2)));
+  if(behavior==='auto'){cancelAnimationFrame(scrollAnim);window.scrollTo(0,top);}
+  else glideTo(top);
   history.replaceState(null,'',`#${slide.id}`);
+  syncArrows();
 }
 function currentSlideIndex(){
   const viewportCenter=window.innerHeight/2;
@@ -847,6 +924,34 @@ function currentSlideIndex(){
     return distance<nearest.distance?{index,distance}:nearest;
   },{index:0,distance:Infinity}).index;
 }
+/* 上一頁／下一頁箭頭 */
+const prevArrow=document.querySelector('.nav-arrow.prev');
+const nextArrow=document.querySelector('.nav-arrow.next');
+function syncArrows(){
+  prevArrow.disabled=activeIndex<=0;
+  nextArrow.disabled=activeIndex>=slides.length-1;
+}
+function step(offset){
+  activeIndex=Math.max(0,Math.min(slides.length-1,activeIndex+offset));
+  centerSlide(slides[activeIndex]);
+}
+prevArrow.addEventListener('click',()=>step(-1));
+nextArrow.addEventListener('click',()=>step(1));
+/* 捲動停止後才回寫目前頁，避免平滑捲動途中連按而跳頁 */
+let settleTimer;
+window.addEventListener('scroll',()=>{
+  clearTimeout(settleTimer);
+  settleTimer=setTimeout(()=>{activeIndex=currentSlideIndex();syncArrows();},140);
+},{passive:true});
+/* 視窗尺寸改變後重新置中目前頁 */
+let resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    syncLeadSpace();
+    centerSlide(slides[Math.min(activeIndex,slides.length-1)],'auto');
+  },120);
+});
 catalog.querySelectorAll('a').forEach(link=>link.addEventListener('click',event=>{
   event.preventDefault();
   setCatalog(false);
@@ -854,11 +959,47 @@ catalog.querySelectorAll('a').forEach(link=>link.addEventListener('click',event=
 }));
 document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&catalog.classList.contains('open')){setCatalog(false);return;}
+  if((event.ctrlKey||event.metaKey)&&(event.key==='f'||event.key==='F')){
+    event.preventDefault();
+    togglePresent();
+    return;
+  }
   if(event.key!=='PageUp'&&event.key!=='PageDown')return;
   event.preventDefault();
-  const offset=event.key==='PageDown'?1:-1;
-  const targetIndex=Math.max(0,Math.min(slides.length-1,currentSlideIndex()+offset));
-  centerSlide(slides[targetIndex]);
+  step(event.key==='PageDown'?1:-1);
+});
+
+/* Ctrl+F：滿版／一般頁面模式 */
+const presentHint=document.querySelector('.present-hint');
+let hintTimer;
+function flashHint(text){
+  presentHint.textContent=text;
+  presentHint.classList.add('show');
+  clearTimeout(hintTimer);
+  hintTimer=setTimeout(()=>presentHint.classList.remove('show'),1600);
+}
+function applyPresent(on){
+  document.documentElement.classList.toggle('present',on);
+  requestAnimationFrame(()=>{
+    syncLeadSpace();
+    centerSlide(slides[Math.min(activeIndex,slides.length-1)],'auto');
+  });
+  flashHint(on?'滿版簡報模式（Ctrl+F 還原）':'一般頁面模式');
+}
+function togglePresent(){
+  const on=!document.documentElement.classList.contains('present');
+  applyPresent(on);
+  /* 盡量同步進出瀏覽器全螢幕，失敗也不影響版面切換 */
+  if(on){
+    if(!document.fullscreenElement&&document.documentElement.requestFullscreen)
+      document.documentElement.requestFullscreen().catch(()=>{});
+  }else if(document.fullscreenElement&&document.exitFullscreen){
+    document.exitFullscreen().catch(()=>{});
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  /* 使用者按 Esc 離開全螢幕時，版面一併還原 */
+  if(!document.fullscreenElement&&document.documentElement.classList.contains('present'))applyPresent(false);
 });
 [
   ['#s10 .vid','https://youtu.be/LOxZnvkA-w0','開啟 USR 場域服務剪影'],
@@ -872,6 +1013,53 @@ document.addEventListener('keydown',event=>{
   link.href=url;link.target='_blank';link.rel='noopener';link.className='video-overlay';link.setAttribute('aria-label',label);
   card.append(link);
 });
+
+/* 精簡版／完整版切換 */
+const SIMPLE_SLIDES=['s0','s1','s3','s5','s6','s7','s9','s10','s11','s12'];
+const deckToggle=document.querySelector('.deck-toggle');
+const catalogLinks=[...catalog.querySelectorAll('a')];
+let simpleDeck=false;
+const pad2=n=>String(n).padStart(2,'0');
+function applyDeck(simple){
+  simpleDeck=simple;
+  slides=[];
+  allSlides.forEach(slide=>{
+    const on=!simple||SIMPLE_SLIDES.includes(slide.id);
+    slide.classList.toggle('is-off',!on);
+    const notes=slide.nextElementSibling;
+    if(notes&&notes.classList.contains('notes'))notes.classList.toggle('is-off',!on);
+    if(on)slides.push(slide);
+  });
+  slides.forEach((slide,index)=>{
+    const num=slide.querySelector('.foot .num');
+    if(num)num.textContent=pad2(index);
+  });
+  catalogLinks.forEach(link=>{
+    const id=link.getAttribute('href').slice(1);
+    const index=slides.findIndex(slide=>slide.id===id);
+    link.classList.toggle('is-off',index<0);
+    const page=link.querySelector('.page');
+    if(page&&index>=0)page.textContent=pad2(index);
+  });
+  deckToggle.querySelector('.mode').textContent=simple?'切換為完整版':'切換為精簡版';
+  deckToggle.querySelector('.cnt').textContent=simple?`目前 精簡版 ${slides.length} 頁`:`目前 完整版 ${slides.length} 頁`;
+  deckToggle.setAttribute('aria-pressed',String(simple));
+  activeIndex=Math.max(0,Math.min(activeIndex,slides.length-1));
+  syncLeadSpace();
+  syncArrows();
+  try{localStorage.setItem('deck-mode',simple?'simple':'full');}catch(error){}
+}
+deckToggle.addEventListener('click',()=>{
+  const anchor=slides[Math.min(activeIndex,slides.length-1)];
+  applyDeck(!simpleDeck);
+  const target=slides.includes(anchor)?anchor:slides.find(slide=>slide.compareDocumentPosition(anchor)&Node.DOCUMENT_POSITION_PRECEDING)||slides[0];
+  centerSlide(target,'auto');
+});
+let storedMode=null;
+try{storedMode=localStorage.getItem('deck-mode');}catch(error){}
+applyDeck(storedMode!=='full');
+const hashSlide=location.hash?slides.find(slide=>'#'+slide.id===location.hash):null;
+requestAnimationFrame(()=>{syncLeadSpace();centerSlide(hashSlide||slides[0],'auto');});
 </script>
 </body>
 </html>
