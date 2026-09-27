@@ -5,8 +5,8 @@
 <script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
-<title>第 1 單元：用 ChatGPT 與 Codex 學習和做專題</title>
-<meta name="description" content="認識 Chat、ChatGPT Work 與 Codex，學會寫提示、檢查答案，並看 Codex 如何修好一個小程式。">
+<title>第 1 單元：課程總覽與基本名詞</title>
+<meta name="description" content="認識這門課的學習路線，並把後面單元會一直出現的電腦與程式名詞一次講清楚。">
 <style>
 :root {
   --bg: #fbfaf7;
@@ -110,6 +110,50 @@ img { max-width: 100%; }
 .site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
 .site-header nav a { text-decoration: none; color: var(--muted); }
 .site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* Hovering a nav number shows that unit's full title instantly, in a strip under the header. */
+.site-header .inner { position: relative; }
+/* the label is scaled, never the <a>: a transform on the link would make it the
+   containing block for the strip below and collapse it to the link's width */
+.site-header nav a > span { display: inline-block; transition: transform 0.12s ease; }
+.site-header nav a { transition: color 0.12s ease; }
+.site-header nav a:hover,
+.site-header nav a:focus-visible { color: var(--accent); }
+.site-header nav a:hover > span,
+.site-header nav a:focus-visible > span { transform: scale(1.18); }
+.site-header nav a[data-title]::after {
+  content: attr(data-title);
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  /* the box hugs the title: its own width plus roughly 10%, and never wider than the header */
+  width: max-content;
+  max-width: 90%;
+  padding: 0.55rem 1em;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 18%);
+  pointer-events: none;
+}
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .site-header nav a, .site-header nav a > span { transition: none; }
+  .site-header nav a:hover > span, .site-header nav a:focus-visible > span { transform: none; }
+}
+@media (max-width: 960px) {
+  /* touch screens have no hover: the strip would stick after a tap */
+  .site-header nav a[data-title]::after { content: none; }
+}
 
 .page {
   width: var(--layout-w);
@@ -605,9 +649,18 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 </head>
 <body>
 <a class="skip-link" href="#main">跳到主要內容</a>
-<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI Agent 創作實務講義</a><nav aria-label="講義"><a href="index.html">課程講義首頁</a>
-<a href="unit01.html" aria-current="page">第 1 單元</a>
-<a href="unit02.html">第 2 單元</a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI Agent 創作實務講義</a><nav aria-label="講義"><a href="index.html" data-title="AI Agent 創作實務講義"><span>首頁</span></a>
+<a href="unit01.html" data-title="第 1 單元：課程總覽與基本名詞" aria-current="page"><span>單元 1</span></a>
+<a href="unit02.html" data-title="第 2 單元：三種工作方式與清楚的提示"><span>單元 2</span></a>
+<a href="unit03.html" data-title="第 3 單元：專案、檔案與 ChatGPT Work"><span>單元 3</span></a>
+<a href="unit04.html" data-title="第 4 單元：認識 Codex：安全網與專案規則"><span>單元 4</span></a>
+<a href="unit05.html" data-title="第 5 單元：動手看一次：Codex 修好一個有錯的程式"><span>單元 5</span></a>
+<a href="unit06.html" data-title="第 6 單元：常用工作流程、整合演練與總結"><span>單元 6</span></a>
+<a href="unit07.html" data-title="第 7 單元：Codex 專案協作總覽與名詞"><span>單元 7</span></a>
+<a href="unit08.html" data-title="第 8 單元：Codex 專案與專案規則"><span>單元 8</span></a>
+<a href="unit09.html" data-title="第 9 單元：在 VS Code 中與 Codex 協作"><span>單元 9</span></a>
+<a href="unit10.html" data-title="第 10 單元：成績報告產生器練習"><span>單元 10</span></a>
+<a href="unit11.html" data-title="第 11 單元：截止日看板練習"><span>單元 11</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
 <div class="page">
 <aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
 <div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">08:21</span></div>
@@ -618,15 +671,15 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 </div>
 <div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 08:21</span></div>
 <div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
-</div><details><summary>本頁目錄</summary><ol><li><a href="#parts"><span class="toc-num">01</span>本單元的五個部分</a></li>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#map"><span class="toc-num">01</span>這份講義的學習路線</a></li>
 <li><a href="#words"><span class="toc-num">02</span>先認識幾個會一直出現的名詞</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m3 0h1m1 0h3m3 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m2 0h1m3 0h3m2 0h1m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h3m2 0h1m2 0h1m1 0h2m1 0h1m-24 1h1m1 0h5m3 0h4m1 0h3m5 0h1m2 0h5m-31 1h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-33 1h3m2 0h4m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3m5 0h1m1 0h2m-31 1h2m1 0h2m2 0h2m1 0h1m2 0h1m5 0h4m1 0h1m2 0h4m-30 1h1m3 0h1m1 0h5m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-25 1h1m1 0h2m3 0h4m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m-31 1h6m4 0h1m2 0h1m2 0h1m1 0h1m1 0h1m2 0h2m3 0h2m-32 1h2m2 0h2m5 0h6m4 0h1m1 0h4m2 0h2m-31 1h2m1 0h1m2 0h2m2 0h1m1 0h3m1 0h2m1 0h2m1 0h1m2 0h1m1 0h2m3 0h1m-32 1h1m1 0h1m4 0h2m1 0h1m2 0h1m2 0h4m2 0h2m1 0h2m1 0h2m1 0h1m-32 1h1m4 0h4m1 0h1m1 0h1m1 0h3m3 0h1m5 0h2m1 0h2m-32 1h3m2 0h1m1 0h3m2 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h5m1 0h1m-33 1h2m4 0h1m1 0h3m3 0h1m2 0h1m1 0h1m4 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h6m1 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m2 0h1m1 0h3m1 0h1m1 0h1m2 0h4m4 0h1m3 0h2m2 0h2m-32 1h1m3 0h1m3 0h2m1 0h6m2 0h4m3 0h1m1 0h1m1 0h3m-33 1h1m1 0h3m1 0h2m2 0h1m2 0h1m3 0h3m2 0h7m3 0h1m-25 1h5m1 0h1m1 0h5m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m2 0h4m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m1 0h2m1 0h2m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h1m1 0h1m4 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m2 0h4m1 0h2m1 0h2m1 0h4m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m5 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m5 0h2m1 0h2m3 0h3m2 0h2m1 0h3m-31 1h7m1 0h4m2 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
 <main id="main">
 <section class="hero">
-  <p class="eyebrow">第 1 單元講義</p>
-  <h1>用 ChatGPT 與 Codex 學習和做專題</h1>
-  <p class="lead">這一週要學會三件事：分辨 ChatGPT 的三種工作方式、把需求說清楚、以及確認 AI 做出來的東西真的是對的。最後會一步一步看 Codex 怎麼修好一個有錯的小程式。</p>
+  <p class="eyebrow">第 1 單元</p>
+  <h1>課程總覽與基本名詞</h1>
+  <p class="lead">這個單元先說明整份講義怎麼進行、每個階段會學到什麼，再把後面單元會一直出現的名詞用生活化的方式講清楚。</p>
   <ul class="meta">
-    <li>課堂時間 120 分鐘</li>
+    <li>建議閱讀 15 分鐘</li>
     <li>需要：ChatGPT 帳號</li>
     <li>選用：VS Code、Git、Python</li>
   </ul>
@@ -639,47 +692,11 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   <div class="card"><span class="tag">目標 4</span><p>看懂 Codex 修改程式的過程，並知道如何用 Git 保留退路。</p></div>
 </div>
 
-<h2 id="parts"><span class="num">01</span>本單元的五個部分</h2>
-<p>這個單元的內容分成五頁，依順序閱讀效果最好；也可以只挑需要的那一頁。每一頁都有自己的目錄、語音導讀與 QR Code。</p>
-
-<div class="card-grid">
-  <article class="card unit-card unit-1">
-    <span class="tag">1-1</span>
-    <h4><a class="card-link" href="unit01a.html">三種工作方式與清楚的提示</a></h4>
-    <p>三種工作方式各自適合什麼任務、提示的四個要素怎麼寫，以及拿到答案後要親自檢查哪些地方。</p>
-    <p class="card-audio">🎧 語音導讀：9 分 42 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-2</span>
-    <h4><a class="card-link" href="unit01b.html">專案、檔案與 ChatGPT Work</a></h4>
-    <p>什麼時候該建立專案、上傳檔案可以做什麼，以及寫給 ChatGPT Work 的提示長什麼樣子。</p>
-    <p class="card-audio">🎧 語音導讀：10 分 32 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-3</span>
-    <h4><a class="card-link" href="unit01c.html">認識 Codex：安全網與專案規則</a></h4>
-    <p>程式專案長什麼樣子、在哪裡使用 Codex、沙箱與核准怎麼設定，以及 AGENTS.md 該寫些什麼。</p>
-    <p class="card-audio">🎧 語音導讀：10 分 16 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-4</span>
-    <h4><a class="card-link" href="unit01d.html">動手看一次：Codex 修好一個有錯的程式</a></h4>
-    <p>一個平均分數的小程式哪裡算錯了、怎麼請 Codex 修、以及怎麼確認它真的修對了。</p>
-    <p class="card-audio">🎧 語音導讀：8 分 44 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-    <p><a class="download" href="downloads/unit01-average-bug.zip">下載本節範例</a></p>
-  </article>
-  <article class="card unit-card unit-1">
-    <span class="tag">1-5</span>
-    <h4><a class="card-link" href="unit01e.html">常用工作流程、整合演練與總結</a></h4>
-    <p>六個常用的 Codex 工作流程與提示範例、其他實用功能，以及整合演練、使用守則與課後練習。</p>
-    <p class="card-audio">🎧 語音導讀：11 分 29 秒</p>
-    <p class="card-cta" aria-hidden="true">閱讀 →</p>
-  </article>
-</div>
+<h2 id="map"><span class="num">01</span>這份講義的學習路線</h2>
+<p>每個單元都是獨立的一頁講義，有自己的目錄、語音導讀與 QR Code。依編號順序讀效果最好，也可以只挑需要的單元。完整的單元清單在<a href="index.html">講義首頁</a>。</p>
+<p><strong>第 2 到第 6 單元</strong>從「怎麼跟 AI 說清楚」開始：三種工作方式與提示的寫法、用專案與檔案累積脈絡、Codex 的安全網與專案規則，接著親手看 Codex 修好一個有錯的程式，最後整理成常用的工作流程與使用守則。</p>
+<p><strong>第 7 到第 11 單元</strong>把重點放在專案：把規則寫進 <code>AGENTS.md</code> 與設定檔、在 VS Code 中與 Codex 協作，並完成「成績報告產生器」與「截止日看板」兩個從需求到驗證的完整範例。</p>
+<p>讀到不熟的名詞時，回到下面這一節查就好。</p>
 
 <h2 id="words"><span class="num">02</span>先認識幾個會一直出現的名詞</h2>
 
@@ -710,7 +727,7 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   <dd>在 Git 裡建立一個存檔點的動作，會記下「這個時間點所有檔案的樣子」和一句說明。</dd>
 </dl>
 
-<nav class="pager" aria-label="上下頁"><a href="index.html">回講義首頁</a><a href="unit01a.html">下一頁：1-1 三種工作方式與清楚的提示</a></nav>
+<nav class="pager" aria-label="上下頁"><a href="index.html">回講義首頁</a><a href="unit02.html">下一單元：第 2 單元 三種工作方式與清楚的提示</a></nav>
 
 </main>
 </div>

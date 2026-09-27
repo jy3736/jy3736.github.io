@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
+<title>第 10 單元：成績報告產生器練習</title>
+<meta name="description" content="做一次完整的練習：先說清楚需求，請 Codex 做出最小可行產品，再親手核對每個數字，最後提出一項具體的改進要求。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* Hovering a nav number shows that unit's full title instantly, in a strip under the header. */
+.site-header .inner { position: relative; }
+/* the label is scaled, never the <a>: a transform on the link would make it the
+   containing block for the strip below and collapse it to the link's width */
+.site-header nav a > span { display: inline-block; transition: transform 0.12s ease; }
+.site-header nav a { transition: color 0.12s ease; }
+.site-header nav a:hover,
+.site-header nav a:focus-visible { color: var(--accent); }
+.site-header nav a:hover > span,
+.site-header nav a:focus-visible > span { transform: scale(1.18); }
+.site-header nav a[data-title]::after {
+  content: attr(data-title);
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  /* the box hugs the title: its own width plus roughly 10%, and never wider than the header */
+  width: max-content;
+  max-width: 90%;
+  padding: 0.55rem 1em;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 18%);
+  pointer-events: none;
+}
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .site-header nav a, .site-header nav a > span { transition: none; }
+  .site-header nav a:hover > span, .site-header nav a:focus-visible > span { transform: none; }
+}
+@media (max-width: 960px) {
+  /* touch screens have no hover: the strip would stick after a tap */
+  .site-header nav a[data-title]::after { content: none; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .theme-toggle, .toc-qr { display: none !important; }
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI Agent 創作實務講義</a><nav aria-label="講義"><a href="index.html" data-title="AI Agent 創作實務講義"><span>首頁</span></a>
+<a href="unit01.html" data-title="第 1 單元：課程總覽與基本名詞"><span>單元 1</span></a>
+<a href="unit02.html" data-title="第 2 單元：三種工作方式與清楚的提示"><span>單元 2</span></a>
+<a href="unit03.html" data-title="第 3 單元：專案、檔案與 ChatGPT Work"><span>單元 3</span></a>
+<a href="unit04.html" data-title="第 4 單元：認識 Codex：安全網與專案規則"><span>單元 4</span></a>
+<a href="unit05.html" data-title="第 5 單元：動手看一次：Codex 修好一個有錯的程式"><span>單元 5</span></a>
+<a href="unit06.html" data-title="第 6 單元：常用工作流程、整合演練與總結"><span>單元 6</span></a>
+<a href="unit07.html" data-title="第 7 單元：Codex 專案協作總覽與名詞"><span>單元 7</span></a>
+<a href="unit08.html" data-title="第 8 單元：Codex 專案與專案規則"><span>單元 8</span></a>
+<a href="unit09.html" data-title="第 9 單元：在 VS Code 中與 Codex 協作"><span>單元 9</span></a>
+<a href="unit10.html" data-title="第 10 單元：成績報告產生器練習" aria-current="page"><span>單元 10</span></a>
+<a href="unit11.html" data-title="第 11 單元：截止日看板練習"><span>單元 11</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">11:54</span></div>
+<audio id="podcast-audio" preload="metadata"><source src="audio/unit10-podcast.mp3" type="audio/mpeg"></audio>
+<div class="toc-audio-controls">
+<button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
+<div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
+</div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 11:54</span></div>
+<div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#goal"><span class="toc-num">01</span>練習目標</a></li>
+<li><a href="#spec"><span class="toc-num">02</span>題目說明</a></li>
+<li><a href="#checklist"><span class="toc-num">03</span>MVP 驗收清單</a></li>
+<li><a href="#prompts"><span class="toc-num">04</span>給 Codex 的 MVP 提示詞</a></li>
+<li><a href="#improve"><span class="toc-num">05</span>完成 MVP 後的改進要求</a></li>
+<li><a href="#record"><span class="toc-num">06</span>學生驗收紀錄</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m3 0h1m1 0h3m3 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m3 0h1m2 0h3m2 0h1m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m3 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m6 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m3 0h1m2 0h1m1 0h2m1 0h1m-24 1h1m1 0h5m3 0h4m1 0h3m5 0h1m2 0h5m-29 1h1m2 0h1m1 0h4m1 0h1m1 0h1m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-31 1h1m3 0h5m1 0h1m2 0h1m2 0h1m1 0h3m5 0h1m1 0h2m-31 1h2m1 0h2m2 0h2m1 0h1m2 0h1m3 0h1m1 0h4m1 0h1m2 0h4m-32 1h1m1 0h5m1 0h2m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-29 1h1m1 0h1m1 0h1m1 0h2m4 0h3m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m-29 1h3m1 0h1m2 0h2m2 0h1m2 0h1m1 0h1m1 0h1m2 0h2m3 0h2m-32 1h2m1 0h3m1 0h2m2 0h1m1 0h4m4 0h1m1 0h4m2 0h2m-31 1h4m2 0h1m3 0h5m1 0h2m1 0h2m1 0h1m2 0h1m1 0h2m3 0h1m-32 1h1m1 0h1m4 0h1m2 0h1m1 0h2m2 0h4m2 0h2m1 0h2m1 0h2m1 0h1m-28 1h7m1 0h5m3 0h1m5 0h2m1 0h2m-31 1h2m2 0h1m1 0h4m1 0h1m2 0h1m2 0h1m2 0h1m1 0h2m1 0h5m1 0h1m-33 1h1m2 0h1m1 0h2m6 0h1m3 0h1m1 0h1m4 0h2m1 0h3m1 0h1m-32 1h2m3 0h1m3 0h1m1 0h1m2 0h1m1 0h6m1 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m4 0h2m2 0h1m2 0h1m1 0h4m4 0h1m3 0h2m2 0h2m-32 1h1m3 0h1m4 0h1m1 0h1m1 0h4m2 0h4m3 0h1m1 0h1m1 0h3m-33 1h1m2 0h2m1 0h2m2 0h2m1 0h1m3 0h3m2 0h7m3 0h1m-25 1h5m1 0h1m1 0h5m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m6 0h1m1 0h2m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h8m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h6m1 0h1m4 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h2m1 0h4m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m5 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m4 0h1m1 0h1m1 0h2m3 0h3m2 0h2m1 0h3m-31 1h7m1 0h3m3 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero">
+  <p class="eyebrow">第 10 單元</p>
+  <h1>成績報告產生器練習</h1>
+  <p class="lead">這一節不是讀程式，是做一次完整的練習：你把需求說清楚，Codex 做出最小可行產品，你親手核對每個數字，最後提出一項具體的改進要求。</p>
+</section>
+
+<h2 id="goal"><span class="num">01</span>練習目標</h2>
+<p>做出一個在自己電腦上就能執行的小工具：讀進一份學生成績表，依固定的計分規則算出總分與等第，輸出一份整理好的成績報告。你要先說清楚需求，再請 Codex 做出最小可行產品（MVP），接著親自核對計算結果，最後提出一項具體的改進要求。</p>
+<p>重點不在寫出程式碼，而在四件事：把規則講清楚、看懂自己漏講了什麼、用手算驗證機器算的、以及把發現的問題變成下一次的要求。</p>
+<div class="callout warn">
+  <span class="label">只用虛構資料</span>
+  <p>範例成績表裡的學號與姓名都是虛構的。請勿放入真實學生的成績、學號或個人資料；這份練習的成果也不可作為實際評分或送出成績的依據。</p>
+</div>
+<ul class="flow">
+  <li><b>說清楚</b>規則、輸入、輸出與邊界條件</li>
+  <li><b>請 Codex 做</b>先短版提示詞，再完整版</li>
+  <li><b>自己核對</b>手算四組成績，對照畫面</li>
+  <li><b>提改進</b>把缺的補上，再確認有效</li>
+</ul>
+
+<h2 id="spec"><span class="num">02</span>題目說明</h2>
+
+<h3>輸入資料</h3>
+<p>一份 UTF-8 的 CSV 成績表，第一行是欄位名稱 <code>student_id,name,homework,midterm,final</code>（學號、姓名、作業、期中、期末），之後每一行是一位學生。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">CSV</span><span class="code-title">data/scores.csv</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="student_id,name,homework,midterm,final"><span class="ln">1</span>student_id,name,homework,midterm,final</span>
+<span class="line" data-text="S1130001,王小明,92,85,88"><span class="ln">2</span>S1130001,王小明,92,85,88</span>
+<span class="line" data-text="S1130002,林佳穎,78,64,70"><span class="ln">3</span>S1130002,林佳穎,78,64,70</span>
+<span class="line" data-text="S1130003,陳志豪,55,48,52"><span class="ln">4</span>S1130003,陳志豪,55,48,52</span>
+<span class="line" data-text="S1130004,張雅婷,100,95,97"><span class="ln">5</span>S1130004,張雅婷,100,95,97</span>
+<span class="line" data-text="S1130005,李承恩,85,,90"><span class="ln">6</span>S1130005,李承恩,85,,90</span>
+<span class="line" data-text="S1130006,黃詩涵,68,72,61"><span class="ln">7</span>S1130006,黃詩涵,68,72,61</span>
+<span class="line" data-text="S1130007,吳冠廷,88,91,79"><span class="ln">8</span>S1130007,吳冠廷,88,91,79</span>
+<span class="line" data-text="S1130008,蔡宜蓁,73,58,66"><span class="ln">9</span>S1130008,蔡宜蓁,73,58,66</span>
+<span class="line" data-text="S1130009,鄭宇翔,105,80,75"><span class="ln">10</span>S1130009,鄭宇翔,105,80,75</span>
+<span class="line" data-text="S1130010,謝欣妤,60,62,59"><span class="ln">11</span>S1130010,謝欣妤,60,62,59</span></code></pre></figure>
+<p>這份表刻意留了兩筆有問題的資料：第 6 行李承恩的期中是空的（兩個逗號之間沒有值），第 10 行鄭宇翔的作業是 105 分。工具必須把它們挑出來，不能算進統計。</p>
+
+<h3>計分與等第規則</h3>
+<ul>
+  <li>總分 = 作業 × 0.3 + 期中 × 0.3 + 期末 × 0.4。</li>
+  <li>總分四捨五入到小數第一位，用「五入」（0.05 往上進）。</li>
+  <li>等第門檻：總分 90 以上 A、80 以上 B、70 以上 C、60 以上 D，其餘 F。</li>
+  <li>及格是總分 60 以上。</li>
+</ul>
+
+<h3>資料檢查規則</h3>
+<p>作業、期中、期末三個分數，依這個順序檢查；只回報遇到的第一個問題。有問題的那一行整筆排除在所有統計之外，並依原本的順序列在報告的「資料問題」裡。</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>狀況</th><th>要回報的問題</th></tr></thead>
+  <tbody>
+    <tr><td>空白</td><td>該欄位缺少分數</td></tr>
+    <tr><td>不是數字</td><td>該欄位不是數字，並附上原始內容</td></tr>
+    <tr><td>不在 0 到 100 之間</td><td>該欄位超出 0-100，並附上原始內容</td></tr>
+  </tbody>
+</table></div>
+
+<h3>報告要有的內容</h3>
+<p>輸出一份 Markdown 報告，依序包含四個區塊：</p>
+<ol>
+  <li><strong>摘要</strong>：有效人數、平均、最高、最低、及格率（平均與及格率同樣四捨五入到小數第一位，及格率要帶 <code>%</code>）。</li>
+  <li><strong>個人成績</strong>：名次、學號、姓名、作業、期中、期末、總分、等第；依總分由高到低排，總分相同再依學號由小到大。</li>
+  <li><strong>等第分布</strong>：A 到 F 五個等第都要列，人數是 0 也要列出來。</li>
+  <li><strong>資料問題</strong>：學號、姓名、問題；完全沒有問題時就寫一行「沒有資料問題。」</li>
+</ol>
+
+<h3>流程圖解：一筆成績怎麼變成報告裡的一列</h3>
+<ul class="flow">
+  <li><b>1 讀一行</b>學號、姓名、三個分數</li>
+  <li><b>2 檢查</b>空白、非數字、超出範圍</li>
+  <li><b>3 有問題</b>整筆進「資料問題」，不算統計</li>
+  <li><b>4 沒問題</b>算加權總分，四捨五入</li>
+  <li><b>5 定等第</b>比對門檻</li>
+  <li><b>6 排序</b>總分高到低、學號小到大</li>
+</ul>
+<p>看流程時請注意兩件事。第一，被挑出來的那一行是<strong>整筆</strong>不列入統計，不是只丟掉有問題的那一格；所以 10 位學生只會有 8 位進入平均與及格率。第二，四捨五入只做在<strong>最後顯示</strong>的那一步，中間計算要用完整的數值。這兩件事都是你必須在提示詞裡講清楚的，否則就是 Codex 替你決定。</p>
+<div class="callout note">
+  <span class="label">為什麼四捨五入的時機很重要</span>
+  <p>以作業 60.5、期中 70、期末 60 為例：精確算出來是 63.15，四捨五入後是 63.2。但如果中間先把 60.5 × 0.3 的結果四捨五入再相加，會得到 63.1。成績差 0.1 分就可能影響及格與否，所以「什麼時候才四捨五入」必須由你規定，不能交給機器猜。</p>
+</div>
+
+<h2 id="checklist"><span class="num">03</span>MVP 驗收清單</h2>
+<p>你不需要看懂程式碼。以下每一項都是執行一次、打開報告用眼睛看就能檢查的；只要有一項做不到，就把它寫進「學生驗收紀錄」，再請 Codex 修。</p>
+<ul class="checklist">
+  <li>Codex 會告訴你要執行哪一行指令；照著執行就會產生報告檔，不必自己安裝額外套件。</li>
+  <li>把 Wi-Fi 關掉再執行一次，工具照樣產生得出報告。</li>
+  <li>終端機上會印出一行摘要，告訴你有效幾筆、資料問題幾筆。</li>
+  <li>打開報告檔看得到摘要、個人成績、等第分布、資料問題四個區塊，標題與欄位名稱都看得懂。</li>
+  <li>摘要顯示有效人數 8、平均 73.2、最高 97.3、最低 51.7、及格率 87.5%。</li>
+  <li>資料問題剛好兩筆：S1130005 李承恩期中缺少分數、S1130009 鄭宇翔作業超出 0-100。</li>
+  <li>等第分布五列都在（A 1、B 2、C 1、D 3、F 1），沒有漏掉任何一個等第。</li>
+  <li>複製一份 <code>data/scores.csv</code> 成 <code>data/test.csv</code>，在副本裡把某一格改成 <code>abc</code> 或清空，再對副本執行一次：那一筆會出現在資料問題裡，程式不會中斷或噴出看不懂的錯誤。原始的 <code>scores.csv</code> 保持不動。</li>
+  <li>個人成績的排序符合規則：總分高的在前，總分相同時學號小的在前。</li>
+  <li>請先自行手算，再用下列四組核對報告上的數字：</li>
+</ul>
+<div class="table-wrap"><table>
+  <thead><tr><th>姓名</th><th>作業</th><th>期中</th><th>期末</th><th>預期總分</th><th>預期等第</th></tr></thead>
+  <tbody>
+    <tr><td>張雅婷</td><td>100</td><td>95</td><td>97</td><td>97.3</td><td>A</td></tr>
+    <tr><td>王小明</td><td>92</td><td>85</td><td>88</td><td>88.3</td><td>B</td></tr>
+    <tr><td>謝欣妤</td><td>60</td><td>62</td><td>59</td><td>60.2</td><td>D</td></tr>
+    <tr><td>陳志豪</td><td>55</td><td>48</td><td>52</td><td>51.7</td><td>F</td></tr>
+  </tbody>
+</table></div>
+<p>第三組是邊界案例：60.2 剛好在 60 以上，所以是 D、算及格；如果工具把它算成 F 或排除掉，就是門檻的比較條件寫錯了。第二組用手算一次會更有感覺：92 × 0.3 = 27.6、85 × 0.3 = 25.5、88 × 0.4 = 35.2，加起來 88.3，不到 90 但在 80 以上，所以是 B。</p>
+
+<h2 id="prompts"><span class="num">04</span>給 Codex 的 MVP 提示詞</h2>
+
+<h3>先把工作資料夾準備好</h3>
+<p><a class="download" href="downloads/unit10-grade-report.zip">下載本單元範例：成績報告</a></p>
+<ol class="steps">
+  <li><p>解壓縮後把資料夾放到你好找的位置，例如桌面上的 <code>codex-lab</code>，再用 VS Code 的 <strong>檔案 &gt; 開啟資料夾</strong> 打開 <code>01-grade-report</code>。</p></li>
+  <li><p>開啟 VS Code 的終端機（<strong>終端機 &gt; 新增終端機</strong>），確認工具都裝好了。每一行都會顯示版本號碼；出現「找不到指令」就代表那個工具還沒安裝。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">檢查版本</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git --version">git --version</span>
+<span class="line" data-text="python3 --version">python3 --version</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span><span class="code-title">類似這樣就代表已安裝（版本數字可能不同）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git version 2.45.2">git version 2.45.2</span>
+<span class="line" data-text="Python 3.12.3">Python 3.12.3</span></code></pre></figure>
+  </li>
+  <li><p>建立第一個存檔點，之後不管改壞什麼都回得來。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">建立 Git 儲存庫與存檔點</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git init">git init</span>
+<span class="line" data-text="git add -A">git add -A</span>
+<span class="line" data-text="git commit -m &quot;checkpoint: 練習開始前的原始狀態&quot;">git commit -m &quot;checkpoint: 練習開始前的原始狀態&quot;</span></code></pre></figure>
+  </li>
+  <li><p>這個資料夾附了一份現成的實作。練習的重點是自己把需求講清楚，所以先把答案移走，只留下成績資料與專案規則。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">移除現成的實作</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git rm -q grade_report.py tests/test_grade_report.py">git rm -q grade_report.py tests/test_grade_report.py</span>
+<span class="line" data-text="git commit -m &quot;checkpoint: 移除實作，準備自己做一次&quot;">git commit -m &quot;checkpoint: 移除實作，準備自己做一次&quot;</span></code></pre></figure>
+    <p>放心，剛才的存檔點裡還留著原本的檔案。另外，<code>.agents/skills/grade-report/assets/expected-report.md</code> 是完整答案，做完驗收之前先不要打開。</p>
+  </li>
+  <li><p>打開 Codex 側邊欄，先確認它讀到了這個專案的規則：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="列出你載入的指示來源，並用三點摘要這個專案的工作規則。">列出你載入的指示來源，並用三點摘要這個專案的工作規則。</span></code></pre></figure>
+  </li>
+</ol>
+
+<h3>第一步：先貼短版</h3>
+<p>這裡有短版和完整版兩段提示詞，請照順序各試一次，重點在比較兩次的結果差多少。兩段都刻意寫成你自己講得出來的樣子：從頭到尾只有「我想要一個什麼樣的工具」。計分規則講得很清楚（那是你熟的事），程式怎麼寫則交給 Codex（那是它的工作）。</p>
+<p>下面這段是大多數人第一次會打出來的長度。先貼這段，看 Codex 做出什麼：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="資料夾裡的 data/scores.csv 是一份學生成績表。">資料夾裡的 data/scores.csv 是一份學生成績表。</span>
+<span class="line" data-text="我想要一個小工具，讀進這份表，算出每個人的總分和等第，">我想要一個小工具，讀進這份表，算出每個人的總分和等第，</span>
+<span class="line" data-text="輸出一份我可以直接打開看的成績報告。">輸出一份我可以直接打開看的成績報告。</span>
+<span class="line" data-text="權重是作業 30%、期中 30%、期末 40%。">權重是作業 30%、期中 30%、期末 40%。</span>
+<span class="line" data-text="我不會寫程式，程式怎麼寫請你決定，">我不會寫程式，程式怎麼寫請你決定，</span>
+<span class="line" data-text="做完請用我看得懂的話告訴我要怎麼執行它。">做完請用我看得懂的話告訴我要怎麼執行它。</span></code></pre></figure>
+<p>做出來以後先別急著往下。執行一次、把報告打開看兩分鐘，然後把下面這些問題問自己一遍：等第的門檻是誰決定的？期中空白的那一位被怎麼處理了，有沒有被當成 0 分算進平均？作業 105 分有被照算不誤嗎？總分留幾位小數，是誰決定的？報告裡有沒有告訴我哪幾筆資料有問題？</p>
+<p>短版沒有錯，它只是把這些決定全部交給了 Codex。你在報告上看到的每一個「它自己決定的細節」，都是你沒講的部分。</p>
+
+<h3>第二步：再貼完整版</h3>
+<p>接著請 Codex 依照下面這段重做一次。完整版講的就是你剛才發現自己漏掉的那些事：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請重做一次這個成績報告工具，這次照我下面說的規則做。">請重做一次這個成績報告工具，這次照我下面說的規則做。</span>
+<span class="line" data-text="我不會寫程式，程式怎麼寫、分成幾個檔案都請你決定。">我不會寫程式，程式怎麼寫、分成幾個檔案都請你決定。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【使用方式】在我自己的電腦上用一行指令就能執行，">【使用方式】在我自己的電腦上用一行指令就能執行，</span>
+<span class="line" data-text="不必連網路、不必安裝額外套件；報告輸出成一個檔案，">不必連網路、不必安裝額外套件；報告輸出成一個檔案，</span>
+<span class="line" data-text="預設放在 output/report.md，我可以在 VS Code 裡直接預覽。">預設放在 output/report.md，我可以在 VS Code 裡直接預覽。</span>
+<span class="line" data-text="執行完請在終端機印一行摘要，告訴我有效幾筆、資料問題幾筆。">執行完請在終端機印一行摘要，告訴我有效幾筆、資料問題幾筆。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【輸入】data/scores.csv，第一行是欄位名稱">【輸入】data/scores.csv，第一行是欄位名稱</span>
+<span class="line" data-text="student_id,name,homework,midterm,final，之後每行一位學生。">student_id,name,homework,midterm,final，之後每行一位學生。</span>
+<span class="line" data-text="指令要能接一個 CSV 檔路徑當參數，讓我可以拿另一份成績表測試；沒給路徑時就用 data/scores.csv。">指令要能接一個 CSV 檔路徑當參數，讓我可以拿另一份成績表測試；沒給路徑時就用 data/scores.csv。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【計分】總分 = 作業 × 0.3 + 期中 × 0.3 + 期末 × 0.4。">【計分】總分 = 作業 × 0.3 + 期中 × 0.3 + 期末 × 0.4。</span>
+<span class="line" data-text="中間計算請用完整精確的數值，只在最後顯示時四捨五入到小數第一位，">中間計算請用完整精確的數值，只在最後顯示時四捨五入到小數第一位，</span>
+<span class="line" data-text="而且要用「五入」，不要用會把 63.15 變成 63.1 的那種算法。">而且要用「五入」，不要用會把 63.15 變成 63.1 的那種算法。</span>
+<span class="line" data-text="等第：90 以上 A、80 以上 B、70 以上 C、60 以上 D，其餘 F。">等第：90 以上 A、80 以上 B、70 以上 C、60 以上 D，其餘 F。</span>
+<span class="line" data-text="及格是總分 60 以上。">及格是總分 60 以上。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【資料檢查】作業、期中、期末依這個順序檢查，">【資料檢查】作業、期中、期末依這個順序檢查，</span>
+<span class="line" data-text="空白、不是數字、不在 0 到 100 之間都算有問題，">空白、不是數字、不在 0 到 100 之間都算有問題，</span>
+<span class="line" data-text="只回報遇到的第一個問題，並附上原始填的內容。">只回報遇到的第一個問題，並附上原始填的內容。</span>
+<span class="line" data-text="有問題的那一行整筆不列入任何統計，不要把空白當成 0 分。">有問題的那一行整筆不列入任何統計，不要把空白當成 0 分。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【報告內容】依序四個區塊：">【報告內容】依序四個區塊：</span>
+<span class="line" data-text="1. 摘要：有效人數、平均、最高、最低、及格率，">1. 摘要：有效人數、平均、最高、最低、及格率，</span>
+<span class="line" data-text="   平均和及格率也是四捨五入到小數第一位，及格率要帶 % 符號。">   平均和及格率也是四捨五入到小數第一位，及格率要帶 % 符號。</span>
+<span class="line" data-text="2. 個人成績：名次、學號、姓名、作業、期中、期末、總分、等第，">2. 個人成績：名次、學號、姓名、作業、期中、期末、總分、等第，</span>
+<span class="line" data-text="   依總分由高到低排，總分一樣時依學號由小到大。">   依總分由高到低排，總分一樣時依學號由小到大。</span>
+<span class="line" data-text="3. 等第分布：A 到 F 五列都要有，人數是 0 也要列出來。">3. 等第分布：A 到 F 五列都要有，人數是 0 也要列出來。</span>
+<span class="line" data-text="4. 資料問題：學號、姓名、問題，依原本的順序列；">4. 資料問題：學號、姓名、問題，依原本的順序列；</span>
+<span class="line" data-text="   完全沒有問題時就寫一行「沒有資料問題。」">   完全沒有問題時就寫一行「沒有資料問題。」</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【不要做的事】不要修改 data/scores.csv 裡的任何分數，">【不要做的事】不要修改 data/scores.csv 裡的任何分數，</span>
+<span class="line" data-text="不要為了讓數字好看而跳過有問題的資料卻不列出來，">不要為了讓數字好看而跳過有問題的資料卻不列出來，</span>
+<span class="line" data-text="也不要加任何需要連到外面網站的功能。">也不要加任何需要連到外面網站的功能。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="做完請用我看得懂的話告訴我怎麼執行，">做完請用我看得懂的話告訴我怎麼執行，</span>
+<span class="line" data-text="以及我要怎麼自己挑幾位學生手算、對照報告確認它沒算錯。">以及我要怎麼自己挑幾位學生手算、對照報告確認它沒算錯。</span>
+<span class="line" data-text="你如果沒有真的自己執行過、對過答案，就不要跟我說「已經驗證完成」。">你如果沒有真的自己執行過、對過答案，就不要跟我說「已經驗證完成」。</span></code></pre></figure>
+<div class="callout tip">
+  <span class="label">兩次的差別在哪</span>
+  <p>把兩次產生的報告並排看一次。多出來的內容幾乎都不是「Codex 變聰明了」，而是你把原本沒說的話說了出來。這就是這份練習真正要練的能力。</p>
+</div>
+
+<h2 id="improve"><span class="num">05</span>完成 MVP 後的改進要求</h2>
+<p>確認 MVP 能執行、四組手算也對得上之後，再把以下要求交給 Codex。這一步的重點是：不重做，只在現有版本上加東西。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="這個工具我試過可以用了，請直接在現在這一版上改，不要重做一個新的給我。">這個工具我試過可以用了，請直接在現在這一版上改，不要重做一個新的給我。</span>
+<span class="line" data-text="計分規則、等第門檻和報告的四個區塊都不要動。">計分規則、等第門檻和報告的四個區塊都不要動。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【加上自動檢查】我每次改完都要重新確認它沒算錯，手動核對很花時間。">【加上自動檢查】我每次改完都要重新確認它沒算錯，手動核對很花時間。</span>
+<span class="line" data-text="請幫我加上一組可以一行指令跑完的自動測試，至少包含：">請幫我加上一組可以一行指令跑完的自動測試，至少包含：</span>
+<span class="line" data-text="只有作業 100 分時總分應該是 30.0；">只有作業 100 分時總分應該是 30.0；</span>
+<span class="line" data-text="作業 60.5、期中 70、期末 60 的總分必須是 63.2；">作業 60.5、期中 70、期末 60 的總分必須是 63.2；</span>
+<span class="line" data-text="剛好 90 是 A、89.9 是 B、59.9 是 F；">剛好 90 是 A、89.9 是 B、59.9 是 F；</span>
+<span class="line" data-text="空白、abc、105 三種有問題的資料都要被正確回報。">空白、abc、105 三種有問題的資料都要被正確回報。</span>
+<span class="line" data-text="測試失敗的時候請修程式，不要改測試裡的預期數字來讓它通過。">測試失敗的時候請修程式，不要改測試裡的預期數字來讓它通過。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【把做法包成可重複使用的技能】我希望下次換一份成績表時，">【把做法包成可重複使用的技能】我希望下次換一份成績表時，</span>
+<span class="line" data-text="不用重新解釋一遍規則。請把上面這整套規則寫成一份技能，">不用重新解釋一遍規則。請把上面這整套規則寫成一份技能，</span>
+<span class="line" data-text="包含用途說明、什麼情況不該用它、輸入有哪些檔案、">包含用途說明、什麼情況不該用它、輸入有哪些檔案、</span>
+<span class="line" data-text="以及固定的執行步驟（先看規則、跑測試、產生報告、比對結果）。">以及固定的執行步驟（先看規則、跑測試、產生報告、比對結果）。</span>
+<span class="line" data-text="技能裡請規定用繁體中文回報結果。">技能裡請規定用繁體中文回報結果。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【請不要加的東西】不要連到外面的網站或服務，">【請不要加的東西】不要連到外面的網站或服務，</span>
+<span class="line" data-text="不要改動原始成績資料，也不要加入任何真實學生的姓名或學號。">不要改動原始成績資料，也不要加入任何真實學生的姓名或學號。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="做完請用我看得懂的話告訴我你改了哪些地方、">做完請用我看得懂的話告訴我你改了哪些地方、</span>
+<span class="line" data-text="我該執行哪些指令確認這些新功能真的有效，以及每個指令應該看到什麼結果。">我該執行哪些指令確認這些新功能真的有效，以及每個指令應該看到什麼結果。</span></code></pre></figure>
+<p>做完後你應該能用一行指令跑完全部測試並看到全部通過，也能在新的對話裡直接呼叫技能，讓 Codex 照同一套步驟重現同一份報告：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="$grade-report 重現範例資料的成績報告，並確認與預期結果一致。">$grade-report 重現範例資料的成績報告，並確認與預期結果一致。</span></code></pre></figure>
+<div class="table-wrap"><table>
+  <thead><tr><th>項目</th><th>預期結果</th></tr></thead>
+  <tbody>
+    <tr><td>測試</td><td>全部通過</td></tr>
+    <tr><td>有效人數</td><td>8</td></tr>
+    <tr><td>平均</td><td>73.2</td></tr>
+    <tr><td>及格率</td><td>87.5%</td></tr>
+    <tr><td>資料問題</td><td>2 筆（S1130005 期中缺少分數、S1130009 作業 105 分）</td></tr>
+  </tbody>
+</table></div>
+
+<h3>延伸挑戰</h3>
+<p>還有時間的話，試著改一個會牽動整套規則的需求：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我們想把等第改成 A+、A、A- 這種 11 級制。">我們想把等第改成 A+、A、A- 這種 11 級制。</span>
+<span class="line" data-text="請先說明需要修改哪些地方（包含規則說明、測試與預期結果），">請先說明需要修改哪些地方（包含規則說明、測試與預期結果），</span>
+<span class="line" data-text="列出修改計畫給我確認，確認後再動手。">列出修改計畫給我確認，確認後再動手。</span></code></pre></figure>
+<div class="callout try">
+  <span class="label">想一想</span>
+  <p>規則改變時，為什麼要<strong>先改規則說明、再改程式、最後才更新預期結果</strong>，而不是直接把預期結果改成程式現在跑出來的樣子，讓比對「通過」？</p>
+</div>
+
+<h2 id="record"><span class="num">06</span>學生驗收紀錄</h2>
+<p>把這四項寫下來，這份紀錄就是你這次練習的成果。</p>
+<ul>
+  <li>Codex 正確完成的一件事：</li>
+  <li>我發現的一個問題或不清楚之處：</li>
+  <li>我用來重現問題的輸入（哪一筆資料、改成什麼）：</li>
+  <li>我要求的修改，以及我如何確認修改有效：</li>
+</ul>
+<div class="callout note">
+  <span class="label">存檔</span>
+  <p>確認一切沒問題後，別忘了留一個存檔點：<code>git add -A</code> 再 <code>git commit -m "完成成績報告練習"</code>。下一個單元的練習會用到同一套習慣。</p>
+</div>
+
+<nav class="pager" aria-label="上下頁"><a href="unit09.html">上一單元：第 9 單元 在 VS Code 中與 Codex 協作</a><a href="unit11.html">下一單元：第 11 單元 截止日看板練習</a></nav>
+
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("learn-codex-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>

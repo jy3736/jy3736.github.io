@@ -111,6 +111,50 @@ img { max-width: 100%; }
 .site-header nav a { text-decoration: none; color: var(--muted); }
 .site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
 
+/* Hovering a nav number shows that unit's full title instantly, in a strip under the header. */
+.site-header .inner { position: relative; }
+/* the label is scaled, never the <a>: a transform on the link would make it the
+   containing block for the strip below and collapse it to the link's width */
+.site-header nav a > span { display: inline-block; transition: transform 0.12s ease; }
+.site-header nav a { transition: color 0.12s ease; }
+.site-header nav a:hover,
+.site-header nav a:focus-visible { color: var(--accent); }
+.site-header nav a:hover > span,
+.site-header nav a:focus-visible > span { transform: scale(1.18); }
+.site-header nav a[data-title]::after {
+  content: attr(data-title);
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  /* the box hugs the title: its own width plus roughly 10%, and never wider than the header */
+  width: max-content;
+  max-width: 90%;
+  padding: 0.55rem 1em;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 18%);
+  pointer-events: none;
+}
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .site-header nav a, .site-header nav a > span { transition: none; }
+  .site-header nav a:hover > span, .site-header nav a:focus-visible > span { transform: none; }
+}
+@media (max-width: 960px) {
+  /* touch screens have no hover: the strip would stick after a tap */
+  .site-header nav a[data-title]::after { content: none; }
+}
+
 .page {
   width: var(--layout-w);
   margin: 0 auto;
@@ -605,47 +649,107 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 </head>
 <body>
 <a class="skip-link" href="#main">跳到主要內容</a>
-<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI Agent 創作實務講義</a><nav aria-label="講義"><a href="index.html" aria-current="page">課程講義首頁</a>
-<a href="unit01.html">第 1 單元</a>
-<a href="unit02.html">第 2 單元</a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI Agent 創作實務講義</a><nav aria-label="講義"><a href="index.html" data-title="AI Agent 創作實務講義" aria-current="page"><span>首頁</span></a>
+<a href="unit01.html" data-title="第 1 單元：課程總覽與基本名詞"><span>單元 1</span></a>
+<a href="unit02.html" data-title="第 2 單元：三種工作方式與清楚的提示"><span>單元 2</span></a>
+<a href="unit03.html" data-title="第 3 單元：專案、檔案與 ChatGPT Work"><span>單元 3</span></a>
+<a href="unit04.html" data-title="第 4 單元：認識 Codex：安全網與專案規則"><span>單元 4</span></a>
+<a href="unit05.html" data-title="第 5 單元：動手看一次：Codex 修好一個有錯的程式"><span>單元 5</span></a>
+<a href="unit06.html" data-title="第 6 單元：常用工作流程、整合演練與總結"><span>單元 6</span></a>
+<a href="unit07.html" data-title="第 7 單元：Codex 專案協作總覽與名詞"><span>單元 7</span></a>
+<a href="unit08.html" data-title="第 8 單元：Codex 專案與專案規則"><span>單元 8</span></a>
+<a href="unit09.html" data-title="第 9 單元：在 VS Code 中與 Codex 協作"><span>單元 9</span></a>
+<a href="unit10.html" data-title="第 10 單元：成績報告產生器練習"><span>單元 10</span></a>
+<a href="unit11.html" data-title="第 11 單元：截止日看板練習"><span>單元 11</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
 <div class="page no-toc">
 
 <main id="main">
 <section class="hero">
   <p class="eyebrow">課堂講義</p>
   <h1>AI Agent 創作實務講義</h1>
-  <p class="lead">從「會問問題」開始，一路到「讓 AI 在你的專案裡寫程式、跑測試、重現結果」。每一單元的講義都可以單獨閱讀，範例程式碼都能直接複製或下載。</p>
+  <p class="lead">從「會問問題」開始，一路到「讓 AI 在你的專案裡寫程式、跑測試、重現結果」。共 11 個單元，每一個單元都是獨立的一頁講義，有自己的語音導讀與 QR Code，範例程式碼都能直接複製或下載。</p>
 </section>
 
 <div class="card-grid">
   <article class="card unit-card unit-1">
     <span class="tag">第 1 單元</span>
-    <h4><a class="card-link" href="unit01.html">用 ChatGPT 與 Codex 學習和做專題</a></h4>
-    <p>認識 Chat、ChatGPT Work、Codex 三種工作方式，學會寫清楚的提示、檢查 AI 的答案，並親眼看 Codex 如何修好一個有錯的小程式。本單元分成五頁，每一頁都有自己的語音導讀。</p>
+    <h4><a class="card-link" href="unit01.html">課程總覽與基本名詞</a></h4>
+    <p>這份講義怎麼進行、每個階段會學到什麼，以及後面單元會一直出現的電腦與程式名詞。</p>
     <p class="card-audio">🎧 語音導讀：8 分 21 秒</p>
-    <ul class="card-parts">
-      <li><a href="unit01a.html">1-1 三種工作方式與清楚的提示</a> <span class="part-audio">🎧 語音導讀：9 分 42 秒</span></li>
-      <li><a href="unit01b.html">1-2 專案、檔案與 ChatGPT Work</a> <span class="part-audio">🎧 語音導讀：10 分 32 秒</span></li>
-      <li><a href="unit01c.html">1-3 認識 Codex：安全網與專案規則</a> <span class="part-audio">🎧 語音導讀：10 分 16 秒</span></li>
-      <li><a href="unit01d.html">1-4 動手看一次：Codex 修好一個有錯的程式</a> <span class="part-audio">🎧 語音導讀：8 分 44 秒</span></li>
-      <li><a href="unit01e.html">1-5 常用工作流程、整合演練與總結</a> <span class="part-audio">🎧 語音導讀：11 分 29 秒</span></li>
-    </ul>
     <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
-    <p><a class="download" href="downloads/unit01-average-bug.zip">下載範例</a></p>
+  </article>
+  <article class="card unit-card unit-1">
+    <span class="tag">第 2 單元</span>
+    <h4><a class="card-link" href="unit02.html">三種工作方式與清楚的提示</a></h4>
+    <p>分辨 Chat、ChatGPT Work 與 Codex，用「目標、脈絡、產出、界線」寫出清楚的提示，並學會檢查 AI 的答案。</p>
+    <p class="card-audio">🎧 語音導讀：9 分 42 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
+  </article>
+  <article class="card unit-card unit-1">
+    <span class="tag">第 3 單元</span>
+    <h4><a class="card-link" href="unit03.html">專案、檔案與 ChatGPT Work</a></h4>
+    <p>用專案讓 AI 記得你的課程脈絡，上傳檔案當素材，並把一整件事交辦給 ChatGPT Work。</p>
+    <p class="card-audio">🎧 語音導讀：10 分 32 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
+  </article>
+  <article class="card unit-card unit-1">
+    <span class="tag">第 4 單元</span>
+    <h4><a class="card-link" href="unit04.html">認識 Codex：安全網與專案規則</a></h4>
+    <p>程式專案長什麼樣子、在哪裡使用 Codex、沙箱與核准怎麼設定，以及 AGENTS.md 該寫些什麼。</p>
+    <p class="card-audio">🎧 語音導讀：10 分 16 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
+  </article>
+  <article class="card unit-card unit-1">
+    <span class="tag">第 5 單元</span>
+    <h4><a class="card-link" href="unit05.html">動手看一次：Codex 修好一個有錯的程式</a></h4>
+    <p>用一個很小的 Python 程式，完整走一遍發現錯誤、請 Codex 修正、檢查結果的過程。</p>
+    <p class="card-audio">🎧 語音導讀：8 分 44 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
+    <p><a class="download" href="downloads/unit05-average-bug.zip">下載範例：平均分數程式</a></p>
+  </article>
+  <article class="card unit-card unit-1">
+    <span class="tag">第 6 單元</span>
+    <h4><a class="card-link" href="unit06.html">常用工作流程、整合演練與總結</a></h4>
+    <p>六個常用的 Codex 工作流程與提示範例、其他實用功能，以及整合演練、使用守則與課後練習。</p>
+    <p class="card-audio">🎧 語音導讀：11 分 29 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
   </article>
   <article class="card unit-card unit-2">
-    <span class="tag">第 2 單元</span>
-    <h4><a class="card-link" href="unit02.html">建立與管理 Codex 專案，並在 VS Code 中協作</a></h4>
-    <p>把專案規則寫進 AGENTS.md、設定檔與技能，在 VS Code 中與 Codex 協作，完成「成績報告」與「截止日看板」兩個完整範例。本單元分成四頁，每一頁都有自己的語音導讀。</p>
+    <span class="tag">第 7 單元</span>
+    <h4><a class="card-link" href="unit07.html">Codex 專案協作總覽與名詞</a></h4>
+    <p>後半段講義要完成的事，以及專案、儲存庫、分支、worktree、技能這些名詞的意思。</p>
     <p class="card-audio">🎧 語音導讀：8 分 02 秒</p>
-    <ul class="card-parts">
-      <li><a href="unit02a.html">2-1 Codex 專案與專案規則</a> <span class="part-audio">🎧 語音導讀：10 分 14 秒</span></li>
-      <li><a href="unit02b.html">2-2 在 VS Code 中與 Codex 協作</a> <span class="part-audio">🎧 語音導讀：10 分 23 秒</span></li>
-      <li><a href="unit02c.html">2-3 範例一：成績報告產生器</a> <span class="part-audio">🎧 語音導讀：9 分 32 秒</span></li>
-      <li><a href="unit02d.html">2-4 範例二：截止日看板與平行作業</a> <span class="part-audio">🎧 語音導讀：10 分 27 秒</span></li>
-    </ul>
     <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
-    <p><a class="download" href="downloads/unit02-01-grade-report.zip">下載範例一</a><a class="download" href="downloads/unit02-02-deadline-board.zip">下載範例二</a></p>
+  </article>
+  <article class="card unit-card unit-2">
+    <span class="tag">第 8 單元</span>
+    <h4><a class="card-link" href="unit08.html">Codex 專案與專案規則</a></h4>
+    <p>不同介面怎麼決定「專案」，以及用 AGENTS.md、.codex/config.toml 與技能把規則寫進專案裡。</p>
+    <p class="card-audio">🎧 語音導讀：10 分 14 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
+  </article>
+  <article class="card unit-card unit-2">
+    <span class="tag">第 9 單元</span>
+    <h4><a class="card-link" href="unit09.html">在 VS Code 中與 Codex 協作</a></h4>
+    <p>本機環境設定、VS Code 畫面導覽、擴充套件指令與斜線指令，以及代理工作階段和 worktree 的差別。</p>
+    <p class="card-audio">🎧 語音導讀：10 分 23 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
+  </article>
+  <article class="card unit-card unit-2">
+    <span class="tag">第 10 單元</span>
+    <h4><a class="card-link" href="unit10.html">成績報告產生器練習</a></h4>
+    <p>練習單形式：把計分與資料檢查規則講清楚，比較短版與完整版提示詞的差別，再用手算核對 Codex 做出來的報告。</p>
+    <p class="card-audio">🎧 語音導讀：11 分 54 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
+    <p><a class="download" href="downloads/unit10-grade-report.zip">下載範例：成績報告</a></p>
+  </article>
+  <article class="card unit-card unit-2">
+    <span class="tag">第 11 單元</span>
+    <h4><a class="card-link" href="unit11.html">截止日看板練習</a></h4>
+    <p>練習單形式：把分類、排序與可重現的要求講清楚，用眼睛驗收一頁看板，再用 worktree 同時交辦兩個要求並整合。</p>
+    <p class="card-audio">🎧 語音導讀：11 分 44 秒</p>
+    <p class="card-cta" aria-hidden="true">閱讀講義 →</p>
+    <p><a class="download" href="downloads/unit11-deadline-board.zip">下載範例：截止日看板</a></p>
   </article>
 </div>
 
