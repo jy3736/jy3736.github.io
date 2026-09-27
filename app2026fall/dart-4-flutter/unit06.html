@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 6：非同步、套件與 JSON 資料｜Dart 程式設計講義</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#fbfaf7;--surface:#ffffff;--surface-2:#f3f1ec;--text:#1f2328;--muted:#5b6270;
+  --line:#e3e0d8;--accent:#0b6bcb;--accent-soft:#e6f0fb;
+  --tip:#1a7f4b;--tip-soft:#e7f5ec;--warn:#b25e00;--warn-soft:#fdf1e1;
+  --key:#6f42c1;--key-soft:#f1ebfb;--err:#c0342b;--err-soft:#fbeceb;
+  --code-bg:#f6f8fa;--code-text:#1f2328;--t-com:#6a737d;--t-str:#0a7a3e;--t-int:#b35900;
+  --t-num:#005cc5;--t-key:#c8315e;--t-type:#6f42c1;--t-fn:#0b5cad;
+  --term-bg:#1e2227;--term-text:#e6e6e6;
+  --radius:10px;--mono:ui-monospace,"SF Mono",Menlo,Consolas,"Noto Sans Mono CJK TC","Microsoft JhengHei",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#6cb2ff;--accent-soft:#1b2a3a;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;--t-int:#f2b36b;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#6cb2ff;--term-bg:#0f1113;
+}}
+:root[data-theme="dark"]{
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#6cb2ff;--accent-soft:#1b2a3a;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;--t-int:#f2b36b;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#6cb2ff;--term-bg:#0f1113;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:4.5rem}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.8 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+a{color:var(--accent)}
+.skip{position:absolute;left:-999px}.skip:focus{left:1rem;top:.5rem;z-index:10;background:var(--surface);padding:.3rem .6rem}
+header.site{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;
+  padding:.6rem max(16px,5%);background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;color:var(--text);text-decoration:none}
+nav.pages{display:flex;gap:.25rem;flex-wrap:wrap;flex:1}
+nav.pages a{padding:.15rem .7rem;border-radius:999px;text-decoration:none;color:var(--muted);font-size:.92rem}
+nav.pages a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.theme{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;
+  width:2.2rem;height:2.2rem;cursor:pointer;font-size:1rem}
+.layout{display:grid;grid-template-columns:clamp(240px,22vw,340px) minmax(0,1fr);gap:clamp(1.5rem,2.4vw,2.5rem);width:90%;margin:0 auto}
+.layout.single{grid-template-columns:minmax(0,1fr)}
+main{min-width:0;padding-block:1.5rem 4rem}
+.toc{position:sticky;top:4.5rem;align-self:start;max-height:calc(100vh - 5.5rem);overflow:auto;padding-block:1.5rem;font-size:.9rem}
+.toc-title{font-weight:700;margin:0 0 .4rem;color:var(--muted)}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc a{display:block;padding:.25rem .65rem;color:var(--muted);text-decoration:none;line-height:1.5;margin-left:-2px;border-left:2px solid transparent}
+.toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr);gap:0;width:92%}
+  header.site{padding-inline:4%}
+  .toc{position:static;max-height:none;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:1rem;margin-top:1.2rem}}
+@media (max-width:640px){body{font-size:16px}
+  .layout{width:94%}
+  header.site{padding-inline:3%}
+  main{padding-block:1rem 3rem}
+  h2{margin:2.4rem 0 .8rem;font-size:1.35rem}
+  .toc{font-size:.88rem}}
+h1{font-size:clamp(1.7rem,4.5vw,2.3rem);line-height:1.35;margin:.5rem 0 .6rem}
+h2{font-size:1.5rem;line-height:1.4;margin:3.2rem 0 1rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.18rem;margin:2rem 0 .6rem}
+p,li{max-width:none}
+.lead{font-size:1.08rem;color:var(--muted)}
+.step-badge{display:inline-block;min-width:1.8rem;padding:0 .45rem;margin-right:.4rem;border-radius:6px;background:var(--accent);color:#fff;
+  text-align:center;font-size:.95rem;line-height:1.8rem;vertical-align:.15em}
+code,kbd{font-family:var(--mono);font-size:.9em}
+:not(pre)>code{background:var(--surface-2);border:1px solid var(--line);padding:.05rem .35rem;border-radius:5px;overflow-wrap:anywhere}
+main{overflow-wrap:break-word}
+.flow span{max-width:100%;overflow-wrap:anywhere}
+kbd{background:var(--surface);border:1px solid var(--line);border-bottom-width:2px;padding:.05rem .4rem;border-radius:5px}
+figure.code{margin:1.1rem 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--code-bg)}
+figure.code figcaption{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.35rem .5rem .35rem .9rem;
+  border-bottom:1px solid var(--line);background:var(--surface-2);font-size:.85rem;color:var(--muted)}
+.file{font-family:var(--mono)}
+button.copy{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.1rem .7rem;cursor:pointer;font-size:.85rem}
+figure.code pre,.output pre,pre.term{margin:0;padding:.9rem 1rem;overflow-x:auto;font:14.5px/1.65 var(--mono);color:var(--code-text);tab-size:2}
+.t-com{color:var(--t-com);font-style:italic}.t-str{color:var(--t-str)}.t-int{color:var(--t-int);font-weight:600}
+.t-num{color:var(--t-num)}.t-key{color:var(--t-key);font-weight:600}.t-type{color:var(--t-type)}.t-fn{color:var(--t-fn)}
+.output{margin:.6rem 0 1rem;border-radius:var(--radius);overflow:hidden;background:var(--term-bg)}
+.output-label{font-size:.8rem;color:#9aa4b2;padding:.35rem 1rem 0}
+.output pre{color:var(--term-text)}
+.output.is-error pre{color:#ffb4ae}
+pre.term{background:var(--term-bg);color:var(--term-text);border-radius:var(--radius);margin:1rem 0}
+pre.term .t-com{color:#8b949e}
+details{margin:.8rem 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+details>summary{cursor:pointer;padding:.6rem 1rem;font-weight:600;list-style:none;color:var(--accent)}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▶";display:inline-block;margin-right:.5rem;font-size:.75em;transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+details>:not(summary){margin-inline:1rem}
+details[open]{padding-bottom:.4rem}
+.stdin-note{font-size:.92rem;color:var(--muted);margin:.2rem 1rem}
+.callout{border-left:4px solid var(--c);background:var(--cs);border-radius:0 var(--radius) var(--radius) 0;padding:.7rem 1rem;margin:1.2rem 0}
+.callout>.callout-title{font-weight:700;color:var(--c);margin:0 0 .2rem}
+.callout>:last-child{margin-bottom:0}.callout p{margin:.3rem 0}
+.tip{--c:var(--tip);--cs:var(--tip-soft)}.warn{--c:var(--warn);--cs:var(--warn-soft)}
+.key{--c:var(--key);--cs:var(--key-soft)}.err{--c:var(--err);--cs:var(--err-soft)}
+.try{--c:var(--accent);--cs:var(--accent-soft)}
+.table-wrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .7rem;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.goals{list-style:none;padding:0}
+.goals li{display:flex;gap:.6rem;align-items:flex-start;padding:.35rem 0}
+.goals input{width:1.15rem;height:1.15rem;margin-top:.35rem;accent-color:var(--accent);flex:none}
+.flow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1rem 0}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35rem .8rem;font-weight:600}
+.flow b{color:var(--muted)}
+.boxes{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0}
+.boxes div{border:2px solid var(--accent);border-radius:8px;min-width:4.2rem;text-align:center;background:var(--surface)}
+.boxes div small{display:block;background:var(--accent);color:#fff;font-family:var(--mono)}
+.boxes div span{display:block;padding:.2rem .4rem;font-family:var(--mono)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+a.card{display:flex;flex-direction:column;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-top:5px solid var(--c);border-radius:var(--radius);
+  background:linear-gradient(180deg,var(--cs),var(--surface) 70%);padding:1rem 1.1rem;color:var(--text);text-decoration:none;
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+a.card:hover,a.card:focus-visible{transform:translateY(-3px);border-color:var(--c);box-shadow:0 8px 22px color-mix(in srgb,var(--c) 22%,transparent)}
+a.card:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.card .week{display:inline-block;align-self:flex-start;margin:0 0 .5rem;padding:.05rem .7rem;border-radius:999px;
+  background:var(--c);color:var(--surface);font-weight:700;font-size:.9rem}
+.card h3{margin:0 0 .4rem;color:var(--c);line-height:1.5}
+.card p{margin:.3rem 0}
+.card .go{margin-top:auto;padding-top:.5rem;font-weight:700;color:var(--c)}
+a.card:hover .go{text-decoration:underline}
+@media (prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}}
+svg.diagram{max-width:100%;height:auto;display:block;margin:1rem auto;color:var(--text)}
+footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;padding:1.2rem 16px;text-align:center}
+@media print{header.site,.toc,button.copy,button.theme{display:none}
+  details{border:none}details>summary{display:none}details>*{display:block!important}
+  .layout{display:block}body{font-size:12pt}}
+.toc-audio{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem .75rem;margin-bottom:1.2rem}
+.toc-audio-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem}
+.toc-audio-title{font-weight:700;color:var(--text);font-size:.86rem;display:flex;align-items:center;gap:.3rem}
+.toc-audio-badge{font-size:.75rem;background:var(--accent-soft);color:var(--accent);padding:.08rem .45rem;border-radius:999px;font-family:var(--mono);font-weight:600}
+.toc-audio-controls{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem}
+.toc-audio-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;line-height:1;flex-shrink:0;transition:transform .1s,background-color .15s}
+.toc-audio-btn:hover{filter:brightness(1.1);transform:scale(1.06)}
+.toc-audio-progress-wrap{flex:1;height:7px;background:var(--line);border-radius:999px;cursor:pointer;position:relative;overflow:hidden}
+.toc-audio-progress-bar{height:100%;width:0%;background:var(--accent);border-radius:999px;transition:width .1s linear}
+.toc-audio-time-row{display:flex;justify-content:flex-end;font-size:.75rem;color:var(--muted);font-family:var(--mono);margin-bottom:.45rem}
+.toc-audio-speed{display:flex;align-items:center;justify-content:space-between;gap:.25rem;padding-top:.45rem;border-top:1px solid var(--line)}
+.toc-speed-label{font-size:.74rem;color:var(--muted);font-weight:600}
+.toc-speed-btns{display:flex;gap:.2rem;flex-wrap:wrap}
+.toc-speed-btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:4px;padding:.08rem .32rem;font-size:.75rem;cursor:pointer;font-family:var(--mono);line-height:1.2}
+.toc-speed-btn:hover{border-color:var(--accent);color:var(--accent)}
+.toc-speed-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.toc-qr{margin-top:1.3rem;padding-top:.9rem;border-top:1px solid var(--line);text-align:center}
+.toc-qr-title{font-size:.8rem;font-weight:700;color:var(--text);margin:0 0 .55rem}
+.toc-qr-code{display:inline-block;background:#fff;padding:.4rem;border-radius:6px;line-height:0}
+.toc-qr-code svg{display:block;width:124px;height:124px}
+.toc-qr-hint{font-size:.72rem;color:var(--muted);margin:.5rem 0 0;line-height:1.5}
+@media (max-width:960px){.toc-qr{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="site">
+  <a class="brand" href="index.html">Dart 程式設計講義</a>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html">Unit 4</a><a href="unit05.html">Unit 5</a><a href="unit06.html" aria-current="page">Unit 6</a></nav>
+  <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
+</header>
+<div class="layout"><nav class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">10:51</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/unit06-podcast.mp3" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放或暫停">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 10:51</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5">1.5x</button></div></div></div><p class="toc-title">本頁目錄</p><ol><li><a href="#review">1. 暖身：為什麼需要「等」？</a></li><li><a href="#future">2. Future 與 await：等到有結果再往下</a></li><li><a href="#json">3. JSON：網路資料的共同語言</a></li><li><a href="#model">4. 資料類別：把 JSON 變成看得懂的物件</a></li><li><a href="#fetch">5. 完整流程：等待、解析、處理失敗</a></li><li><a href="#test">6. 為資料轉換寫測試</a></li><li><a href="#practice">7. 綜合實作：教室環境看板</a></li><li><a href="#summary">8. 本單元重點整理</a></li><li><a href="#glossary">9. 名詞小辭典</a></li><li><a href="#homework">10. 本單元作業：取資料並顯示</a></li><li><a href="#more">11. 延伸閱讀（dart.dev 官方文件，英文）</a></li></ol><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" width="180" height="180" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h45v45h-45z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h3m3 0h3m13 0h7m-37 1h1m5 0h1m1 0h1m1 0h2m2 0h2m1 0h1m3 0h2m2 0h1m4 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m3 0h2m1 0h1m4 0h2m3 0h5m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h5m4 0h1m4 0h6m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m2 0h1m4 0h1m1 0h1m2 0h1m5 0h4m1 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m2 0h2m2 0h1m1 0h1m1 0h3m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h1m1 0h2m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m1 0h3m-29 1h1m1 0h2m1 0h3m1 0h1m2 0h2m4 0h2m2 0h3m1 0h2m2 0h1m2 0h1m1 0h2m-37 1h2m2 0h1m2 0h2m4 0h3m1 0h2m1 0h3m1 0h2m9 0h1m-35 1h1m3 0h2m1 0h6m2 0h5m2 0h2m1 0h1m2 0h2m3 0h1m-35 1h3m5 0h2m2 0h1m1 0h1m1 0h1m3 0h1m4 0h2m1 0h1m1 0h2m1 0h2m-35 1h5m1 0h1m4 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h4m1 0h2m1 0h5m-35 1h1m1 0h2m2 0h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h4m1 0h2m-37 1h4m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h2m2 0h3m1 0h1m1 0h2m-32 1h2m7 0h1m1 0h2m2 0h2m3 0h1m3 0h2m1 0h2m2 0h2m-37 1h4m2 0h4m3 0h1m3 0h1m4 0h1m2 0h1m2 0h1m2 0h1m1 0h2m1 0h1m-37 1h1m1 0h1m6 0h6m2 0h3m2 0h1m1 0h7m2 0h1m1 0h2m-37 1h2m1 0h1m1 0h3m4 0h2m6 0h2m1 0h2m1 0h2m3 0h1m1 0h1m1 0h2m-37 1h1m1 0h1m1 0h1m4 0h2m2 0h5m2 0h1m3 0h1m1 0h1m1 0h1m2 0h3m1 0h1m-35 1h3m1 0h3m7 0h1m1 0h1m1 0h3m1 0h1m2 0h1m4 0h3m2 0h1m-37 1h2m2 0h2m3 0h1m1 0h1m2 0h1m1 0h4m1 0h3m5 0h1m3 0h1m-33 1h2m1 0h3m1 0h4m1 0h2m3 0h1m1 0h1m2 0h1m4 0h1m2 0h1m3 0h1m-33 1h3m4 0h1m2 0h5m5 0h3m1 0h3m2 0h3m-35 1h2m1 0h1m1 0h4m1 0h3m1 0h3m4 0h1m1 0h8m1 0h1m1 0h3m-36 1h3m3 0h4m1 0h2m8 0h2m1 0h9m1 0h2m-36 1h1m3 0h9m3 0h2m3 0h1m2 0h1m5 0h1m1 0h3m-36 1h1m3 0h1m3 0h1m2 0h2m2 0h1m3 0h3m2 0h1m2 0h1m1 0h1m1 0h1m3 0h1m-31 1h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h8m1 0h1m-29 1h1m1 0h1m3 0h2m5 0h1m1 0h1m2 0h3m3 0h1m1 0h3m-37 1h7m1 0h5m2 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m-37 1h1m5 0h1m1 0h1m2 0h1m1 0h2m2 0h2m1 0h2m6 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m3 0h1m2 0h2m5 0h1m1 0h6m1 0h2m-37 1h1m1 0h3m1 0h1m1 0h1m2 0h1m3 0h2m4 0h1m2 0h1m3 0h1m1 0h1m1 0h1m2 0h1m-36 1h1m1 0h3m1 0h1m1 0h2m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m2 0h1m1 0h1m2 0h1m-36 1h1m5 0h1m3 0h1m3 0h2m3 0h1m2 0h1m1 0h3m2 0h6m-35 1h7m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m2 0h4m5 0h1m1 0h3"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></nav><main id="main"><h1>Unit 6：非同步、套件與 JSON 資料</h1>
+<p class="lead">APP 的資料多半不在自己手上：要向伺服器要、向感測器要，而這些都<strong>需要等</strong>。這個單元要學會用 <code>Future</code> 和 <code>await</code> 處理「等一下才會有的資料」，把拿回來的 JSON 文字轉成看得懂的<strong>資料類別</strong>，並為轉換過程寫測試。這是之後 APP 串接 Web API、MQTT 與雲端資料的共同基礎。</p>
+
+<h3>這個單元你會學到（學會了就打勾，會自動記在這台電腦的瀏覽器裡）</h3>
+<ul class="goals">
+  <li><input type="checkbox" id="g1"><label for="g1">看懂 <code>Future&lt;T&gt;</code> 的意思，並用 <code>async</code>／<code>await</code> 等結果</label></li>
+  <li><input type="checkbox" id="g2"><label for="g2">分辨「一筆一筆等」和 <code>Future.wait</code>「一起等」的差別</label></li>
+  <li><input type="checkbox" id="g3"><label for="g3">用 <code>jsonDecode</code>／<code>jsonEncode</code> 在 JSON 文字與 Map 之間轉換</label></li>
+  <li><input type="checkbox" id="g4"><label for="g4">寫 <code>fromJson</code> 工廠建構式，把 JSON 轉成資料類別</label></li>
+  <li><input type="checkbox" id="g5"><label for="g5">處理取資料失敗：網路錯誤、欄位缺漏、格式不符</label></li>
+  <li><input type="checkbox" id="g6"><label for="g6">認識 <code>pubspec.yaml</code> 與套件，並為資料轉換寫測試</label></li>
+</ul>
+
+<h2 id="review">1. 暖身：為什麼需要「等」？</h2>
+<p>前面的程式都是<strong>算完就有答案</strong>。但「向伺服器要一份資料」不一樣：送出請求之後，可能要等 0.3 秒、也可能等 3 秒。如果程式停在那裡什麼都不做，APP 的畫面就會凍住，使用者會以為當掉了。</p>
+<div class="flow"><span>① 送出請求</span><b>→</b><span>② 等待（畫面仍可操作）</span><b>→</b><span>③ 拿到資料</span><b>→</b><span>④ 解析並顯示</span></div>
+<p>Dart 用 <code>Future&lt;T&gt;</code> 表示「現在還沒有、等一下才會有的 T」。本單元用 <code>Future.delayed</code> 模擬等待，流程和真正連網路完全相同，之後把模擬的那一行換成 <code>http</code> 套件的請求就可以了。</p>
+
+<h2 id="future">2. Future 與 await：等到有結果再往下</h2>
+
+<h3>基本範例</h3>
+<figure class="code"><figcaption><span class="file">s01_future_basics.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 非同步：有些工作要等（讀網路、讀檔案），等的時候不該卡住整個程式</span>
+
+<span class="t-com">// Future&lt;T&gt; 代表「現在還沒有、等一下才會有的 T」</span>
+<span class="t-type">Future</span>&lt;<span class="t-type">double</span>&gt; <span class="t-fn">readSensor</span>(<span class="t-type">String</span> id) <span class="t-key">async</span> {
+  <span class="t-com">// 用 Future.delayed 模擬「要等 300 毫秒才拿到資料」</span>
+  <span class="t-key">await</span> <span class="t-type">Future</span>.<span class="t-fn">delayed</span>(<span class="t-key">const</span> <span class="t-type">Duration</span>(milliseconds: <span class="t-num">300</span>));
+  <span class="t-key">return</span> id == <span class="t-str">&#x27;A1&#x27;</span> ? <span class="t-num">27.5</span> : <span class="t-num">31.8</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() <span class="t-key">async</span> {
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;① 開始讀取&#x27;</span>);
+
+  <span class="t-com">// await：等這個 Future 有結果，再往下一行</span>
+  <span class="t-key">var</span> a1 = <span class="t-key">await</span> <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A1&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;② A1 = <span class="t-int">$a1</span>&#x27;</span>);
+
+  <span class="t-key">var</span> a2 = <span class="t-key">await</span> <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A2&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;③ A2 = <span class="t-int">$a2</span>&#x27;</span>);
+
+  <span class="t-com">// 沒有 await 的話，拿到的是「還沒完成的 Future」，不是數字</span>
+  <span class="t-key">var</span> pending = <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A1&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;④ 沒有 await 時拿到：<span class="t-int">$pending</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;⑤ 等它完成：<span class="t-int">${await pending}</span>&#x27;</span>);
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>① 開始讀取
+② A1 = 27.5
+③ A2 = 31.8
+④ 沒有 await 時拿到：Instance of &#x27;Future&lt;double&gt;&#x27;
+⑤ 等它完成：27.5</pre></div></details>
+<ul>
+  <li><code>Future&lt;double&gt;</code>：「等一下會拿到一個 double」。</li>
+  <li>函式要用 <code>await</code>，自己就必須標上 <code>async</code>，<code>main</code> 也一樣。</li>
+  <li><code>await 某個 Future</code>：等它完成，並把結果拿出來。</li>
+  <li>沒有 <code>await</code> 的話，拿到的是 <code>Instance of 'Future&lt;double&gt;'</code>，不是數字。</li>
+</ul>
+
+<div class="callout err"><p class="callout-title">常見錯誤：忘了寫 <code>await</code></p></div>
+<figure class="code"><figcaption><span class="file">e12_missing_await.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-type">Future</span>&lt;<span class="t-type">double</span>&gt; <span class="t-fn">readSensor</span>() <span class="t-key">async</span> {
+  <span class="t-key">await</span> <span class="t-type">Future</span>.<span class="t-fn">delayed</span>(<span class="t-key">const</span> <span class="t-type">Duration</span>(milliseconds: <span class="t-num">100</span>));
+  <span class="t-key">return</span> <span class="t-num">27.5</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() <span class="t-key">async</span> {
+  <span class="t-type">double</span> celsius = <span class="t-fn">readSensor</span>();
+  <span class="t-fn">print</span>(celsius);
+}</code></pre></figure><div class="output is-error"><div class="output-label">錯誤訊息（實際執行結果）</div><pre>e12_missing_await.dart:7:20: Error: A value of type &#x27;Future&lt;double&gt;&#x27; can&#x27;t be assigned to a variable of type &#x27;double&#x27;.
+ - &#x27;Future&#x27; is from &#x27;dart:async&#x27;.
+  double celsius = readSensor();
+                   ^</pre></div>
+<p>分析器會說不能把 <code>Future&lt;double&gt;</code> 指派給 <code>double</code>。這是最常見的非同步錯誤，而且在寫程式時就被抓到。<strong>看到型別是 Future 開頭，就要想到 <code>await</code>。</strong></p>
+
+<h3>一筆一筆等，還是一起等？</h3>
+<figure class="code"><figcaption><span class="file">s02_wait_parallel.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 一筆一筆等，還是一起等？</span>
+
+<span class="t-com">// 每台感測器都要等 200 毫秒才有讀值</span>
+<span class="t-type">Future</span>&lt;<span class="t-type">double</span>&gt; <span class="t-fn">readSensor</span>(<span class="t-type">String</span> id, <span class="t-type">int</span> ms) <span class="t-key">async</span> {
+  <span class="t-key">await</span> <span class="t-type">Future</span>.<span class="t-fn">delayed</span>(<span class="t-type">Duration</span>(milliseconds: ms));
+  <span class="t-key">const</span> values = {<span class="t-str">&#x27;A1&#x27;</span>: <span class="t-num">26.5</span>, <span class="t-str">&#x27;A2&#x27;</span>: <span class="t-num">28.0</span>, <span class="t-str">&#x27;A3&#x27;</span>: <span class="t-num">31.5</span>};
+  <span class="t-key">return</span> values[id] ?? <span class="t-num">0</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() <span class="t-key">async</span> {
+  <span class="t-key">var</span> watch = <span class="t-type">Stopwatch</span>()..<span class="t-fn">start</span>();
+
+  <span class="t-com">// 一筆一筆等：總時間是每一筆相加</span>
+  <span class="t-key">var</span> a = <span class="t-key">await</span> <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A1&#x27;</span>, <span class="t-num">200</span>);
+  <span class="t-key">var</span> b = <span class="t-key">await</span> <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A2&#x27;</span>, <span class="t-num">200</span>);
+  <span class="t-key">var</span> c = <span class="t-key">await</span> <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A3&#x27;</span>, <span class="t-num">200</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;依序讀取：<span class="t-int">$a</span>, <span class="t-int">$b</span>, <span class="t-int">$c</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;花了大約 <span class="t-int">${(watch.elapsedMilliseconds / 100).round() * 100}</span> 毫秒&#x27;</span>);
+
+  <span class="t-com">// 一起等：三筆同時開始，總時間接近最慢的那一筆</span>
+  watch.<span class="t-fn">reset</span>();
+  <span class="t-key">var</span> all = <span class="t-key">await</span> <span class="t-type">Future</span>.<span class="t-fn">wait</span>([
+    <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A1&#x27;</span>, <span class="t-num">200</span>),
+    <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A2&#x27;</span>, <span class="t-num">200</span>),
+    <span class="t-fn">readSensor</span>(<span class="t-str">&#x27;A3&#x27;</span>, <span class="t-num">200</span>),
+  ]);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;同時讀取：<span class="t-int">$all</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;花了大約 <span class="t-int">${(watch.elapsedMilliseconds / 100).round() * 100}</span> 毫秒&#x27;</span>);
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>依序讀取：26.5, 28.0, 31.5
+花了大約 600 毫秒
+同時讀取：[26.5, 28.0, 31.5]
+花了大約 200 毫秒</pre></div></details>
+<div class="table-wrap"><table>
+<tr><th>做法</th><th>總時間</th><th>什麼時候用</th></tr>
+<tr><td>連續 <code>await</code></td><td>每一筆相加（約 600 毫秒）</td><td>後一筆需要前一筆的結果</td></tr>
+<tr><td><code>Future.wait([...])</code></td><td>接近最慢的那一筆（約 200 毫秒）</td><td>幾筆資料彼此無關，可以同時要</td></tr>
+</table></div>
+<div class="callout key"><p class="callout-title">三間教室的資料就該一起要</p>
+<p>它們互不相關。用 <code>Future.wait</code> 同時發出請求，使用者等待的時間可以從 3 倍變成 1 倍。</p></div>
+
+<h2 id="json">3. JSON：網路資料的共同語言</h2>
+<p>伺服器回給我們的其實是<strong>一整串文字</strong>，格式長得很像 Dart 的 <code>Map</code> 和 <code>List</code>。這種格式叫 JSON，幾乎所有 Web API 都用它。</p>
+
+<h3>基本範例</h3>
+<figure class="code"><figcaption><span class="file">s03_json_decode.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// JSON：網路服務最常用的資料格式，看起來就像 Dart 的 Map 和 List</span>
+
+<span class="t-key">import</span> <span class="t-str">&#x27;dart:convert&#x27;</span>;
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-com">// 從網路拿回來的其實是一整串文字</span>
+  <span class="t-key">const</span> body = <span class="t-str">&#x27;&#x27;&#x27;
+{
+  &quot;room&quot;: &quot;電子 301&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-27T09:00:00&quot;,
+  &quot;readings&quot;: [
+    {&quot;sensorId&quot;: &quot;A1&quot;, &quot;celsius&quot;: 27.5, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A2&quot;, &quot;celsius&quot;: 31.8, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A3&quot;, &quot;celsius&quot;: 0, &quot;valid&quot;: false}
+  ]
+}
+&#x27;&#x27;&#x27;</span>;
+
+  <span class="t-com">// jsonDecode 把文字變成 Map／List，之後就用熟悉的方式取值</span>
+  <span class="t-key">var</span> data = <span class="t-fn">jsonDecode</span>(body) <span class="t-key">as</span> <span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">dynamic</span>&gt;;
+  <span class="t-fn">print</span>(data[<span class="t-str">&#x27;room&#x27;</span>]);
+
+  <span class="t-key">var</span> readings = data[<span class="t-str">&#x27;readings&#x27;</span>] <span class="t-key">as</span> <span class="t-type">List</span>&lt;<span class="t-type">dynamic</span>&gt;;
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;共 <span class="t-int">${readings.length}</span> 筆&#x27;</span>);
+
+  <span class="t-key">for</span> (<span class="t-key">var</span> item <span class="t-key">in</span> readings) {
+    <span class="t-key">var</span> row = item <span class="t-key">as</span> <span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">dynamic</span>&gt;;
+    <span class="t-com">// JSON 的數字可能是整數也可能是小數，統一用 num 再轉 double 最安全</span>
+    <span class="t-key">var</span> celsius = (row[<span class="t-str">&#x27;celsius&#x27;</span>] <span class="t-key">as</span> <span class="t-type">num</span>).<span class="t-fn">toDouble</span>();
+    <span class="t-fn">print</span>(<span class="t-str">&#x27;${row[&#x27;</span>sensorId<span class="t-str">&#x27;]}：<span class="t-int">$celsius</span>（有效：${row[&#x27;</span>valid<span class="t-str">&#x27;]}）&#x27;</span>);
+  }
+
+  <span class="t-com">// 反過來：jsonEncode 把 Map 變成文字，準備送出去</span>
+  <span class="t-key">var</span> payload = {<span class="t-str">&#x27;sensorId&#x27;</span>: <span class="t-str">&#x27;A1&#x27;</span>, <span class="t-str">&#x27;celsius&#x27;</span>: <span class="t-num">27.5</span>};
+  <span class="t-fn">print</span>(<span class="t-fn">jsonEncode</span>(payload));
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>電子 301
+共 3 筆
+A1：27.5（有效：true）
+A2：31.8（有效：true）
+A3：0.0（有效：false）
+{&quot;sensorId&quot;:&quot;A1&quot;,&quot;celsius&quot;:27.5}</pre></div></details>
+<ul>
+  <li><code>import 'dart:convert';</code>：JSON 功能在這個內建函式庫裡，不必安裝套件。</li>
+  <li><code>jsonDecode(文字)</code>：把文字變成 <code>Map</code>／<code>List</code>。回來的型別是 <code>dynamic</code>，所以要用 <code>as</code> 說明它是什麼。</li>
+  <li><code>(row['celsius'] as num).toDouble()</code>：JSON 的數字可能是整數也可能是小數，先當 <code>num</code> 再轉 <code>double</code> 最安全。</li>
+  <li><code>jsonEncode(Map)</code>：反過來把資料變成文字，準備送出去。</li>
+</ul>
+
+<div class="callout err"><p class="callout-title">常見錯誤：到處寫 <code>json['celsius']</code></p>
+<p>整支程式都用 <code>json['欄位名']</code> 取值，打錯字不會被抓到，欄位改名要全部找一遍。解法是下一段：先轉成資料類別。</p></div>
+
+<h2 id="model">4. 資料類別：把 JSON 變成看得懂的物件</h2>
+<p>把 Unit 4 的類別和 JSON 合起來：用<strong>工廠建構式</strong> <code>fromJson</code> 負責「從一包 JSON 生出一個物件」，其他程式就只跟物件打交道。</p>
+
+<h3>延伸練習</h3>
+<figure class="code"><figcaption><span class="file">reading_models.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// Unit 6 綜合練習：把 JSON 轉成「資料類別」，並用測試驗證轉換是否正確</span>
+
+<span class="t-key">import</span> <span class="t-str">&#x27;dart:convert&#x27;</span>;
+
+<span class="t-com">/// 一筆感測讀值。</span>
+<span class="t-key">class</span> <span class="t-type">Reading</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> sensorId;
+  <span class="t-key">final</span> <span class="t-type">double</span> celsius;
+  <span class="t-key">final</span> <span class="t-type">bool</span> valid;
+
+  <span class="t-key">const</span> <span class="t-type">Reading</span>({
+    <span class="t-key">required</span> <span class="t-key">this</span>.sensorId,
+    <span class="t-key">required</span> <span class="t-key">this</span>.celsius,
+    <span class="t-key">this</span>.valid = <span class="t-key">true</span>,
+  });
+
+  <span class="t-com">/// 從一筆 JSON 資料建立物件；缺少欄位時給安全的預設值。</span>
+  factory <span class="t-type">Reading</span>.<span class="t-fn">fromJson</span>(<span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">dynamic</span>&gt; json) {
+    <span class="t-key">return</span> <span class="t-type">Reading</span>(
+      sensorId: json[<span class="t-str">&#x27;sensorId&#x27;</span>] <span class="t-key">as</span> <span class="t-type">String</span>? ?? <span class="t-str">&#x27;未知&#x27;</span>,
+      celsius: (json[<span class="t-str">&#x27;celsius&#x27;</span>] <span class="t-key">as</span> <span class="t-type">num</span>?)?.<span class="t-fn">toDouble</span>() ?? <span class="t-num">0</span>,
+      valid: json[<span class="t-str">&#x27;valid&#x27;</span>] <span class="t-key">as</span> <span class="t-type">bool</span>? ?? <span class="t-key">false</span>,
+    );
+  }
+
+  <span class="t-com">/// 轉回 JSON，準備送出去。</span>
+  <span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">dynamic</span>&gt; <span class="t-fn">toJson</span>() =&gt; {
+    <span class="t-str">&#x27;sensorId&#x27;</span>: sensorId,
+    <span class="t-str">&#x27;celsius&#x27;</span>: celsius,
+    <span class="t-str">&#x27;valid&#x27;</span>: valid,
+  };
+
+  @override
+  <span class="t-type">String</span> <span class="t-fn">toString</span>() =&gt; <span class="t-str">&#x27;<span class="t-int">$sensorId</span> <span class="t-int">${celsius.toStringAsFixed(1)}</span>°C&#x27;</span>;
+}
+
+<span class="t-com">/// 一間教室的一次量測結果。</span>
+<span class="t-key">class</span> <span class="t-type">RoomSnapshot</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> room;
+  <span class="t-key">final</span> <span class="t-type">List</span>&lt;<span class="t-type">Reading</span>&gt; readings;
+
+  <span class="t-key">const</span> <span class="t-type">RoomSnapshot</span>({<span class="t-key">required</span> <span class="t-key">this</span>.room, <span class="t-key">required</span> <span class="t-key">this</span>.readings});
+
+  factory <span class="t-type">RoomSnapshot</span>.<span class="t-fn">fromJson</span>(<span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">dynamic</span>&gt; json) {
+    <span class="t-key">var</span> rows = json[<span class="t-str">&#x27;readings&#x27;</span>] <span class="t-key">as</span> <span class="t-type">List</span>&lt;<span class="t-type">dynamic</span>&gt;? ?? [];
+    <span class="t-key">return</span> <span class="t-type">RoomSnapshot</span>(
+      room: json[<span class="t-str">&#x27;room&#x27;</span>] <span class="t-key">as</span> <span class="t-type">String</span>? ?? <span class="t-str">&#x27;未命名&#x27;</span>,
+      readings: rows
+          .<span class="t-fn">map</span>((e) =&gt; <span class="t-type">Reading</span>.<span class="t-fn">fromJson</span>(e <span class="t-key">as</span> <span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">dynamic</span>&gt;))
+          .<span class="t-fn">toList</span>(),
+    );
+  }
+
+  <span class="t-com">/// 直接從一整串 JSON 文字建立。</span>
+  static <span class="t-type">RoomSnapshot</span> <span class="t-fn">parse</span>(<span class="t-type">String</span> body) =&gt;
+      <span class="t-type">RoomSnapshot</span>.<span class="t-fn">fromJson</span>(<span class="t-fn">jsonDecode</span>(body) <span class="t-key">as</span> <span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">dynamic</span>&gt;);
+
+  <span class="t-type">List</span>&lt;<span class="t-type">Reading</span>&gt; get validReadings =&gt; readings.<span class="t-fn">where</span>((r) =&gt; r.valid).<span class="t-fn">toList</span>();
+
+  <span class="t-com">/// 有效讀值的平均；沒有有效讀值時回傳 null。</span>
+  <span class="t-type">double</span>? get averageCelsius {
+    <span class="t-key">var</span> valid = validReadings;
+    <span class="t-key">if</span> (valid.isEmpty) {
+      <span class="t-key">return</span> <span class="t-key">null</span>;
+    }
+    <span class="t-key">var</span> sum = <span class="t-num">0.0</span>;
+    <span class="t-key">for</span> (<span class="t-key">var</span> r <span class="t-key">in</span> valid) {
+      sum += r.celsius;
+    }
+    <span class="t-key">return</span> sum / valid.length;
+  }
+}</code></pre></figure>
+<figure class="code"><figcaption><span class="file">s04_model_from_json.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 資料類別：不要讓整份程式到處寫 json[&#x27;celsius&#x27;]，先轉成看得懂的物件</span>
+
+<span class="t-key">import</span> <span class="t-str">&#x27;package:data_lab/reading_models.dart&#x27;</span>;
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">const</span> body = <span class="t-str">&#x27;&#x27;&#x27;
+{
+  &quot;room&quot;: &quot;電子 301&quot;,
+  &quot;readings&quot;: [
+    {&quot;sensorId&quot;: &quot;A1&quot;, &quot;celsius&quot;: 27.5, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A2&quot;, &quot;celsius&quot;: 31.8, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A3&quot;, &quot;valid&quot;: false}
+  ]
+}
+&#x27;&#x27;&#x27;</span>;
+
+  <span class="t-key">var</span> snapshot = <span class="t-type">RoomSnapshot</span>.<span class="t-fn">parse</span>(body);
+
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;教室：<span class="t-int">${snapshot.room}</span>&#x27;</span>);
+  <span class="t-fn">print</span>(
+    <span class="t-str">&#x27;全部 <span class="t-int">${snapshot.readings.length}</span> 筆，有效 <span class="t-int">${snapshot.validReadings.length}</span> 筆&#x27;</span>,
+  );
+
+  <span class="t-key">for</span> (<span class="t-key">var</span> r <span class="t-key">in</span> snapshot.readings) {
+    <span class="t-fn">print</span>(<span class="t-str">&#x27; - <span class="t-int">$r</span>（有效：<span class="t-int">${r.valid}</span>）&#x27;</span>);
+  }
+
+  <span class="t-key">var</span> avg = snapshot.averageCelsius;
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;平均：${avg == null ? &#x27;</span>無有效資料<span class="t-str">&#x27; : &#x27;</span>${avg.<span class="t-fn">toStringAsFixed</span>(<span class="t-num">1</span>)}°<span class="t-type">C</span><span class="t-str">&#x27;}&#x27;</span>);
+
+  <span class="t-com">// 轉回 JSON 送出去</span>
+  <span class="t-fn">print</span>(snapshot.readings.first.<span class="t-fn">toJson</span>());
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>教室：電子 301
+全部 3 筆，有效 2 筆
+ - A1 27.5°C（有效：true）
+ - A2 31.8°C（有效：true）
+ - A3 0.0°C（有效：false）
+平均：29.6°C
+{sensorId: A1, celsius: 27.5, valid: true}</pre></div></details>
+<ul>
+  <li><code>factory Reading.fromJson(...)</code>：工廠建構式，可以先算再決定回傳什麼物件。</li>
+  <li><code>json['sensorId'] as String? ?? '未知'</code>：欄位可能<strong>不存在</strong>，所以先當可為 null 的型別，再用 <code>??</code> 給預設值。這是 Unit 4 空值安全的直接應用。</li>
+  <li><code>toJson</code>：要把資料送回伺服器時使用。</li>
+  <li><code>RoomSnapshot.parse</code>：把「解析文字」也包起來，呼叫的人一行就能拿到物件。</li>
+  <li>範例的第三筆故意沒有 <code>celsius</code> 欄位，程式不會當掉，而是得到預設值並標成無效。</li>
+</ul>
+
+<h2 id="fetch">5. 完整流程：等待、解析、處理失敗</h2>
+<p>真正串接服務時，<strong>失敗是常態</strong>：網路不通、教室代號打錯、回來的內容不是預期的格式。每一個取資料的流程都要先想好「失敗時畫面顯示什麼」。</p>
+<figure class="code"><figcaption><span class="file">s05_fake_api.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 從「服務」取資料的完整流程：等待 → 解析 → 處理失敗</span>
+
+<span class="t-key">import</span> <span class="t-str">&#x27;package:data_lab/reading_models.dart&#x27;</span>;
+
+<span class="t-com">/// 模擬一個網路服務：等 300 毫秒後回傳 JSON 文字。</span>
+<span class="t-com">/// 真正的專案會改成 http 套件的 get，流程完全一樣。</span>
+<span class="t-type">Future</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">fetchRoomJson</span>(<span class="t-type">String</span> room) <span class="t-key">async</span> {
+  <span class="t-key">await</span> <span class="t-type">Future</span>.<span class="t-fn">delayed</span>(<span class="t-key">const</span> <span class="t-type">Duration</span>(milliseconds: <span class="t-num">300</span>));
+  <span class="t-key">if</span> (room == <span class="t-str">&#x27;電子 999&#x27;</span>) {
+    <span class="t-key">throw</span> <span class="t-type">Exception</span>(<span class="t-str">&#x27;找不到教室 <span class="t-int">$room</span>&#x27;</span>);
+  }
+  <span class="t-key">return</span> <span class="t-str">&#x27;&#x27;&#x27;
+{
+  &quot;room&quot;: &quot;<span class="t-int">$room</span>&quot;,
+  &quot;readings&quot;: [
+    {&quot;sensorId&quot;: &quot;A1&quot;, &quot;celsius&quot;: 27.5, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A2&quot;, &quot;celsius&quot;: 31.8, &quot;valid&quot;: true}
+  ]
+}
+&#x27;&#x27;&#x27;</span>;
+}
+
+<span class="t-type">Future</span>&lt;<span class="t-key">void</span>&gt; <span class="t-fn">showRoom</span>(<span class="t-type">String</span> room) <span class="t-key">async</span> {
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;讀取 <span class="t-int">$room</span> ...&#x27;</span>);
+  <span class="t-key">try</span> {
+    <span class="t-key">var</span> body = <span class="t-key">await</span> <span class="t-fn">fetchRoomJson</span>(room);
+    <span class="t-key">var</span> snapshot = <span class="t-type">RoomSnapshot</span>.<span class="t-fn">parse</span>(body);
+    <span class="t-key">var</span> avg = snapshot.averageCelsius;
+    <span class="t-fn">print</span>(
+      <span class="t-str">&#x27;  <span class="t-int">${snapshot.room}</span>：<span class="t-int">${snapshot.readings.length}</span> 筆，&#x27;</span>
+      <span class="t-str">&#x27;平均 ${avg == null ? &#x27;</span>無有效資料<span class="t-str">&#x27; : &#x27;</span>${avg.<span class="t-fn">toStringAsFixed</span>(<span class="t-num">1</span>)}°<span class="t-type">C</span><span class="t-str">&#x27;}&#x27;</span>,
+    );
+  } <span class="t-key">catch</span> (e) {
+    <span class="t-com">// 網路與解析都可能失敗，畫面一定要有「失敗時顯示什麼」</span>
+    <span class="t-fn">print</span>(<span class="t-str">&#x27;  讀取失敗：<span class="t-int">$e</span>&#x27;</span>);
+  }
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() <span class="t-key">async</span> {
+  <span class="t-key">await</span> <span class="t-fn">showRoom</span>(<span class="t-str">&#x27;電子 301&#x27;</span>);
+  <span class="t-key">await</span> <span class="t-fn">showRoom</span>(<span class="t-str">&#x27;電子 999&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;全部處理完畢&#x27;</span>);
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>讀取 電子 301 ...
+  電子 301：2 筆，平均 29.6°C
+讀取 電子 999 ...
+  讀取失敗：Exception: 找不到教室 電子 999
+全部處理完畢</pre></div></details>
+<ul>
+  <li><code>fetchRoomJson</code> 模擬服務：等 300 毫秒後回傳 JSON，代號不存在就丟出例外。之後改用 <code>http</code> 套件，這個函式的<strong>外觀完全不用變</strong>。</li>
+  <li><code>try</code> 同時包住 <code>await</code> 和解析：這兩件事都可能失敗，而且處理方式一樣（告訴使用者讀取失敗）。</li>
+  <li>失敗的那一間不會影響其他的，程式最後照樣印出「全部處理完畢」。</li>
+</ul>
+
+<div class="callout key"><p class="callout-title">要安裝套件的時候</p>
+<p>真正連網路需要 <code>http</code> 套件。指令是 <code>dart pub add http</code>，它會把 <code>http</code> 寫進 <code>pubspec.yaml</code> 的 <code>dependencies</code>，程式裡再 <code>import 'package:http/http.dart';</code> 就能使用。<code>pubspec.yaml</code> 就是這個專案的「材料清單」。</p></div>
+<pre class="term">dart pub add http
+dart pub get</pre>
+
+<h2 id="test">6. 為資料轉換寫測試</h2>
+<p><code>fromJson</code> 是最值得測試的地方：欄位缺漏、整數與小數、空清單，這些情況用眼睛看很容易漏掉。測試檔和 Unit 3 一樣放在 <code>test/</code>。</p>
+<figure class="code"><figcaption><span class="file">reading_models_test.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-key">import</span> <span class="t-str">&#x27;package:data_lab/reading_models.dart&#x27;</span>;
+<span class="t-key">import</span> <span class="t-str">&#x27;package:test/test.dart&#x27;</span>;
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-fn">group</span>(<span class="t-str">&#x27;Reading.fromJson&#x27;</span>, () {
+    <span class="t-fn">test</span>(<span class="t-str">&#x27;完整欄位&#x27;</span>, () {
+      <span class="t-key">var</span> r = <span class="t-type">Reading</span>.<span class="t-fn">fromJson</span>({
+        <span class="t-str">&#x27;sensorId&#x27;</span>: <span class="t-str">&#x27;A1&#x27;</span>,
+        <span class="t-str">&#x27;celsius&#x27;</span>: <span class="t-num">27.5</span>,
+        <span class="t-str">&#x27;valid&#x27;</span>: <span class="t-key">true</span>,
+      });
+      <span class="t-fn">expect</span>(r.sensorId, <span class="t-str">&#x27;A1&#x27;</span>);
+      <span class="t-fn">expect</span>(r.celsius, <span class="t-num">27.5</span>);
+      <span class="t-fn">expect</span>(r.valid, isTrue);
+    });
+
+    <span class="t-fn">test</span>(<span class="t-str">&#x27;整數也要能轉成 double&#x27;</span>, () {
+      <span class="t-key">var</span> r = <span class="t-type">Reading</span>.<span class="t-fn">fromJson</span>({
+        <span class="t-str">&#x27;sensorId&#x27;</span>: <span class="t-str">&#x27;A1&#x27;</span>,
+        <span class="t-str">&#x27;celsius&#x27;</span>: <span class="t-num">28</span>,
+        <span class="t-str">&#x27;valid&#x27;</span>: <span class="t-key">true</span>,
+      });
+      <span class="t-fn">expect</span>(r.celsius, <span class="t-num">28.0</span>);
+    });
+
+    <span class="t-fn">test</span>(<span class="t-str">&#x27;缺少欄位時給安全的預設值&#x27;</span>, () {
+      <span class="t-key">var</span> r = <span class="t-type">Reading</span>.<span class="t-fn">fromJson</span>({});
+      <span class="t-fn">expect</span>(r.sensorId, <span class="t-str">&#x27;未知&#x27;</span>);
+      <span class="t-fn">expect</span>(r.celsius, <span class="t-num">0</span>);
+      <span class="t-fn">expect</span>(r.valid, isFalse);
+    });
+
+    <span class="t-fn">test</span>(<span class="t-str">&#x27;toJson 轉回去的內容一致&#x27;</span>, () {
+      <span class="t-key">const</span> r = <span class="t-type">Reading</span>(sensorId: <span class="t-str">&#x27;A2&#x27;</span>, celsius: <span class="t-num">31.8</span>);
+      <span class="t-fn">expect</span>(r.<span class="t-fn">toJson</span>(), {<span class="t-str">&#x27;sensorId&#x27;</span>: <span class="t-str">&#x27;A2&#x27;</span>, <span class="t-str">&#x27;celsius&#x27;</span>: <span class="t-num">31.8</span>, <span class="t-str">&#x27;valid&#x27;</span>: <span class="t-key">true</span>});
+    });
+  });
+
+  <span class="t-fn">group</span>(<span class="t-str">&#x27;RoomSnapshot&#x27;</span>, () {
+    <span class="t-key">const</span> body = <span class="t-str">&#x27;&#x27;&#x27;
+{
+  &quot;room&quot;: &quot;電子 301&quot;,
+  &quot;readings&quot;: [
+    {&quot;sensorId&quot;: &quot;A1&quot;, &quot;celsius&quot;: 27.0, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A2&quot;, &quot;celsius&quot;: 29.0, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A3&quot;, &quot;valid&quot;: false}
+  ]
+}
+&#x27;&#x27;&#x27;</span>;
+
+    <span class="t-fn">test</span>(<span class="t-str">&#x27;解析出教室名稱與筆數&#x27;</span>, () {
+      <span class="t-key">var</span> s = <span class="t-type">RoomSnapshot</span>.<span class="t-fn">parse</span>(body);
+      <span class="t-fn">expect</span>(s.room, <span class="t-str">&#x27;電子 301&#x27;</span>);
+      <span class="t-fn">expect</span>(s.readings.length, <span class="t-num">3</span>);
+      <span class="t-fn">expect</span>(s.validReadings.length, <span class="t-num">2</span>);
+    });
+
+    <span class="t-fn">test</span>(<span class="t-str">&#x27;平均只算有效讀值&#x27;</span>, () {
+      <span class="t-fn">expect</span>(<span class="t-type">RoomSnapshot</span>.<span class="t-fn">parse</span>(body).averageCelsius, <span class="t-num">28.0</span>);
+    });
+
+    <span class="t-fn">test</span>(<span class="t-str">&#x27;沒有有效讀值時平均是 null&#x27;</span>, () {
+      <span class="t-key">var</span> s = <span class="t-type">RoomSnapshot</span>.<span class="t-fn">parse</span>(<span class="t-str">&#x27;{&quot;room&quot;: &quot;空教室&quot;, &quot;readings&quot;: []}&#x27;</span>);
+      <span class="t-fn">expect</span>(s.averageCelsius, isNull);
+    });
+  });
+}</code></pre></figure>
+<ul>
+  <li><strong>完整欄位</strong>：正常情況要對。</li>
+  <li><strong>整數也要能轉成 double</strong>：JSON 寫 <code>28</code> 而不是 <code>28.0</code> 時，程式不能壞掉。</li>
+  <li><strong>缺少欄位</strong>：給安全的預設值，而不是當掉。</li>
+  <li><strong>平均只算有效讀值</strong>、<strong>沒有有效讀值時是 null</strong>：邊界情況。</li>
+</ul>
+<pre class="term">dart test</pre>
+<div class="output"><div class="output-label">全部通過時</div><pre>00:00 +14: All tests passed!</pre></div>
+
+<h2 id="practice">7. 綜合實作：教室環境看板</h2>
+<p>把整個單元合起來：同時讀取三間教室、各自解析成物件、失敗的那間顯示「讀取失敗」，最後用集合語法組成一份看板。</p>
+<figure class="code"><figcaption><span class="file">s06_dashboard.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 小型情境：一次讀取多間教室，整理成一份可以直接顯示的清單</span>
+
+<span class="t-key">import</span> <span class="t-str">&#x27;package:data_lab/reading_models.dart&#x27;</span>;
+
+<span class="t-type">Future</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">fetchRoomJson</span>(<span class="t-type">String</span> room, <span class="t-type">double</span> base) <span class="t-key">async</span> {
+  <span class="t-key">await</span> <span class="t-type">Future</span>.<span class="t-fn">delayed</span>(<span class="t-key">const</span> <span class="t-type">Duration</span>(milliseconds: <span class="t-num">200</span>));
+  <span class="t-key">if</span> (base &lt; <span class="t-num">0</span>) {
+    <span class="t-key">throw</span> <span class="t-type">Exception</span>(<span class="t-str">&#x27;<span class="t-int">$room</span> 的感測器離線&#x27;</span>);
+  }
+  <span class="t-key">return</span> <span class="t-str">&#x27;&#x27;&#x27;
+{
+  &quot;room&quot;: &quot;<span class="t-int">$room</span>&quot;,
+  &quot;readings&quot;: [
+    {&quot;sensorId&quot;: &quot;A1&quot;, &quot;celsius&quot;: <span class="t-int">$base</span>, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A2&quot;, &quot;celsius&quot;: <span class="t-int">${base + 2}</span>, &quot;valid&quot;: true},
+    {&quot;sensorId&quot;: &quot;A3&quot;, &quot;valid&quot;: false}
+  ]
+}
+&#x27;&#x27;&#x27;</span>;
+}
+
+<span class="t-type">Future</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">roomLine</span>(<span class="t-type">String</span> room, <span class="t-type">double</span> base) <span class="t-key">async</span> {
+  <span class="t-key">try</span> {
+    <span class="t-key">var</span> snapshot = <span class="t-type">RoomSnapshot</span>.<span class="t-fn">parse</span>(<span class="t-key">await</span> <span class="t-fn">fetchRoomJson</span>(room, base));
+    <span class="t-key">var</span> avg = snapshot.averageCelsius;
+    <span class="t-key">if</span> (avg == <span class="t-key">null</span>) {
+      <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$room</span>：無有效資料&#x27;</span>;
+    }
+    <span class="t-key">var</span> tag = avg &gt;= <span class="t-num">30</span> ? <span class="t-str">&#x27;（偏熱）&#x27;</span> : <span class="t-str">&#x27;&#x27;</span>;
+    <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$room</span>：平均 <span class="t-int">${avg.toStringAsFixed(1)}</span>°C&#x27;</span>
+        <span class="t-str">&#x27;，有效 <span class="t-int">${snapshot.validReadings.length}</span> 筆<span class="t-int">$tag</span>&#x27;</span>;
+  } <span class="t-key">catch</span> (e) {
+    <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$room</span>：讀取失敗&#x27;</span>;
+  }
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() <span class="t-key">async</span> {
+  <span class="t-com">// 三間教室同時讀取，總時間接近最慢的那一間</span>
+  <span class="t-key">var</span> lines = <span class="t-key">await</span> <span class="t-type">Future</span>.<span class="t-fn">wait</span>([
+    <span class="t-fn">roomLine</span>(<span class="t-str">&#x27;電子 301&#x27;</span>, <span class="t-num">27.5</span>),
+    <span class="t-fn">roomLine</span>(<span class="t-str">&#x27;電子 302&#x27;</span>, <span class="t-num">30.4</span>),
+    <span class="t-fn">roomLine</span>(<span class="t-str">&#x27;電子 303&#x27;</span>, -<span class="t-num">1</span>),
+  ]);
+
+  <span class="t-key">var</span> dashboard = [<span class="t-str">&#x27;=== 教室環境看板 ===&#x27;</span>, ...lines, <span class="t-str">&#x27;共 <span class="t-int">${lines.length}</span> 間教室&#x27;</span>];
+  <span class="t-key">for</span> (<span class="t-key">var</span> line <span class="t-key">in</span> dashboard) {
+    <span class="t-fn">print</span>(line);
+  }
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>=== 教室環境看板 ===
+電子 301：平均 28.5°C，有效 2 筆
+電子 302：平均 31.4°C，有效 2 筆（偏熱）
+電子 303：讀取失敗
+共 3 間教室</pre></div></details>
+<ul>
+  <li><code>Future.wait</code> 讓三間教室同時讀取。</li>
+  <li><code>roomLine</code> 一定會回傳一行文字：成功回報平均，失敗回報「讀取失敗」。畫面因此永遠有東西可以顯示。</li>
+  <li>這份 <code>dashboard</code> 清單就是之後 APP 畫面上的一列一列。</li>
+</ul>
+
+<div class="callout try"><p class="callout-title">實作題（作業會用到）</p>
+<ol>
+  <li>寫一個模擬服務的函式，回傳一整串 JSON（至少 3 筆資料，其中 1 筆欄位不完整）。</li>
+  <li>寫一個資料類別，用 <code>fromJson</code> 解析，缺漏欄位要有安全的預設值。</li>
+  <li>用 <code>Future.wait</code> 同時取兩份以上的資料，並處理其中一份失敗的情況。</li>
+</ol></div>
+
+<h2 id="summary">8. 本單元重點整理</h2>
+<ul>
+  <li><code>Future&lt;T&gt;</code> 是「等一下才會有的 T」；用 <code>await</code> 拿結果，有 <code>await</code> 的函式要標 <code>async</code>。</li>
+  <li>忘了 <code>await</code> 會拿到 Future 而不是資料，分析器會提醒你。</li>
+  <li>彼此無關的請求用 <code>Future.wait</code> 一起等，使用者少等很多。</li>
+  <li><code>jsonDecode</code> 得到的是 <code>dynamic</code>，要用 <code>as</code> 說明型別；數字先當 <code>num</code> 再轉 <code>double</code>。</li>
+  <li>用 <code>fromJson</code> 把 JSON 轉成資料類別，欄位缺漏時用 <code>??</code> 給預設值。</li>
+  <li>取資料的流程一定要包 <code>try</code>：網路與解析都可能失敗，畫面永遠要有東西顯示。</li>
+  <li><code>pubspec.yaml</code> 是專案的材料清單，<code>dart pub add</code> 會幫你寫進去。</li>
+  <li><code>fromJson</code> 要寫測試，特別是欄位缺漏與邊界情況。</li>
+</ul>
+
+<h2 id="glossary">9. 名詞小辭典</h2>
+<div class="table-wrap"><table>
+<tr><th>中文</th><th>英文</th><th>一句話解釋</th></tr>
+<tr><td>非同步</td><td>asynchronous</td><td>不必等結果就先做別的事</td></tr>
+<tr><td>未來值</td><td>Future</td><td>現在還沒有、等一下才會有的值</td></tr>
+<tr><td>等待</td><td>await</td><td>等 Future 完成並取出結果</td></tr>
+<tr><td>工廠建構式</td><td>factory constructor</td><td>可以先運算再決定回傳什麼物件的建構式</td></tr>
+<tr><td>序列化／反序列化</td><td>encode / decode</td><td>資料與文字之間的互相轉換</td></tr>
+<tr><td>套件</td><td>package</td><td>別人寫好、可以加進專案使用的程式</td></tr>
+<tr><td>相依套件</td><td>dependency</td><td>專案用到的套件，記在 <code>pubspec.yaml</code></td></tr>
+<tr><td>API</td><td>API</td><td>服務對外開放、可以呼叫的介面</td></tr>
+</table></div>
+
+<h2 id="homework">10. 本單元作業：取資料並顯示</h2>
+<ol>
+  <li>寫一個 <code>Future</code> 函式模擬服務，等待後回傳 JSON 文字；另外準備一個會丟出例外的情況（代號不存在或裝置離線）。</li>
+  <li>設計<strong>兩個</strong>資料類別（一筆資料 ＋ 一組資料），一筆資料的類別要有 <code>fromJson</code> 與 <code>toJson</code>。</li>
+  <li>用 <code>Future.wait</code> 同時取<strong>至少 3 份</strong>資料，其中 1 份會失敗；成功與失敗都要在報表上出現。</li>
+  <li>為 <code>fromJson</code> 寫<strong>至少 3 個</strong>測試，其中 1 個要測欄位缺漏、1 個要測邊界情況。</li>
+  <li>執行 <code>dart test</code> 與 <code>dart analyze</code>，兩者都乾淨後截圖繳交。</li>
+</ol>
+<div class="callout tip"><p class="callout-title">繳交前自我檢查</p>
+<ul>
+  <li>把模擬服務的等待時間改成 2 秒，程式還是會正確等到結果嗎？</li>
+  <li>把 JSON 裡的某個欄位整行刪掉，程式會當掉還是顯示預設值？</li>
+  <li>三份資料全部改成失敗，報表還有東西可以顯示嗎？</li>
+</ul></div>
+
+<h2 id="more">11. 延伸閱讀（dart.dev 官方文件，英文）</h2>
+<ul>
+  <li><a href="https://dart.dev/language/async" target="_blank" rel="noopener">Asynchronous programming</a>：<code>Future</code>、<code>async</code>、<code>await</code></li>
+  <li><a href="https://dart.dev/libraries/async/async-await" target="_blank" rel="noopener">Asynchronous programming: futures, async, await</a>：官方互動教學</li>
+  <li><a href="https://dart.dev/learn/tutorial/async" target="_blank" rel="noopener">Write asynchronous code</a>：官方教學章節（含安裝套件與呼叫 API）</li>
+  <li><a href="https://dart.dev/libraries/dart-convert" target="_blank" rel="noopener">dart:convert</a>：<code>jsonDecode</code>、<code>jsonEncode</code></li>
+  <li><a href="https://dart.dev/learn/tutorial/data-and-json" target="_blank" rel="noopener">Work with data and JSON</a>：官方 JSON 與資料模型章節</li>
+  <li><a href="https://dart.dev/tools/pub/pubspec" target="_blank" rel="noopener">The pubspec file</a>：<code>pubspec.yaml</code> 與相依套件</li>
+</ul>
+<p>小提示：看不懂英文文件時，可以用瀏覽器的翻譯功能，或請 AI 用簡單的中文解釋其中一段。</p>
+</main></div>
+<footer class="site">範例程式皆以 Dart 3.9.2 實際執行產生結果。參考資料：dart.dev 官方文件（CC BY 4.0）。</footer>
+<script>
+(function(){
+  var root=document.documentElement,key='dart-handout-theme';
+  try{var saved=localStorage.getItem(key);if(saved)root.dataset.theme=saved;}catch(e){}
+  document.querySelector('button.theme').addEventListener('click',function(){
+    var dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme=dark?'light':'dark';
+    try{localStorage.setItem(key,root.dataset.theme);}catch(e){}
+  });
+  document.querySelectorAll('button.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var text=btn.closest('figure').querySelector('pre').innerText;
+      var done=function(){btn.textContent='已複製 ✓';setTimeout(function(){btn.textContent='複製';},1500);};
+      if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,fallback);}else{fallback();}
+      function fallback(){var t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();
+        try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}
+    });
+  });
+  var page=location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('.goals input').forEach(function(box,i){
+    var id='dart-handout-'+page+'-goal-'+i;
+    try{box.checked=localStorage.getItem(id)==='1';}catch(e){}
+    box.addEventListener('change',function(){try{localStorage.setItem(id,box.checked?'1':'0');}catch(e){}});
+  });
+  var links=document.querySelectorAll('.toc a');
+  if(links.length&&'IntersectionObserver' in window){
+    var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+    var io=new IntersectionObserver(function(entries){entries.forEach(function(en){
+      if(en.isIntersecting){links.forEach(function(a){a.classList.remove('active');});
+        var a=map[en.target.id];if(a)a.classList.add('active');}
+    });},{rootMargin:'-20% 0px -70% 0px'});
+    document.querySelectorAll('main h2[id]').forEach(function(h){io.observe(h);});
+  }
+  window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=true;});});
+  var audio=document.getElementById('podcast-audio')||document.querySelector('audio');
+  if(audio){
+    var playBtn=document.getElementById('tocAudioPlay');
+    var timeDisplay=document.getElementById('tocAudioTime');
+    var progressWrap=document.getElementById('tocAudioProgressWrap');
+    var progressBar=document.getElementById('tocAudioProgressBar');
+    var allSpeedBtns=document.querySelectorAll('.speed-btn, .toc-speed-btn');
+    function fmt(s){
+      if(isNaN(s)||!isFinite(s))return '00:00';
+      var m=Math.floor(s/60),sec=Math.floor(s%60);
+      return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+    }
+    function updateUI(){
+      if(timeDisplay){
+        timeDisplay.textContent=fmt(audio.currentTime)+' / '+fmt(audio.duration);
+      }
+      if(progressBar&&audio.duration){
+        progressBar.style.width=((audio.currentTime/audio.duration)*100)+'%';
+      }
+    }
+    if(playBtn){
+      playBtn.addEventListener('click',function(){
+        if(audio.paused){audio.play();}else{audio.pause();}
+      });
+    }
+    audio.addEventListener('play',function(){if(playBtn)playBtn.textContent='⏸';});
+    audio.addEventListener('pause',function(){if(playBtn)playBtn.textContent='▶';});
+    audio.addEventListener('ended',function(){if(playBtn)playBtn.textContent='▶';});
+    audio.addEventListener('timeupdate',updateUI);
+    audio.addEventListener('loadedmetadata',updateUI);
+    audio.addEventListener('durationchange',updateUI);
+    if(progressWrap){
+      progressWrap.addEventListener('click',function(e){
+        if(!audio.duration)return;
+        var r=progressWrap.getBoundingClientRect();
+        var pos=(e.clientX-r.left)/r.width;
+        audio.currentTime=Math.max(0,Math.min(1,pos))*audio.duration;
+      });
+    }
+    allSpeedBtns.forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var spd=parseFloat(btn.getAttribute('data-speed'));
+        if(!spd)return;
+        audio.playbackRate=spd;
+        allSpeedBtns.forEach(function(b){
+          var bSpd=parseFloat(b.getAttribute('data-speed'));
+          if(Math.abs(bSpd-spd)<0.01){b.classList.add('active');}else{b.classList.remove('active');}
+        });
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

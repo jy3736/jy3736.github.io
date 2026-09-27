@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 4：類別、建構式與空值安全｜Dart 程式設計講義</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#fbfaf7;--surface:#ffffff;--surface-2:#f3f1ec;--text:#1f2328;--muted:#5b6270;
+  --line:#e3e0d8;--accent:#0b6bcb;--accent-soft:#e6f0fb;
+  --tip:#1a7f4b;--tip-soft:#e7f5ec;--warn:#b25e00;--warn-soft:#fdf1e1;
+  --key:#6f42c1;--key-soft:#f1ebfb;--err:#c0342b;--err-soft:#fbeceb;
+  --code-bg:#f6f8fa;--code-text:#1f2328;--t-com:#6a737d;--t-str:#0a7a3e;--t-int:#b35900;
+  --t-num:#005cc5;--t-key:#c8315e;--t-type:#6f42c1;--t-fn:#0b5cad;
+  --term-bg:#1e2227;--term-text:#e6e6e6;
+  --radius:10px;--mono:ui-monospace,"SF Mono",Menlo,Consolas,"Noto Sans Mono CJK TC","Microsoft JhengHei",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#6cb2ff;--accent-soft:#1b2a3a;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;--t-int:#f2b36b;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#6cb2ff;--term-bg:#0f1113;
+}}
+:root[data-theme="dark"]{
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#6cb2ff;--accent-soft:#1b2a3a;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;--t-int:#f2b36b;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#6cb2ff;--term-bg:#0f1113;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:4.5rem}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.8 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+a{color:var(--accent)}
+.skip{position:absolute;left:-999px}.skip:focus{left:1rem;top:.5rem;z-index:10;background:var(--surface);padding:.3rem .6rem}
+header.site{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;
+  padding:.6rem max(16px,5%);background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;color:var(--text);text-decoration:none}
+nav.pages{display:flex;gap:.25rem;flex-wrap:wrap;flex:1}
+nav.pages a{padding:.15rem .7rem;border-radius:999px;text-decoration:none;color:var(--muted);font-size:.92rem}
+nav.pages a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.theme{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;
+  width:2.2rem;height:2.2rem;cursor:pointer;font-size:1rem}
+.layout{display:grid;grid-template-columns:clamp(240px,22vw,340px) minmax(0,1fr);gap:clamp(1.5rem,2.4vw,2.5rem);width:90%;margin:0 auto}
+.layout.single{grid-template-columns:minmax(0,1fr)}
+main{min-width:0;padding-block:1.5rem 4rem}
+.toc{position:sticky;top:4.5rem;align-self:start;max-height:calc(100vh - 5.5rem);overflow:auto;padding-block:1.5rem;font-size:.9rem}
+.toc-title{font-weight:700;margin:0 0 .4rem;color:var(--muted)}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc a{display:block;padding:.25rem .65rem;color:var(--muted);text-decoration:none;line-height:1.5;margin-left:-2px;border-left:2px solid transparent}
+.toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr);gap:0;width:92%}
+  header.site{padding-inline:4%}
+  .toc{position:static;max-height:none;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:1rem;margin-top:1.2rem}}
+@media (max-width:640px){body{font-size:16px}
+  .layout{width:94%}
+  header.site{padding-inline:3%}
+  main{padding-block:1rem 3rem}
+  h2{margin:2.4rem 0 .8rem;font-size:1.35rem}
+  .toc{font-size:.88rem}}
+h1{font-size:clamp(1.7rem,4.5vw,2.3rem);line-height:1.35;margin:.5rem 0 .6rem}
+h2{font-size:1.5rem;line-height:1.4;margin:3.2rem 0 1rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.18rem;margin:2rem 0 .6rem}
+p,li{max-width:none}
+.lead{font-size:1.08rem;color:var(--muted)}
+.step-badge{display:inline-block;min-width:1.8rem;padding:0 .45rem;margin-right:.4rem;border-radius:6px;background:var(--accent);color:#fff;
+  text-align:center;font-size:.95rem;line-height:1.8rem;vertical-align:.15em}
+code,kbd{font-family:var(--mono);font-size:.9em}
+:not(pre)>code{background:var(--surface-2);border:1px solid var(--line);padding:.05rem .35rem;border-radius:5px;overflow-wrap:anywhere}
+main{overflow-wrap:break-word}
+.flow span{max-width:100%;overflow-wrap:anywhere}
+kbd{background:var(--surface);border:1px solid var(--line);border-bottom-width:2px;padding:.05rem .4rem;border-radius:5px}
+figure.code{margin:1.1rem 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--code-bg)}
+figure.code figcaption{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.35rem .5rem .35rem .9rem;
+  border-bottom:1px solid var(--line);background:var(--surface-2);font-size:.85rem;color:var(--muted)}
+.file{font-family:var(--mono)}
+button.copy{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.1rem .7rem;cursor:pointer;font-size:.85rem}
+figure.code pre,.output pre,pre.term{margin:0;padding:.9rem 1rem;overflow-x:auto;font:14.5px/1.65 var(--mono);color:var(--code-text);tab-size:2}
+.t-com{color:var(--t-com);font-style:italic}.t-str{color:var(--t-str)}.t-int{color:var(--t-int);font-weight:600}
+.t-num{color:var(--t-num)}.t-key{color:var(--t-key);font-weight:600}.t-type{color:var(--t-type)}.t-fn{color:var(--t-fn)}
+.output{margin:.6rem 0 1rem;border-radius:var(--radius);overflow:hidden;background:var(--term-bg)}
+.output-label{font-size:.8rem;color:#9aa4b2;padding:.35rem 1rem 0}
+.output pre{color:var(--term-text)}
+.output.is-error pre{color:#ffb4ae}
+pre.term{background:var(--term-bg);color:var(--term-text);border-radius:var(--radius);margin:1rem 0}
+pre.term .t-com{color:#8b949e}
+details{margin:.8rem 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+details>summary{cursor:pointer;padding:.6rem 1rem;font-weight:600;list-style:none;color:var(--accent)}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▶";display:inline-block;margin-right:.5rem;font-size:.75em;transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+details>:not(summary){margin-inline:1rem}
+details[open]{padding-bottom:.4rem}
+.stdin-note{font-size:.92rem;color:var(--muted);margin:.2rem 1rem}
+.callout{border-left:4px solid var(--c);background:var(--cs);border-radius:0 var(--radius) var(--radius) 0;padding:.7rem 1rem;margin:1.2rem 0}
+.callout>.callout-title{font-weight:700;color:var(--c);margin:0 0 .2rem}
+.callout>:last-child{margin-bottom:0}.callout p{margin:.3rem 0}
+.tip{--c:var(--tip);--cs:var(--tip-soft)}.warn{--c:var(--warn);--cs:var(--warn-soft)}
+.key{--c:var(--key);--cs:var(--key-soft)}.err{--c:var(--err);--cs:var(--err-soft)}
+.try{--c:var(--accent);--cs:var(--accent-soft)}
+.table-wrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .7rem;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.goals{list-style:none;padding:0}
+.goals li{display:flex;gap:.6rem;align-items:flex-start;padding:.35rem 0}
+.goals input{width:1.15rem;height:1.15rem;margin-top:.35rem;accent-color:var(--accent);flex:none}
+.flow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1rem 0}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35rem .8rem;font-weight:600}
+.flow b{color:var(--muted)}
+.boxes{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0}
+.boxes div{border:2px solid var(--accent);border-radius:8px;min-width:4.2rem;text-align:center;background:var(--surface)}
+.boxes div small{display:block;background:var(--accent);color:#fff;font-family:var(--mono)}
+.boxes div span{display:block;padding:.2rem .4rem;font-family:var(--mono)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+a.card{display:flex;flex-direction:column;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-top:5px solid var(--c);border-radius:var(--radius);
+  background:linear-gradient(180deg,var(--cs),var(--surface) 70%);padding:1rem 1.1rem;color:var(--text);text-decoration:none;
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+a.card:hover,a.card:focus-visible{transform:translateY(-3px);border-color:var(--c);box-shadow:0 8px 22px color-mix(in srgb,var(--c) 22%,transparent)}
+a.card:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.card .week{display:inline-block;align-self:flex-start;margin:0 0 .5rem;padding:.05rem .7rem;border-radius:999px;
+  background:var(--c);color:var(--surface);font-weight:700;font-size:.9rem}
+.card h3{margin:0 0 .4rem;color:var(--c);line-height:1.5}
+.card p{margin:.3rem 0}
+.card .go{margin-top:auto;padding-top:.5rem;font-weight:700;color:var(--c)}
+a.card:hover .go{text-decoration:underline}
+@media (prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}}
+svg.diagram{max-width:100%;height:auto;display:block;margin:1rem auto;color:var(--text)}
+footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;padding:1.2rem 16px;text-align:center}
+@media print{header.site,.toc,button.copy,button.theme{display:none}
+  details{border:none}details>summary{display:none}details>*{display:block!important}
+  .layout{display:block}body{font-size:12pt}}
+.toc-audio{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem .75rem;margin-bottom:1.2rem}
+.toc-audio-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem}
+.toc-audio-title{font-weight:700;color:var(--text);font-size:.86rem;display:flex;align-items:center;gap:.3rem}
+.toc-audio-badge{font-size:.75rem;background:var(--accent-soft);color:var(--accent);padding:.08rem .45rem;border-radius:999px;font-family:var(--mono);font-weight:600}
+.toc-audio-controls{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem}
+.toc-audio-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;line-height:1;flex-shrink:0;transition:transform .1s,background-color .15s}
+.toc-audio-btn:hover{filter:brightness(1.1);transform:scale(1.06)}
+.toc-audio-progress-wrap{flex:1;height:7px;background:var(--line);border-radius:999px;cursor:pointer;position:relative;overflow:hidden}
+.toc-audio-progress-bar{height:100%;width:0%;background:var(--accent);border-radius:999px;transition:width .1s linear}
+.toc-audio-time-row{display:flex;justify-content:flex-end;font-size:.75rem;color:var(--muted);font-family:var(--mono);margin-bottom:.45rem}
+.toc-audio-speed{display:flex;align-items:center;justify-content:space-between;gap:.25rem;padding-top:.45rem;border-top:1px solid var(--line)}
+.toc-speed-label{font-size:.74rem;color:var(--muted);font-weight:600}
+.toc-speed-btns{display:flex;gap:.2rem;flex-wrap:wrap}
+.toc-speed-btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:4px;padding:.08rem .32rem;font-size:.75rem;cursor:pointer;font-family:var(--mono);line-height:1.2}
+.toc-speed-btn:hover{border-color:var(--accent);color:var(--accent)}
+.toc-speed-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.toc-qr{margin-top:1.3rem;padding-top:.9rem;border-top:1px solid var(--line);text-align:center}
+.toc-qr-title{font-size:.8rem;font-weight:700;color:var(--text);margin:0 0 .55rem}
+.toc-qr-code{display:inline-block;background:#fff;padding:.4rem;border-radius:6px;line-height:0}
+.toc-qr-code svg{display:block;width:124px;height:124px}
+.toc-qr-hint{font-size:.72rem;color:var(--muted);margin:.5rem 0 0;line-height:1.5}
+@media (max-width:960px){.toc-qr{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="site">
+  <a class="brand" href="index.html">Dart 程式設計講義</a>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html" aria-current="page">Unit 4</a><a href="unit05.html">Unit 5</a><a href="unit06.html">Unit 6</a></nav>
+  <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
+</header>
+<div class="layout"><nav class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">11:31</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/unit04-podcast.mp3" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放或暫停">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 11:31</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5">1.5x</button></div></div></div><p class="toc-title">本頁目錄</p><ol><li><a href="#review">1. 暖身：為什麼需要類別？</a></li><li><a href="#class">2. 類別與物件：把資料和動作放在一起</a></li><li><a href="#constructor">3. 建構式：讓呼叫的人一看就懂</a></li><li><a href="#null">4. 空值安全：這個值到底會不會是 null？</a></li><li><a href="#inherit">5. 抽象類別與繼承：同一種東西的不同款式</a></li><li><a href="#practice">6. 綜合實作：用類別整理環境監測資料</a></li><li><a href="#summary">7. 本單元重點整理</a></li><li><a href="#glossary">8. 名詞小辭典</a></li><li><a href="#homework">9. 本單元作業：把資料處理改寫成類別</a></li><li><a href="#more">10. 延伸閱讀（dart.dev 官方文件，英文）</a></li></ol><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" width="180" height="180" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h45v45h-45z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h2m1 0h1m3 0h1m14 0h7m-37 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h4m3 0h2m2 0h1m4 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m3 0h1m2 0h1m1 0h1m2 0h2m3 0h4m3 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h5m4 0h1m4 0h6m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m6 0h2m1 0h1m2 0h1m5 0h4m1 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m2 0h2m3 0h2m1 0h3m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h1m2 0h1m3 0h2m2 0h1m2 0h1m1 0h1m1 0h3m-29 1h1m1 0h2m1 0h3m2 0h1m2 0h2m3 0h2m2 0h3m1 0h2m2 0h1m2 0h1m1 0h2m-37 1h3m1 0h1m2 0h2m1 0h6m1 0h2m1 0h3m1 0h2m9 0h1m-35 1h2m2 0h2m2 0h2m1 0h2m2 0h5m2 0h2m1 0h1m2 0h2m3 0h1m-35 1h3m4 0h1m1 0h1m4 0h1m1 0h1m3 0h1m4 0h2m1 0h1m1 0h2m1 0h2m-35 1h2m1 0h2m1 0h1m4 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h4m1 0h2m1 0h5m-35 1h1m2 0h1m2 0h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h4m1 0h2m-35 1h6m2 0h1m1 0h2m2 0h1m2 0h1m1 0h1m2 0h2m2 0h3m1 0h1m1 0h2m-36 1h2m2 0h2m4 0h1m2 0h1m1 0h2m2 0h2m3 0h1m3 0h2m1 0h2m2 0h2m-37 1h1m1 0h2m1 0h3m2 0h1m2 0h1m3 0h1m4 0h1m2 0h1m2 0h1m2 0h1m1 0h2m1 0h1m-37 1h1m1 0h2m1 0h1m1 0h7m3 0h3m2 0h1m1 0h7m2 0h1m1 0h2m-37 1h2m1 0h1m1 0h4m4 0h1m6 0h2m1 0h2m1 0h2m3 0h1m1 0h1m1 0h2m-37 1h1m1 0h1m1 0h1m2 0h11m2 0h1m3 0h1m1 0h1m1 0h1m2 0h3m1 0h1m-35 1h1m1 0h1m1 0h2m4 0h1m3 0h1m1 0h1m1 0h3m1 0h1m2 0h1m4 0h3m2 0h1m-36 1h1m3 0h1m5 0h1m2 0h1m1 0h4m1 0h3m5 0h1m3 0h1m-34 1h3m1 0h1m1 0h1m1 0h4m1 0h1m4 0h1m1 0h1m2 0h1m4 0h1m2 0h1m3 0h1m-36 1h2m1 0h3m3 0h2m3 0h4m5 0h3m1 0h3m2 0h3m-32 1h5m2 0h2m2 0h3m4 0h1m1 0h8m1 0h1m1 0h3m-29 1h2m1 0h3m8 0h2m1 0h9m1 0h2m-36 1h1m3 0h2m2 0h2m1 0h2m3 0h2m3 0h1m2 0h1m5 0h1m1 0h3m-36 1h1m3 0h1m3 0h1m2 0h2m2 0h1m3 0h3m2 0h1m2 0h1m1 0h1m1 0h1m3 0h1m-31 1h2m1 0h1m2 0h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h8m1 0h1m-29 1h1m1 0h1m3 0h2m5 0h1m1 0h1m2 0h3m3 0h1m1 0h3m-37 1h7m1 0h5m2 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m-37 1h1m5 0h1m1 0h1m2 0h1m5 0h2m1 0h2m6 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m5 0h1m2 0h2m5 0h1m1 0h6m1 0h2m-37 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m4 0h1m2 0h1m3 0h1m1 0h1m1 0h1m2 0h1m-36 1h1m1 0h3m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m2 0h1m1 0h1m2 0h1m-36 1h1m5 0h1m3 0h2m2 0h2m3 0h1m2 0h1m1 0h3m2 0h6m-35 1h7m1 0h5m1 0h1m2 0h1m2 0h1m2 0h4m5 0h1m1 0h3"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></nav><main id="main"><h1>Unit 4：類別、建構式與空值安全</h1>
+<p class="lead">前面的程式把資料和處理分開放：一個 <code>List</code> 放分數、另一個 <code>List</code> 放名字，很容易對不起來。這個單元要把「一筆資料」和「對這筆資料的動作」<strong>包成一個類別</strong>，並學會用 <code>?</code> 明確表示「這個值可能沒有」。這兩件事是之後寫 APP 畫面時每天都會用到的基本功。</p>
+
+<h3>這個單元你會學到（學會了就打勾，會自動記在這台電腦的瀏覽器裡）</h3>
+<ul class="goals">
+  <li><input type="checkbox" id="g1"><label for="g1">用 <code>class</code> 定義自己的型別，建立物件並讀寫欄位</label></li>
+  <li><input type="checkbox" id="g2"><label for="g2">用具名參數和 <code>required</code> 寫出好讀的建構式</label></li>
+  <li><input type="checkbox" id="g3"><label for="g3">認識具名建構式與 <code>const</code> 建構式</label></li>
+  <li><input type="checkbox" id="g4"><label for="g4">用 <code>?</code>、<code>??</code>、<code>?.</code> 處理「可能沒有值」的資料</label></li>
+  <li><input type="checkbox" id="g5"><label for="g5">用 <code>abstract</code>、<code>extends</code>、<code>@override</code> 讓不同款式共用同一套介面</label></li>
+  <li><input type="checkbox" id="g6"><label for="g6">把一段資料處理程式改寫成類別，讓呼叫的人少寫參數</label></li>
+</ul>
+
+<h2 id="review">1. 暖身：為什麼需要類別？</h2>
+<p>上一個單元用兩個清單存同一批人的資料：</p>
+<pre class="term">var names = ['小明', '小美'];
+var scores = [92, 54];</pre>
+<p>這種寫法有兩個麻煩的地方：<strong>順序一錯，資料就對不起來</strong>；而且「這個人及不及格」的判斷散落在程式各處。類別（class）就是把「名字、分數」和「判斷及格」放在同一個地方，從此拿到一個學生物件，就同時拿到他的資料和動作。</p>
+<div class="flow"><span>① 定義類別</span><b>→</b><span>② 建立物件</span><b>→</b><span>③ 讀寫欄位</span><b>→</b><span>④ 呼叫方法</span></div>
+
+<h2 id="class">2. 類別與物件：把資料和動作放在一起</h2>
+<p><strong>類別</strong>是「設計圖」，<strong>物件</strong>是照著設計圖做出來的東西。一張設計圖可以做出很多個物件，每一個都有自己的資料。</p>
+
+<svg class="diagram" viewBox="0 0 560 220" width="560" role="img" aria-label="示意圖：Student 類別是設計圖，做出兩個各自帶有名字與分數的物件">
+  <defs><marker id="arrow4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+  <g fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="20" y="70" width="170" height="80" rx="10"/>
+    <rect x="350" y="20" width="190" height="70" rx="10"/>
+    <rect x="350" y="130" width="190" height="70" rx="10"/>
+    <path d="M190,95 H290 V60 H344" marker-end="url(#arrow4)"/>
+    <path d="M190,120 H290 V165 H344" marker-end="url(#arrow4)"/>
+  </g>
+  <g fill="currentColor" font-size="15" text-anchor="middle" font-family="sans-serif">
+    <text x="105" y="100">class Student</text>
+    <text x="105" y="126">（設計圖）</text>
+    <text x="445" y="48">物件 a</text>
+    <text x="445" y="72">小明 92 分</text>
+    <text x="445" y="158">物件 b</text>
+    <text x="445" y="182">小美 54 分</text>
+  </g>
+</svg>
+
+<h3>基本範例</h3>
+<figure class="code"><figcaption><span class="file">s01_class_basics.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 類別：把「一筆資料的欄位」和「對這筆資料的動作」放在一起</span>
+
+<span class="t-key">class</span> <span class="t-type">Student</span> {
+  <span class="t-com">// 欄位（instance variable）：這個學生「有什麼資料」</span>
+  <span class="t-type">String</span> name;
+  <span class="t-type">int</span> score;
+
+  <span class="t-com">// 建構式：建立物件時要交給它的資料</span>
+  <span class="t-type">Student</span>(<span class="t-key">this</span>.name, <span class="t-key">this</span>.score);
+
+  <span class="t-com">// 方法（method）：對自己的資料做事，不用再多傳參數</span>
+  <span class="t-type">bool</span> get isPassed =&gt; score &gt;= <span class="t-num">60</span>;
+
+  <span class="t-type">String</span> <span class="t-fn">describe</span>() =&gt; <span class="t-str">&#x27;<span class="t-int">$name</span>：<span class="t-int">$score</span> 分（${isPassed ? &#x27;</span>及格<span class="t-str">&#x27; : &#x27;</span>不及格<span class="t-str">&#x27;}）&#x27;</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-com">// 建立物件（instance）：一個類別可以做出很多個物件</span>
+  <span class="t-key">var</span> a = <span class="t-type">Student</span>(<span class="t-str">&#x27;小明&#x27;</span>, <span class="t-num">92</span>);
+  <span class="t-key">var</span> b = <span class="t-type">Student</span>(<span class="t-str">&#x27;小美&#x27;</span>, <span class="t-num">54</span>);
+
+  <span class="t-fn">print</span>(a.<span class="t-fn">describe</span>());
+  <span class="t-fn">print</span>(b.<span class="t-fn">describe</span>());
+
+  <span class="t-com">// 讀欄位、改欄位</span>
+  <span class="t-fn">print</span>(a.name);
+  b.score = <span class="t-num">61</span>;
+  <span class="t-fn">print</span>(b.<span class="t-fn">describe</span>());
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>小明：92 分（及格）
+小美：54 分（不及格）
+小明
+小美：61 分（及格）</pre></div></details>
+<ul>
+  <li><code>class Student { ... }</code>：定義一個新的型別，名稱用大寫開頭。</li>
+  <li>類別裡面的變數叫<strong>欄位</strong>（field）：這個物件「有什麼資料」。</li>
+  <li><code>Student(this.name, this.score);</code> 是<strong>建構式</strong>（constructor）：建立物件時要交給它的資料。<code>this.name</code> 的意思是「把收到的值直接放進自己的 name 欄位」。</li>
+  <li>類別裡面的函式叫<strong>方法</strong>（method）：它可以直接用自己的欄位，不用再傳一次參數。</li>
+  <li><code>bool get isPassed =&gt; score &gt;= 60;</code> 是 <strong>getter</strong>：用起來像欄位（<code>a.isPassed</code>），算出來像函式。</li>
+</ul>
+
+<div class="callout key"><p class="callout-title">物件之間互不影響</p>
+<p><code>a</code> 和 <code>b</code> 是兩個獨立的物件，改 <code>b.score</code> 不會影響 <code>a</code>。這正是我們要的：每位學生有自己的分數。</p></div>
+
+<h2 id="constructor">3. 建構式：讓呼叫的人一看就懂</h2>
+<p><code>Student('小明', 92)</code> 只有兩個值還好，如果有五、六個值，看程式的人根本分不出哪個是什麼。Flutter 的元件幾乎都用<strong>具名參數</strong>，所以現在就要習慣。</p>
+
+<h3>基本範例</h3>
+<figure class="code"><figcaption><span class="file">s02_constructors.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 建構式的三種常用寫法：具名參數、具名建構式、const 建構式</span>
+
+<span class="t-key">class</span> <span class="t-type">Reading</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> sensorId;
+  <span class="t-key">final</span> <span class="t-type">double</span> celsius;
+  <span class="t-key">final</span> <span class="t-type">bool</span> isValid;
+
+  <span class="t-com">// 1. 具名參數 + required：呼叫時要寫出名稱，順序不重要（Flutter 大量使用）</span>
+  <span class="t-key">const</span> <span class="t-type">Reading</span>({
+    <span class="t-key">required</span> <span class="t-key">this</span>.sensorId,
+    <span class="t-key">required</span> <span class="t-key">this</span>.celsius,
+    <span class="t-key">this</span>.isValid = <span class="t-key">true</span>,
+  });
+
+  <span class="t-com">// 2. 具名建構式：同一個類別的另一種建立方式，取一個好懂的名字</span>
+  <span class="t-key">const</span> <span class="t-type">Reading</span>.<span class="t-fn">failed</span>(<span class="t-key">this</span>.sensorId) : celsius = <span class="t-num">0</span>, isValid = <span class="t-key">false</span>;
+
+  @override
+  <span class="t-type">String</span> <span class="t-fn">toString</span>() =&gt; isValid ? <span class="t-str">&#x27;<span class="t-int">$sensorId</span>：<span class="t-int">$celsius</span>°C&#x27;</span> : <span class="t-str">&#x27;<span class="t-int">$sensorId</span>：讀取失敗&#x27;</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-com">// 具名參數：名稱寫出來，讀的人一看就知道每個值是什麼</span>
+  <span class="t-key">var</span> r1 = <span class="t-type">Reading</span>(sensorId: <span class="t-str">&#x27;A1&#x27;</span>, celsius: <span class="t-num">27.5</span>);
+  <span class="t-fn">print</span>(r1);
+
+  <span class="t-com">// 名稱寫出來之後，順序可以調換</span>
+  <span class="t-key">var</span> r2 = <span class="t-type">Reading</span>(celsius: <span class="t-num">31.2</span>, sensorId: <span class="t-str">&#x27;A2&#x27;</span>);
+  <span class="t-fn">print</span>(r2);
+
+  <span class="t-com">// 具名建構式</span>
+  <span class="t-key">var</span> r3 = <span class="t-type">Reading</span>.<span class="t-fn">failed</span>(<span class="t-str">&#x27;A3&#x27;</span>);
+  <span class="t-fn">print</span>(r3);
+
+  <span class="t-com">// 3. const 建構式：值在編譯時就固定，兩個一樣的 const 物件會是同一個</span>
+  <span class="t-key">const</span> x = <span class="t-type">Reading</span>(sensorId: <span class="t-str">&#x27;A1&#x27;</span>, celsius: <span class="t-num">27.5</span>);
+  <span class="t-key">const</span> y = <span class="t-type">Reading</span>(sensorId: <span class="t-str">&#x27;A1&#x27;</span>, celsius: <span class="t-num">27.5</span>);
+  <span class="t-fn">print</span>(<span class="t-fn">identical</span>(x, y));
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>A1：27.5°C
+A2：31.2°C
+A3：讀取失敗
+true</pre></div></details>
+
+<div class="table-wrap"><table>
+<tr><th>寫法</th><th>用途</th><th>例子</th></tr>
+<tr><td><code>{required this.x}</code></td><td>具名參數，呼叫時一定要給</td><td><code>Reading(sensorId: 'A1', celsius: 27.5)</code></td></tr>
+<tr><td><code>{this.x = 預設值}</code></td><td>具名參數，可以不給</td><td><code>isValid</code> 沒寫就是 <code>true</code></td></tr>
+<tr><td><code>類別.名字()</code></td><td>具名建構式：另一種建立方式</td><td><code>Reading.failed('A3')</code></td></tr>
+<tr><td><code>const 類別(...)</code></td><td>值在編譯時就固定，不會再改</td><td>固定的設定值、固定的畫面內容</td></tr>
+<tr><td><code>final</code> 欄位</td><td>建立之後就不准改</td><td>感測器編號、量到的溫度</td></tr>
+</table></div>
+
+<div class="callout err"><p class="callout-title">常見錯誤：<code>required</code> 的參數忘了給</p>
+<p>具名參數沒有順序，所以漏掉一個不會被「順序」抓出來，而是由分析器直接告訴你。</p></div>
+<figure class="code"><figcaption><span class="file">e9_missing_required.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-key">class</span> <span class="t-type">Reading</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> sensorId;
+  <span class="t-key">final</span> <span class="t-type">double</span> celsius;
+
+  <span class="t-type">Reading</span>({<span class="t-key">required</span> <span class="t-key">this</span>.sensorId, <span class="t-key">required</span> <span class="t-key">this</span>.celsius});
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">var</span> r = <span class="t-type">Reading</span>(sensorId: <span class="t-str">&#x27;A1&#x27;</span>);
+  <span class="t-fn">print</span>(r.celsius);
+}</code></pre></figure><div class="output is-error"><div class="output-label">錯誤訊息（實際執行結果）</div><pre>e9_missing_required.dart:9:18: Error: Required named parameter &#x27;celsius&#x27; must be provided.
+  var r = Reading(sensorId: &#x27;A1&#x27;);
+                 ^
+e9_missing_required.dart:5:3: Context: Found this candidate, but the arguments don&#x27;t match.
+  Reading({required this.sensorId, required this.celsius});
+  ^^^^^^^</pre></div>
+<p>訊息裡的 <code>missing_required_argument</code> 就是「少給了一定要給的參數」。這種錯誤在<strong>還沒執行</strong>時就會被抓到，是空值安全與具名參數帶來的好處。</p>
+
+<div class="callout try"><p class="callout-title">小練習：學生類別</p>
+<p>寫一個 <code>Student</code> 類別，用具名參數 <code>name</code> 和 <code>score</code> 建立物件，並加上一個 <code>grade</code> getter：90 以上 A、80 以上 B、70 以上 C、60 以上 D，其餘 F。建立三個學生並印出來。</p></div>
+<details class="solution"><summary>看參考解答</summary><figure class="code"><figcaption><span class="file">ex1_student_class.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 練習答案：把「學生一筆資料」寫成類別，並用具名參數建立物件</span>
+
+<span class="t-key">class</span> <span class="t-type">Student</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> name;
+  <span class="t-key">final</span> <span class="t-type">int</span> score;
+
+  <span class="t-key">const</span> <span class="t-type">Student</span>({<span class="t-key">required</span> <span class="t-key">this</span>.name, <span class="t-key">required</span> <span class="t-key">this</span>.score});
+
+  <span class="t-type">String</span> get grade =&gt; <span class="t-key">switch</span> (score) {
+    &gt;= <span class="t-num">90</span> =&gt; <span class="t-str">&#x27;A&#x27;</span>,
+    &gt;= <span class="t-num">80</span> =&gt; <span class="t-str">&#x27;B&#x27;</span>,
+    &gt;= <span class="t-num">70</span> =&gt; <span class="t-str">&#x27;C&#x27;</span>,
+    &gt;= <span class="t-num">60</span> =&gt; <span class="t-str">&#x27;D&#x27;</span>,
+    _ =&gt; <span class="t-str">&#x27;F&#x27;</span>,
+  };
+
+  @override
+  <span class="t-type">String</span> <span class="t-fn">toString</span>() =&gt; <span class="t-str">&#x27;<span class="t-int">$name</span> <span class="t-int">$score</span> 分 → <span class="t-int">$grade</span>&#x27;</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">const</span> students = [
+    <span class="t-type">Student</span>(name: <span class="t-str">&#x27;小明&#x27;</span>, score: <span class="t-num">92</span>),
+    <span class="t-type">Student</span>(name: <span class="t-str">&#x27;小美&#x27;</span>, score: <span class="t-num">71</span>),
+    <span class="t-type">Student</span>(name: <span class="t-str">&#x27;阿豪&#x27;</span>, score: <span class="t-num">58</span>),
+  ];
+
+  <span class="t-key">for</span> (<span class="t-key">var</span> s <span class="t-key">in</span> students) {
+    <span class="t-fn">print</span>(s);
+  }
+}</code></pre></figure><div class="output"><div class="output-label">執行結果</div><pre>小明 92 分 → A
+小美 71 分 → C
+阿豪 58 分 → F</pre></div></details>
+
+<h2 id="null">4. 空值安全：這個值到底會不會是 null？</h2>
+<p><code>null</code> 代表「沒有值」。Dart 規定：<strong>型別後面沒有 <code>?</code> 的變數，永遠不會是 null</strong>；會是 null 的資料，型別一定要寫成 <code>String?</code>、<code>double?</code> 這種形式。這樣一來，「忘了處理沒有資料的情況」在寫程式時就會被抓出來，而不是等 APP 在使用者手上當掉。</p>
+
+<h3>基本範例</h3>
+<figure class="code"><figcaption><span class="file">s03_null_safety.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 空值安全：型別後面加上 ? 才可以是 null，沒加就保證有值</span>
+
+<span class="t-com">// 綽號可能查不到，所以回傳型別寫成 String?（可能是文字，也可能是 null）</span>
+<span class="t-type">String</span>? <span class="t-fn">nicknameOf</span>(<span class="t-type">String</span> name) {
+  <span class="t-key">const</span> book = {<span class="t-str">&#x27;小明&#x27;</span>: <span class="t-str">&#x27;阿明&#x27;</span>, <span class="t-str">&#x27;小美&#x27;</span>: <span class="t-str">&#x27;美美&#x27;</span>};
+  <span class="t-key">return</span> book[name];
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-com">// 一般型別：不可以是 null，用起來不必檢查</span>
+  <span class="t-type">String</span> name = <span class="t-str">&#x27;阿豪&#x27;</span>;
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;<span class="t-int">${name.length}</span> 個字&#x27;</span>);
+
+  <span class="t-com">// 可為 null 的型別：代表「可能沒有這筆資料」</span>
+  <span class="t-type">String</span>? nickname = <span class="t-fn">nicknameOf</span>(name);
+  <span class="t-fn">print</span>(nickname);
+
+  <span class="t-com">// ?. 安全呼叫：是 null 就整個算式得到 null，不會當掉</span>
+  <span class="t-fn">print</span>(nickname?.length);
+
+  <span class="t-com">// ?? 預設值：左邊是 null 就用右邊</span>
+  <span class="t-fn">print</span>(nickname ?? <span class="t-str">&#x27;（沒有綽號）&#x27;</span>);
+
+  <span class="t-com">// 檢查過不是 null 之後，同一段程式裡就可以直接當成有值使用</span>
+  <span class="t-key">var</span> other = <span class="t-fn">nicknameOf</span>(<span class="t-str">&#x27;小美&#x27;</span>);
+  <span class="t-key">if</span> (other != <span class="t-key">null</span>) {
+    <span class="t-fn">print</span>(<span class="t-str">&#x27;綽號有 <span class="t-int">${other.length}</span> 個字&#x27;</span>);
+  }
+
+  <span class="t-com">// Map 查不到鍵就是 null，所以查詢結果一定是可為 null 的型別</span>
+  <span class="t-key">var</span> stock = {<span class="t-str">&#x27;紅茶&#x27;</span>: <span class="t-num">20</span>, <span class="t-str">&#x27;奶茶&#x27;</span>: <span class="t-num">8</span>};
+  <span class="t-type">int</span>? tea = stock[<span class="t-str">&#x27;紅茶&#x27;</span>];
+  <span class="t-type">int</span>? coffee = stock[<span class="t-str">&#x27;咖啡&#x27;</span>];
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;紅茶 <span class="t-int">${tea ?? 0}</span> 杯、咖啡 <span class="t-int">${coffee ?? 0}</span> 杯&#x27;</span>);
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>2 個字
+null
+null
+（沒有綽號）
+綽號有 2 個字
+紅茶 20 杯、咖啡 0 杯</pre></div></details>
+
+<div class="table-wrap"><table>
+<tr><th>寫法</th><th>意思</th><th>什麼時候用</th></tr>
+<tr><td><code>String name</code></td><td>保證有值</td><td>一定會有的資料，例如感測器編號</td></tr>
+<tr><td><code>String? nickname</code></td><td>可能是 null</td><td>查不到、還沒填、讀取失敗</td></tr>
+<tr><td><code>x?.length</code></td><td>x 是 null 就整個算式是 null</td><td>不確定有沒有值，又不想當掉</td></tr>
+<tr><td><code>x ?? 預設值</code></td><td>x 是 null 就用預設值</td><td>畫面上要顯示「尚未設定」</td></tr>
+<tr><td><code>if (x != null) { ... }</code></td><td>檢查過就可以直接用</td><td>需要連續使用同一個值</td></tr>
+</table></div>
+
+<div class="callout err"><p class="callout-title">常見錯誤：直接對可能是 null 的值呼叫方法</p></div>
+<figure class="code"><figcaption><span class="file">e10_null_method_call.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-type">String</span>? nickname;
+  <span class="t-fn">print</span>(nickname.length);
+}</code></pre></figure><div class="output is-error"><div class="output-label">錯誤訊息（實際執行結果）</div><pre>e10_null_method_call.dart:3:18: Error: Property &#x27;length&#x27; cannot be accessed on &#x27;String?&#x27; because it is potentially null.
+Try accessing using ?. instead.
+  print(nickname.length);
+                 ^^^^^^</pre></div>
+<p>分析器會說 <code>The property 'length' can't be unconditionally accessed because the receiver can be 'null'</code>，意思是「這個值可能是 null，不可以直接用」。解法就是上表的 <code>?.</code>、<code>??</code> 或先用 <code>if</code> 檢查。</p>
+
+<div class="callout key"><p class="callout-title">回傳 null 是一種「說清楚」的設計</p>
+<p>算不出平均（清單是空的）時，回傳 <code>null</code> 比回傳 <code>0</code> 誠實：<code>0</code> 會讓畫面顯示「平均 0 度」，<code>null</code> 則讓你有機會顯示「無有效資料」。</p></div>
+
+<div class="callout try"><p class="callout-title">小練習：算不出來就回 null</p>
+<p>寫一個 <code>double? averageOrNull(List&lt;double&gt; values)</code>：清單是空的就回傳 <code>null</code>，否則回傳平均。呼叫兩次，一次給資料、一次給空清單，空清單時印出「沒有資料可以計算」。</p></div>
+<details class="solution"><summary>看參考解答</summary><figure class="code"><figcaption><span class="file">ex2_nullable_average.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 練習答案：用可為 null 的回傳值表示「算不出平均」</span>
+
+<span class="t-type">double</span>? <span class="t-fn">averageOrNull</span>(<span class="t-type">List</span>&lt;<span class="t-type">double</span>&gt; values) {
+  <span class="t-key">if</span> (values.isEmpty) {
+    <span class="t-key">return</span> <span class="t-key">null</span>;
+  }
+  <span class="t-key">var</span> sum = <span class="t-num">0.0</span>;
+  <span class="t-key">for</span> (<span class="t-key">var</span> v <span class="t-key">in</span> values) {
+    sum += v;
+  }
+  <span class="t-key">return</span> sum / values.length;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-fn">print</span>(<span class="t-fn">averageOrNull</span>([<span class="t-num">26.0</span>, <span class="t-num">28.0</span>, <span class="t-num">30.0</span>]));
+
+  <span class="t-key">var</span> empty = <span class="t-fn">averageOrNull</span>([]);
+  <span class="t-fn">print</span>(empty ?? <span class="t-str">&#x27;沒有資料可以計算&#x27;</span>);
+}</code></pre></figure><div class="output"><div class="output-label">執行結果</div><pre>28.0
+沒有資料可以計算</pre></div></details>
+
+<h2 id="inherit">5. 抽象類別與繼承：同一種東西的不同款式</h2>
+<p>溫度感測器和濕度感測器都是「感測器」：都有編號、都可以讀值、都要產生一行報表。把共同的部分寫在<strong>父類別</strong>，不一樣的部分交給<strong>子類別</strong>，就能把不同款式放進同一個清單一起處理。</p>
+
+<h3>延伸練習</h3>
+<figure class="code"><figcaption><span class="file">s04_inheritance.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 抽象類別與繼承：同一種東西的不同款式，共用同一套介面</span>
+
+<span class="t-com">// abstract：不能直接建立物件，只規定「子類別一定要有什麼」</span>
+<span class="t-key">abstract</span> <span class="t-key">class</span> <span class="t-type">Sensor</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> id;
+
+  <span class="t-type">Sensor</span>(<span class="t-key">this</span>.id);
+
+  <span class="t-com">// 沒有實作內容：子類別必須自己寫</span>
+  <span class="t-type">String</span> get label;
+
+  <span class="t-type">double</span> <span class="t-fn">read</span>();
+
+  <span class="t-com">// 有實作內容：子類別可以直接用，也可以覆寫</span>
+  <span class="t-type">String</span> <span class="t-fn">report</span>() =&gt; <span class="t-str">&#x27;<span class="t-int">$id</span> <span class="t-int">$label</span>：<span class="t-int">${read().toStringAsFixed(1)}</span>&#x27;</span>;
+}
+
+<span class="t-key">class</span> <span class="t-type">TempSensor</span> <span class="t-key">extends</span> <span class="t-type">Sensor</span> {
+  <span class="t-key">final</span> <span class="t-type">double</span> celsius;
+
+  <span class="t-type">TempSensor</span>(<span class="t-key">super</span>.id, <span class="t-key">this</span>.celsius);
+
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;溫度&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">read</span>() =&gt; celsius;
+}
+
+<span class="t-key">class</span> <span class="t-type">HumiditySensor</span> <span class="t-key">extends</span> <span class="t-type">Sensor</span> {
+  <span class="t-key">final</span> <span class="t-type">double</span> percent;
+
+  <span class="t-type">HumiditySensor</span>(<span class="t-key">super</span>.id, <span class="t-key">this</span>.percent);
+
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;濕度&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">read</span>() =&gt; percent;
+
+  <span class="t-com">// 覆寫父類別已經寫好的方法：加上單位</span>
+  @override
+  <span class="t-type">String</span> <span class="t-fn">report</span>() =&gt; <span class="t-str">&#x27;<span class="t-int">${super.report()}</span>%&#x27;</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-com">// 不同款式的感測器可以放在同一個清單裡，因為它們都是 Sensor</span>
+  <span class="t-key">var</span> sensors = &lt;<span class="t-type">Sensor</span>&gt;[
+    <span class="t-type">TempSensor</span>(<span class="t-str">&#x27;A1&#x27;</span>, <span class="t-num">27.4</span>),
+    <span class="t-type">HumiditySensor</span>(<span class="t-str">&#x27;B1&#x27;</span>, <span class="t-num">62.3</span>),
+    <span class="t-type">TempSensor</span>(<span class="t-str">&#x27;A2&#x27;</span>, <span class="t-num">31.8</span>),
+  ];
+
+  <span class="t-key">for</span> (<span class="t-key">var</span> s <span class="t-key">in</span> sensors) {
+    <span class="t-fn">print</span>(s.<span class="t-fn">report</span>());
+  }
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>A1 溫度：27.4
+B1 濕度：62.3%
+A2 溫度：31.8</pre></div></details>
+<ul>
+  <li><code>abstract class Sensor</code>：抽象類別不能直接建立物件，它規定「子類別一定要有什麼」。</li>
+  <li><code>extends Sensor</code>：繼承，把父類別的欄位和方法接過來。</li>
+  <li><code>@override</code>：告訴讀程式的人和分析器「這個方法是覆寫父類別的」。</li>
+  <li><code>super.id</code>：把收到的值交給父類別的建構式。<code>super.report()</code> 則是「先用父類別寫好的版本」。</li>
+  <li><code>List&lt;Sensor&gt;</code>：因為兩種感測器都是 <code>Sensor</code>，可以放在同一個清單裡用同一個迴圈處理。</li>
+</ul>
+
+<div class="callout key"><p class="callout-title">這就是 Flutter 元件的運作方式</p>
+<p>之後寫的每一個畫面元件，都是繼承 Flutter 提供的類別再覆寫其中一個方法。今天的 <code>extends</code> 和 <code>@override</code> 就是那時候的基本功。</p></div>
+
+<h2 id="practice">6. 綜合實作：用類別整理環境監測資料</h2>
+<p>把這個單元學到的東西用在一份報表上：<code>Reading</code> 是一筆讀值、<code>Room</code> 是一間教室；平均值可能算不出來，所以型別是 <code>double?</code>。</p>
+<figure class="code"><figcaption><span class="file">s05_sensor_report.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 小型情境：用類別整理「教室環境監測」的資料，印出一份報表</span>
+
+<span class="t-key">class</span> <span class="t-type">Room</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> name;
+  <span class="t-key">final</span> <span class="t-type">List</span>&lt;<span class="t-type">Reading</span>&gt; readings;
+
+  <span class="t-type">Room</span>({<span class="t-key">required</span> <span class="t-key">this</span>.name, <span class="t-key">required</span> <span class="t-key">this</span>.readings});
+
+  <span class="t-com">// 只取有效的讀值來算平均；沒有有效讀值時回傳 null，代表「算不出來」</span>
+  <span class="t-type">double</span>? get averageCelsius {
+    <span class="t-key">var</span> valid = readings.<span class="t-fn">where</span>((r) =&gt; r.isValid).<span class="t-fn">toList</span>();
+    <span class="t-key">if</span> (valid.isEmpty) {
+      <span class="t-key">return</span> <span class="t-key">null</span>;
+    }
+    <span class="t-key">var</span> sum = <span class="t-num">0.0</span>;
+    <span class="t-key">for</span> (<span class="t-key">var</span> r <span class="t-key">in</span> valid) {
+      sum += r.celsius;
+    }
+    <span class="t-key">return</span> sum / valid.length;
+  }
+
+  <span class="t-type">int</span> get failedCount =&gt; readings.<span class="t-fn">where</span>((r) =&gt; !r.isValid).length;
+}
+
+<span class="t-key">class</span> <span class="t-type">Reading</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> sensorId;
+  <span class="t-key">final</span> <span class="t-type">double</span> celsius;
+  <span class="t-key">final</span> <span class="t-type">bool</span> isValid;
+
+  <span class="t-key">const</span> <span class="t-type">Reading</span>({
+    <span class="t-key">required</span> <span class="t-key">this</span>.sensorId,
+    <span class="t-key">required</span> <span class="t-key">this</span>.celsius,
+    <span class="t-key">this</span>.isValid = <span class="t-key">true</span>,
+  });
+
+  <span class="t-key">const</span> <span class="t-type">Reading</span>.<span class="t-fn">failed</span>(<span class="t-key">this</span>.sensorId) : celsius = <span class="t-num">0</span>, isValid = <span class="t-key">false</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">var</span> rooms = [
+    <span class="t-type">Room</span>(
+      name: <span class="t-str">&#x27;電子 301&#x27;</span>,
+      readings: <span class="t-key">const</span> [
+        <span class="t-type">Reading</span>(sensorId: <span class="t-str">&#x27;A1&#x27;</span>, celsius: <span class="t-num">27.5</span>),
+        <span class="t-type">Reading</span>(sensorId: <span class="t-str">&#x27;A2&#x27;</span>, celsius: <span class="t-num">28.9</span>),
+        <span class="t-type">Reading</span>.<span class="t-fn">failed</span>(<span class="t-str">&#x27;A3&#x27;</span>),
+      ],
+    ),
+    <span class="t-type">Room</span>(
+      name: <span class="t-str">&#x27;電子 302&#x27;</span>,
+      readings: <span class="t-key">const</span> [<span class="t-type">Reading</span>.<span class="t-fn">failed</span>(<span class="t-str">&#x27;B1&#x27;</span>), <span class="t-type">Reading</span>.<span class="t-fn">failed</span>(<span class="t-str">&#x27;B2&#x27;</span>)],
+    ),
+  ];
+
+  <span class="t-key">for</span> (<span class="t-key">var</span> room <span class="t-key">in</span> rooms) {
+    <span class="t-key">var</span> avg = room.averageCelsius;
+    <span class="t-com">// 平均值可能是 null，所以要先處理「算不出來」的情況</span>
+    <span class="t-key">var</span> avgText = avg == <span class="t-key">null</span> ? <span class="t-str">&#x27;無有效資料&#x27;</span> : <span class="t-str">&#x27;平均 <span class="t-int">${avg.toStringAsFixed(1)}</span>°C&#x27;</span>;
+    <span class="t-fn">print</span>(<span class="t-str">&#x27;<span class="t-int">${room.name}</span>：<span class="t-int">$avgText</span>，失敗 <span class="t-int">${room.failedCount}</span> 筆&#x27;</span>);
+  }
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>電子 301：平均 28.2°C，失敗 1 筆
+電子 302：無有效資料，失敗 2 筆</pre></div></details>
+<ul>
+  <li><code>Room</code> 只負責「自己這間教室」的事：算平均、數失敗筆數。呼叫的人不必知道細節。</li>
+  <li><code>averageCelsius</code> 回傳 <code>double?</code>，所以印出來之前一定要先處理 null，這正是空值安全幫我們記住的事。</li>
+  <li>資料換成別的教室、別的筆數，主程式完全不用改。</li>
+</ul>
+
+<div class="callout try"><p class="callout-title">實作題（作業會用到）</p>
+<ol>
+  <li>把上一個單元自己寫的資料處理程式，改成「一個資料類別 ＋ 一個集合類別」。</li>
+  <li>集合類別至少要有一個回傳 <code>?</code> 型別的 getter（例如算不出來時回傳 null）。</li>
+  <li>建構式一律改用具名參數，欄位盡量用 <code>final</code>。</li>
+</ol></div>
+
+<h2 id="summary">7. 本單元重點整理</h2>
+<ul>
+  <li>類別是設計圖、物件是成品；欄位放資料、方法放動作、getter 用起來像欄位。</li>
+  <li>建構式用<strong>具名參數 ＋ <code>required</code></strong>最好讀，Flutter 幾乎都是這種寫法。</li>
+  <li>具名建構式（<code>Reading.failed</code>）讓「特殊情況」有自己的名字；<code>const</code> 建構式的值在編譯時就固定。</li>
+  <li>欄位能用 <code>final</code> 就用，建立之後不再變動的資料比較不容易出錯。</li>
+  <li><code>?</code> 代表「可能沒有值」；用 <code>?.</code>、<code>??</code> 或 <code>if (x != null)</code> 處理，不要硬用。</li>
+  <li><code>abstract</code> 訂規格、<code>extends</code> 接功能、<code>@override</code> 換做法，不同款式就能一起處理。</li>
+</ul>
+
+<h2 id="glossary">8. 名詞小辭典</h2>
+<div class="table-wrap"><table>
+<tr><th>中文</th><th>英文</th><th>一句話解釋</th></tr>
+<tr><td>類別</td><td>class</td><td>自己定義的型別，像設計圖</td></tr>
+<tr><td>物件／實例</td><td>object / instance</td><td>照類別做出來的東西</td></tr>
+<tr><td>欄位</td><td>field</td><td>物件擁有的資料</td></tr>
+<tr><td>方法</td><td>method</td><td>類別裡面的函式</td></tr>
+<tr><td>建構式</td><td>constructor</td><td>建立物件時執行的特殊方法</td></tr>
+<tr><td>具名參數</td><td>named parameter</td><td>呼叫時要寫出名稱的參數</td></tr>
+<tr><td>getter</td><td>getter</td><td>用起來像欄位，實際上算出來的值</td></tr>
+<tr><td>繼承</td><td>inheritance</td><td>子類別接收父類別的欄位與方法</td></tr>
+<tr><td>覆寫</td><td>override</td><td>子類別用自己的版本取代父類別的方法</td></tr>
+<tr><td>抽象類別</td><td>abstract class</td><td>只訂規格、不能直接建立物件的類別</td></tr>
+<tr><td>空值安全</td><td>null safety</td><td>型別本身就標示「會不會是 null」</td></tr>
+<tr><td>可為 null 的型別</td><td>nullable type</td><td>型別後面加上 <code>?</code></td></tr>
+</table></div>
+
+<h2 id="homework">9. 本單元作業：把資料處理改寫成類別</h2>
+<ol>
+  <li>建立一個資料類別（例如 <code>Student</code> 或 <code>Reading</code>），欄位至少 3 個、全部用 <code>final</code>，建構式使用具名參數與 <code>required</code>。</li>
+  <li>建立一個集合類別（例如 <code>ClassRoom</code>），持有一個 <code>List</code>，並提供<strong>至少 2 個</strong> getter，其中至少 1 個回傳可為 null 的型別，用來表示「算不出來」。</li>
+  <li>主程式建立至少 3 筆資料（含 1 筆無效資料），印出一份報表，並正確顯示「無有效資料」的情況。</li>
+  <li>執行 <code>dart analyze</code>，確認沒有任何警告後，連同執行結果截圖一起繳交。</li>
+</ol>
+<div class="callout tip"><p class="callout-title">繳交前自我檢查</p>
+<ul>
+  <li>建構式看得出每個值是什麼嗎？（<code>Reading(sensorId: 'A1', celsius: 27.5)</code> 比 <code>Reading('A1', 27.5)</code> 好懂）</li>
+  <li>有沒有哪個欄位其實不會變，卻沒有寫 <code>final</code>？</li>
+  <li>把無效資料那筆刪掉再跑一次，「無有效資料」的那行還會正確出現嗎？</li>
+</ul></div>
+
+<h2 id="more">10. 延伸閱讀（dart.dev 官方文件，英文）</h2>
+<ul>
+  <li><a href="https://dart.dev/language/classes" target="_blank" rel="noopener">Classes</a>：類別、欄位、方法</li>
+  <li><a href="https://dart.dev/language/constructors" target="_blank" rel="noopener">Constructors</a>：具名建構式、<code>const</code> 建構式、初始化形式參數</li>
+  <li><a href="https://dart.dev/language/functions#named-parameters" target="_blank" rel="noopener">Named parameters</a>：具名參數與 <code>required</code></li>
+  <li><a href="https://dart.dev/null-safety" target="_blank" rel="noopener">Sound null safety</a>：空值安全總覽</li>
+  <li><a href="https://dart.dev/language/extend" target="_blank" rel="noopener">Extend a class</a>：<code>extends</code> 與 <code>@override</code></li>
+  <li><a href="https://dart.dev/learn/tutorial/object-oriented" target="_blank" rel="noopener">Define relationships with classes</a>：官方 OOP 教學章節</li>
+</ul>
+<p>小提示：看不懂英文文件時，可以用瀏覽器的翻譯功能，或請 AI 用簡單的中文解釋其中一段。</p>
+</main></div>
+<footer class="site">範例程式皆以 Dart 3.9.2 實際執行產生結果。參考資料：dart.dev 官方文件（CC BY 4.0）。</footer>
+<script>
+(function(){
+  var root=document.documentElement,key='dart-handout-theme';
+  try{var saved=localStorage.getItem(key);if(saved)root.dataset.theme=saved;}catch(e){}
+  document.querySelector('button.theme').addEventListener('click',function(){
+    var dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme=dark?'light':'dark';
+    try{localStorage.setItem(key,root.dataset.theme);}catch(e){}
+  });
+  document.querySelectorAll('button.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var text=btn.closest('figure').querySelector('pre').innerText;
+      var done=function(){btn.textContent='已複製 ✓';setTimeout(function(){btn.textContent='複製';},1500);};
+      if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,fallback);}else{fallback();}
+      function fallback(){var t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();
+        try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}
+    });
+  });
+  var page=location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('.goals input').forEach(function(box,i){
+    var id='dart-handout-'+page+'-goal-'+i;
+    try{box.checked=localStorage.getItem(id)==='1';}catch(e){}
+    box.addEventListener('change',function(){try{localStorage.setItem(id,box.checked?'1':'0');}catch(e){}});
+  });
+  var links=document.querySelectorAll('.toc a');
+  if(links.length&&'IntersectionObserver' in window){
+    var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+    var io=new IntersectionObserver(function(entries){entries.forEach(function(en){
+      if(en.isIntersecting){links.forEach(function(a){a.classList.remove('active');});
+        var a=map[en.target.id];if(a)a.classList.add('active');}
+    });},{rootMargin:'-20% 0px -70% 0px'});
+    document.querySelectorAll('main h2[id]').forEach(function(h){io.observe(h);});
+  }
+  window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=true;});});
+  var audio=document.getElementById('podcast-audio')||document.querySelector('audio');
+  if(audio){
+    var playBtn=document.getElementById('tocAudioPlay');
+    var timeDisplay=document.getElementById('tocAudioTime');
+    var progressWrap=document.getElementById('tocAudioProgressWrap');
+    var progressBar=document.getElementById('tocAudioProgressBar');
+    var allSpeedBtns=document.querySelectorAll('.speed-btn, .toc-speed-btn');
+    function fmt(s){
+      if(isNaN(s)||!isFinite(s))return '00:00';
+      var m=Math.floor(s/60),sec=Math.floor(s%60);
+      return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+    }
+    function updateUI(){
+      if(timeDisplay){
+        timeDisplay.textContent=fmt(audio.currentTime)+' / '+fmt(audio.duration);
+      }
+      if(progressBar&&audio.duration){
+        progressBar.style.width=((audio.currentTime/audio.duration)*100)+'%';
+      }
+    }
+    if(playBtn){
+      playBtn.addEventListener('click',function(){
+        if(audio.paused){audio.play();}else{audio.pause();}
+      });
+    }
+    audio.addEventListener('play',function(){if(playBtn)playBtn.textContent='⏸';});
+    audio.addEventListener('pause',function(){if(playBtn)playBtn.textContent='▶';});
+    audio.addEventListener('ended',function(){if(playBtn)playBtn.textContent='▶';});
+    audio.addEventListener('timeupdate',updateUI);
+    audio.addEventListener('loadedmetadata',updateUI);
+    audio.addEventListener('durationchange',updateUI);
+    if(progressWrap){
+      progressWrap.addEventListener('click',function(e){
+        if(!audio.duration)return;
+        var r=progressWrap.getBoundingClientRect();
+        var pos=(e.clientX-r.left)/r.width;
+        audio.currentTime=Math.max(0,Math.min(1,pos))*audio.duration;
+      });
+    }
+    allSpeedBtns.forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var spd=parseFloat(btn.getAttribute('data-speed'));
+        if(!spd)return;
+        audio.playbackRate=spd;
+        allSpeedBtns.forEach(function(b){
+          var bSpd=parseFloat(b.getAttribute('data-speed'));
+          if(Math.abs(bSpd-spd)<0.01){b.classList.add('active');}else{b.classList.remove('active');}
+        });
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>
