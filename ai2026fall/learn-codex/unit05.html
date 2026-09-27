@@ -5,8 +5,8 @@
 <script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
-<title>第 5 單元：動手看一次：Codex 修好一個有錯的程式</title>
-<meta name="description" content="用一個很小的 Python 程式，完整走一遍發現錯誤、請 Codex 修正、檢查結果的過程。">
+<title>第 5 單元：動手實作截止日看板</title>
+<meta name="description" content="做一次完整的練習：說清楚看板的規則，請 Codex 做出最小可行產品，用眼睛驗收一頁網頁，再用 worktree 同時完成兩個要求並整合。">
 <style>
 :root {
   --bg: #fbfaf7;
@@ -650,217 +650,378 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 <body>
 <a class="skip-link" href="#main">跳到主要內容</a>
 <header class="site-header"><div class="inner"><a class="brand" href="index.html">AI Agent 創作實務講義</a><nav aria-label="講義"><a href="index.html" data-title="AI Agent 創作實務講義"><span>首頁</span></a>
-<a href="unit01.html" data-title="第 1 單元：課程總覽與基本名詞"><span>單元 1</span></a>
-<a href="unit02.html" data-title="第 2 單元：三種工作方式與清楚的提示"><span>單元 2</span></a>
-<a href="unit03.html" data-title="第 3 單元：專案、檔案與 ChatGPT Work"><span>單元 3</span></a>
-<a href="unit04.html" data-title="第 4 單元：認識 Codex：安全網與專案規則"><span>單元 4</span></a>
-<a href="unit05.html" data-title="第 5 單元：動手看一次：Codex 修好一個有錯的程式" aria-current="page"><span>單元 5</span></a>
-<a href="unit06.html" data-title="第 6 單元：常用工作流程、整合演練與總結"><span>單元 6</span></a>
-<a href="unit07.html" data-title="第 7 單元：Codex 專案協作總覽與名詞"><span>單元 7</span></a>
-<a href="unit08.html" data-title="第 8 單元：Codex 專案與專案規則"><span>單元 8</span></a>
-<a href="unit09.html" data-title="第 9 單元：在 VS Code 中與 Codex 協作"><span>單元 9</span></a>
-<a href="unit10.html" data-title="第 10 單元：成績報告產生器練習"><span>單元 10</span></a>
-<a href="unit11.html" data-title="第 11 單元：截止日看板練習"><span>單元 11</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<a href="unit01.html" data-title="第 1 單元：用 ChatGPT 問對問題與交辦任務"><span>單元 1</span></a>
+<a href="unit02.html" data-title="第 2 單元：用 Codex 安全地修改專案程式"><span>單元 2</span></a>
+<a href="unit03.html" data-title="第 3 單元：在 VS Code 中與 Codex 協作"><span>單元 3</span></a>
+<a href="unit04.html" data-title="第 4 單元：動手實作成績報告產生器"><span>單元 4</span></a>
+<a href="unit05.html" data-title="第 5 單元：動手實作截止日看板" aria-current="page"><span>單元 5</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
 <div class="page">
 <aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
-<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">08:44</span></div>
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">11:46</span></div>
 <audio id="podcast-audio" preload="metadata"><source src="audio/unit05-podcast.mp3" type="audio/mpeg"></audio>
 <div class="toc-audio-controls">
 <button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
 <div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
 </div>
-<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 08:44</span></div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 11:46</span></div>
 <div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
-</div><details><summary>本頁目錄</summary><ol><li><a href="#see-it"><span class="toc-num">01</span>動手看一次：Codex 修好一個有錯的程式</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m2 0h2m1 0h3m3 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m2 0h1m3 0h3m2 0h1m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m2 0h2m1 0h1m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m3 0h1m2 0h1m1 0h2m1 0h1m-24 1h1m1 0h5m3 0h1m1 0h2m1 0h3m5 0h1m2 0h5m-29 1h1m1 0h2m1 0h4m1 0h1m1 0h1m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-32 1h2m1 0h1m1 0h5m1 0h1m2 0h1m4 0h3m5 0h1m1 0h2m-30 1h1m1 0h2m2 0h1m2 0h1m2 0h1m5 0h4m1 0h1m2 0h4m-32 1h3m1 0h3m2 0h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-29 1h3m3 0h1m3 0h5m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m-31 1h1m1 0h3m1 0h1m2 0h2m2 0h1m2 0h1m1 0h1m1 0h1m2 0h2m3 0h2m-32 1h2m2 0h2m1 0h1m4 0h5m4 0h1m1 0h4m2 0h2m-31 1h2m1 0h1m2 0h2m2 0h1m1 0h3m1 0h2m1 0h2m1 0h1m2 0h1m1 0h2m3 0h1m-33 1h2m1 0h1m4 0h2m1 0h1m2 0h1m2 0h4m2 0h2m1 0h2m1 0h2m1 0h1m-33 1h2m2 0h5m1 0h2m2 0h4m3 0h1m5 0h2m1 0h2m-31 1h2m2 0h1m1 0h3m2 0h2m1 0h1m2 0h1m2 0h1m1 0h2m1 0h5m1 0h1m-30 1h2m1 0h1m10 0h1m1 0h1m4 0h2m1 0h3m1 0h1m-32 1h1m6 0h1m1 0h1m6 0h6m1 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h1m2 0h3m1 0h1m2 0h1m1 0h4m4 0h1m3 0h2m2 0h2m-32 1h1m2 0h2m4 0h1m1 0h1m1 0h4m2 0h4m3 0h1m1 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m3 0h2m1 0h1m3 0h3m2 0h7m3 0h1m-25 1h5m1 0h1m1 0h5m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m2 0h4m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m2 0h5m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m4 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h2m1 0h2m1 0h2m1 0h4m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m6 0h1m1 0h2m3 0h3m2 0h2m1 0h3m-31 1h7m1 0h4m2 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#goal"><span class="toc-num">01</span>練習目標</a></li>
+<li><a href="#spec"><span class="toc-num">02</span>題目說明</a></li>
+<li><a href="#checklist"><span class="toc-num">03</span>MVP 驗收清單</a></li>
+<li><a href="#prompts"><span class="toc-num">04</span>給 Codex 的 MVP 提示詞</a></li>
+<li><a href="#worktree"><span class="toc-num">05</span>用 worktree 同時交辦兩個要求</a></li>
+<li><a href="#integrate"><span class="toc-num">06</span>整合、審查與重現</a></li>
+<li><a href="#record"><span class="toc-num">07</span>學生驗收紀錄</a></li>
+<li><a href="#summary"><span class="toc-num">08</span>課程總結與課後練習</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m2 0h2m1 0h3m3 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m2 0h1m3 0h3m2 0h1m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m2 0h2m1 0h1m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m3 0h1m2 0h1m1 0h2m1 0h1m-24 1h1m1 0h5m3 0h1m1 0h2m1 0h3m5 0h1m2 0h5m-29 1h1m1 0h2m1 0h4m1 0h1m1 0h1m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-32 1h2m1 0h1m1 0h5m1 0h1m2 0h1m4 0h3m5 0h1m1 0h2m-30 1h1m1 0h2m2 0h1m2 0h1m2 0h1m5 0h4m1 0h1m2 0h4m-32 1h3m1 0h3m2 0h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-29 1h3m3 0h1m3 0h5m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m-31 1h1m1 0h3m1 0h1m2 0h2m2 0h1m2 0h1m1 0h1m1 0h1m2 0h2m3 0h2m-32 1h2m2 0h2m1 0h1m4 0h5m4 0h1m1 0h4m2 0h2m-31 1h2m1 0h1m2 0h2m2 0h1m1 0h3m1 0h2m1 0h2m1 0h1m2 0h1m1 0h2m3 0h1m-33 1h2m1 0h1m4 0h2m1 0h1m2 0h1m2 0h4m2 0h2m1 0h2m1 0h2m1 0h1m-33 1h2m2 0h5m1 0h2m2 0h4m3 0h1m5 0h2m1 0h2m-31 1h2m2 0h1m1 0h3m2 0h2m1 0h1m2 0h1m2 0h1m1 0h2m1 0h5m1 0h1m-30 1h2m1 0h1m10 0h1m1 0h1m4 0h2m1 0h3m1 0h1m-32 1h1m6 0h1m1 0h1m6 0h6m1 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h1m2 0h3m1 0h1m2 0h1m1 0h4m4 0h1m3 0h2m2 0h2m-32 1h1m2 0h2m4 0h1m1 0h1m1 0h4m2 0h4m3 0h1m1 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m3 0h2m1 0h1m3 0h3m2 0h7m3 0h1m-25 1h5m1 0h1m1 0h5m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h1m2 0h4m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m2 0h5m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m4 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h2m1 0h2m1 0h2m1 0h4m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m2 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m6 0h1m1 0h2m3 0h3m2 0h2m1 0h3m-31 1h7m1 0h4m2 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
 <main id="main">
 <section class="hero">
   <p class="eyebrow">第 5 單元</p>
-  <h1>動手看一次：Codex 修好一個有錯的程式</h1>
-  <p class="lead">這一節從頭到尾走一次完整流程。就算你從來沒寫過程式，也能照著看懂每一步發生了什麼事。</p>
+  <h1>動手實作截止日看板</h1>
+  <p class="lead">這一節不是讀程式，是做第二次完整的練習：你把看板的規則說清楚，Codex 做出最小可行產品，你用眼睛驗收那一頁網頁，最後用 worktree 同時交辦兩個要求，再整合起來。</p>
 </section>
 
-<h2 id="see-it"><span class="num">01</span>動手看一次：Codex 修好一個有錯的程式</h2>
-
-<p>這個單元用一個很小的 Python 程式，完整走一遍「發現錯誤、請 Codex 修、檢查結果」的過程。就算你從來沒寫過程式，也能照著看懂。</p>
-
-<p><a class="download" href="downloads/unit05-average-bug.zip">下載本單元範例：平均分數程式</a></p>
-
-<h3>第 1 步：看懂這個程式想做什麼</h3>
-<p>這個程式想計算一串分數的<strong>平均</strong>。平均的算法是：把所有分數加起來，再除以分數的個數。</p>
-
-<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">before/average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def average(scores):"><span class="ln">1</span>def average(scores):</span>
-<span class="line" data-text="    total = 0"><span class="ln">2</span>    total = 0</span>
-<span class="line" data-text="    for score in scores:"><span class="ln">3</span>    for score in scores:</span>
-<span class="line" data-text="        total = total + score"><span class="ln">4</span>        total = total + score</span>
-<span class="line" data-text="    return total / 3"><span class="ln">5</span>    return total / 3</span>
-<span class="line" data-text=""><span class="ln">6</span></span>
-<span class="line" data-text=""><span class="ln">7</span></span>
-<span class="line" data-text="print(average([80, 90, 70]))"><span class="ln">8</span>print(average([80, 90, 70]))</span>
-<span class="line" data-text="print(average([100, 60]))"><span class="ln">9</span>print(average([100, 60]))</span>
-<span class="line" data-text="print(average([]))"><span class="ln">10</span>print(average([]))</span></code></pre></figure>
-
-<details class="explain" open>
-  <summary>逐行解說</summary>
-  <div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>行號</th><th>程式碼的意思</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td><code>def average(scores):</code> 定義一個叫 <code>average</code> 的<strong>函式</strong>。函式像一台機器：把資料（這裡叫 <code>scores</code>，一串分數）放進去，它會算出結果。冒號後面縮排的幾行，都是這台機器的內部步驟。</td></tr>
-        <tr><td>2</td><td><code>total = 0</code> 建立一個叫 <code>total</code> 的<strong>變數</strong>，先放入 0。變數像一個貼了標籤的盒子，用來暫存數字。</td></tr>
-        <tr><td>3</td><td><code>for score in scores:</code> <strong>迴圈</strong>：從分數串列中一次拿出一個分數，叫它 <code>score</code>，對每個分數都執行下一行。</td></tr>
-        <tr><td>4</td><td><code>total = total + score</code> 把目前的總和加上這個分數，再存回 <code>total</code>。迴圈跑完，<code>total</code> 就是全部分數的總和。</td></tr>
-        <tr><td>5</td><td><code>return total / 3</code> 把總和除以 3，當成結果交回去。<strong>問題就在這裡。</strong></td></tr>
-        <tr><td>8-10</td><td><code>print(...)</code> 把結果顯示在畫面上。<code>[80, 90, 70]</code> 是一個有三個分數的<strong>串列</strong>，<code>[]</code> 是一個空的串列。</td></tr>
-      </tbody>
-    </table></div>
-  </div>
-</details>
-
-<h3>第 2 步：執行，發現結果不對</h3>
-<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">在 before 資料夾中執行程式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="cd before">cd before</span>
-<span class="line" data-text="python3 average.py">python3 average.py</span></code></pre></figure>
-<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="80.0">80.0</span>
-<span class="line" data-text="53.333333333333336">53.333333333333336</span>
-<span class="line" data-text="0.0">0.0</span></code></pre></figure>
-
-<p>逐一檢查：</p>
-<ul>
-  <li>80、90、70 的平均是 80，<strong>正確</strong>。</li>
-  <li>100、60 的平均應該是 80，程式卻算出 53.33，<strong>錯誤</strong>。因為程式固定除以 3，但這裡只有 2 個分數。</li>
-  <li>沒有任何分數時，程式回答 0.0。但「沒有分數」不等於「平均 0 分」，這個結果會<strong>誤導</strong>人。</li>
+<h2 id="goal"><span class="num">01</span>練習目標</h2>
+<p>做出一個在自己電腦上就能執行的小工具：讀進一份各科的截止日資料，依一個指定的「基準日」算出每一項還剩幾天，分成「已過期、緊急、本週、之後」四區，產生一頁可以用瀏覽器打開的看板。</p>
+<p>重點不在寫出程式碼，而在四件事：把分類與排序的規則講清楚、要求結果每次都一樣（可重現）、用眼睛驗收一頁網頁、以及同時交辦兩個要求還能整合得乾淨。</p>
+<div class="callout warn">
+  <span class="label">只用虛構資料</span>
+  <p>範例裡的科目、作業名稱與日期都是虛構的。請勿放入真實的課程名單、同學姓名或其他個人資料；這份練習的成果也不可作為實際的成績或繳交依據。</p>
+</div>
+<ul class="flow">
+  <li><b>說清楚</b>分類、排序、頁面與可重現的要求</li>
+  <li><b>請 Codex 做</b>先短版提示詞，再完整版</li>
+  <li><b>自己核對</b>手算四筆天數，對照頁面</li>
+  <li><b>平行交辦</b>用 worktree 同時做兩個要求再整合</li>
 </ul>
-<div class="callout tip">
-  <span class="label">觀察重點</span>
-  <p>第一個例子剛好是 3 個分數，所以結果看起來正確。<strong>只測一種情況，很容易漏掉錯誤</strong>，這就是為什麼需要多種情況的測試。</p>
+<div class="callout note">
+  <span class="label">和上一個單元的差別</span>
+  <p>第 4 單元的產出是一份報告文字，這一次的產出是一頁網頁。真正的新東西是最後兩節：<strong>同時進行兩件事</strong>，以及<strong>合併之後怎麼確認沒有互相改壞</strong>。</p>
 </div>
 
-<h3>第 3 步：把問題描述清楚，交給 Codex</h3>
-<p>在 <code>average-bug</code> 資料夾中啟動 Codex（或在桌面版、VS Code 開啟這個資料夾），輸入：</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="before/average.py 的 average 函式計算平均時有錯。">before/average.py 的 average 函式計算平均時有錯。</span>
+<h2 id="spec"><span class="num">02</span>題目說明</h2>
+
+<h3>輸入資料</h3>
+<p>一份 <code>data/deadlines.json</code> 的截止日清單，每一筆有四個欄位：科目 <code>course</code>、名稱 <code>title</code>、類型 <code>type</code>（作業、考試或報告）、截止日 <code>due</code>（年-月-日）。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">JSON</span><span class="code-title">data/deadlines.json</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="["><span class="ln">1</span>[</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業三：鏈結串列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-23&quot; },"><span class="ln">2</span>  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業三：鏈結串列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-23&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;第一次小考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-09-25&quot; },"><span class="ln">3</span>  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;第一次小考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-09-25&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;分組報告：網路協定&quot;, &quot;type&quot;: &quot;報告&quot;, &quot;due&quot;: &quot;2026-10-02&quot; },"><span class="ln">4</span>  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;分組報告：網路協定&quot;, &quot;type&quot;: &quot;報告&quot;, &quot;due&quot;: &quot;2026-10-02&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業二：堆疊與佇列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-18&quot; },"><span class="ln">5</span>  { &quot;course&quot;: &quot;資料結構&quot;, &quot;title&quot;: &quot;作業二：堆疊與佇列&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-18&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;英文閱讀&quot;, &quot;title&quot;: &quot;讀書心得&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-28&quot; },"><span class="ln">6</span>  { &quot;course&quot;: &quot;英文閱讀&quot;, &quot;title&quot;: &quot;讀書心得&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-28&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;期中考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-10-20&quot; },"><span class="ln">7</span>  { &quot;course&quot;: &quot;線性代數&quot;, &quot;title&quot;: &quot;期中考&quot;, &quot;type&quot;: &quot;考試&quot;, &quot;due&quot;: &quot;2026-10-20&quot; },</span>
+<span class="line" data-text="  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;實習二：Git 操作&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-21&quot; }"><span class="ln">8</span>  { &quot;course&quot;: &quot;計算機概論&quot;, &quot;title&quot;: &quot;實習二：Git 操作&quot;, &quot;type&quot;: &quot;作業&quot;, &quot;due&quot;: &quot;2026-09-21&quot; }</span>
+<span class="line" data-text="]"><span class="ln">9</span>]</span></code></pre></figure>
+<p>整份資料是一個串列，最外面用中括號包住，裡面每一組大括號是一筆截止日。這份範例有 7 筆，刻意包含一筆已經過期的、一筆就是基準日當天的，以及剛好落在分區邊界上的兩筆。</p>
+
+<h3>基準日</h3>
+<p>剩幾天要從哪一天算起，叫做<strong>基準日</strong>。基準日一律由執行指令時指定，沒有指定時才用今天的日期。</p>
+<div class="callout note">
+  <span class="label">為什麼一定要能指定基準日</span>
+  <p>如果每次都用「今天」，今天做出來的頁面和明天做出來的頁面就會不一樣，你永遠無法確定差異是因為日期換了，還是因為 Codex 改壞了什麼。把基準日固定成 2026-09-21，同樣的資料就應該每次產生一模一樣的一頁，才有辦法逐字比對。這是<strong>可重現</strong>的意思，也是這個練習最重要的要求。</p>
+</div>
+
+<h3>分類與顯示規則</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>剩餘天數</th><th>分到哪一區</th><th>顯示文字</th></tr></thead>
+  <tbody>
+    <tr><td>小於 0</td><td>已過期</td><td>逾期 N 天</td></tr>
+    <tr><td>0</td><td>緊急</td><td>今天到期</td></tr>
+    <tr><td>1 到 3</td><td>緊急</td><td>剩 N 天</td></tr>
+    <tr><td>4 到 7</td><td>本週</td><td>剩 N 天</td></tr>
+    <tr><td>8 以上</td><td>之後</td><td>剩 N 天</td></tr>
+  </tbody>
+</table></div>
+
+<h3>排序規則</h3>
+<p>四個區一律照「已過期、緊急、本週、之後」的順序出現。每一區裡面，剩餘天數少的排前面；天數相同時，依科目名稱排序。</p>
+
+<h3>頁面要有的內容</h3>
+<ol>
+  <li><strong>標題與基準日</strong>：頁面最上面是「截止日看板」，下面一行寫出這次用的基準日。</li>
+  <li><strong>四個區塊</strong>：每一區有自己的標題，標題上要帶出這一區有幾項，例如「緊急（2）」。</li>
+  <li><strong>每一項的內容</strong>：截止日、類型、科目、名稱，以及剩餘天數的顯示文字。</li>
+  <li><strong>空的區塊也要在</strong>：某一區剛好沒有項目時，還是要列出這一區，裡面寫「沒有項目」。</li>
+  <li><strong>一個檔案就能打開</strong>：樣式直接寫在頁面裡，不連到外面的網站，用瀏覽器打開就能看。</li>
+</ol>
+
+<h3>流程圖解：一筆截止日怎麼變成看板上的一列</h3>
+<ul class="flow">
+  <li><b>1 讀一筆</b>科目、名稱、類型、截止日</li>
+  <li><b>2 算天數</b>截止日減基準日</li>
+  <li><b>3 分區</b>比對四區的門檻</li>
+  <li><b>4 產生文字</b>逾期、今天到期、剩 N 天</li>
+  <li><b>5 排序</b>天數少的在前、同天數依科目</li>
+  <li><b>6 輸出</b>一頁可以打開的看板</li>
+</ul>
+<p>看流程時請注意兩件事。第一，天數是<strong>整天</strong>的差，同一天到期就是 0 天，不是「剩不到一天」。第二，門檻是<strong>含</strong>邊界的：剛好 3 天屬於緊急，剛好 4 天就變成本週；剛好 7 天還是本週，8 天才是之後。這兩件事都要在提示詞裡講清楚，否則就是 Codex 替你決定。</p>
+
+<h2 id="checklist"><span class="num">03</span>MVP 驗收清單</h2>
+<p>你不需要看懂程式碼。以下每一項都是執行一次、把頁面打開用眼睛看就能檢查的；只要有一項做不到，就把它寫進「學生驗收紀錄」，再請 Codex 修。</p>
+<ul class="checklist">
+  <li>Codex 會告訴你要執行哪一行指令；照著執行就會產生看板頁面，不必自己安裝額外套件。</li>
+  <li>把 Wi-Fi 關掉再執行一次，工具照樣產生得出頁面，打開後版面也正常。</li>
+  <li>終端機上會印出一行摘要，告訴你四個區各有幾項。</li>
+  <li>用基準日 2026-09-21 執行時，四區的數量是已過期 1、緊急 2、本週 2、之後 2，合計 7 項，和資料筆數一致。</li>
+  <li>頁面最上面看得到「截止日看板」和基準日 2026-09-21。</li>
+  <li>四個區塊依「已過期、緊急、本週、之後」的順序出現，區塊標題帶著該區的項目數量。</li>
+  <li>每一項都看得到截止日、類型、科目、名稱與剩餘文字，沒有缺欄位。</li>
+  <li>同一區裡面，剩餘天數少的排在前面。</li>
+  <li>用<strong>同一個基準日</strong>再執行一次，產生出來的頁面和上一次完全相同（頁面上沒有「產生時間」這類每次都會變的內容）。</li>
+  <li>換一個基準日執行一次，例如 2026-10-01，四區的項目會跟著改變，數字也合理。</li>
+  <li>複製一份 <code>data/deadlines.json</code> 成 <code>data/test.json</code>，在副本裡把某一筆的日期改成 <code>2026-13-45</code> 這種不存在的日期，再對副本執行一次：工具會用看得懂的話告訴你哪一筆有問題，不會產生一頁怪怪的看板，也不會噴出看不懂的錯誤。原始的 <code>deadlines.json</code> 保持不動。</li>
+  <li>請先自行手算，再用下列四筆核對頁面：</li>
+</ul>
+<div class="table-wrap"><table>
+  <thead><tr><th>項目</th><th>截止日</th><th>剩餘天數</th><th>應分到</th><th>顯示文字</th></tr></thead>
+  <tbody>
+    <tr><td>作業二：堆疊與佇列</td><td>2026-09-18</td><td>-3</td><td>已過期</td><td>逾期 3 天</td></tr>
+    <tr><td>實習二：Git 操作</td><td>2026-09-21</td><td>0</td><td>緊急</td><td>今天到期</td></tr>
+    <tr><td>第一次小考</td><td>2026-09-25</td><td>4</td><td>本週</td><td>剩 4 天</td></tr>
+    <tr><td>讀書心得</td><td>2026-09-28</td><td>7</td><td>本週</td><td>剩 7 天</td></tr>
+  </tbody>
+</table></div>
+<p>後面兩筆是邊界案例：4 天剛好跨過緊急與本週的界線，7 天則剛好還留在本週。如果工具把小考放進緊急、或把讀書心得放進之後，就是門檻的比較條件寫錯了。第二筆也值得注意：當天到期顯示的是「今天到期」，不是「剩 0 天」。</p>
+
+<h2 id="prompts"><span class="num">04</span>給 Codex 的 MVP 提示詞</h2>
+
+<h3>先把工作資料夾準備好</h3>
+<p><a class="download" href="downloads/unit05-deadline-board.zip">下載本單元範例：截止日看板</a></p>
+<ol class="steps">
+  <li><p>解壓縮後把資料夾放到你好找的位置，例如桌面上的 <code>codex-lab</code>，再用 VS Code 的 <strong>檔案 &gt; 開啟資料夾</strong> 打開 <code>02-deadline-board</code>。</p></li>
+  <li><p>開啟 VS Code 的終端機（<strong>終端機 &gt; 新增終端機</strong>），確認工具都裝好了。每一行都會顯示版本號碼；出現「找不到指令」就代表那個工具還沒安裝。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">檢查版本</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git --version">git --version</span>
+<span class="line" data-text="node --version">node --version</span></code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span><span class="code-title">類似這樣就代表已安裝（版本數字可能不同）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git version 2.45.2">git version 2.45.2</span>
+<span class="line" data-text="v20.17.0">v20.17.0</span></code></pre></figure>
+  </li>
+  <li><p>建立第一個存檔點，之後不管改壞什麼都回得來。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">建立 Git 儲存庫與存檔點</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git init">git init</span>
+<span class="line" data-text="git add -A">git add -A</span>
+<span class="line" data-text="git commit -m &quot;checkpoint: 練習開始前的原始狀態&quot;">git commit -m &quot;checkpoint: 練習開始前的原始狀態&quot;</span></code></pre></figure>
+  </li>
+  <li><p>這個資料夾附了一份現成的實作。練習的重點是自己把需求講清楚，所以先把答案移走，只留下截止日資料與專案規則。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">移除現成的實作</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="git rm -q -r src test build.mjs">git rm -q -r src test build.mjs</span>
+<span class="line" data-text="git commit -m &quot;checkpoint: 移除實作，準備自己做一次&quot;">git commit -m &quot;checkpoint: 移除實作，準備自己做一次&quot;</span></code></pre></figure>
+    <p>放心，剛才的存檔點裡還留著原本的檔案。另外，<code>.agents/skills/deadline-board/assets/expected-index.html</code> 是完整答案，做完驗收之前先不要打開。</p>
+  </li>
+  <li><p>打開 Codex 側邊欄，先確認它讀到了這個專案的規則：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="列出你載入的指示來源，並用三點摘要這個專案的工作規則。">列出你載入的指示來源，並用三點摘要這個專案的工作規則。</span></code></pre></figure>
+    <p>這個專案的 <code>AGENTS.md</code> 已經替你交代了技術上的事：只用 Node.js 內建功能、不安裝套件、程式怎麼分檔案、改完要執行測試。所以下面的提示詞裡，你只要講「我要什麼」，不必講「程式怎麼寫」。</p>
+  </li>
+</ol>
+
+<h3>第一步：先貼短版</h3>
+<p>這裡有短版和完整版兩段提示詞，請照順序各試一次，重點在比較兩次的結果差多少。兩段都刻意寫成你自己講得出來的樣子：從頭到尾只有「我想要一個什麼樣的東西」。</p>
+<p>下面這段是大多數人第一次會打出來的長度。先貼這段，看 Codex 做出什麼：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="資料夾裡的 data/deadlines.json 是我各科作業、考試和報告的截止日。">資料夾裡的 data/deadlines.json 是我各科作業、考試和報告的截止日。</span>
+<span class="line" data-text="我想要一個小工具，把它變成一頁我可以用瀏覽器打開的看板，">我想要一個小工具，把它變成一頁我可以用瀏覽器打開的看板，</span>
+<span class="line" data-text="一眼看得出哪些快到期了。">一眼看得出哪些快到期了。</span>
+<span class="line" data-text="我不會寫程式，程式怎麼寫請你決定，">我不會寫程式，程式怎麼寫請你決定，</span>
+<span class="line" data-text="做完請用我看得懂的話告訴我要怎麼執行它。">做完請用我看得懂的話告訴我要怎麼執行它。</span></code></pre></figure>
+<p>做出來以後先別急著往下。執行一次、把頁面打開看兩分鐘，然後把下面這些問題問自己一遍：分成幾區、每一區的界線是誰決定的？「剩幾天」是從哪一天算起的，明天再跑一次還會一樣嗎？同一區裡面的順序是照什麼排的？已經過期的那一筆被放到哪裡去了？如果資料裡有一個不存在的日期，它會怎麼處理？</p>
+<p>短版沒有錯，它只是把這些決定全部交給了 Codex。你在頁面上看到的每一個「它自己決定的細節」，都是你沒講的部分。</p>
+
+<h3>第二步：再貼完整版</h3>
+<p>接著請 Codex 依照下面這段重做一次。完整版講的就是你剛才發現自己漏掉的那些事：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請重做一次這個截止日看板，這次照我下面說的規則做。">請重做一次這個截止日看板，這次照我下面說的規則做。</span>
+<span class="line" data-text="我不會寫程式，程式怎麼寫、分成幾個檔案都請你依這個專案的規則決定。">我不會寫程式，程式怎麼寫、分成幾個檔案都請你依這個專案的規則決定。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="重現方式：">重現方式：</span>
-<span class="line" data-text="1) 執行 python3 before/average.py">1) 執行 python3 before/average.py</span>
-<span class="line" data-text="2) average([100, 60]) 印出 53.333333333333336，預期是 80">2) average([100, 60]) 印出 53.333333333333336，預期是 80</span>
-<span class="line" data-text="3) average([]) 印出 0.0，但沒有分數時應該回傳 None，表示「沒有平均」">3) average([]) 印出 0.0，但沒有分數時應該回傳 None，表示「沒有平均」</span>
+<span class="line" data-text="【使用方式】在我自己的電腦上用一行指令就能執行，">【使用方式】在我自己的電腦上用一行指令就能執行，</span>
+<span class="line" data-text="不必連網路、不必安裝額外套件；產出是一頁網頁檔案，">不必連網路、不必安裝額外套件；產出是一頁網頁檔案，</span>
+<span class="line" data-text="預設放在 dist/index.html，我用瀏覽器打開就能看。">預設放在 dist/index.html，我用瀏覽器打開就能看。</span>
+<span class="line" data-text="執行完請在終端機印一行摘要，告訴我四個區各有幾項。">執行完請在終端機印一行摘要，告訴我四個區各有幾項。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="限制：">限制：</span>
-<span class="line" data-text="- 只修改 average 函式，不要改其他行">- 只修改 average 函式，不要改其他行</span>
-<span class="line" data-text="- 修正盡量小">- 修正盡量小</span>
+<span class="line" data-text="【基準日】剩幾天要從哪一天算起，由我在指令上指定，">【基準日】剩幾天要從哪一天算起，由我在指令上指定，</span>
+<span class="line" data-text="例如指定 2026-09-21；我沒有指定時才用今天的日期。">例如指定 2026-09-21；我沒有指定時才用今天的日期。</span>
+<span class="line" data-text="這一點很重要：同樣的資料配同樣的基準日，">這一點很重要：同樣的資料配同樣的基準日，</span>
+<span class="line" data-text="不管我哪一天執行，產生出來的那一頁都必須一模一樣，">不管我哪一天執行，產生出來的那一頁都必須一模一樣，</span>
+<span class="line" data-text="所以頁面上不要放產生時間這類每次都會變的內容。">所以頁面上不要放產生時間這類每次都會變的內容。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="請修正後再執行一次程式，並新增一個測試檔，涵蓋三個分數、兩個分數、沒有分數三種情況，">請修正後再執行一次程式，並新增一個測試檔，涵蓋三個分數、兩個分數、沒有分數三種情況，</span>
-<span class="line" data-text="執行測試並回報指令與結果。">執行測試並回報指令與結果。</span></code></pre></figure>
-
-<details class="explain">
-  <summary>為什麼要這樣寫提示？</summary>
-  <div>
-    <ul>
-      <li><strong>重現方式</strong>：給出「怎麼執行、看到什麼、預期什麼」，Codex 可以自己跑一次確認問題，比「平均算錯了」精確得多。</li>
-      <li><strong>限制</strong>：避免 Codex 順手改了其他地方，讓你難以檢查。</li>
-      <li><strong>驗證方式</strong>：要求它修完後再執行、加測試、回報結果，你不用盲目相信「我修好了」。</li>
-    </ul>
-  </div>
-</details>
-
-<h3>第 4 步：看 Codex 改了什麼</h3>
-<p>Codex 會顯示它修改的內容（稱為 diff）。下面是一份參考解答，Codex 實際的寫法可能略有不同，但重點一樣：</p>
-<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">after/average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="def average(scores):"><span class="ln">1</span>def average(scores):</span>
-<span class="line" data-text="    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;"><span class="ln">2</span>    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;</span>
-<span class="line" data-text="    if len(scores) == 0:"><span class="ln">3</span>    if len(scores) == 0:</span>
-<span class="line" data-text="        return None"><span class="ln">4</span>        return None</span>
-<span class="line" data-text="    total = 0"><span class="ln">5</span>    total = 0</span>
-<span class="line" data-text="    for score in scores:"><span class="ln">6</span>    for score in scores:</span>
-<span class="line" data-text="        total = total + score"><span class="ln">7</span>        total = total + score</span>
-<span class="line" data-text="    return total / len(scores)"><span class="ln">8</span>    return total / len(scores)</span>
-<span class="line" data-text=""><span class="ln">9</span></span>
-<span class="line" data-text=""><span class="ln">10</span></span>
-<span class="line" data-text="print(average([80, 90, 70]))"><span class="ln">11</span>print(average([80, 90, 70]))</span>
-<span class="line" data-text="print(average([100, 60]))"><span class="ln">12</span>print(average([100, 60]))</span>
-<span class="line" data-text="print(average([]))"><span class="ln">13</span>print(average([]))</span></code></pre></figure>
-
-<figure class="code"><div class="code-head"><div><span class="code-kind ">diff</span><span class="code-title">修改內容（diff）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text=" def average(scores):"> def average(scores):</span>
-<span class="line" data-text="+    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;">+    &quot;&quot;&quot;回傳分數串列的平均；沒有任何分數時回傳 None。&quot;&quot;&quot;</span>
-<span class="line" data-text="+    if len(scores) == 0:">+    if len(scores) == 0:</span>
-<span class="line" data-text="+        return None">+        return None</span>
-<span class="line" data-text="     total = 0">     total = 0</span>
-<span class="line" data-text="     for score in scores:">     for score in scores:</span>
-<span class="line" data-text="         total = total + score">         total = total + score</span>
-<span class="line" data-text="-    return total / 3">-    return total / 3</span>
-<span class="line" data-text="+    return total / len(scores)">+    return total / len(scores)</span></code></pre></figure>
-
-<details class="explain" open>
-  <summary>改了哪裡、為什麼</summary>
-  <div>
-    <ul>
-      <li><code>+</code> 開頭是新增的行，<code>-</code> 開頭是刪掉的行，前面是空格的行沒有變。</li>
-      <li>第 2 行三個引號包起來的文字是<strong>說明文字</strong>，寫給閱讀程式的人看，不影響執行。</li>
-      <li>第 3-4 行：<code>len(scores)</code> 是串列裡有幾個分數。如果是 0 個，就直接回傳 <code>None</code>（Python 裡代表「沒有值」），不往下算。</li>
-      <li>第 8 行：除以 <code>len(scores)</code>，也就是「實際的分數個數」，不再固定除以 3。</li>
-    </ul>
-  </div>
-</details>
-
-<h3>第 5 步：用測試確認真的修好了</h3>
-<p>參考的測試檔如下（Codex 寫的測試名稱或順序可能不同）：</p>
-<figure class="code"><div class="code-head"><div><span class="code-kind ">Python</span><span class="code-title">after/test_average.py</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="import unittest"><span class="ln">1</span>import unittest</span>
-<span class="line" data-text=""><span class="ln">2</span></span>
-<span class="line" data-text="from average import average"><span class="ln">3</span>from average import average</span>
-<span class="line" data-text=""><span class="ln">4</span></span>
-<span class="line" data-text=""><span class="ln">5</span></span>
-<span class="line" data-text="class AverageTest(unittest.TestCase):"><span class="ln">6</span>class AverageTest(unittest.TestCase):</span>
-<span class="line" data-text="    def test_three_scores(self):"><span class="ln">7</span>    def test_three_scores(self):</span>
-<span class="line" data-text="        self.assertEqual(average([80, 90, 70]), 80)"><span class="ln">8</span>        self.assertEqual(average([80, 90, 70]), 80)</span>
-<span class="line" data-text=""><span class="ln">9</span></span>
-<span class="line" data-text="    def test_two_scores(self):"><span class="ln">10</span>    def test_two_scores(self):</span>
-<span class="line" data-text="        self.assertEqual(average([100, 60]), 80)"><span class="ln">11</span>        self.assertEqual(average([100, 60]), 80)</span>
-<span class="line" data-text=""><span class="ln">12</span></span>
-<span class="line" data-text="    def test_no_scores(self):"><span class="ln">13</span>    def test_no_scores(self):</span>
-<span class="line" data-text="        self.assertIsNone(average([]))"><span class="ln">14</span>        self.assertIsNone(average([]))</span>
-<span class="line" data-text=""><span class="ln">15</span></span>
-<span class="line" data-text=""><span class="ln">16</span></span>
-<span class="line" data-text="if __name__ == &quot;__main__&quot;:"><span class="ln">17</span>if __name__ == &quot;__main__&quot;:</span>
-<span class="line" data-text="    unittest.main()"><span class="ln">18</span>    unittest.main()</span></code></pre></figure>
-
-<details class="explain">
-  <summary>逐行解說</summary>
-  <div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>行號</th><th>程式碼的意思</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>載入 Python 內建的測試工具 <code>unittest</code>。</td></tr>
-        <tr><td>3</td><td>從 <code>average.py</code> 取出 <code>average</code> 函式來測試。</td></tr>
-        <tr><td>6</td><td>建立一組測試，名字叫 <code>AverageTest</code>。</td></tr>
-        <tr><td>7-8</td><td>第一個測試：<code>assertEqual</code> 意思是「斷定兩者相等」。算出來的平均必須等於 80，否則測試失敗。</td></tr>
-        <tr><td>10-11</td><td>第二個測試：兩個分數的平均也必須是 80。<strong>原本的錯誤就會在這裡被抓到。</strong></td></tr>
-        <tr><td>13-14</td><td>第三個測試：<code>assertIsNone</code> 斷定沒有分數時結果是 <code>None</code>。</td></tr>
-        <tr><td>17-18</td><td>直接執行這個檔案時，跑所有測試。</td></tr>
-      </tbody>
-    </table></div>
-  </div>
-</details>
-
-<figure class="code"><div class="code-head"><div><span class="code-kind terminal">終端機指令</span><span class="code-title">在 after 資料夾中執行測試</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="cd after">cd after</span>
-<span class="line" data-text="python3 -m unittest -v">python3 -m unittest -v</span></code></pre></figure>
-<figure class="code"><div class="code-head"><div><span class="code-kind output">執行結果</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="test_no_scores (test_average.AverageTest.test_no_scores) ... ok">test_no_scores (test_average.AverageTest.test_no_scores) ... ok</span>
-<span class="line" data-text="test_three_scores (test_average.AverageTest.test_three_scores) ... ok">test_three_scores (test_average.AverageTest.test_three_scores) ... ok</span>
-<span class="line" data-text="test_two_scores (test_average.AverageTest.test_two_scores) ... ok">test_two_scores (test_average.AverageTest.test_two_scores) ... ok</span>
+<span class="line" data-text="【輸入】data/deadlines.json，每一筆有科目、名稱、">【輸入】data/deadlines.json，每一筆有科目、名稱、</span>
+<span class="line" data-text="類型（作業、考試或報告）和截止日（年-月-日）。">類型（作業、考試或報告）和截止日（年-月-日）。</span>
+<span class="line" data-text="指令要能接一個資料檔路徑當參數，讓我可以拿另一份清單測試；">指令要能接一個資料檔路徑當參數，讓我可以拿另一份清單測試；</span>
+<span class="line" data-text="沒給路徑時就用 data/deadlines.json。">沒給路徑時就用 data/deadlines.json。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="----------------------------------------------------------------------">----------------------------------------------------------------------</span>
-<span class="line" data-text="Ran 3 tests in 0.000s">Ran 3 tests in 0.000s</span>
+<span class="line" data-text="【分類】用截止日減基準日算出整天數，再分成四區：">【分類】用截止日減基準日算出整天數，再分成四區：</span>
+<span class="line" data-text="小於 0 天是已過期，0 到 3 天是緊急，4 到 7 天是本週，8 天以上是之後。">小於 0 天是已過期，0 到 3 天是緊急，4 到 7 天是本週，8 天以上是之後。</span>
+<span class="line" data-text="邊界請照字面算：剛好 3 天是緊急，剛好 4 天是本週，">邊界請照字面算：剛好 3 天是緊急，剛好 4 天是本週，</span>
+<span class="line" data-text="剛好 7 天是本週，8 天才是之後。">剛好 7 天是本週，8 天才是之後。</span>
+<span class="line" data-text="顯示文字：過期的寫「逾期 N 天」，當天到期寫「今天到期」，">顯示文字：過期的寫「逾期 N 天」，當天到期寫「今天到期」，</span>
+<span class="line" data-text="其餘寫「剩 N 天」。">其餘寫「剩 N 天」。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="OK">OK</span></code></pre></figure>
-<p>三個測試都顯示 <code>ok</code>，最後一行是 <code>OK</code>，代表全部通過。以後不管誰修改 <code>average</code>，只要再跑一次測試，就知道有沒有改壞。</p>
+<span class="line" data-text="【排序】四個區依「已過期、緊急、本週、之後」的順序出現。">【排序】四個區依「已過期、緊急、本週、之後」的順序出現。</span>
+<span class="line" data-text="每一區裡面，剩餘天數少的排前面；天數一樣時，依科目名稱排序。">每一區裡面，剩餘天數少的排前面；天數一樣時，依科目名稱排序。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【頁面內容】最上面是標題「截止日看板」和這次用的基準日。">【頁面內容】最上面是標題「截止日看板」和這次用的基準日。</span>
+<span class="line" data-text="每一區有自己的標題，標題上要看得到這一區有幾項。">每一區有自己的標題，標題上要看得到這一區有幾項。</span>
+<span class="line" data-text="每一項要顯示截止日、類型、科目、名稱和剩餘天數的文字。">每一項要顯示截止日、類型、科目、名稱和剩餘天數的文字。</span>
+<span class="line" data-text="某一區剛好沒有項目時，這一區還是要列出來，裡面寫「沒有項目」。">某一區剛好沒有項目時，這一區還是要列出來，裡面寫「沒有項目」。</span>
+<span class="line" data-text="樣式請直接寫在這一頁裡面，不要連到外面的網站。">樣式請直接寫在這一頁裡面，不要連到外面的網站。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【資料有問題時】如果某一筆的日期格式不對，或是像 2026-02-30">【資料有問題時】如果某一筆的日期格式不對，或是像 2026-02-30</span>
+<span class="line" data-text="這種不存在的日期，請用我看得懂的話告訴我是哪一筆有問題，">這種不存在的日期，請用我看得懂的話告訴我是哪一筆有問題，</span>
+<span class="line" data-text="不要自己猜一個日期，也不要默默跳過。">不要自己猜一個日期，也不要默默跳過。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="【不要做的事】不要修改 data/deadlines.json 裡的任何資料，">【不要做的事】不要修改 data/deadlines.json 裡的任何資料，</span>
+<span class="line" data-text="不要加任何需要連到外面網站的功能，">不要加任何需要連到外面網站的功能，</span>
+<span class="line" data-text="也不要放入真實的課程名單或同學姓名。">也不要放入真實的課程名單或同學姓名。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="做完請用我看得懂的話告訴我怎麼執行、怎麼打開那一頁，">做完請用我看得懂的話告訴我怎麼執行、怎麼打開那一頁，</span>
+<span class="line" data-text="以及我要怎麼自己挑幾筆手算天數、對照頁面確認它沒算錯。">以及我要怎麼自己挑幾筆手算天數、對照頁面確認它沒算錯。</span>
+<span class="line" data-text="你如果沒有真的自己執行過、對過答案，就不要跟我說「已經驗證完成」。">你如果沒有真的自己執行過、對過答案，就不要跟我說「已經驗證完成」。</span></code></pre></figure>
+<div class="callout tip">
+  <span class="label">兩次的差別在哪</span>
+  <p>把兩次產生的頁面並排看一次。多出來的內容幾乎都不是「Codex 變聰明了」，而是你把原本沒說的話說了出來。其中最關鍵的一句是「同樣的資料配同樣的基準日，產生出來的那一頁必須一模一樣」，因為它讓你之後每一次修改都有辦法驗證。</p>
+</div>
 
-<div class="callout try">
-  <span class="label">試試看</span>
-  <p>把 <code>after/average.py</code> 第 8 行暫時改回 <code>return total / 3</code>，再執行一次測試。你會看到哪一個測試失敗？失敗訊息說了什麼？看完後記得改回來。</p>
+<h2 id="worktree"><span class="num">05</span>用 worktree 同時交辦兩個要求</h2>
+<p>MVP 驗收通過之後，再把以下兩個要求加上去。這一節的重點不是這兩個功能本身，而是<strong>同時進行兩件事而不互相干擾</strong>。</p>
+<div class="card-grid">
+  <div class="card"><h4>要求一：類型顏色</h4><p>作業、考試、報告三種類型，在看板上用不同的底色標示，一眼分得出來。</p></div>
+  <div class="card"><h4>要求二：統計列</h4><p>在標題下方加一行統計：「共 7 項，其中作業 4 項、考試 2 項、報告 1 項」。</p></div>
 </div>
 
 <div class="callout note">
-  <span class="label">Windows 使用者</span>
-  <p>如果終端機說找不到 <code>python3</code>，改用 <code>python</code> 或 <code>py</code>，例如 <code>py -m unittest -v</code>。</p>
+  <span class="label">為什麼要用 worktree</span>
+  <p>如果兩個對話同時修改同一個資料夾，它們會改到彼此的檔案，很難分清楚哪個修改是誰做的。Worktree 讓每個對話有自己的一份檔案副本，<strong>本機（Local）像是前景，worktree 像是背景</strong>，兩邊互不打擾，完成後再整合。</p>
 </div>
 
-<nav class="pager" aria-label="上下頁"><a href="unit04.html">上一單元：第 4 單元 認識 Codex：安全網與專案規則</a><a href="unit06.html">下一單元：第 6 單元 常用工作流程、整合演練與總結</a></nav>
+<h3>做法一：在 VS Code 的 Codex 擴充套件中</h3>
+<ol class="steps">
+  <li><p>對話一留在本機，做要求一：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請在看板上讓作業、考試、報告三種類型用不同的底色標示，">請在看板上讓作業、考試、報告三種類型用不同的底色標示，</span>
+<span class="line" data-text="讓我一眼分得出來，文字仍然要看得清楚。">讓我一眼分得出來，文字仍然要看得清楚。</span>
+<span class="line" data-text="分類規則、排序規則和原始資料都不要動。">分類規則、排序規則和原始資料都不要動。</span>
+<span class="line" data-text="完成後請執行測試，並用基準日 2026-09-21 產生一次看板，回報結果。">完成後請執行測試，並用基準日 2026-09-21 產生一次看板，回報結果。</span></code></pre></figure>
+  </li>
+  <li><p>開一個新對話，先輸入 <code>/worktree</code>，讓這個對話在自己的工作副本裡做要求二：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/worktree">/worktree</span>
+<span class="line" data-text="請在頁面標題下方加一行統計：">請在頁面標題下方加一行統計：</span>
+<span class="line" data-text="「共 N 項，其中作業 A 項、考試 B 項、報告 C 項」。">「共 N 項，其中作業 A 項、考試 B 項、報告 C 項」。</span>
+<span class="line" data-text="數字要跟著資料自動算，換一份清單也要正確。">數字要跟著資料自動算，換一份清單也要正確。</span>
+<span class="line" data-text="請一併加上自動檢查，確認這行統計算得對。">請一併加上自動檢查，確認這行統計算得對。</span>
+<span class="line" data-text="分類規則、排序規則和原始資料都不要動。">分類規則、排序規則和原始資料都不要動。</span>
+<span class="line" data-text="完成後請執行測試，並用基準日 2026-09-21 產生一次看板，回報結果。">完成後請執行測試，並用基準日 2026-09-21 產生一次看板，回報結果。</span></code></pre></figure>
+  </li>
+</ol>
+<p>兩邊都會遇到同一件事：原本「產生出來的頁面要和上一次一模一樣」的那項自動檢查會失敗。這是正常的，因為頁面的內容本來就被你改變了。正確的處理順序在下一節，<strong>不是</strong>先把預期結果改掉。</p>
+
+<h3>做法二：在 ChatGPT 桌面版中</h3>
+<ol class="steps">
+  <li><p>在新對話畫面的輸入框下方選擇 <strong>Worktree</strong>，並選擇起始分支（例如 <code>main</code>）。</p></li>
+  <li><p>送出提示。Codex 會以這個分支建立 worktree，預設處於「detached HEAD」狀態，也就是還沒有掛在任何分支名稱上。</p></li>
+  <li><p>完成後二選一：</p>
+    <ul>
+      <li>在 worktree 上按 <strong>Create branch here</strong> 建立分支，再 commit、push、開 PR。</li>
+      <li>按 <strong>Hand off</strong> 把對話和程式碼移回 <strong>Local</strong>，在你平常的 VS Code 視窗中檢查。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>做法三：在 VS Code 的 Agents window 中</h3>
+<p>開新工作階段，<strong>Session Target</strong> 選 <strong>Codex</strong>，勾選 <strong>New Worktree</strong> 並選擇基準分支。記得 worktree 只包含已 commit 的檔案，開始前要先 commit。</p>
+
+<h3>Worktree 的注意事項</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>狀況</th><th>說明與做法</th></tr></thead>
+  <tbody>
+    <tr><td>同一分支不能兩處同時使用</td><td>在 worktree 建了 <code>feature/a</code> 分支後，本機就無法切換到它。想在本機檢查，改用 <strong>Hand off</strong></td></tr>
+    <tr><td>被 Git 忽略的檔案不會跟過去</td><td>桌面版可在儲存庫根目錄建立 <code>.worktreeinclude</code>，列出要複製的忽略檔（例如 <code>.env</code>）</td></tr>
+    <tr><td>新 worktree 缺少套件</td><td>在桌面版本機環境設定 setup script，建立 worktree 時自動安裝</td></tr>
+    <tr><td>占用磁碟空間</td><td>桌面版預設保留最近 15 個 Codex 管理的 worktree；刪除前會存快照，重新打開對話可以還原</td></tr>
+    <tr><td>需要長期使用</td><td>從側邊欄專案的三點選單建立 permanent worktree，不會被自動刪除</td></tr>
+  </tbody>
+</table></div>
+
+<h2 id="integrate"><span class="num">06</span>整合、審查與重現</h2>
+<p>兩個要求都完成並合併之後，先請 Codex 幫你看一次有沒有互相改壞：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="/review 比較目前分支與 main。">/review 比較目前分支與 main。</span>
+<span class="line" data-text="請特別看兩個修改有沒有動到同一段產生頁面的程式，">請特別看兩個修改有沒有動到同一段產生頁面的程式，</span>
+<span class="line" data-text="以及分類規則、排序規則和原始資料有沒有被改到。">以及分類規則、排序規則和原始資料有沒有被改到。</span></code></pre></figure>
+<p>接著才處理那項失敗的檢查。記住順序：<strong>先更新規則說明，人親自打開頁面確認正確，最後才更新預期結果。</strong></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="兩個要求已經合併。請先執行測試並用基準日 2026-09-21 產生一次看板，">兩個要求已經合併。請先執行測試並用基準日 2026-09-21 產生一次看板，</span>
+<span class="line" data-text="告訴我怎麼用瀏覽器打開它。">告訴我怎麼用瀏覽器打開它。</span>
+<span class="line" data-text="等我親眼確認頁面正確之後，你再把這一頁存成新的預期結果，">等我親眼確認頁面正確之後，你再把這一頁存成新的預期結果，</span>
+<span class="line" data-text="並告訴我新舊預期結果差在哪幾行。">並告訴我新舊預期結果差在哪幾行。</span></code></pre></figure>
+<div class="callout try">
+  <span class="label">想一想</span>
+  <p>為什麼要<strong>先改規則說明、再改程式、最後才更新預期結果</strong>，而不是直接把預期結果換成程式現在產生的那一頁，讓比對「通過」？如果反過來做，這項檢查還能幫你抓到什麼？</p>
+</div>
+
+<h3>用技能重現</h3>
+<p>這個專案附了一份技能，把「看規則、執行測試、產生頁面、比對結果」這一整套步驟寫在裡面。你在新的對話裡不必重講一遍規則，直接呼叫它就好：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="$deadline-board 用基準日 2026-09-21 重現範例看板，並確認與預期頁面一致。">$deadline-board 用基準日 2026-09-21 重現範例看板，並確認與預期頁面一致。</span></code></pre></figure>
+<div class="table-wrap"><table>
+  <thead><tr><th>項目</th><th>預期結果</th></tr></thead>
+  <tbody>
+    <tr><td>測試</td><td>全部通過</td></tr>
+    <tr><td>已過期</td><td>1 項</td></tr>
+    <tr><td>緊急</td><td>2 項</td></tr>
+    <tr><td>本週</td><td>2 項</td></tr>
+    <tr><td>之後</td><td>2 項</td></tr>
+    <tr><td>頁面比對</td><td>與預期頁面一致</td></tr>
+  </tbody>
+</table></div>
+
+<h3>延伸挑戰</h3>
+<p>還有時間的話，試著改一個會牽動整套規則的需求：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想多加一個「今天」區，把當天到期的項目從緊急區獨立出來。">我想多加一個「今天」區，把當天到期的項目從緊急區獨立出來。</span>
+<span class="line" data-text="請先說明需要修改哪些地方（包含規則說明、自動檢查與預期結果），">請先說明需要修改哪些地方（包含規則說明、自動檢查與預期結果），</span>
+<span class="line" data-text="列出修改計畫給我確認，確認後再動手。">列出修改計畫給我確認，確認後再動手。</span></code></pre></figure>
+
+<h2 id="record"><span class="num">07</span>學生驗收紀錄</h2>
+<p>把這四項寫下來，這份紀錄就是你這次練習的成果。</p>
+<ul>
+  <li>Codex 正確完成的一件事：</li>
+  <li>我發現的一個問題或不清楚之處：</li>
+  <li>我用來重現問題的輸入（哪一筆資料或哪一個基準日，改成什麼）：</li>
+  <li>我要求的修改，以及我如何確認修改有效：</li>
+</ul>
+<div class="callout note">
+  <span class="label">存檔</span>
+  <p>確認一切沒問題後，別忘了留一個存檔點：<code>git add -A</code> 再 <code>git commit -m "完成截止日看板練習"</code>。</p>
+</div>
+
+<h2 id="summary"><span class="num">08</span>課程總結與課後練習</h2>
+
+<h3>檢核清單</h3>
+<ul class="checklist">
+  <li>我知道桌面版、CLI、VS Code 擴充套件各自把什麼當作專案。</li>
+  <li>我的專案有 <code>AGENTS.md</code>，並確認 Codex 讀到了它。</li>
+  <li>我知道 <code>.codex/config.toml</code> 只在信任的專案生效，以及設定的優先順序。</li>
+  <li>我能在 VS Code 中把選取的內容加入對話，並使用 <code>/plan</code>、<code>/review</code>、<code>/worktree</code>。</li>
+  <li>我分得清 Codex 設定（<code>config.toml</code>）和編輯器設定（<code>chatgpt.</code> 開頭）。</li>
+  <li>我完成了兩次練習，並用 <code>$grade-report</code>、<code>$deadline-board</code> 重現結果。</li>
+  <li>我會要求「同樣的輸入每次要產生一樣的結果」，並用它來驗證每一次修改。</li>
+  <li>我知道 worktree 隔離的是檔案修改，不是安全邊界。</li>
+</ul>
+
+<h3>課後練習</h3>
+<ol>
+  <li><strong>整理專案</strong>：為自己的期末專題建立 Codex 專案，釘選專案、把現有對話改成描述成果的標題，並封存已完成的對話。</li>
+  <li><strong>寫規則</strong>：在專題中執行 <code>/init</code>，把產生的 <code>AGENTS.md</code> 改寫成至少 5 條你們組的規則，並請 Codex 列出它載入的指示來源。</li>
+  <li><strong>做一個技能</strong>：挑一件專題中會重複做的事（例如「產生週報」或「執行全部檢查並彙整結果」），用 <code>$skill-creator</code> 或手動建立技能，並準備一份預期結果讓技能自我驗證。</li>
+  <li><strong>平行作業</strong>：用 worktree 完成截止日看板的兩個要求，最後用 <code>/review</code> 審查，截圖記錄 Hand off 或 Create branch here 的過程。</li>
+</ol>
+
+<h3>延伸閱讀（官方文件）</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>主題</th><th>網址</th></tr></thead>
+  <tbody>
+    <tr><td>專案與對話</td><td><a href="https://learn.chatgpt.com/docs/projects">learn.chatgpt.com/docs/projects</a></td></tr>
+    <tr><td>AGENTS.md</td><td><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">learn.chatgpt.com/docs/agent-configuration/agents-md</a></td></tr>
+    <tr><td>設定基礎</td><td><a href="https://learn.chatgpt.com/docs/config-file/config-basic">learn.chatgpt.com/docs/config-file/config-basic</a></td></tr>
+    <tr><td>建立技能</td><td><a href="https://learn.chatgpt.com/docs/build-skills">learn.chatgpt.com/docs/build-skills</a></td></tr>
+    <tr><td>本機環境</td><td><a href="https://learn.chatgpt.com/docs/environments/local-environment">learn.chatgpt.com/docs/environments/local-environment</a></td></tr>
+    <tr><td>開發者指令</td><td><a href="https://learn.chatgpt.com/docs/developer-commands">learn.chatgpt.com/docs/developer-commands</a></td></tr>
+    <tr><td>開發者設定</td><td><a href="https://learn.chatgpt.com/docs/developer-settings">learn.chatgpt.com/docs/developer-settings</a></td></tr>
+    <tr><td>Worktrees</td><td><a href="https://learn.chatgpt.com/docs/environments/git-worktrees">learn.chatgpt.com/docs/environments/git-worktrees</a></td></tr>
+    <tr><td>VS Code 代理</td><td><a href="https://code.visualstudio.com/docs/agents/overview">code.visualstudio.com/docs/agents/overview</a></td></tr>
+    <tr><td>VS Code 代理 harness</td><td><a href="https://code.visualstudio.com/docs/agents/run/agent-harnesses">code.visualstudio.com/docs/agents/run/agent-harnesses</a></td></tr>
+  </tbody>
+</table></div>
+
+<nav class="pager" aria-label="上下頁"><a href="unit04.html">上一單元：第 4 單元 動手實作成績報告產生器</a><a href="index.html">回講義首頁</a></nav>
 
 </main>
 </div>
