@@ -99,17 +99,54 @@ img { max-width: 100%; }
 .site-header .inner {
   width: var(--layout-w);
   margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;  /* 導覽列置中，站名靠左、主題鈕靠右 */
   gap: 0.5rem 1.25rem;
   align-items: center;
-  justify-content: space-between;
   padding-block: 0.7rem;
 }
-.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
-.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header .brand { justify-self: start; font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header .theme-toggle { justify-self: end; }
+.site-header nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1rem; font-size: 0.95rem; }
 .site-header nav a { text-decoration: none; color: var(--muted); }
 .site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* 滑過（或鍵盤聚焦）導覽標籤時，顯示該頁的完整標題 */
+.site-header nav a[data-hint] { position: relative; }
+.site-header nav a[data-hint]::after {
+  content: attr(data-hint);
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: min(22rem, 70vw);
+  width: max-content;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease 0.05s, visibility 0.12s ease 0.05s;
+}
+.site-header nav a[data-hint]:hover::after,
+.site-header nav a[data-hint]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+/* 最外側的標籤改為貼邊，長標題才不會撐出視窗 */
+.site-header nav a[data-hint]:first-child::after { left: 0; transform: none; }
+.site-header nav a[data-hint]:last-child::after { left: auto; right: 0; transform: none; }
+@media (hover: none) {
+  .site-header nav a[data-hint]::after { display: none; }
+}
 
 /* 版面佔父層 90% 寬，不設固定上限；目錄欄隨視窗伸縮，讓條目盡量維持單行 */
 :root { --layout-w: 90%; }
@@ -445,7 +482,6 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 
 /* ---------- Theme toggle ---------- */
 
-.header-end { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
 .theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -593,6 +629,9 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   th, td { padding: 0.45rem 0.6rem; }
   .callout { padding: 0.7rem 0.9rem; }
   .site-header .inner { padding-block: 0.55rem; }
+  /* 窄螢幕放不下三欄：站名與主題鈕同一列，導覽列換到下一列置中 */
+  .site-header .inner { grid-template-columns: 1fr auto; }
+  .site-header nav { grid-row: 2; grid-column: 1 / -1; }
 }
 
 @media print {
@@ -649,10 +688,10 @@ table th:first-child, table td:first-child { white-space: nowrap; }
 </head>
 <body>
 <a class="skip-link" href="#main">跳到主要內容</a>
-<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><div class="header-end"><nav aria-label="講義"><a href="index.html" aria-current="page">首頁</a>
-<a href="news01.html">時事 1</a>
-<a href="news02.html">時事 2</a>
-<a href="news03.html">時事 3</a></nav><button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button></div></div></header>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><nav aria-label="講義"><a href="index.html" aria-current="page" data-hint="讀懂一則 AI 新聞，不需要會寫程式">首頁</a>
+<a href="news01.html" data-hint="AI 會不會失控？一場吵了兩週的大爭論">時事 1</a>
+<a href="news02.html" data-hint="不會講話的 AI：一個只做選擇題的新模型">時事 2</a>
+<a href="news03.html" data-hint="會替你動手的 AI：Meta Muse 與「AI 代理」這件事">時事 3</a></nav><button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button></div></header>
 <div class="page no-toc">
 
 <main id="main">
