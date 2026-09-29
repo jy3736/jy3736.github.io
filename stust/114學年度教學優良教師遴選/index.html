@@ -480,7 +480,7 @@ html.present .nav-arrow[disabled]:hover{opacity:.06}
   <a href="#s1"><span>課堂問題與教學研究</span><span class="page">01</span></a>
   <a href="#s2"><span>教學成果與專業價值</span><span class="page">02</span></a>
   <div class="catalog-group">教學規劃與成效</div>
-  <a href="#s3"><span>形成性評量與實作累積</span><span class="page">03</span></a>
+  <a href="#s3"><span>形成性評量與實作累積</span><span class="page">04</span></a>
   <a href="#s4"><span>PEA 穩定學習循環</span><span class="page">04</span></a>
   <a href="#s5"><span>AI 輔助課程教學工具</span><span class="page">05</span></a>
   <a href="#s6"><span>團隊專題驗證所學</span><span class="page">06</span></a>
@@ -1017,7 +1017,7 @@ document.addEventListener('fullscreenchange',()=>{
 });
 
 /* 精簡版／完整版切換 */
-const SIMPLE_SLIDES=['s0','s1','s3','s5','s6','s7','s9','s10','s11','s12'];
+const SIMPLE_SLIDES=['s0','s1','s4','s5','s6','s7','s9','s10','s11','s12'];
 const deckToggle=document.querySelector('.deck-toggle');
 const catalogLinks=[...catalog.querySelectorAll('a')];
 let simpleDeck=false;
@@ -1034,14 +1034,14 @@ function applyDeck(simple){
   });
   slides.forEach((slide,index)=>{
     const num=slide.querySelector('.foot .num');
-    if(num)num.textContent=pad2(index);
+    if(num)num.textContent=slide.id==='s3'&&!simple?'04':pad2(index);
   });
   catalogLinks.forEach(link=>{
     const id=link.getAttribute('href').slice(1);
     const index=slides.findIndex(slide=>slide.id===id);
     link.classList.toggle('is-off',index<0);
     const page=link.querySelector('.page');
-    if(page&&index>=0)page.textContent=pad2(index);
+    if(page&&index>=0)page.textContent=id==='s3'&&!simple?'04':pad2(index);
   });
   deckToggle.querySelector('.mode').textContent=simple?'切換為完整版':'切換為精簡版';
   deckToggle.querySelector('.cnt').textContent=simple?`目前 精簡版 ${slides.length} 頁`:`目前 完整版 ${slides.length} 頁`;
