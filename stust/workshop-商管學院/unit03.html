@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%AC%3C/text%3E%3C/svg%3E">
+<title>用 AI Agent 逐步打造 SIMS 統計分析工具</title>
+<meta name="description" content="休閒二年級・統計學（一）：用三輪提示，從專業需求逐步建立並檢核前後測分析 App。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* Hovering a nav number shows that unit's full title instantly, in a strip under the header. */
+.site-header .inner { position: relative; }
+/* the label is scaled, never the <a>: a transform on the link would make it the
+   containing block for the strip below and collapse it to the link's width */
+.site-header nav a > span { display: inline-block; transition: transform 0.12s ease; }
+.site-header nav a { transition: color 0.12s ease; }
+.site-header nav a:hover,
+.site-header nav a:focus-visible { color: var(--accent); }
+.site-header nav a:hover > span,
+.site-header nav a:focus-visible > span { transform: scale(1.18); }
+.site-header nav a[data-title]::after {
+  content: attr(data-title);
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  /* the box hugs the title: its own width plus roughly 10%, and never wider than the header */
+  width: max-content;
+  max-width: 90%;
+  padding: 0.55rem 1em;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 18%);
+  pointer-events: none;
+}
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .site-header nav a, .site-header nav a > span { transition: none; }
+  .site-header nav a:hover > span, .site-header nav a:focus-visible > span { transform: none; }
+}
+@media (max-width: 960px) {
+  /* touch screens have no hover: the strip would stick after a tap */
+  .site-header nav a[data-title]::after { content: none; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .theme-toggle, .toc-qr { display: none !important; }
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">商管學院 × AI Agent 實作講義</a><nav aria-label="講義"><a href="index.html" data-title="商管學院 × AI Agent 實作講義"><span>首頁</span></a>
+<a href="unit01.html" data-title="共同課程：從 AI 到 AI Agent 應用"><span>AI Agent 入門</span></a>
+<a href="unit02.html" data-title="零售管理練習：把零售問題做成網頁 APP"><span>零售管理</span></a>
+<a href="unit03.html" data-title="用 AI Agent 逐步打造 SIMS 統計分析工具" aria-current="page"><span>統計學（一）</span></a>
+<a href="unit04.html" data-title="排班調整練習"><span>人力資源管理</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><details><summary>本頁目錄</summary><ol><li><a href="#ex1-problem"><span class="toc-num">01</span>Problem Statement 題目敘述</a></li>
+<li><a href="#ex1-prompt"><span class="toc-num">02</span>Suggested Prompts 建議 Prompt</a></li>
+<li><a href="#ex1-outcome"><span class="toc-num">03</span>Expected Outcomes 預期成果</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 196 196" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="196" height="196" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h49v49h-49z"/><path class="qrline" stroke="#000" d="M4 4.5h7m5 0h2m1 0h1m1 0h1m1 0h7m4 0h1m1 0h1m1 0h7m-41 1h1m5 0h1m6 0h1m1 0h1m1 0h1m2 0h2m3 0h3m2 0h1m1 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m1 0h1m3 0h1m2 0h6m1 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h2m2 0h1m1 0h1m1 0h1m2 0h1m3 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h2m1 0h1m5 0h2m1 0h1m1 0h3m4 0h4m1 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h1m2 0h1m1 0h1m3 0h1m2 0h2m3 0h6m1 0h1m1 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h1m2 0h4m5 0h2m2 0h1m2 0h2m1 0h2m-32 1h1m1 0h5m3 0h1m1 0h2m3 0h2m3 0h4m2 0h2m1 0h1m2 0h5m-39 1h1m2 0h1m3 0h1m1 0h3m1 0h3m2 0h6m7 0h4m1 0h1m1 0h1m1 0h1m-40 1h2m3 0h2m2 0h3m2 0h2m3 0h3m1 0h1m1 0h5m1 0h5m2 0h1m-38 1h2m5 0h2m3 0h1m1 0h1m4 0h2m3 0h1m4 0h3m2 0h2m1 0h1m-40 1h2m1 0h1m1 0h3m1 0h2m1 0h2m3 0h4m3 0h1m1 0h4m1 0h1m3 0h1m1 0h2m-39 1h1m1 0h3m10 0h1m11 0h1m2 0h1m3 0h4m1 0h1m-39 1h1m3 0h4m2 0h3m1 0h2m3 0h2m1 0h2m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m-35 1h3m2 0h3m2 0h4m4 0h3m2 0h2m4 0h1m1 0h2m1 0h1m-37 1h1m2 0h3m8 0h1m1 0h1m5 0h1m2 0h3m2 0h1m1 0h1m1 0h1m1 0h3m-39 1h4m2 0h6m2 0h1m2 0h2m3 0h2m4 0h3m2 0h4m2 0h1m-35 1h5m1 0h5m1 0h1m3 0h1m4 0h1m1 0h1m2 0h1m3 0h2m-38 1h1m2 0h1m3 0h1m1 0h1m1 0h1m4 0h1m2 0h1m6 0h1m2 0h2m1 0h1m1 0h1m1 0h1m2 0h1m-39 1h1m2 0h4m2 0h7m1 0h1m2 0h2m4 0h1m10 0h1m-38 1h1m1 0h3m2 0h1m2 0h2m4 0h1m1 0h1m1 0h1m1 0h4m2 0h8m2 0h2m-38 1h1m1 0h2m1 0h2m4 0h1m2 0h1m3 0h2m2 0h3m2 0h1m-29 1h2m1 0h1m2 0h1m2 0h1m7 0h4m4 0h1m3 0h1m3 0h1m3 0h1m-40 1h1m1 0h2m1 0h2m1 0h1m3 0h3m1 0h2m4 0h1m2 0h6m4 0h1m1 0h4m-37 1h2m2 0h1m1 0h1m3 0h1m1 0h1m2 0h3m1 0h1m5 0h1m1 0h1m1 0h1m2 0h2m2 0h1m-41 1h3m2 0h6m1 0h1m2 0h1m1 0h1m3 0h2m3 0h3m1 0h1m1 0h1m2 0h2m-37 1h3m7 0h1m5 0h1m2 0h4m1 0h1m1 0h1m1 0h1m1 0h4m2 0h2m-38 1h2m2 0h1m1 0h1m2 0h1m2 0h1m1 0h6m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h4m-41 1h3m1 0h1m2 0h2m1 0h4m3 0h2m1 0h3m1 0h1m1 0h3m1 0h5m1 0h1m2 0h1m-40 1h1m1 0h2m1 0h3m4 0h6m1 0h1m1 0h2m3 0h1m5 0h3m1 0h3m-39 1h1m3 0h1m2 0h3m2 0h2m4 0h5m1 0h1m1 0h1m1 0h1m1 0h1m1 0h6m-38 1h1m2 0h4m1 0h1m2 0h3m3 0h1m1 0h4m1 0h2m3 0h10m-31 1h1m3 0h1m3 0h4m1 0h1m1 0h6m1 0h3m3 0h2m2 0h1m-41 1h7m2 0h1m3 0h1m2 0h2m2 0h2m3 0h4m1 0h3m1 0h1m1 0h2m-38 1h1m5 0h1m1 0h2m4 0h5m2 0h2m1 0h2m1 0h2m3 0h1m3 0h2m2 0h1m-41 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h2m4 0h2m1 0h2m1 0h3m1 0h1m1 0h5m2 0h1m-40 1h1m1 0h3m1 0h1m1 0h3m1 0h2m2 0h1m1 0h2m1 0h4m3 0h1m2 0h1m1 0h1m1 0h1m-36 1h1m1 0h3m1 0h1m1 0h2m7 0h2m6 0h7m1 0h6m-39 1h1m5 0h1m3 0h1m2 0h1m1 0h2m4 0h1m4 0h1m1 0h1m2 0h2m1 0h1m1 0h1m2 0h1m-40 1h7m1 0h2m3 0h4m2 0h1m4 0h3m1 0h4m2 0h3m1 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero">
+  <p class="eyebrow">第二次・10/16（星期五）・休閒二年級・統計學（一）</p>
+  <h1>用 AI Agent 逐步打造 SIMS 統計分析工具</h1>
+  <p class="lead">從休閒專業需求出發，分三輪提示建立 App；用背景知識說清楚需求，再逐步檢查和擴充成果。</p>
+</section>
+
+<p>本單元的重點不是教統計公式或程式設計，而是示範：當休閒專業工作需要一個前後測分析工具時，不會寫程式的人也能把需求、資料規則和已知的統計背景說給 AI Agent，請它先做初版，再逐步增加功能。每一輪都要試用成果、用提供的參考值核對結果，確認舊功能還在，再提出下一輪需求。</p>
+
+<figure class="page-figure">
+  <img src="figures/unit03a-agent-iteration.png" alt="從休閒活動的專業需求與 CSV 資料出發，學生提示 AI Agent 建立網頁工具，再核對結果並逐輪增加功能；三個階段依序呈現平均圖、量測檢查與配對分析及盒鬚圖。">
+  <figcaption>本單元的工作節奏：說明專業需求、請 AI Agent 建立工具、用參考資料核對，再逐輪擴充並保留三個版本。</figcaption>
+</figure>
+
+<div class="callout warn"><span class="label">量表與資料使用提醒</span><p>本單元沿用授課教師指定 SIMS 版本的原題和七點作答尺度，不改題目；學生只需以系上戶外體驗活動為作答對象。SIMS 本來就是測量參與者當下對特定活動的動機，原作者也說明可用於實地或實驗活動，因此不必和原研究辦同一種活動。請勿讓 AI 改寫題目；前後測使用同一版本。這份資料是虛構的，只用於練習統計計算。(<a href="https://selfdeterminationtheory.org/SDT/documents/2000_GuayVallerandBlanchard_MO.pdf" target="_blank" rel="noopener">SIMS 原始論文</a>)</p></div>
+
+<h2 id="ex1-problem"><span class="num">01</span>Problem Statement 題目敘述</h2>
+<h3>情境與資料</h3>
+<p class="meta">🌿 專業需求：把休閒活動前後測整理成容易檢視的分析 App</p>
+<p>系上辦理戶外體驗活動，需要整理參與者前後測。提供兩種模擬情境：一組 53 位虛構參與者，在部分構面有變化；另一組 52 位虛構參與者，各構面變化很小。每人有相同代碼的前後測資料，沿用 SIMS 16 題、每題 1 至 7 分。這些資料是為了讓學生測試 App 的讀檔、配對和分析功能而刻意生成，不代表真實活動成效。</p>
+<p><a href="downloads/sims_prepost_two_scenarios.csv" download>下載前後測模擬資料 CSV</a>　<a href="downloads/sims_prepost_two_scenarios.xlsx" download>下載 Excel 活頁簿</a></p>
+<div class="table-wrap"><table><thead><tr><th>欄位群</th><th>說明</th><th>分析用途</th></tr></thead><tbody>
+<tr><td><code>cohort</code></td><td>growth_pattern（部分構面改變）或 stable_pattern（變化很小）</td><td>選擇教學情境</td></tr>
+<tr><td><code>participant_id</code></td><td>虛構參與者代碼，同一情境內前後測相同</td><td>確認配對，不可跨情境配對</td></tr>
+<tr><td><code>intrinsic1_pre</code>…<code>amotivation3_post</code></td><td>四構面、每構面四題的前後測作答；1 至 7 分</td><td>計算構面平均與前後差異</td></tr>
+</tbody></table></div>
+<p>四個構面為內在動機（intrinsic motivation）、認同調節（identified regulation）、外在調節（external regulation）及無動機（amotivation）。高分只表示該構面題目反應較高；解讀外在調節及無動機時，不要將所有分數都簡化成「越高越好」。</p>
+<h3>構面對應方式</h3>
+<p>實際問卷沿用授課教師指定的 SIMS 版本原題；不要把以下白話解釋當成問卷題目，也不要請 AI 改寫原題。資料欄位按原量表的四個構面整理，每構面四題。</p>
+<div class="callout tip"><span class="label">四個動機指標，白話來看</span><ul><li><strong>內在動機：</strong>「我覺得活動本身有趣，所以想參加。」</li><li><strong>認同調節：</strong>「我知道這件事對我有價值，所以願意參加。」</li><li><strong>外在調節：</strong>「我受到外在期待、獎勵或壓力影響，所以參加。」</li><li><strong>無動機：</strong>「我不太明白為什麼參加，也不確定這件事有什麼意義。」</li></ul><p>這四個分數分別描述不同原因，不是由好到壞的單一排名。例如，活動後認同調節較高，可以解讀為學生更認同活動的價值；不能直接說每位學生都變得更喜歡活動。</p></div>
+
+<h2 id="ex1-prompt"><span class="num">02</span>Suggested Prompts 建議 Prompt</h2>
+<p>以下三輪提示示範如何把專業需求逐步交給 AI Agent。介面排版和配色沒有唯一答案；不同學生的 App 外觀可以不同，但提示明列的功能、資料規則和統計結果必須一致。每一輪都從上一版繼續，要求 Agent 保留已完成的功能。</p>
+<h3>階段一：讀取資料、整理構面平均並比較前後測</h3>
+<figure class="page-figure">
+  <img src="figures/unit03-prompt1-means.png" alt="第一版流程示意：檢查前後測 CSV 與配對資料，交由 AI Agent 建立四構面平均摘要表和前後測趨勢圖，並保存第一版 App。">
+  <figcaption>第一輪提示的任務：先確保資料讀得正確，再算四個構面的平均並呈現前後趨勢。</figcaption>
+</figure>
+<p>先讓 Agent 檢查 CSV，再建立第一版網頁工具。這一版只做資料檢核、構面平均、摘要表及前後平均折線圖。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">建立第一版：讀取資料與構面平均</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請讀取專案中的 sims_prepost_two_scenarios.csv，先檢查欄位、空白值、participant_id、cohort、題目分數範圍及每組人數，再建立單檔 HTML 網頁工具。這是虛構教學資料；保留原始 CSV，不要改寫它。資料約有兩組各五十位參與者、SIMS 16 題的前測與後測，每個構面四題，作答 1 至 7 分。">請讀取專案中的 sims_prepost_two_scenarios.csv，先檢查欄位、空白值、participant_id、cohort、題目分數範圍及每組人數，再建立單檔 HTML 網頁工具。這是虛構教學資料；保留原始 CSV，不要改寫它。資料約有兩組各五十位參與者、SIMS 16 題的前測與後測，每個構面四題，作答 1 至 7 分。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="網頁要能直接用瀏覽器開啟，不需伺服器或外部服務，並可上傳同欄位 CSV。使用者可選擇 growth_pattern 或 stable_pattern 情境。以 participant_id 配對同一人的前後測；若 ID 重複、分數空白、非整數或超出 1 至 7，清楚列出問題，不要靜默當成 0，也不要錯誤配對。">網頁要能直接用瀏覽器開啟，不需伺服器或外部服務，並可上傳同欄位 CSV。使用者可選擇 growth_pattern 或 stable_pattern 情境。以 participant_id 配對同一人的前後測；若 ID 重複、分數空白、非整數或超出 1 至 7，清楚列出問題，不要靜默當成 0，也不要錯誤配對。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="依照 item map 將 16 題分成內在動機、認同調節、外在調節、無動機四個構面，每構面四題，分別計算個人前測及後測構面平均，再計算各構面前測平均、後測平均及差值。呈現各構面摘要表與前後平均折線圖，標示樣本數和 1–7 分範圍。清楚說明平均數只摘要中心位置，不能呈現個人分布，也不能單獨判定活動成效。完成後告訴我如何開啟、上傳資料及核對一位參與者的構面平均。">依照 item map 將 16 題分成內在動機、認同調節、外在調節、無動機四個構面，每構面四題，分別計算個人前測及後測構面平均，再計算各構面前測平均、後測平均及差值。呈現各構面摘要表與前後平均折線圖，標示樣本數和 1–7 分範圍。清楚說明平均數只摘要中心位置，不能呈現個人分布，也不能單獨判定活動成效。完成後告訴我如何開啟、上傳資料及核對一位參與者的構面平均。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請將第一版另存為 unit03_app_v1.html，不要覆蓋 CSV。介面外觀可自行安排，不必仿照範例；但資料匯入、欄位檢查、配對規則、構面計分和參考結果必須符合以上規格。">請將第一版另存為 unit03_app_v1.html，不要覆蓋 CSV。介面外觀可自行安排，不必仿照範例；但資料匯入、欄位檢查、配對規則、構面計分和參考結果必須符合以上規格。</span></code></pre></figure>
+<h4>第一版完成檢核</h4>
+<ul class="checklist"><li>growth_pattern 有 53 位、stable_pattern 有 52 位；總計 105 位模擬參與者。</li><li>每位參與者 16 題前測及 16 題後測；每一構面四題，分數都介於 1 至 7。</li><li>抽查一位參與者，請 Agent 說明某構面平均，再與參考值核對；前後測 ID 配對正確。</li><li>四構面順序、名稱、前後測平均及差值方向清楚；平均折線圖資料點與摘要表一致。</li><li>第一版已另存為 unit03_app_v1.html。</li></ul>
+<div class="callout note"><span class="label">為什麼算出平均還不夠？</span><p>平均數把一組分數濃縮成一個代表數字，適合快速看整體高低和前後方向，但會藏起個別差異。比如兩組分數平均都可能是 4 分，一組大家大多答 4 分，另一組有人答很低、有人答很高；只看平均看不出這種差別。問卷平均也不能單獨告訴我們題目是否真的在測同一個概念、前後變化是否大於個人自然差異，或分數分布是否偏斜。因此後面再檢查題目表現、量測品質和個人配對差值。</p></div>
+<h3>階段二：增加信度檢查及量表限制</h3>
+<figure class="page-figure">
+  <img src="figures/unit03-prompt2-reliability.png" alt="第二版流程示意：延續既有平均分析，按構面檢視題目一致性與 Cronbach alpha，並把效度相關事項列為需審慎說明和專家檢視的證據。">
+  <figcaption>第二輪提示的任務：保留第一版功能，再增加題目一致性摘要，並清楚說明哪些結論不能只靠 alpha 得出。</figcaption>
+</figure>
+<p>在第一版可正確讀檔及計分後，增加每個構面的內部一致性摘要。三題或四題構面的 alpha 不能當成效度證據，這一版要把可做與不可做的推論說清楚。</p>
+<div class="callout tip"><span class="label">信度與效度：本單元怎麼看？</span><p><strong>信度：</strong>Cronbach's alpha 看同一構面四題在這批資料中是否大致一致；它不等於效度。</p><p><strong>效度：</strong>SIMS 原研究已為原版量表提供效度證據。因我們沿用相同題目，只把作答對象換成系上戶外活動，該研究是合理的參考依據；SIMS 原本就是用來問參與者對特定活動的當下動機。</p><p>若收集真實資料，可再看四個構面是否如預期、學生如何理解題目，或分數是否與相關問卷／行為呈現理論預期的關係。這些是額外證據，沒有單一「效度分數」。本單元資料是虛構的，只能練習計算，不能證明信效度；約百人的實際樣本也宜視為初步證據，不宣稱完成全面驗證。(<a href="https://selfdeterminationtheory.org/SDT/documents/2000_GuayVallerandBlanchard_MO.pdf" target="_blank" rel="noopener">SIMS 原始研究</a>)</p></div>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">第二版：增加信度與測量說明</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請在目前可用的第一版上增加測量品質區塊，保留資料匯入、錯誤提示、配對、構面計分、平均摘要表和折線圖，不要移除或改壞原功能。另存為 unit03_app_v2.html，保留 unit03_app_v1.html 不變。">請在目前可用的第一版上增加測量品質區塊，保留資料匯入、錯誤提示、配對、構面計分、平均摘要表和折線圖，不要移除或改壞原功能。另存為 unit03_app_v2.html，保留 unit03_app_v1.html 不變。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="在每個 cohort、前測與後測分開計算四個構面的 Cronbach&#x27;s alpha，並呈現各題與構面總分的相關作為探索性題目檢查。顯示計算所用的有效樣本數、題數，以及缺漏或無效資料的處理規則。若樣本不足、變異為零或無法計算，顯示原因，不要輸出誤導數字。">在每個 cohort、前測與後測分開計算四個構面的 Cronbach&#x27;s alpha，並呈現各題與構面總分的相關作為探索性題目檢查。顯示計算所用的有效樣本數、題數，以及缺漏或無效資料的處理規則。若樣本不足、變異為零或無法計算，顯示原因，不要輸出誤導數字。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="加入一段易懂說明：alpha 是樣本內部一致性的摘要，不證明單向度或效度；呈現題目－總分相關及題目是否符合四構面的理論對應，作為探索性題目檢查。將內容效度列為「需由教師／專家審查」的檢核項目，不要由程式宣稱通過。因本教學資料是模擬資料，不能宣稱本次資料提供真實量表效度證據。建構效度通常還需理論、專家審查及適當樣本的因素分析等證據；此樣本規模不適合宣稱完成因素驗證。完成後列出新增功能，並確認第一版所有分析仍可使用。">加入一段易懂說明：alpha 是樣本內部一致性的摘要，不證明單向度或效度；呈現題目－總分相關及題目是否符合四構面的理論對應，作為探索性題目檢查。將內容效度列為「需由教師／專家審查」的檢核項目，不要由程式宣稱通過。因本教學資料是模擬資料，不能宣稱本次資料提供真實量表效度證據。建構效度通常還需理論、專家審查及適當樣本的因素分析等證據；此樣本規模不適合宣稱完成因素驗證。完成後列出新增功能，並確認第一版所有分析仍可使用。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="介面可以和第一版或同學的作品不同，但第一版原有功能與本輪新增的測量摘要、文字說明和數值計算都必須符合規格。">介面可以和第一版或同學的作品不同，但第一版原有功能與本輪新增的測量摘要、文字說明和數值計算都必須符合規格。</span></code></pre></figure>
+<h4>第二版完成檢核</h4>
+<ul class="checklist"><li>alpha 依 cohort、時間點、構面分開計算，且使用個人題目原始分數。</li><li>題目－總分相關有清楚標示為探索性檢查；內容效度列為教師／專家審查事項。</li><li>能說明 alpha 不是效度結論，且模擬題目不能支持正式量表效度宣稱。</li><li>原有 CSV 上傳、資料檢核、平均表與折線圖仍可用；v1 和 v2 兩個檔案都保留。</li></ul>
+<h3>階段三：增加配對樣本 t 檢定及盒鬚圖</h3>
+<figure class="page-figure">
+  <img src="figures/unit03-prompt3-paired-t-boxplot.png" alt="第三版流程示意：依 participant ID 配對前後測並計算個人差值，輸出配對 t 檢定表和前後測盒鬚圖，同時保留前兩版功能。">
+  <figcaption>第三輪提示的任務：在原有工具上加入配對前後差異檢定和盒鬚圖，同時保留先前完成的分析。</figcaption>
+</figure>
+<p>最後增加推論統計和分布圖。前後測必須由同一 participant_id 配對；同時呈現差異方向、效果大小及不確定性。</p>
+<div class="callout tip"><span class="label">配對樣本 t 檢定在問什麼？怎麼看結果？</span><p>先對每位學生算「後測減前測」，再看全班平均差是否明顯偏離 0。表中的<strong>平均差</strong>是正數，表示平均分數上升；是負數，表示下降。這份練習同時檢查四個構面，所以判斷時看表中的 <strong>Holm 校正 p 值</strong>，並以 .05 為門檻。</p><ul><li><strong>Holm p &lt; .05：</strong>這次資料提供了「平均分數有改變」的統計證據；再看平均差是正是負，說明上升或下降。</li><li><strong>Holm p ≥ .05：</strong>資料還不足以確認平均分數有改變。即使前後平均不同，也只能說「觀察到一些差異，但未達統計顯著」，不能說已證明完全沒變。</li></ul><p>p 值不是活動有效的機率，也不表示變化有多重要；還要一起看平均差和信賴區間。檢定說明的是這批配對資料的平均變化，不能單獨證明是活動造成。可參考<a href="https://www.itl.nist.gov/div898/handbook/prc/section3/prc311.htm" target="_blank" rel="noopener">NIST 配對觀察值分析說明</a>。</p></div>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">第三版：配對樣本 t 檢定與盒鬚圖</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請在現有第二版上增加四構面的配對樣本 t 檢定與盒鬚圖，保留所有既有功能。另存為 unit03_app_v3.html，不要覆蓋 v1 或 v2。每位參與者先以四題平均形成前測、後測構面分數，再以同一 participant_id 計算差值（後測減前測）。">請在現有第二版上增加四構面的配對樣本 t 檢定與盒鬚圖，保留所有既有功能。另存為 unit03_app_v3.html，不要覆蓋 v1 或 v2。每位參與者先以四題平均形成前測、後測構面分數，再以同一 participant_id 計算差值（後測減前測）。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="結果表每構面列出配對 n、前測平均與標準差、後測平均與標準差、平均差、95% 信賴區間、t 值、自由度、雙尾 p 值、配對效果量 Cohen&#x27;s dz，並提供四個 p 值的 Holm 校正結果。明確說明顯著水準及差值正負方向；遇到無效配對、差值無變異或樣本不足時，顯示不能計算的理由。提供每個構面的前後測盒鬚圖，圖上標出中位數、四分位距、鬚線規則及樣本數；不要把盒鬚圖誤說成平均數圖。">結果表每構面列出配對 n、前測平均與標準差、後測平均與標準差、平均差、95% 信賴區間、t 值、自由度、雙尾 p 值、配對效果量 Cohen&#x27;s dz，並提供四個 p 值的 Holm 校正結果。明確說明顯著水準及差值正負方向；遇到無效配對、差值無變異或樣本不足時，顯示不能計算的理由。提供每個構面的前後測盒鬚圖，圖上標出中位數、四分位距、鬚線規則及樣本數；不要把盒鬚圖誤說成平均數圖。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="加入解讀提醒：這是刻意生成的教學資料，growth_pattern 只應在指定構面呈現顯著變化，stable_pattern 四構面都應沒有顯著變化；先比較兩組結果是否符合預期，再解讀效應大小與信賴區間。配對 t 檢定結果只描述此模擬樣本的前後差異，不足以證明活動造成變化或推論所有學生。完成後列出新增功能，並逐項確認第一、二版的資料匯入、計分、信度和折線圖仍正常。">加入解讀提醒：這是刻意生成的教學資料，growth_pattern 只應在指定構面呈現顯著變化，stable_pattern 四構面都應沒有顯著變化；先比較兩組結果是否符合預期，再解讀效應大小與信賴區間。配對 t 檢定結果只描述此模擬樣本的前後差異，不足以證明活動造成變化或推論所有學生。完成後列出新增功能，並逐項確認第一、二版的資料匯入、計分、信度和折線圖仍正常。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="不要為了讓結果好看而改動計算規則；介面可以不同，但依同一份資料及以上規格計算時，表格數值和判讀結果應一致。">不要為了讓結果好看而改動計算規則；介面可以不同，但依同一份資料及以上規格計算時，表格數值和判讀結果應一致。</span></code></pre></figure>
+<h4>第三版完成檢核</h4>
+<ul class="checklist"><li>同一 ID 的後測減前測作為配對差值；不同 cohort 不混在同一次配對分析。</li><li>growth_pattern 內在動機、認同調節及無動機呈現有差異的教學模式（無動機方向是預期下降）；外在調節預期沒有明顯差異。</li><li>stable_pattern 四構面皆預期沒有統計顯著差異。未顯著不代表兩次完全相同，也不等於證明無效果。</li><li>配對 t 表列出差值、區間、p 值、效果量與 Holm 校正；盒鬚圖顯示中位數、四分位數、鬚線和樣本數。</li><li>v1、v2、v3 三個檔案都保留；重新上傳兩組資料，確認舊功能沒有遺失。</li></ul>
+<div class="callout note"><span class="label">盒鬚圖多告訴我們什麼？</span><p>盒子中間的線是中位數，代表排序後位在中央的分數；盒子上下緣是第 25 與第 75 百分位，盒子包含中間一半的人。盒鬚圖能快速看出分數集中還是分散、前後測分布是否移動、有沒有特別遠的分數。它補足平均數看不到的分布資訊，但不顯示每一位學生如何改變，也不能取代配對 t 檢定；因此要把圖和表一起看。此工具把鬚延伸到 1.5 倍四分位距範圍內的最遠觀察值，超出範圍的點會單獨標出。<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm" target="_blank" rel="noopener">NIST 盒鬚圖說明</a></p></div>
+<div class="callout note"><span class="label">如何解讀</span><p>模擬資料刻意安排了不同結果，供練習比較。真實單組前後測研究即使有顯著差異，也須留意成熟、期待、活動以外事件等解釋；統計顯著不等於實務重要。效度需要多種證據，不能僅由這份小型模擬資料或 alpha 判定。</p></div>
+
+<h2 id="ex1-outcome"><span class="num">03</span>Expected Outcomes 預期成果</h2>
+<p><strong>保留三個逐步完成的 App 範例，供學生在每一輪完成後檢核自己的成果。</strong></p>
+<ul><li><a href="examples/sims-analysis/v1-means.html" target="_blank" rel="noopener">第一版：資料檢查、四構面平均與前後趨勢圖</a></li><li><a href="examples/sims-analysis/v2-reliability.html" target="_blank" rel="noopener">第二版：保留第一版，增加信度摘要與測量說明</a></li><li><a href="examples/sims-analysis/v3-paired-t-boxplot.html" target="_blank" rel="noopener">第三版：保留前兩版，增加配對樣本 t 檢定與盒鬚圖</a></li></ul>
+<figure class="page-figure">
+  <img src="figures/unit03b-same-results-different-ui.png" alt="兩台筆電展示明亮卡片式與深色儀表板式的不同介面；相同資料分別進入後，都呈現一致的圖表和檢核結果。">
+  <figcaption>每位同學做出的畫面可以不同；相同資料下，必要功能、處理規則和計算結果必須一致。</figcaption>
+</figure>
+<div class="callout note"><span class="label">檢核自己的 App</span><p>不同學生的畫面、配色和排版可能不同，這是正常的。要一致的是主體功能、資料處理規則、計算方式和分析結果：使用同一份資料與同一條件時，指定功能都要能操作，數值和判讀應與參考範例相符。每次增加功能後，先確認上一版的功能仍能使用。三個版本都要保留，才能看見 AI Agent 如何依序完成初版、擴充版和完整版。</p></div>
+<p>本單元練習的是如何把專業需求說清楚、提供背景知識、分階段提示 AI Agent、核對輸出並保留每一版成果。統計說明是幫助學生提出需求和檢查 App 的依據，不要求學生自己寫程式或推導統計公式。</p>
+
+<nav class="pager" aria-label="上下頁"><a href="unit02.html">上一頁：零售管理練習</a><a href="#ex1-problem">回本班練習開頭</a></nav>
+
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("learn-codex-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
