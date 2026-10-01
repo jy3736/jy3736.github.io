@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Unit 4 AI Agent 逐步產生的迷你賣場排班工具範例。使用虛構職員資料，排班建議須由主管確認。">
+<title>基本排班工具｜Unit 4 排班系統範例</title>
+<style>
+:root{color-scheme:light;--bg:#f4f7f5;--card:#fff;--ink:#172520;--muted:#58675f;--line:#d8e2dc;--green:#176b57;--soft:#e5f2eb;--amber:#fff3dc;--red:#9a3e30;--shadow:0 8px 24px #173c2d10}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#121916;--card:#1b2520;--ink:#e8efeb;--muted:#afbbb4;--line:#37463f;--green:#76c9a9;--soft:#263b31;--amber:#42351f;--red:#ff9c89;--shadow:0 8px 24px #0004}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Noto Sans TC","PingFang TC",sans-serif}a{color:var(--green)}button,select{font:inherit}button{cursor:pointer}.wrap{width:min(1240px,calc(100% - 32px));margin:auto}.top{padding:28px 0 22px;background:linear-gradient(130deg,var(--soft),var(--bg));border-bottom:1px solid var(--line)}.topline{display:flex;justify-content:space-between;gap:14px;align-items:center}.eyebrow{color:var(--green);font-weight:750}.top a{text-decoration:none}.hero{max-width:850px}.hero h1{font-size:clamp(1.9rem,4vw,3rem);line-height:1.18;margin:.4rem 0}.lead{color:var(--muted);font-size:1.07rem}.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}button,.button{border:1px solid var(--green);background:var(--green);color:#fff;border-radius:9px;padding:9px 14px;font-weight:700;text-decoration:none}.secondary{background:var(--card);color:var(--green)}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #dd9b48;outline-offset:2px}.pill{display:inline-block;border-radius:99px;padding:3px 10px;background:var(--amber);font-size:.9rem;font-weight:700}.notice{margin-top:16px;padding:12px 15px;background:var(--amber);border-radius:10px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:20px auto}.stat,.panel,.daycard,.plan{border:1px solid var(--line);border-radius:13px;background:var(--card);box-shadow:var(--shadow)}.stat{padding:13px 16px}.stat strong{display:block;font-size:1.55rem}.muted{color:var(--muted)}main{padding:20px 0 50px}.panel{padding:20px;margin:16px 0}.panel h2{margin:.1rem 0 .8rem;font-size:1.45rem}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}table{border-collapse:collapse;width:100%;min-width:720px;background:var(--card)}th,td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line)}th{background:var(--soft)}tr:last-child td{border:0}.schedule{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,345px),1fr));gap:13px}.daycard{padding:15px}.daycard h3{margin:0 0 9px}.shift{padding:10px 0;border-top:1px solid var(--line)}.shift h4{margin:0 0 5px}.assignment{display:flex;justify-content:space-between;gap:12px;padding:3px 0}.role{color:var(--muted)}.short{color:var(--red);font-weight:700}.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end}.field{display:grid;gap:4px}.field label{font-weight:700}.field select{padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);min-width:150px}.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}.plan{padding:15px}.plan h3{margin:0 0 6px}.plan .actions{display:flex;gap:8px;margin-top:12px}.plan .actions button{padding:7px 10px}.empty{padding:14px;background:var(--soft);border-radius:9px}.footer{padding:20px 0 36px;text-align:center;color:var(--muted);font-size:.9rem}
+@media(max-width:600px){.wrap{width:calc(100% - 22px)}.panel{padding:14px}.assignment{display:block}.topline{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+<div class="topline"><div class="eyebrow">Unit 04｜企管二年級・人力資源管理</div><nav><a href="../../unit04.html#outcomes">回 Unit 4 第 05 節</a>　<a href="../../index.html">講義首頁</a>　<button class="secondary" id="theme">切換深淺色</button></nav></div>
+<div class="hero"><h1>迷你賣場排班系統</h1><p class="lead">第一版範例：依虛構職員資料和固定規則產生一週班表，顯示各班需求、已排人員與可能缺額。</p><p><span class="pill">待主管確認的建議草稿</span></p></div>
+<div class="notice"><strong>教學資料說明：</strong>使用 35 名虛構角色。職務與技能為範例設定。排班草稿只供檢查與討論，不是核定班表，也不代表任何真實企業規定。</div>
+</div></header>
+<main class="wrap">
+<div class="stats" id="stats" aria-live="polite"></div>
+<section class="panel"><h2>一週班表</h2><p class="muted">每個日期及班別列出各職務需求、實際人數與姓名；缺額會明確標示。</p>
+<div class="toolbar"><button id="generate">產生班表</button><button id="regenerate">重新產生班表</button><span id="status" class="muted" aria-live="polite"></span></div>
+<div class="schedule" id="schedule"></div></section>
+</main>
+<footer class="footer">教學用虛構範例｜所有排班建議均須由人員檢視與確認</footer>
+<script>
+const STAFF=[{"姓名":"伊莉莎白・班奈特","主要職務":"主管","技能":["班表管理","顧客服務"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"達西先生","主要職務":"主管","技能":["班表管理","現場協調"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"艾瑪・伍德豪斯","主要職務":"主管","技能":["班表管理","顧客服務"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"夏洛特・盧卡斯","主要職務":"主管","技能":["班表管理","庫存協調"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"妙麗・格蘭傑","主要職務":"收銀人員","技能":["收銀","帳務核對"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"榮恩・衛斯理","主要職務":"收銀人員","技能":["收銀","顧客服務"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"金妮・衛斯理","主要職務":"收銀人員","技能":["收銀","顧客服務"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"安・雪莉","主要職務":"收銀人員","技能":["收銀","顧客服務"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"喬・馬奇","主要職務":"收銀人員","技能":["收銀","結帳引導"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"梅格・馬奇","主要職務":"收銀人員","技能":["收銀","帳務核對"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"南茜・德魯","主要職務":"收銀人員","技能":["收銀","顧客服務"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"珍・愛爾","主要職務":"賣場服務人員","技能":["顧客引導","商品介紹"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"吉爾伯特・布萊斯","主要職務":"賣場服務人員","技能":["顧客引導","商品整理"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"露拉・貝拉克","主要職務":"賣場服務人員","技能":["商品介紹","顧客服務"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"愛麗絲","主要職務":"賣場服務人員","技能":["顧客引導","商品整理"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"比爾博・巴金斯","主要職務":"倉儲理貨人員","技能":["收貨","庫存整理"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"佛羅多・巴金斯","主要職務":"倉儲理貨人員","技能":["補貨","庫存整理"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"山姆・詹吉","主要職務":"倉儲理貨人員","技能":["補貨","商品搬運"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"湯姆・索耶","主要職務":"倉儲理貨人員","技能":["收貨","商品搬運"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"瑪麗・包萍","主要職務":"清潔人員","技能":["賣場清潔","環境維護"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"珂賽特","主要職務":"清潔人員","技能":["賣場清潔","環境維護"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"海蒂","主要職務":"清潔人員","技能":["賣場清潔","環境維護"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"貝絲・馬奇","主要職務":"清潔人員","技能":["賣場清潔","環境維護"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"夏洛克・福爾摩斯","主要職務":"保全人員","技能":["現場巡查","安全觀察"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"艾琳・艾德勒","主要職務":"保全人員","技能":["出入口秩序","安全通報"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"哈克・芬","主要職務":"保全人員","技能":["現場巡查","出入口秩序"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"露西・佩文西","主要職務":"保全人員","技能":["現場巡查","安全通報"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"阿提克斯・芬奇","主要職務":"主管","技能":["班表管理","現場協調"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"彼得・潘","主要職務":"收銀人員","技能":["收銀","顧客服務"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"愛德蒙・佩文西","主要職務":"收銀人員","技能":["收銀","帳務核對"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"勞拉・英格斯","主要職務":"收銀人員","技能":["收銀","結帳引導"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"小王子","主要職務":"賣場服務人員","技能":["顧客引導","商品介紹"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"魯濱遜・克魯索","主要職務":"倉儲理貨人員","技能":["收貨","庫存整理"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"波莉阿姨","主要職務":"清潔人員","技能":["賣場清潔","環境維護"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]},{"姓名":"亞森・羅蘋","主要職務":"保全人員","技能":["現場巡查","出入口秩序"],"可排班日":["星期一","星期二","星期三","星期四","星期五","星期六","星期日"],"可排時段":["早班","中班","晚班"]}];
+const DAYS=['星期一','星期二','星期三','星期四','星期五','星期六','星期日'];
+const SHIFTS=[['早班','08:00–12:00'],['中班','12:00–16:00'],['晚班','16:00–20:00']];
+const ROLES=[['主管',1],['收銀人員',2],['賣場服務人員',1],['倉儲理貨人員',1],['清潔人員',1],['保全人員',1]];
+const ROLE_SKILLS={'主管':['班表管理'],'收銀人員':['收銀'],'賣場服務人員':['顧客引導','商品介紹','顧客服務'],'倉儲理貨人員':['收貨','補貨','庫存整理','商品搬運'],'清潔人員':['賣場清潔','環境維護'],'保全人員':['現場巡查','安全觀察','出入口秩序','安全通報']};
+let baseSchedule=makeSchedule();
+let overrides={};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function key(d,sh,r){return `${d}|${sh}|${r}`}
+function validFor(p,d,sh,r){return p['主要職務']===r && p['可排班日'].includes(DAYS[d]) && p['可排時段'].includes(sh) && ROLE_SKILLS[r].some(skill=>p['技能'].includes(skill))}
+function makeSchedule(){
+ const result={}; const counts=STAFF.map(()=>0); const byDay=STAFF.map(()=>new Set());
+ for(let d=0;d<7;d++) for(const [sh] of SHIFTS) for(const [role,need] of ROLES){
+  const k=key(d,sh,role); result[k]=[];
+  for(let seat=0;seat<need;seat++){
+   const candidate=STAFF.map((p,i)=>({p,i})).filter(({p,i})=>validFor(p,d,sh,role)&&counts[i]<6&&!byDay[i].has(d)&&!result[k].includes(i)).sort((a,b)=>counts[a.i]-counts[b.i]||a.i-b.i)[0];
+   if(!candidate) break;
+   result[k].push(candidate.i); counts[candidate.i]++; byDay[candidate.i].add(d);
+  }
+ }
+ return result;
+}
+function effective(){const x=Object.fromEntries(Object.entries(baseSchedule).map(([k,v])=>[k,v.slice()]));for(const [k,v] of Object.entries(overrides)){x[k]=v;}return x;}
+function countAssignments(schedule,i){return Object.values(schedule).reduce((n,list)=>n+list.filter(j=>j===i).length,0)}
+function render(){
+ const schedule=effective(); const out=document.querySelector('#schedule');let gap=0,filled=0,total=0;
+ out.innerHTML=DAYS.map((day,d)=>`<article class="daycard"><h3>${day}</h3>${SHIFTS.map(([sh,time])=>`<div class="shift"><h4>${sh} <span class="muted">${time}</span></h4>${ROLES.map(([role,need])=>{const ids=schedule[key(d,sh,role)]||[];filled+=ids.length;total+=need;gap+=Math.max(0,need-ids.length);return `<div class="assignment"><span class="role">${role}（${ids.length}/${need}）</span><span>${ids.length?ids.map(i=>esc(STAFF[i]['姓名'])).join('、'):`<span class="short">缺 ${need-ids.length} 人</span>`}</span></div>`}).join('')}</div>`).join('')}</article>`).join('');
+ document.querySelector('#stats').innerHTML=`<div class="stat"><span class="muted">虛構職員</span><strong>${STAFF.length} 人</strong></div><div class="stat"><span class="muted">每週需求</span><strong>${total} 人次</strong></div><div class="stat"><span class="muted">已安排</span><strong>${filled} 人次</strong></div><div class="stat"><span class="muted">待補缺額</span><strong class="${gap?'short':''}">${gap} 人次</strong></div>`;
+}
+['#generate','#regenerate'].forEach(id=>document.querySelector(id).addEventListener('click',()=>{baseSchedule=makeSchedule();overrides={};document.querySelector('#status').textContent='已依固定順序重新計算。';render();if(window.refreshAbsenceChoices)window.refreshAbsenceChoices();}));
+document.querySelector('#theme').addEventListener('click',()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';});
+
+render();
+</script>
+</body></html>

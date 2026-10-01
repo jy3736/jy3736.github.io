@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%AC%3C/text%3E%3C/svg%3E">
+<title>共同課程：從 AI 到 AI Agent 應用</title>
+<meta name="description" content="認識 AI、ChatGPT 的三種角色，並學習交辦與檢查 AI Agent 成果。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* Hovering a nav number shows that unit's full title instantly, in a strip under the header. */
+.site-header .inner { position: relative; }
+/* the label is scaled, never the <a>: a transform on the link would make it the
+   containing block for the strip below and collapse it to the link's width */
+.site-header nav a > span { display: inline-block; transition: transform 0.12s ease; }
+.site-header nav a { transition: color 0.12s ease; }
+.site-header nav a:hover,
+.site-header nav a:focus-visible { color: var(--accent); }
+.site-header nav a:hover > span,
+.site-header nav a:focus-visible > span { transform: scale(1.18); }
+.site-header nav a[data-title]::after {
+  content: attr(data-title);
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  /* the box hugs the title: its own width plus roughly 10%, and never wider than the header */
+  width: max-content;
+  max-width: 90%;
+  padding: 0.55rem 1em;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 18%);
+  pointer-events: none;
+}
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .site-header nav a, .site-header nav a > span { transition: none; }
+  .site-header nav a:hover > span, .site-header nav a:focus-visible > span { transform: none; }
+}
+@media (max-width: 960px) {
+  /* touch screens have no hover: the strip would stick after a tap */
+  .site-header nav a[data-title]::after { content: none; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .theme-toggle, .toc-qr { display: none !important; }
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">商管學院 × AI Agent 實作講義</a><nav aria-label="講義"><a href="index.html" data-title="商管學院 × AI Agent 實作講義"><span>首頁</span></a>
+<a href="unit01.html" data-title="共同課程：從 AI 到 AI Agent 應用" aria-current="page"><span>AI Agent 入門</span></a>
+<a href="unit02.html" data-title="零售管理練習：把零售問題做成網頁 APP"><span>零售管理</span></a>
+<a href="unit03.html" data-title="用 AI Agent 逐步打造 SIMS 統計分析工具"><span>統計學（一）</span></a>
+<a href="unit04.html" data-title="排班調整練習"><span>人力資源管理</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><details><summary>本頁目錄</summary><ol><li><a href="#agent"><span class="toc-num">01</span>先認識 AI，再認識 ChatGPT 的三種角色</a></li>
+<li><a href="#prompt"><span class="toc-num">02</span>把想法寫成清楚的需求</a></li>
+<li><a href="#stages"><span class="toc-num">03</span>每個練習都走同樣的四個階段</a></li>
+<li><a href="#words"><span class="toc-num">04</span>認識靜態網頁的幾個詞</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 196 196" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="196" height="196" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h49v49h-49z"/><path class="qrline" stroke="#000" d="M4 4.5h7m2 0h5m2 0h1m1 0h1m2 0h1m1 0h2m1 0h3m1 0h1m3 0h7m-41 1h1m5 0h1m6 0h1m1 0h3m2 0h1m2 0h2m2 0h4m1 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m2 0h1m4 0h1m2 0h1m2 0h4m2 0h1m2 0h2m1 0h1m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m1 0h2m1 0h7m1 0h1m2 0h2m2 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h3m1 0h3m1 0h1m2 0h2m1 0h3m1 0h4m3 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h3m1 0h1m2 0h1m2 0h1m1 0h1m1 0h1m2 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-32 1h4m1 0h1m1 0h3m1 0h5m2 0h3m1 0h2m-33 1h1m2 0h1m1 0h2m1 0h1m1 0h1m3 0h3m1 0h1m2 0h1m1 0h3m1 0h1m5 0h1m1 0h1m-34 1h2m1 0h1m7 0h3m4 0h3m1 0h1m5 0h1m1 0h4m1 0h4m-41 1h3m1 0h5m3 0h2m1 0h2m1 0h2m2 0h1m1 0h1m3 0h2m1 0h1m3 0h5m-40 1h6m1 0h1m2 0h1m1 0h1m2 0h2m2 0h4m1 0h2m4 0h1m2 0h1m1 0h1m2 0h1m-37 1h1m3 0h1m3 0h1m1 0h2m1 0h8m2 0h1m2 0h2m1 0h1m2 0h1m2 0h1m1 0h2m-41 1h1m1 0h3m2 0h1m1 0h3m3 0h4m1 0h1m1 0h2m2 0h2m1 0h4m4 0h1m-37 1h4m1 0h3m4 0h1m3 0h3m2 0h2m2 0h4m4 0h1m2 0h1m2 0h1m-40 1h4m2 0h3m1 0h1m2 0h1m2 0h2m1 0h4m1 0h2m1 0h4m2 0h1m1 0h1m-37 1h2m4 0h1m2 0h1m4 0h5m1 0h2m2 0h2m1 0h1m1 0h2m1 0h1m2 0h1m3 0h1m-39 1h2m2 0h1m1 0h2m1 0h2m1 0h1m2 0h3m1 0h2m2 0h1m1 0h5m1 0h1m1 0h2m2 0h1m1 0h1m-41 1h1m3 0h4m2 0h1m2 0h1m1 0h1m1 0h1m4 0h1m2 0h1m8 0h1m1 0h2m1 0h2m-36 1h1m4 0h1m3 0h3m4 0h1m1 0h3m1 0h4m3 0h2m3 0h2m-41 1h8m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1m2 0h3m1 0h1m1 0h1m3 0h3m3 0h3m-41 1h2m1 0h3m1 0h1m1 0h1m1 0h1m2 0h3m4 0h4m3 0h1m3 0h4m2 0h3m-38 1h1m2 0h3m1 0h1m1 0h3m1 0h2m1 0h1m2 0h1m5 0h1m1 0h2m1 0h1m2 0h2m1 0h1m-38 1h2m1 0h1m1 0h5m4 0h1m1 0h2m1 0h2m1 0h3m3 0h2m3 0h1m2 0h1m1 0h1m-38 1h1m2 0h1m2 0h2m3 0h4m2 0h2m3 0h1m3 0h6m1 0h1m-35 1h4m3 0h2m5 0h7m1 0h1m3 0h4m1 0h2m2 0h1m-37 1h1m2 0h1m1 0h1m5 0h3m1 0h1m6 0h1m6 0h1m1 0h1m1 0h1m1 0h1m2 0h2m-41 1h1m1 0h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m2 0h4m1 0h1m2 0h2m2 0h1m2 0h1m4 0h1m-36 1h6m1 0h3m1 0h3m2 0h1m1 0h2m1 0h1m2 0h1m2 0h1m6 0h2m-37 1h1m5 0h4m1 0h2m2 0h4m1 0h4m5 0h2m2 0h3m-40 1h1m2 0h1m1 0h3m1 0h3m5 0h2m4 0h4m1 0h1m3 0h1m3 0h2m1 0h2m-39 1h1m1 0h1m2 0h1m1 0h1m4 0h1m2 0h1m3 0h1m2 0h1m2 0h7m3 0h1m2 0h1m-41 1h1m1 0h2m1 0h3m5 0h3m2 0h1m1 0h3m1 0h2m2 0h1m1 0h11m-33 1h2m1 0h1m3 0h3m4 0h1m2 0h4m3 0h1m3 0h1m3 0h1m-41 1h7m3 0h2m1 0h2m1 0h1m1 0h2m1 0h2m1 0h3m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m-40 1h1m5 0h1m1 0h1m2 0h5m2 0h3m4 0h1m1 0h2m2 0h2m3 0h1m1 0h1m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h2m1 0h1m5 0h2m3 0h2m1 0h1m3 0h1m1 0h5m1 0h1m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m2 0h5m2 0h2m1 0h2m3 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m-41 1h1m1 0h3m1 0h1m2 0h2m4 0h1m4 0h4m1 0h2m3 0h1m5 0h2m1 0h2m-41 1h1m5 0h1m2 0h1m1 0h1m1 0h1m3 0h3m1 0h1m1 0h4m2 0h7m3 0h1m-40 1h7m1 0h2m2 0h1m4 0h2m1 0h2m1 0h2m2 0h7m1 0h2m2 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero">
+  <p class="eyebrow">AI 與 AI Agent 入門</p>
+  <h1>從 AI 到 AI Agent 應用</h1>
+  <p class="lead">先認識 AI 與 Chat、Work、Codex 三種工作角色，了解它們各自適合處理的任務，再學習如何清楚交辦、操作並檢查 AI Agent 製作的網頁工具。</p>
+</section>
+
+<h2 id="agent"><span class="num">01</span>先認識 AI，再認識 ChatGPT 的三種角色</h2>
+<p><strong>AI</strong> 是能依照指示理解和產生文字、圖片或其他內容的技術。ChatGPT 是使用 AI 的服務；其中的 <strong>Chat</strong>、<strong>Work</strong> 和 <strong>Codex</strong>，是三種適合不同工作的使用方式。可以把它想成同一位助理有三種工作模式：有時回答問題，有時接手整理任務，有時協助製作或修改數位工具。</p>
+<p>三種角色都能理解日常語言，也可能使用檔案或工具；真正的差別在於<strong>你交辦的是哪一種工作、AI 如何進行工作，以及最後要交付什麼</strong>。尤其 Chat 和 Work 的差異不只是有沒有上傳檔案：兩者都可能使用檔案，應依任務目的和成果來選擇。</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>比較重點</th><th>Chat</th><th>ChatGPT Work</th><th>Codex</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">主要角色</th><td>對話夥伴：解釋、回答、一起想</td><td>任務助理：依資料完成一件較完整的工作</td><td>數位工具製作夥伴：製作或修改網站與程式專案</td></tr>
+    <tr><th scope="row">工作方式</th><td>你提出問題，根據回答追問或調整方向</td><td>你交代目標、資料和成果格式；它整理多個步驟並產生成品</td><td>你說明工具要解決的問題和操作方式；它在專案中建立或修改作品</td></tr>
+    <tr><th scope="row">常見成果</th><td>解釋、建議、點子、短文草稿</td><td>整理好的報告、摘要、試算表或簡報</td><td>可以操作的網頁、小工具或程式功能</td></tr>
+    <tr><th scope="row">學生要做什麼</th><td>判斷回答是否清楚、有用，必要時繼續追問</td><td>說明資料和交付要求，檢查整理是否忠於資料</td><td>說明功能與規則，實際操作作品並檢查結果；不必先會讀程式碼</td></tr>
+  </tbody>
+</table></div>
+<figure class="page-figure role-infographic">
+  <img src="figures/unit01-chat-work-codex-roles.png" alt="Chat 用對話回答問題並協助思考；Work 處理多步驟任務並產出可檢查的摘要成果；Codex 製作或修改可操作的網站工具。Chat 和 Work 都能處理檔案，差異在任務方式與交付成果。">
+  <figcaption>依任務選擇角色：想提問和討論用 Chat，要整理完整成果用 Work，要製作或修改網站工具用 Codex。</figcaption>
+</figure>
+<h3 id="chat-role">Chat：問問題、聽解釋、來回討論</h3>
+<p>把 Chat 想成一位隨時可以交談的學習或工作夥伴。你可以問「這個名詞是什麼意思？」、「有什麼做法？」或「請把這段話說簡單一點」，再根據回答接著追問。它適合快速釐清想法；回答通常直接出現在對話中，由你決定是否採用或繼續修改。</p>
+<p><strong>商管例子：</strong>請它用飲料店說明顧客回購率，接著追問「如果我只有一週的資料，能不能算？」它會跟著你的問題繼續解釋。這種問答不需要先準備完整檔案，也不必要求它交付一份正式報告。</p>
+<h3 id="work-role">ChatGPT Work：交辦多步驟工作，取得可繼續使用的成果</h3>
+<p>把 Work 想成可以接手一件較完整任務的助理。你要說明要完成什麼、使用哪些資料、成果要長什麼樣子；它可以整理資料、依要求完成不同步驟，再產出可檢查和繼續使用的成果，例如摘要、報告或試算表。過程中你仍可補充要求、回答它的問題，再檢查最後的成果。</p>
+<p><strong>商管例子：</strong>把一份匿名顧客意見資料交給 Work，請它分類意見、計算各類筆數、整理主要發現，並產出摘要表。上傳檔案不是 Work 與 Chat 的唯一差異：Chat 也能回答檔案相關問題；選 Work 的關鍵是希望它完成一整組整理步驟並交付成果。符合權限與方案時，桌面版 Work 也可在你授權後使用本機檔案或資料夾；雲端或網頁工作流程則可上傳檔案或下載成果。</p>
+<h3 id="codex-role">Codex：協助製作或修改網站與數位工具</h3>
+<p>把 Codex 想成負責數位作品的製作夥伴。它能在你開啟的專案中查看相關檔案、建立或修改網頁，並依指示檢查功能。你不必親自寫程式，也不必先看懂它產生的程式碼；但要能說清楚使用者要做什麼、輸入什麼、畫面應顯示什麼，以及怎樣才算正確，最後還要實際操作作品驗收。</p>
+<p><strong>商管例子：</strong>請它製作飲料折扣試算網頁，讓店員輸入原價和折扣後看到售價。Codex 會處理網頁背後的程式；你則檢查輸入方式、折扣計算和畫面說明是否符合店員的需求。</p>
+<div class="callout tip"><span class="label">主要差別，一句話記住</span><p><strong>Chat 陪你對話和釐清問題；Work 依資料完成一項完整任務並交付成果；Codex 協助製作或修改網站與程式工具。</strong>不確定怎麼選時，先看你要的是「回答」、「整理好的成果」，還是「可操作的工具」。</p></div>
+<h3 id="role-prompts">直接複製試用</h3>
+<p>下面的文字可以直接貼到對應的工具。先看它們要你提供什麼、最後要得到什麼，便能看出不同角色的用途。</p>
+<div class="callout note"><span class="label">Chat 和 Work 的差別</span><p><strong>Chat：</strong>直接在對話中問一個問題、聽解釋或交換想法，也可以接著追問。<br><strong>Work：</strong>先提供一份資料（可以貼在提示裡或附上檔案），再請它完成較完整的整理工作，交付可保存或繼續使用的成果。下方 Work 範例會用到可下載的練習檔；先下載並上傳檔案，再貼上提示。</p></div>
+<h4>Chat 範例：直接問、直接討論</h4>
+<figure class="page-figure role-infographic">
+  <img src="figures/unit01-sample-prompts-chat.png" alt="Chat 的兩種提示範例：用飲料店例子了解顧客回購率並繼續追問；替平日下午促銷腦力激盪三個活動點子，再透過追問一起選方向。">
+  <figcaption>Chat 範例著重即時提問與對話延伸，讓學生可以直接追問或共同整理想法。</figcaption>
+</figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">可直接貼上</span><span class="code-title">範例 1</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請用一家飲料店的例子，簡單解釋「顧客回購率」是什麼。先不要談公式或專業術語；說完後請問我哪個地方想再了解。">請用一家飲料店的例子，簡單解釋「顧客回購率」是什麼。先不要談公式或專業術語；說完後請問我哪個地方想再了解。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">可直接貼上</span><span class="code-title">範例 2</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想替飲料店想一個吸引學生平日下午來店的活動。請先提出 3 個不同方向，每個用一兩句說明，再問我幾個問題，幫我挑出適合的方向。">我想替飲料店想一個吸引學生平日下午來店的活動。請先提出 3 個不同方向，每個用一兩句說明，再問我幾個問題，幫我挑出適合的方向。</span></code></pre></figure>
+<h4>ChatGPT Work 範例：先給資料，再交付整理成果</h4>
+<figure class="page-figure role-infographic">
+  <img src="figures/unit01-sample-prompts-work.png" alt="Work 的兩種檔案任務：顧客意見 CSV 經分類、計數和找重點後成為摘要試算表；會議紀錄文字檔整理後成為待辦清單。需先下載範例檔並上傳給 Work。">
+  <figcaption>Work 範例呈現從提供檔案、整理多個步驟，到交付可檢查成果的完整任務。</figcaption>
+</figure>
+<p class="sample-download"><a href="examples/unit01/customer_feedback.csv" download>下載範例檔：customer_feedback.csv</a></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">可直接貼上</span><span class="code-title">範例 1</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我已上傳「customer_feedback.csv」。請閱讀檔案中的匿名顧客意見，完成一份顧客意見整理：把意見分類、計算各類則數、每類選一則代表意見，並整理主要發現。請把分類與統計整理成一份可下載的試算表，另外附上簡短摘要。只根據檔案內容整理，不要推測；不確定的地方請註明。">我已上傳「customer_feedback.csv」。請閱讀檔案中的匿名顧客意見，完成一份顧客意見整理：把意見分類、計算各類則數、每類選一則代表意見，並整理主要發現。請把分類與統計整理成一份可下載的試算表，另外附上簡短摘要。只根據檔案內容整理，不要推測；不確定的地方請註明。</span></code></pre></figure>
+<p class="sample-download"><a href="examples/unit01/meeting_notes.txt" download>下載範例檔：meeting_notes.txt</a></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">可直接貼上</span><span class="code-title">範例 2</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我已上傳「meeting_notes.txt」。請閱讀會議紀錄，整理成一份可下載的待辦清單，包含工作項目、負責人、期限和目前狀態。請把缺少的資料標示「待確認」，再用幾句話列出還需要小組決定的事情。不要自行補上檔案沒有提供的資訊。">我已上傳「meeting_notes.txt」。請閱讀會議紀錄，整理成一份可下載的待辦清單，包含工作項目、負責人、期限和目前狀態。請把缺少的資料標示「待確認」，再用幾句話列出還需要小組決定的事情。不要自行補上檔案沒有提供的資訊。</span></code></pre></figure>
+<h4>Codex 範例</h4>
+<figure class="page-figure role-infographic">
+  <img src="figures/unit01-sample-prompts-codex.png" alt="Codex 讀取 drink_prices.csv，製作可用瀏覽器開啟的飲料折扣試算網頁。將範例檔放入專案資料夾，再用瀏覽器試用，不必閱讀程式碼。">
+  <figcaption>Codex 範例從專案資料檔製作可操作的網頁工具；學生以使用情境測試功能，不需要讀懂程式碼。</figcaption>
+</figure>
+<p>先下載範例檔，並放進 Codex 正在處理的專案資料夾，再貼上提示。你不必打開或修改檔案內容。</p>
+<p class="sample-download"><a href="examples/unit01/drink_prices.csv" download>下載範例檔：drink_prices.csv</a></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">可直接貼上</span><span class="code-title">範例 1</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我已把「drink_prices.csv」放在目前的專案資料夾。請讀取這份檔案，製作一個可以用瀏覽器開啟的「飲料折扣試算」靜態網頁，列出商品、原價、折扣和折扣後價格。使用者也可以輸入原價和折扣百分比試算。這是課堂示範工具，不要連接真實店家系統，也不要新增需要安裝的工具。完成後請用一般用語告訴我新增或修改了哪些檔案，以及我可以怎麼開啟和試用。我不需要閱讀程式碼。">我已把「drink_prices.csv」放在目前的專案資料夾。請讀取這份檔案，製作一個可以用瀏覽器開啟的「飲料折扣試算」靜態網頁，列出商品、原價、折扣和折扣後價格。使用者也可以輸入原價和折扣百分比試算。這是課堂示範工具，不要連接真實店家系統，也不要新增需要安裝的工具。完成後請用一般用語告訴我新增或修改了哪些檔案，以及我可以怎麼開啟和試用。我不需要閱讀程式碼。</span></code></pre></figure>
+
+<div class="callout tip">
+  <span class="label">快速選擇</span>
+  <p><strong>想問問題或一起討論，用 Chat；要它處理資料並交付一份成品，用 Work；要建立或修改網頁小工具與程式專案，用 Codex。</strong></p>
+</div>
+<h3 id="codex-for-beginners">沒有程式背景也能使用 Codex</h3>
+<p>使用 Codex 不代表你必須先會寫程式。你要先說明商業情境、誰會使用、需要哪些輸入和結果，以及怎樣才算完成；Codex 協助把需求做成網頁工具。你則用熟悉的工作情境試用，確認數字和規則合理，再用日常語言指出要修改的地方。</p>
+<h3 id="role-review">三種角色都需要清楚的脈絡與檢查</h3>
+<p>無論選哪一種角色，都要交代任務背景並檢查結果。提供檔案或資料時，說明它們是什麼、要如何使用；資料不足時，請 AI 說明缺少什麼，不要自行補造。若成果不符合需要，描述具體落差，再請它調整。工作角色越能動手處理資料或檔案，你越要清楚設定工作範圍並查看它完成了什麼。</p>
+<div class="callout warn">
+  <span class="label">商管課程的資料原則</span>
+  <p>練習時優先使用示範資料或去識別化資料。請 AI 整理出來的數字、分類和建議仍要對照來源確認；不要把未核實的分析直接當成營運或管理決策。</p>
+</div>
+
+<h2 id="prompt"><span class="num">02</span>把想法寫成清楚的需求</h2>
+<p>Prompt 就是你交給 AI Agent 的任務說明。描述得越清楚，越容易得到能試用的成果。開始前，先交代四件事：</p>
+<figure class="page-figure role-infographic">
+  <img src="figures/unit01-section-02-prompt-guide.png" alt="清楚需求的四個要素：目標、使用情境、預期成果、完成條件與界線；下方對比「做一個補貨工具」與提供使用者、輸入資料、提醒規則和示範範圍的清楚寫法。">
+  <figcaption>把目標、使用者、預期成果和完成界線說明白；操作後也可以描述落差，請 AI 調整。</figcaption>
+</figure>
+<ul class="flow">
+  <li><b>① 目標</b>要解決什麼問題？例如「協助店員判斷哪些商品需要補貨」。</li>
+  <li><b>② 使用情境</b>誰會在什麼時候使用？例如「小型門市店員，每天打烊前查看」。</li>
+  <li><b>③ 預期成果</b>需要哪些資料、畫面或操作？例如「輸入商品名稱、現有庫存和安全庫存，顯示補貨提醒」。</li>
+  <li><b>④ 完成條件與界線</b>怎樣算正確？哪些事情不應假設？例如「低於安全庫存才提醒；只做示範頁，不連接真實庫存系統」。</li>
+</ul>
+<div class="callout try">
+  <span class="label">試著改寫</span>
+  <p><strong>太簡略：</strong>「做一個補貨工具。」</p>
+  <p><strong>更清楚：</strong>「請做一個給小型門市店員使用的補貨提醒網頁。使用者可輸入商品名稱、現有庫存與安全庫存；當現有庫存低於安全庫存時，清楚顯示補貨提醒。請提供幾筆示範資料，並標明這只是示範工具，不會連接真實庫存系統。」</p>
+</div>
+<h3 id="prompt-review">操作後要親自檢查</h3>
+<p>AI 做出第一版後，先照預期方式操作，再用具體例子驗收。試試庫存低於、等於和高於安全庫存的情況，確認提醒邏輯；也檢查欄位名稱、計算結果與說明是否清楚。若發現問題，指出「哪個操作、出現什麼結果、你期待什麼結果」，再請 AI 修正並重新檢查。</p>
+<div class="callout note">
+  <span class="label">把判斷留在自己手上</span>
+  <p>AI 可以協助製作和整理，但你要確認資料來源、計算方式與結果是否符合情境。涉及商業決策時，先用可信資料驗證，不要只因畫面看起來合理就直接採用。</p>
+</div>
+
+<h2 id="stages"><span class="num">03</span>每個練習都走同樣的四個階段</h2>
+<p>不管你這一班做的是哪個題目，流程都一樣。換成別的題目也一樣適用：</p>
+<figure class="page-figure role-infographic">
+  <img src="figures/unit01-section-03-workflow.png" alt="四階段練習流程：讀懂題目情境、用自己的話寫出 Prompt、確認預期成果，再實際操作並依條件檢核；發現落差後說明問題、修改並重新檢查。">
+  <figcaption>從理解商管情境開始，逐步交辦、試用和驗收；發現問題時，把修改後再檢查也納入流程。</figcaption>
+</figure>
+<ul class="flow">
+  <li><b>① 題目敘述</b>你的專業領域裡的情況與想解決的麻煩</li>
+  <li><b>② 建議 Prompt</b>把需求寫成交辦文字</li>
+  <li><b>③ 預期成果</b>做完應該長什麼樣子</li>
+  <li><b>④ 完成檢核</b>用具體數字驗收</li>
+</ul>
+
+<div class="callout tip">
+  <span class="label">完成一題就好</span>
+  <p>讀懂情境 → 用自己的話描述 → 操作成果 → 依條件檢查。四個階段走完一次，比兩題都做一半更有收穫。</p>
+</div>
+
+<h2 id="words"><span class="num">04</span>認識靜態網頁的幾個詞</h2>
+<p>準備好用 AI Agent 製作靜態網頁後，再認識下面這些詞。現在不必背程式語法；先知道每個部分大致負責什麼即可。</p>
+<figure class="page-figure role-infographic">
+  <img src="figures/unit01-section-04-web-terms.png" alt="靜態網頁入門詞彙圖：靜態網頁 APP 是瀏覽器中可操作的小工具；HTML 安排內容、CSS 安排外觀、JavaScript 回應操作、Prompt 說明任務、Codex AI Agent 依需求製作或修改網頁。">
+  <figcaption>HTML、CSS 和 JavaScript 各自負責網頁不同部分；你可以用日常語言交辦，再實際試用和檢查。</figcaption>
+</figure>
+<dl class="glossary">
+  <dt>靜態網頁 APP</dt>
+  <dd>你的<strong>完成品</strong>。用瀏覽器直接開啟的小工具，可以顯示資料、計算價格或提醒補貨；不連接店家的正式系統。這裡的「靜態」不代表不能互動。</dd>
+  <dt>HTML</dt>
+  <dd><strong>網頁內容</strong>。決定頁面上有哪些東西，例如標題、商品資料、輸入欄位和按鈕。可以把它想成頁面的骨架。</dd>
+  <dt>CSS</dt>
+  <dd><strong>畫面外觀</strong>。安排顏色、字體、大小和位置，讓重要資訊容易看見、畫面容易使用。</dd>
+  <dt>JavaScript</dt>
+  <dd><strong>操作後的反應</strong>。讓頁面回應使用者的操作，例如按下按鈕後計算折扣價，或修改數量後更新庫存提醒。</dd>
+  <dt>Prompt</dt>
+  <dd><strong>需求說明</strong>。你交給 Codex 的文字：說明誰會用、要完成什麼、畫面要顯示什麼，以及怎樣才算做好。</dd>
+  <dt>Codex AI Agent</dt>
+  <dd><strong>協作夥伴</strong>。讀懂你的需求後，協助建立或修改網頁。你負責試用成果、確認是否符合需求，再說明要改進的地方。</dd>
+</dl>
+
+<div class="callout note">
+  <span class="label">不必先學程式</span>
+  <p>記住這個順序就好：<strong>先說清楚想做的工具，再請 Codex 協助製作，接著親自操作和檢查。</strong>你不必先學會 HTML、CSS 或 JavaScript。</p>
+</div>
+
+<nav class="pager" aria-label="上下頁"><a href="index.html">回講義首頁</a><a href="unit02.html">下一頁：零售管理練習</a></nav>
+
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("learn-codex-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
