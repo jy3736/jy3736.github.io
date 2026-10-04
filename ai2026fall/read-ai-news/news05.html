@@ -1,0 +1,960 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var t='dark';try{if(localStorage.getItem('news-theme')==='light')t='light';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
+<title>從「AI 小助理」到「技能包」：GPTs、Gems 退場與 Agent Skills｜AI 時事講義</title>
+<meta name="description" content="OpenAI 讓自訂 GPT 退役、Google 用 Skills 取代 Gems，三家都採用同一種 SKILL.md 技能格式。看懂小助理和技能的差別，判斷「技能取代 RAG」說對了多少，並練習核對互相矛盾的日期。">
+<style>
+/* 預設深色主題；<html data-theme="light"> 時切換成淺色（由頁首按鈕切換並記在 localStorage）。 */
+:root {
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --bg: #14171a;
+  --surface: #1b1f23;
+  --surface-2: #22272c;
+  --text: #e6e8eb;
+  --muted: #a0a7af;
+  --border: #30363d;
+  --accent: #5cc8bf;
+  --accent-soft: #173432;
+  --code-bg: #0f1215;
+  --code-text: #e6e8eb;
+  --tip: #5cc8bf;
+  --tip-bg: #15302e;
+  --note: #86a8ec;
+  --note-bg: #1a2638;
+  --warn: #eaa860;
+  --warn-bg: #33261a;
+  --try: #c49bf0;
+  --try-bg: #2a2036;
+  --shadow: none;
+  --on-accent: #0e1a19;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --on-accent: #ffffff;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+/* 頁首內容與 .page 同寬，兩側留白在每個斷點都對齊 */
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;  /* 導覽列置中，站名靠左、主題鈕靠右 */
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  padding-block: 0.7rem;
+}
+.site-header .brand { justify-self: start; font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header .theme-toggle { justify-self: end; }
+.site-header nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* 滑過（或鍵盤聚焦）導覽標籤時，顯示該頁的完整標題 */
+.site-header nav a[data-hint] { position: relative; }
+.site-header nav a[data-hint]::after {
+  display: none;
+  content: attr(data-hint);
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: min(22rem, 70vw);
+  width: max-content;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease 0.05s, visibility 0.12s ease 0.05s;
+}
+.site-header nav a[data-hint]:hover::after,
+.site-header nav a[data-hint]:focus-visible::after {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+/* 最外側的標籤改為貼邊，長標題才不會撐出視窗 */
+.site-header nav a[data-hint]:first-child::after { left: 0; transform: none; }
+.site-header nav a[data-hint]:last-child::after { left: auto; right: 0; transform: none; }
+@media (hover: none) {
+  .site-header nav a[data-hint]::after { display: none; }
+}
+
+/* 版面佔父層 90% 寬，不設固定上限；目錄欄隨視窗伸縮，讓條目盡量維持單行 */
+:root { --layout-w: 90%; }
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+  /* 目錄欄在 240px 下限時，字級跟著縮一點，讓一般長度的標題維持單行 */
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+.meta a { text-decoration: none; }
+.meta a:hover { text-decoration: underline; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+:root:not([data-theme="light"]) .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root:not([data-theme="light"]) .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root:not([data-theme="light"]) .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+:root:not([data-theme="light"]) .steps > li::before { color: #0e1a19; }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root:not([data-theme="light"]) .download { color: #0e1a19; }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  min-height: 2rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar, generating-podcast contract) ---------- */
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+
+/* 側邊欄底部：本頁公開網址的 QR Code，手機掃描即可開啟；窄螢幕本來就在手機上，不顯示 */
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+@media (max-width: 960px) { .toc-qr { display: none; } }
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible, .seek-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+
+/* Transcript page: section timestamps jump the player to that point. */
+.seek-btn {
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  vertical-align: 0.2em;
+  margin-right: 0.35rem;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+  cursor: pointer;
+}
+.seek-btn:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Narrow phones ---------- */
+
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  .hero { margin-bottom: 1.8rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  .lead { font-size: 1.02rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+  .site-header .inner { padding-block: 0.55rem; }
+  /* 窄螢幕放不下三欄：站名與主題鈕同一列，導覽列換到下一列置中 */
+  .site-header .inner { grid-template-columns: 1fr auto; }
+  .site-header nav { grid-row: 2; grid-column: 1 / -1; }
+  /* 手機上縮窄提示，右側兩個標籤的提示靠右對齊。 */
+  .site-header nav a[data-hint]::after { max-width: 50vw; }
+  .site-header nav a[data-hint]:nth-last-child(2)::after { left: auto; right: 0; transform: none; }
+}
+
+@media print {
+  /* 列印一律用淺色 */
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --surface-2: #f3f1ec;
+    --text: #1f2328;
+    --muted: #5b6168;
+    --border: #e2ded6;
+    --accent: #0b6e69;
+    --accent-soft: #e3f2f0;
+    --code-bg: #f6f5f1;
+    --code-text: #24292f;
+    --tip: #0b6e69;
+    --tip-bg: #e8f5f3;
+    --note: #2f5fb3;
+    --note-bg: #eaf0fb;
+    --warn: #a4570b;
+    --warn-bg: #fdf1e3;
+    --try: #7a3fb0;
+    --try-bg: #f3ecfa;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+    --on-accent: #ffffff;
+    color-scheme: light;
+  }
+  .toc, .toc-qr, .site-header nav, .theme-toggle, .seek-btn, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+blockquote {
+  margin: 1.2rem 0;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+  line-height: 1.9;
+}
+/* 表格第一欄是索引欄，保持單行不換行，過寬時整個表格可橫向捲動 */
+table th:first-child, table td:first-child { white-space: nowrap; }
+.news-card .tag { color: var(--accent); }
+.news-date { color: var(--muted); font-size: 0.9rem; margin: 0.1rem 0 0.4rem; }
+.news-audio { color: var(--muted); font-size: 0.88rem; margin: 0.3rem 0; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><nav aria-label="講義"><a href="index.html" data-hint="讀懂一則 AI 新聞，不需要會寫程式">首頁</a>
+<a href="news01.html" data-hint="AI 會不會失控？一場吵了兩週的大爭論">時事 1</a>
+<a href="news02.html" data-hint="不會講話的 AI：一個只做選擇題的新模型">時事 2</a>
+<a href="news03.html" data-hint="會替你動手的 AI：Meta Muse 與「AI 代理」這件事">時事 3</a>
+<a href="news04.html" data-hint="會持續替你工作的 AI：Grok Bot 與 OpenAI dot 比較">時事 4</a>
+<a href="news05.html" aria-current="page" data-hint="從「AI 小助理」到「技能包」：GPTs、Gems 退場與 Agent Skills">時事 5</a></nav><button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">11:45</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/news05-podcast.mp3" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 11:45</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button><button type="button" class="toc-speed-btn" data-speed="2.0" aria-pressed="false">2.0x</button></div></div></div><details><summary>本頁目錄</summary><ol><li><a href="#sec1">一、新聞在說什麼？三家先後把「小助理」換成「技能」</a></li><li><a href="#sec2">二、舊做法：GPTs 和 Gems 是怎麼運作的？</a></li><li><a href="#sec3">三、新做法：技能（skill）到底是什麼？</a></li><li><a href="#sec4">四、三家怎麼轉換？並排比較</a></li><li><a href="#sec5">五、技能會取代 RAG 嗎？</a></li><li><a href="#sec6">六、怎麼 double-check：日期不一致時怎麼辦？</a></li><li><a href="#sec7">七、課堂實作：把一隻小助理拆成技能</a></li><li><a href="#sec8">八、關鍵詞</a></li><li><a href="#sec9">九、參考資料：21 個有效連結，含 7 筆臺灣繁中來源</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h1m3 0h1m1 0h1m3 0h2m2 0h3m1 0h7m-33 1h1m5 0h1m1 0h3m1 0h1m1 0h1m5 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m2 0h1m2 0h1m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m4 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m2 0h1m3 0h2m4 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m1 0h1m3 0h6m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m3 0h1m1 0h2m1 0h1m3 0h2m-25 1h1m1 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h4m1 0h1m2 0h1m1 0h2m-32 1h1m5 0h2m1 0h5m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-33 1h7m6 0h1m3 0h1m4 0h3m1 0h4m1 0h2m-29 1h1m3 0h3m4 0h2m2 0h2m2 0h2m2 0h1m1 0h1m-30 1h1m3 0h3m5 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-28 1h2m4 0h3m1 0h1m1 0h3m1 0h2m1 0h2m4 0h1m2 0h2m-31 1h1m3 0h2m1 0h1m2 0h1m1 0h1m5 0h3m2 0h1m1 0h3m-27 1h2m3 0h1m2 0h1m1 0h5m3 0h2m2 0h3m2 0h2m-31 1h8m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h3m1 0h3m-23 1h1m1 0h1m4 0h2m3 0h1m1 0h2m1 0h2m1 0h2m1 0h2m-31 1h1m3 0h1m4 0h1m1 0h1m1 0h2m5 0h1m2 0h1m1 0h2m1 0h2m-24 1h2m3 0h1m3 0h2m1 0h1m1 0h1m3 0h1m1 0h1m-28 1h3m2 0h2m1 0h1m1 0h1m1 0h5m3 0h1m3 0h1m3 0h2m-31 1h2m3 0h1m2 0h1m1 0h3m1 0h1m1 0h8m2 0h1m2 0h1m2 0h1m-28 1h4m1 0h4m4 0h1m1 0h5m3 0h2m1 0h2m-32 1h1m1 0h2m7 0h2m4 0h1m1 0h1m4 0h2m1 0h1m2 0h1m-32 1h1m5 0h3m5 0h2m1 0h3m2 0h1m1 0h5m2 0h2m-25 1h1m1 0h1m1 0h5m2 0h1m4 0h1m3 0h2m-30 1h7m1 0h1m1 0h1m3 0h1m2 0h3m1 0h4m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m4 0h3m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h6m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h2m1 0h1m2 0h4m3 0h1m1 0h2m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m2 0h4m4 0h3m2 0h4m1 0h2m3 0h1m-33 1h7m1 0h1m1 0h1m1 0h7m1 0h2m1 0h1m4 0h3"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero"><p class="eyebrow">時事 5</p><h1>從「AI 小助理」到「技能包」：GPTs、Gems 退場與 Agent Skills</h1><p class="lead">2026 年 9 月，OpenAI 宣布自訂 GPT（GPTs）將退役，改用包含技能（skill）的外掛程式（plugin）；Google 接著宣布 Gemini 的 Gems 會被 Skills 取代。兩家採用的技能格式，源頭是 Anthropic 在 2025 年推出、後來公開為開放標準的 Agent Skills。這份講義先說明舊的「小助理」怎麼運作，再解釋技能是什麼、三家怎麼轉換，最後討論一個常見說法：「技能會取代 RAG」到底對不對。資料查證日期：2026 年 10 月 3 日，臺灣時間。</p><ul class="meta"><li>事件時間：2026 年 9–10 月</li><li>可獨立閱讀</li><li>不需程式基礎</li><li>🎧 語音導讀：11 分 45 秒</li></ul></section><h2 id="sec1">一、新聞在說什麼？三家先後把「小助理」換成「技能」</h2>
+<p>過去兩年，很多老師和學生做過自己的 AI 小助理：在 ChatGPT 建一個 GPT，或在 Gemini 建一個 Gem，寫好角色說明、上傳幾份參考檔，以後就進入這隻小助理對話。這次的改變是：<strong>工作方法不再綁在某一隻小助理裡，而是變成可以在不同對話叫出來、也能互相搭配的技能。</strong> <a href="https://www.bnext.com.tw/article/92451/custom-gpt-migrate-plugin-skill" target="_blank" rel="noopener">R15</a></p>
+<div class="table-wrap"><table><thead><tr><th>時間</th><th>發生了什麼</th><th>閱讀時要注意</th></tr></thead><tbody><tr><td>2025 年 10 月 16 日</td><td>Anthropic 推出 Agent Skills，用在 Claude 各產品。<a href="https://claude.com/blog/skills" target="_blank" rel="noopener">R01</a></td><td>一開始只是 Claude 的功能。</td></tr><tr><td>2025 年 12 月</td><td>有開發者發現 ChatGPT 與 Codex 已悄悄出現技能資料夾。<a href="https://simonwillison.net/2025/Dec/12/openai-skills/" target="_blank" rel="noopener">R08</a></td><td>這是觀察紀錄，當時 OpenAI 還沒有正式宣布。</td></tr><tr><td>2025 年 12 月 18 日</td><td>Anthropic 把 Agent Skills 公開為開放標準。<a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener">R02</a></td><td>開放標準代表別家也能照同一份規格做。</td></tr><tr><td>2026 年 9 月 11 日</td><td>OpenAI 在版本更新說明宣布自訂 GPT 將退役。<a href="https://virtualizationreview.com/articles/2026/09/28/openai-to-retire-custom-gpts-replace-them-with-plugins.aspx" target="_blank" rel="noopener">R06</a> <a href="https://mixed-news.com/en/openai-retiring-custom-gpts-what-carries-over-to-plugins/" target="_blank" rel="noopener">R07</a></td><td>停止新建的日期，各報導說法不同，見第六節。</td></tr><tr><td>2026 年 9 月 30 日</td><td>Google 宣布 Skills 將進入 Gemini 與 Workspace，並逐步取代 Gems。<a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">R09</a></td><td>不同帳號類型的時程不一樣。</td></tr><tr><td>2026 年 12 月 11 日</td><td>自訂 GPT 預定停止運作。<a href="https://virtualizationreview.com/articles/2026/09/28/openai-to-retire-custom-gpts-replace-them-with-plugins.aspx" target="_blank" rel="noopener">R06</a> <a href="https://signals.tw/articles/chatgpt-custom-gpts-retire-december-plugin-migration/" target="_blank" rel="noopener">R16</a></td><td>獲准延後的企業工作區可用到 2027 年 2 月 11 日。</td></tr></tbody></table></div>
+<div class="callout note"><span class="label">先注意一件事</span><p>本講義沒有找到 Anthropic 宣布停用 Claude Projects（專案）的資料。說「三家都在用技能取代舊工具」並不精確：比較準確的說法是，OpenAI 和 Google 正在讓舊的小助理退場，而三家都採用同一種技能格式。</p></div>
+<h2 id="sec2">二、舊做法：GPTs 和 Gems 是怎麼運作的？</h2>
+<h3>2.1 一隻小助理，等於「說明書＋參考檔＋固定入口」</h3>
+<p>自訂 GPT 和 Gem 的做法很像：你寫一份角色說明，例如「你是課程助教，只根據講義回答」；再上傳講義、規則等參考檔。之後要用，就得先找到這隻小助理，進入它的對話。<a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">R05</a> <a href="https://www.thurrott.com/a-i/342171/google-geminis-custom-gems-are-being-replaced-with-skills" target="_blank" rel="noopener">R11</a></p>
+<p>想像你在學校裡有三位不同的助教：一位會改報告格式，一位熟悉實驗室規則，一位幫你寫信。問題是，同一件工作需要兩位助教的本事時，你只能先問一位、再把結果拿去問另一位。</p>
+<h3>2.2 參考檔怎麼被用上？白話說明 RAG</h3>
+<p>上傳的參考檔太長，AI 一次讀不完。常見做法叫 <strong>RAG（檢索增強生成，retrieval-augmented generation）</strong>：先把文件切成許多小段，提問時找出看起來最相關的幾段，交給 AI 參考後再回答。就像考試可以翻書，但只能先從索引挑幾頁來看。</p>
+<p>這種做法的限制是：被挑出來的段落只是「資料」，它沒辦法規定 AI 要照哪幾個步驟做事，也不能附上可執行的工具；如果索引挑錯段落，AI 就會根據錯的頁面回答。<a href="https://arxiv.org/abs/2602.12430" target="_blank" rel="noopener">R14</a></p>
+<div class="callout tip"><span class="label">對你的意義</span><p>這是我們根據來源整理的說明，各家產品內部實際怎麼檢索參考檔，公開文件沒有完整交代。</p></div>
+<h2 id="sec3">三、新做法：技能（skill）到底是什麼？</h2>
+<h3>3.1 一個資料夾，裡面一份 SKILL.md</h3>
+<p>技能就是一個資料夾。裡面一定要有一份叫 <strong>SKILL.md</strong> 的說明檔，最前面寫兩件事：技能的<strong>名稱</strong>，以及<strong>什麼時候該用它</strong>的描述；後面再寫做事的步驟。資料夾裡也可以放參考資料、範本，甚至能執行的小工具程式。<a href="https://agentskills.io/home" target="_blank" rel="noopener">R03</a> <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener">R02</a></p>
+<p>Anthropic 用的比喻是：寫技能就像替新進同事準備一本到職手冊。<a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener">R02</a> 臺灣的介紹文章則把它形容成「結構化的 Prompt 套件」。<a href="https://www.bnext.com.tw/article/90058/agent-skills-free-course-deeplearning-ai-anthropic-latest-partnership" target="_blank" rel="noopener">R20</a></p>
+<h3>3.2 漸進揭露：先看目錄，需要時才翻內頁</h3>
+<p>技能最重要的設計叫 <strong>漸進揭露（progressive disclosure）</strong>，分成三層：<a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener">R02</a> <a href="https://agentskills.io/home" target="_blank" rel="noopener">R03</a></p>
+<div class="table-wrap"><table><thead><tr><th>層次</th><th>什麼時候載入</th><th>生活比喻</th></tr></thead><tbody><tr><td>第一層：名稱與描述</td><td>一開始就載入每個技能的名稱與一句描述</td><td>書架上每本手冊的書背</td></tr><tr><td>第二層：SKILL.md 全文</td><td>AI 判斷這個技能和任務有關時才讀</td><td>抽出那本手冊，翻開目錄和步驟</td></tr><tr><td>第三層：附帶檔案與工具</td><td>做到某一步、真的需要時才開</td><td>翻到附錄，或拿出手冊附的量尺</td></tr></tbody></table></div>
+<p>所以裝了很多技能，也不會一開始就把所有內容塞給 AI。研究文章估計第一層每個技能大約只占幾十到一百個 token（AI 計算文字量的單位）。<a href="https://arxiv.org/abs/2602.12430" target="_blank" rel="noopener">R14</a> <a href="https://arxiv.org/abs/2604.14572" target="_blank" rel="noopener">R13</a></p>
+<h3>3.3 和小助理最大的不同：可以疊在一起用</h3>
+<p>技能不用「進入某一隻小助理」。你可以在同一次對話叫出兩、三個技能一起用，AI 也可能在判斷合適時自動套用。Google 舉的例子是：「每週電子報」技能搭配「機構品牌規範」技能。<a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">R09</a> 臺灣報導的建議也類似：把一隻什麼都會的行銷 GPT，拆成「品牌語氣」「貼文格式」「主管審稿」幾個技能，再依任務重新組合。<a href="https://www.bnext.com.tw/article/92451/custom-gpt-migrate-plugin-skill" target="_blank" rel="noopener">R15</a></p>
+<h2 id="sec4">四、三家怎麼轉換？並排比較</h2>
+<p>每一列要橫著讀。這裡比較的是官方文件與報導記載的設計和時程，不是產品實測。</p>
+<div class="table-wrap"><table><thead><tr><th>比較項目</th><th>OpenAI（ChatGPT）</th><th>Google（Gemini）</th><th>Anthropic（Claude）</th></tr></thead><tbody><tr><td>舊工具</td><td>自訂 GPT</td><td>Gems</td><td>本講義未查到退場消息</td></tr><tr><td>新的包裝</td><td>外掛程式：可含技能、參考檔與連接的 App。<a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">R05</a></td><td>Skills，建立在開放的 SKILL.md 標準上。<a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">R09</a></td><td>Agent Skills，格式的起點。<a href="https://claude.com/blog/skills" target="_blank" rel="noopener">R01</a></td></tr><tr><td>怎麼叫出來</td><td>輸入 @ 選技能；也可能自動套用。<a href="https://learn.chatgpt.com/docs/build-skills" target="_blank" rel="noopener">R04</a></td><td>輸入斜線加技能名稱；也可能自動套用。<a href="https://the-decoder.com/google-drops-gems-for-skills-joining-openai-and-anthropic-in-the-shift-to-agent-ready-prompt-formats/" target="_blank" rel="noopener">R10</a></td><td>判斷相關時載入。<a href="https://claude.com/blog/skills" target="_blank" rel="noopener">R01</a></td></tr><tr><td>舊工具怎麼搬</td><td>指令變成技能，知識檔案變成參考檔，已連接的 App 可帶過去。<a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">R05</a> <a href="https://www.bnext.com.tw/article/92451/custom-gpt-migrate-plugin-skill" target="_blank" rel="noopener">R15</a></td><td>剩下的 Gems 自動轉成<strong>草稿</strong>技能，只在 Gemini App 內。<a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">R09</a></td><td>不適用</td></tr><tr><td>搬不過去的</td><td>自訂動作（Custom Actions）、選定的模型、分享設定；對話紀錄可能不會複製。<a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">R05</a> <a href="https://virtualizationreview.com/articles/2026/09/28/openai-to-retire-custom-gpts-replace-them-with-plugins.aspx" target="_blank" rel="noopener">R06</a></td><td>Workspace 內要自己重建；App 與 Workspace 的技能目前不同步。<a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">R09</a></td><td>不適用</td></tr><tr><td>關鍵日期</td><td>12 月 11 日停止運作。<a href="https://virtualizationreview.com/articles/2026/09/28/openai-to-retire-custom-gpts-replace-them-with-plugins.aspx" target="_blank" rel="noopener">R06</a></td><td>11 月 17 日 Gems 移到設定頁；商務與企業最快 2027 年 3 月 1 日、教育最快 6 月 1 日停用。<a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">R09</a></td><td>不適用</td></tr><tr><td>參考檔</td><td>技能可包含參考檔；官方提醒轉移後的讀取方式可能不同。<a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">R05</a></td><td>支援文字檔、PDF 與圖片；Drive 檔案與分享功能之後推出。<a href="https://www.thurrott.com/a-i/342171/google-geminis-custom-gems-are-being-replaced-with-skills" target="_blank" rel="noopener">R11</a></td><td>可附參考資料與可執行程式。<a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener">R02</a></td></tr><tr><td>寫程式的工具</td><td>Codex 支援同一格式。<a href="https://learn.chatgpt.com/docs/build-skills" target="_blank" rel="noopener">R04</a></td><td>Gemini CLI 支援同一格式。<a href="https://geminicli.com/docs/cli/creating-skills/" target="_blank" rel="noopener">R12</a></td><td>Claude Code 支援。<a href="https://claude.com/blog/skills" target="_blank" rel="noopener">R01</a></td></tr></tbody></table></div>
+<div class="callout warn"><span class="label">這張表最容易被誤讀的一格</span><p>OpenAI 的取代品是「外掛程式」，技能只是外掛裡的一部分；外掛還可以接上外部工具與資料。所以不是「GPT 直接變成一個技能」這麼簡單。<a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">R05</a></p></div>
+<h3>「帶得走」是什麼意思？</h3>
+<p>三家都讀同一種 SKILL.md，所以一份技能比較容易搬到另一個工具。Agent Skills 官網列出四十多個支援的產品。<a href="https://agentskills.io/home" target="_blank" rel="noopener">R03</a> 不過臺灣的分析提醒：跨產品之間不會自動同步，要自己下載再上傳；「帶得走」是重寫成本下降，不是零成本複製。<a href="https://marketing.91app.com/agent-skills-open-standard-portable/" target="_blank" rel="noopener">R18</a></p>
+<h2 id="sec5">五、技能會取代 RAG 嗎？</h2>
+<h3>5.1 兩者回答的是不同問題</h3>
+<p>一份研究整理得很清楚：RAG 提供的是被動的資料段落，<strong>不能規定多步驟的工作流程、不能附帶可執行的程式</strong>；技能則是事先讓 AI 準備好「怎麼做」。<a href="https://arxiv.org/abs/2602.12430" target="_blank" rel="noopener">R14</a> 臺灣的說明文章也把技能定位成保存工作方法與品質標準的地方。<a href="https://blog.firstline.cc/what-is-an-ai-agent-skill/" target="_blank" rel="noopener">R19</a></p>
+<blockquote>小助理時代：說明書＋一堆參考檔，靠檢索挑段落。<br>技能時代：先看書背，需要時翻手冊，手冊還能附工具。</blockquote>
+<h3>5.2 一個有趣的研究：不檢索，改成「翻目錄」</h3>
+<p>2026 年 4 月的 Corpus2Skill 研究，把 6,221 篇客服文章事先整理成分層的技能目錄，讓 AI 像翻書一樣一層層找答案，不用向量資料庫。在研究使用的測試題上，它的各項品質分數都比幾種 RAG 做法高；例如一項文字比對分數是 0.460，比代理式檢索的 0.388 相對高約 19%。<a href="https://arxiv.org/abs/2604.14572" target="_blank" rel="noopener">R13</a></p>
+<p>但同一份研究也列出代價：每題成本約 0.17 美元，大約是代理式檢索的 1.75 倍、RAPTOR 方法的 14 倍。<a href="https://arxiv.org/abs/2604.14572" target="_blank" rel="noopener">R13</a></p>
+<div class="callout tip"><span class="label">對你的意義</span><p>一份研究、一組客服資料，不能推論所有情況下「技能比 RAG 好」。比較合理的結論是：技能負責「怎麼做」，大量資料仍需要搜尋或檢索來「找資料」；兩者常常一起用。這是我們根據來源整理的判斷。</p></div>
+<h3>5.3 外部資料怎麼接？</h3>
+<p>研究把分工說成：技能提供「要做什麼」，另一種叫 <strong>MCP（模型脈絡協定）</strong> 的連接方式負責「怎麼接上外部工具與資料」。<a href="https://arxiv.org/abs/2602.12430" target="_blank" rel="noopener">R14</a> OpenAI 也說，原本 GPT 呼叫外部服務的自訂動作，要改用支援的連接工具或 MCP 伺服器重建。<a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">R05</a></p>
+<h2 id="sec6">六、怎麼 double-check：日期不一致時怎麼辦？</h2>
+<p>這則新聞的日期在不同報導裡不一致，正好拿來練習查證。</p>
+<div class="table-wrap"><table><thead><tr><th>要查的說法</th><th>各來源的說法</th><th>較仔細的判斷</th></tr></thead><tbody><tr><td>「自訂 GPT 9 月 25 日起不能新建。」</td><td>早期報導寫 9 月 25 日。<a href="https://mixed-news.com/en/openai-retiring-custom-gpts-what-carries-over-to-plugins/" target="_blank" rel="noopener">R07</a> <a href="https://signals.tw/articles/chatgpt-custom-gpts-retire-december-plugin-migration/" target="_blank" rel="noopener">R16</a> 較晚的報導寫 10 月 26 日。<a href="https://virtualizationreview.com/articles/2026/09/28/openai-to-retire-custom-gpts-replace-them-with-plugins.aspx" target="_blank" rel="noopener">R06</a> <a href="https://www.bnext.com.tw/article/92451/custom-gpt-migrate-plugin-skill" target="_blank" rel="noopener">R15</a> <a href="https://adersaytech.com/ai-tools/custom-gpt-retirement-plugins.html" target="_blank" rel="noopener">R17</a></td><td>官方常見問題頁更新過，較晚的報導較可能反映新版；而且這是企業方案的「規劃」日期。</td></tr><tr><td>「Gems 11 月就關掉了。」</td><td>有報導寫 11 月關閉。<a href="https://the-decoder.com/google-drops-gems-for-skills-joining-openai-and-anthropic-in-the-shift-to-agent-ready-prompt-formats/" target="_blank" rel="noopener">R10</a> Google 官方寫 11 月 17 日移到設定頁，仍可建立、編輯和使用。<a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">R09</a></td><td>報導說得太滿。App 內通知寫 11 月 17 日開始自動轉移。<a href="https://www.thurrott.com/a-i/342171/google-geminis-custom-gems-are-being-replaced-with-skills" target="_blank" rel="noopener">R11</a></td></tr><tr><td>「企業 2027 年 3 月一定停用。」</td><td>官方寫「不早於」2027 年 3 月 1 日。<a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">R09</a></td><td>「不早於」是最早日期，不是確定日期。</td></tr><tr><td>「搬過去就會一模一樣。」</td><td>OpenAI 提醒搬過去的外掛可能回答得不一樣，要重新測試。<a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">R05</a> <a href="https://virtualizationreview.com/articles/2026/09/28/openai-to-retire-custom-gpts-replace-them-with-plugins.aspx" target="_blank" rel="noopener">R06</a></td><td>搬家前先留下幾題舊答案，搬完後對照。<a href="https://www.bnext.com.tw/article/92451/custom-gpt-migrate-plugin-skill" target="_blank" rel="noopener">R15</a></td></tr><tr><td>「技能是開放標準，所以很安全。」</td><td>研究整理一份分析：社群分享的技能中，有 26.1% 至少含一個安全弱點。<a href="https://arxiv.org/abs/2602.12430" target="_blank" rel="noopener">R14</a></td><td>開放格式不等於安全。Anthropic 也建議只安裝可信任來源的技能。<a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener">R02</a></td></tr></tbody></table></div>
+<div class="callout tip"><span class="label">查證小技巧</span><p>同一件事出現兩個日期時，先看哪一份比較新、是不是引用官方頁面，再看日期前面有沒有「目標」「規劃」「不早於」這類字。OpenAI 的官方常見問題頁在本次查證時無法直接開啟，所以這裡用官方遷移指南與多家報導交叉核對。</p></div>
+<div class="callout note"><span class="label">尚未回答的問題</span><p>搬家後的回答品質會不會變差、技能在臺灣華語任務的表現如何，本講義沒有實測。</p></div>
+<h2 id="sec7">七、課堂實作：把一隻小助理拆成技能</h2>
+<h3>練習 A：拆解一份小助理說明</h3>
+<div class="callout note"><span class="label">情境</span><p>系上有一隻虛構的「課程小幫手」GPT，說明寫著：回答課程規定、把作業格式改成系上範本、替學生寫請假信。</p></div>
+<p><strong>可改寫的提示詞（Suggested Prompt）：</strong> 以下是一份 AI 小助理的說明。請判斷它包含幾種不同的工作，拆成二到四個獨立技能。每個技能寫清楚：什麼時候該用、需要我提供什麼資料、成果長什麼樣子、哪些步驟不能跳過、哪裡一定要讓我確認。只根據我提供的內容整理，不要補上我沒寫的規則；發現互相矛盾的地方，列出來問我。</p>
+<p><strong>預期成果（Expected Outcome）：</strong> 三個技能，例如「課程規定問答」「作業格式整理」「請假信草稿」，各自有清楚的使用時機。</p>
+<div class="callout note"><span class="label">驗收（Check it）</span><p>每個技能的描述能不能讓另一位同學一看就知道「什麼時候該用」？有沒有哪個技能其實做了兩件事？</p></div>
+<h3>練習 B：查一個日期</h3>
+<div class="callout note"><span class="label">可改寫的提示詞</span><p>請用 Google 官方的 Workspace 更新文章，核對「Gemini 的 Gems 11 月就停用」這個說法。列出官方的確切日期、適用的帳號類型，以及這個說法哪裡不準確。</p></div>
+<div class="callout note"><span class="label">預期成果</span><p>指出 11 月 17 日是移到設定頁，不是停用；企業與教育帳號另有「不早於」的日期。</p></div>
+<div class="callout note"><span class="label">驗收</span><p>自己打開官方文章找到那一段，不要只看 AI 的整理。</p></div>
+<h3>練習 C：搬家前的備份清單</h3>
+<p>如果你自己做過 GPT 或 Gem，列出搬家前要備份的東西：名稱、完整說明、參考檔清單、兩三題常問問題與現在的回答。搬完後用同樣問題測試，記下哪裡變了。<a href="https://www.bnext.com.tw/article/92451/custom-gpt-migrate-plugin-skill" target="_blank" rel="noopener">R15</a></p>
+<div class="callout note"><span class="label">討論</span><p>如果一份技能是網路上別人分享的，你會先檢查哪些地方再安裝？</p></div>
+<h2 id="sec8">八、關鍵詞</h2>
+<div class="table-wrap"><table><thead><tr><th>關鍵詞</th><th>白話說明</th></tr></thead><tbody><tr><td>自訂 GPT（Custom GPT／GPTs）</td><td>ChatGPT 裡自己設定的小助理，預定 2026 年 12 月 11 日退役。</td></tr><tr><td>Gem</td><td>Gemini 裡自己設定的小助理，將由 Skills 取代。</td></tr><tr><td>技能（skill）</td><td>一個資料夾，用 SKILL.md 寫好什麼時候用、怎麼做。</td></tr><tr><td>SKILL.md</td><td>技能的說明檔，最前面寫名稱與使用時機。</td></tr><tr><td>外掛程式（plugin）</td><td>ChatGPT 的能力包，可以裝技能、參考檔與連接的 App。</td></tr><tr><td>開放標準（open standard）</td><td>公開的規格，不同公司都能照著做。</td></tr><tr><td>漸進揭露（progressive disclosure）</td><td>先載入書背，需要時才翻內頁和附錄。</td></tr><tr><td>RAG（檢索增強生成）</td><td>先從文件挑出相關段落，再讓 AI 參考著回答。</td></tr><tr><td>MCP（模型脈絡協定）</td><td>讓 AI 接上外部工具與資料的連接方式。</td></tr><tr><td>自訂動作（Custom Actions）</td><td>GPT 呼叫外部服務的設定，搬家時不會自動轉過去。</td></tr></tbody></table></div>
+<h2 id="sec9">九、參考資料：21 個有效連結，含 7 筆臺灣繁中來源</h2>
+<p>以下 21 個網址均於 2026 年 10 月 3 日開啟並檢查相關內容。R01–R05、R09、R12 是廠商的第一手文件；R06–R08、R10、R11 是英文科技媒體與開發者紀錄；R13、R14 是 arXiv 上的研究論文，尚未經過同儕審查；R15–R21 是臺灣出版的繁體中文來源。廠商文件說明的是廠商怎麼描述產品，不是獨立測試結果。</p>
+<div class="callout note"><span class="label">臺灣華語閱讀來源</span><p>R15–R21 共七筆，都是臺灣網站以臺灣用語撰寫。R16 標示由 AI 協助撰寫；R17 註明依 OpenAI 說明頁整理。它們幫助閱讀，技術主張仍回到第一手文件核對。</p></div>
+<h3>英文來源</h3>
+<ul><li><strong>R01</strong> <a href="https://claude.com/blog/skills" target="_blank" rel="noopener">Introducing Agent Skills（Claude by Anthropic, 2025-10-16）</a>：Skills 推出、可疊用與只載入需要的內容。</li><li><strong>R02</strong> <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener">Equipping agents for the real world with Agent Skills（Anthropic Engineering, 2025-10-16）</a>：三層漸進揭露、到職手冊比喻、2025-12-18 開放標準、安全提醒。</li><li><strong>R03</strong> <a href="https://agentskills.io/home" target="_blank" rel="noopener">Agent Skills Overview（agentskills.io）</a>：開放格式定義、資料夾結構與支援產品清單。</li><li><strong>R04</strong> <a href="https://learn.chatgpt.com/docs/build-skills" target="_blank" rel="noopener">Build skills（OpenAI ChatGPT Learn）</a>：技能與外掛的分工、@ 叫用與自動套用。</li><li><strong>R05</strong> <a href="https://learn.chatgpt.com/codex/migrate-custom-gpts" target="_blank" rel="noopener">Moving your custom GPT workflows to plugins（OpenAI ChatGPT Learn）</a>：遷移會帶走與不會帶走的內容、測試建議。</li><li><strong>R06</strong> <a href="https://virtualizationreview.com/articles/2026/09/28/openai-to-retire-custom-gpts-replace-them-with-plugins.aspx" target="_blank" rel="noopener">OpenAI to Retire Custom GPTs, Replace Them with Plugins（Virtualization Review, 2026-09-28）</a>：9 月 11 日宣布、10 月 26 日停止新建、12 月 11 日退役、延後到 2027-02-11。</li><li><strong>R07</strong> <a href="https://mixed-news.com/en/openai-retiring-custom-gpts-what-carries-over-to-plugins/" target="_blank" rel="noopener">OpenAI is retiring custom GPTs, here's what carries over to plugins（MIXED, 2026-09-18）</a>：較早版本的企業時程（9 月 25 日停止新建）。</li><li><strong>R08</strong> <a href="https://simonwillison.net/2025/Dec/12/openai-skills/" target="_blank" rel="noopener">OpenAI are quietly adopting skills（Simon Willison, 2025-12-12）</a>：ChatGPT 與 Codex 早期出現技能資料夾的觀察。</li><li><strong>R09</strong> <a href="https://workspaceupdates.googleblog.com/2026/09/skills-gemini-app-workspace.html" target="_blank" rel="noopener">Introducing skills in the Gemini app and Workspace, plus what's next for Gems（Google Workspace Updates, 2026-09-30）</a>：官方時程、草稿轉移、SKILL.md 標準、App 與 Workspace 不同步。</li><li><strong>R10</strong> <a href="https://the-decoder.com/google-drops-gems-for-skills-joining-openai-and-anthropic-in-the-shift-to-agent-ready-prompt-formats/" target="_blank" rel="noopener">Google drops Gems for Skills（The Decoder, 2026-09-30）</a>：斜線叫用、自動執行，以及說得較滿的「11 月關閉」。</li><li><strong>R11</strong> <a href="https://www.thurrott.com/a-i/342171/google-geminis-custom-gems-are-being-replaced-with-skills" target="_blank" rel="noopener">Google Gemini's Custom 'Gems' Are Being Replaced With 'Skills'（Thurrott, 2026-09-29）</a>：App 內 11 月 17 日開始轉移的通知、支援的參考檔類型。</li><li><strong>R12</strong> <a href="https://geminicli.com/docs/cli/creating-skills/" target="_blank" rel="noopener">Creating Agent Skills（Gemini CLI docs）</a>：Google 寫程式工具中的 SKILL.md 結構。</li><li><strong>R13</strong> <a href="https://arxiv.org/abs/2604.14572" target="_blank" rel="noopener">Don't Retrieve, Navigate: Corpus2Skill（arXiv 2604.14572, 2026-04-16）</a>：技能目錄與 RAG 的比較數據與成本。</li><li><strong>R14</strong> <a href="https://arxiv.org/abs/2602.12430" target="_blank" rel="noopener">Agent Skills for Large Language Models（arXiv 2602.12430, 2026-02-17）</a>：技能與 RAG、MCP 的分工，26.1% 社群技能含弱點。</li></ul>
+<h3>臺灣繁體中文來源</h3>
+<ul><li><strong>R15</strong> <a href="https://www.bnext.com.tw/article/92451/custom-gpt-migrate-plugin-skill" target="_blank" rel="noopener">自訂GPT要退場了！AI大廠正在把「小助理」，變成可重複使用的技能（數位時代，2026-10-01）</a>：GPT 與 Gem 時程、遷移內容、拆技能的建議。</li><li><strong>R16</strong> <a href="https://signals.tw/articles/chatgpt-custom-gpts-retire-december-plugin-migration/" target="_blank" rel="noopener">你做的 GPT 12 月停用，9 月 25 日起就不能再新建（矽基前沿，2026-09-16）</a>：早期時程與自訂動作要自己重接。</li><li><strong>R17</strong> <a href="https://adersaytech.com/ai-tools/custom-gpt-retirement-plugins.html" target="_blank" rel="noopener">ChatGPT 自訂 GPT 要退役了？GPTs 遷移到 Plugins 前要準備什麼（Ted聊科技，2026-09-25）</a>：10 月 26 日（規劃）停止新建，指出官方兩頁日期不一致。</li><li><strong>R18</strong> <a href="https://marketing.91app.com/agent-skills-open-standard-portable/" target="_blank" rel="noopener">Agent Skills 開放標準：一套 SKILL.md 跨 ChatGPT、Claude、Codex（91APP，2026-07-16）</a>：「帶得走」是重寫成本下降，不是零成本複製。</li><li><strong>R19</strong> <a href="https://blog.firstline.cc/what-is-an-ai-agent-skill/" target="_blank" rel="noopener">AI Agent Skill 是什麼？OpenAI 與 Claude Skills 差異（FIRST LINE，2026-08-03）</a>：技能保存工作方法；平台掃描不能取代自己的檢查。</li><li><strong>R20</strong> <a href="https://www.bnext.com.tw/article/90058/agent-skills-free-course-deeplearning-ai-anthropic-latest-partnership" target="_blank" rel="noopener">Agent skill 是什麼？6 步驟打造你的第一個 Skill（數位時代，2026-02-25）</a>：技能等於結構化的 Prompt 套件、開放標準可跨系統重用。</li><li><strong>R21</strong> <a href="https://kaochenlong.com/claude-code-skills" target="_blank" rel="noopener">Claude Code Skills：讓 AI 變身專業工匠（kaochenlong.com，2026-01-03）</a>：2025 年 10 月推出、12 月 18 日開放標準，名稱與描述的規格。</li></ul>
+<div class="callout note"><span class="label">資料時效與驗證範圍</span><p>本講義完成文件與連結查證，沒有實際操作 GPT 遷移或 Gemini Skills。各家時程仍可能調整，授課前請重新查看 R05、R06 與 R09。附帶的查證紀錄列出日期衝突與尚未釐清的問題。</p></div><nav class="pager"><a href="news04.html">← 時事 4</a><a href="index.html">回首頁 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材。新聞事件仍在發展，閱讀時請一併確認是否有後續進展。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: dark by default; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") === "light";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("news-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+
+    // Transcript page: a section timestamp starts playback from that point.
+    document.querySelectorAll(".seek-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        seekTo(parseFloat(btn.getAttribute("data-t")) || 0);
+        audio.play();
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
