@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>稀釋計算器</title>
+<style>
+  body { font-family: sans-serif; max-width: 520px; margin: 40px auto; padding: 0 16px; }
+  h1 { font-size: 20px; }
+  p.formula { color: #555; }
+  label { display: block; margin: 12px 0 4px; }
+  input { width: 100%; padding: 6px; box-sizing: border-box; }
+  button { margin-top: 16px; padding: 8px 20px; }
+  #result { margin-top: 20px; padding: 12px; background: #eee; }
+</style>
+</head>
+<body>
+  <h1>稀釋計算器</h1>
+  <p class="formula">C1 × V1 = C2 × V2</p>
+
+  <label for="c1">原液濃度 (mg/mL)</label>
+  <input type="number" id="c1">
+
+  <label for="c2">目標濃度 (mg/mL)</label>
+  <input type="number" id="c2">
+
+  <label for="v2">最終體積 (mL)</label>
+  <input type="number" id="v2">
+
+  <button onclick="calc()">計算</button>
+
+  <div id="result"></div>
+
+<script>
+function calc() {
+  var c1 = parseFloat(document.getElementById('c1').value);
+  var c2 = parseFloat(document.getElementById('c2').value);
+  var v2 = parseFloat(document.getElementById('v2').value);
+
+  var v1 = (c2 * v2) / c1;
+  var diluent = v2 - v1;
+
+  document.getElementById('result').innerHTML =
+    "需要原液：" + v1 + " mL<br>" +
+    "需要稀釋液：" + diluent + " mL";
+}
+</script>
+</body>
+</html>

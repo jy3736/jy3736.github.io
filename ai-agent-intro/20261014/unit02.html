@@ -1,0 +1,1141 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('hwai-handout-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%AC%3C/text%3E%3C/svg%3E">
+<title>單元二：從 Gems、GPTs 到自己的第一個 Skill</title>
+<meta name="description" content="比較一般聊天、Gems／GPTs 與 Skill；以活動通知整理練習先做一次、指定做法、使用保存的技能、換資料再用並修改一條規則。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* Hovering a nav number shows that unit's full title instantly, in a strip under the header. */
+.site-header .inner { position: relative; }
+/* the label is scaled, never the <a>: a transform on the link would make it the
+   containing block for the strip below and collapse it to the link's width */
+.site-header nav a > span { display: inline-block; transition: transform 0.12s ease; }
+.site-header nav a { transition: color 0.12s ease; }
+.site-header nav a:hover,
+.site-header nav a:focus-visible { color: var(--accent); }
+.site-header nav a:hover > span,
+.site-header nav a:focus-visible > span { transform: scale(1.18); }
+.site-header nav a[data-title]::after {
+  content: attr(data-title);
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  /* the box hugs the title: its own width plus roughly 10%, and never wider than the header */
+  width: max-content;
+  max-width: 90%;
+  padding: 0.55rem 1em;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 18%);
+  pointer-events: none;
+}
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .site-header nav a, .site-header nav a > span { transition: none; }
+  .site-header nav a:hover > span, .site-header nav a:focus-visible > span { transform: none; }
+}
+@media (max-width: 960px) {
+  /* touch screens have no hover: the strip would stick after a tap */
+  .site-header nav a[data-title]::after { content: none; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .theme-toggle, .toc-qr { display: none !important; }
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .site-header .brand { font-size:.95rem; } .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+.podcast-chapters { width:100%; min-width:0; margin-top:.7rem; padding:.35rem; font:inherit; font-size:.82rem; color:var(--text); background:var(--surface-2); border:1px solid var(--border); border-radius:.35rem; }
+.page.no-toc .toc-audio { max-width:40rem; margin:0 0 1.5rem; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">中華醫事 × AI Agent 實作講義</a><nav aria-label="講義"><a href="index.html" data-title="中華醫事科技大學 × AI Agent 實作講義"><span>首頁</span></a>
+<a href="unit01.html" data-title="單元一：從機器學習到 AI Agent"><span>AI 概念</span></a>
+<a href="unit02.html" data-title="單元二：從 Gems、GPTs 到自己的第一個 Skill" aria-current="page"><span>Skill</span></a>
+<a href="unit03.html" data-title="單元三：AI Agent 與 Vibe Coding 的專案操作"><span>網頁APP</span></a>
+<a href="unit04.html" data-title="單元四：視光處方轉換器（自主練習）"><span>處方轉換</span></a>
+<a href="unit05.html" data-title="單元五：醫檢稀釋換算器（自主練習）"><span>稀釋換算</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 深度導讀 Podcast</span><span class="toc-audio-badge">09:29</span></div>
+<audio id="podcast-audio" preload="metadata" aria-label="Skill：把做事的方法保存下來"><source src="audio/unit02-podcast.mp3" type="audio/mpeg"></audio>
+<div class="toc-audio-controls">
+<button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
+<div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
+</div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 09:29</span></div>
+<div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
+<select id="podcastChapter" class="podcast-chapters" aria-label="音訊章節跳轉"><option value="">選擇章節</option><option value="0">00:00 · 同一件事，每次都要重新交代嗎</option><option value="68.84">01:08 · 一般聊天、Gems、GPTs 與 Skill</option><option value="146.656">02:26 · 先做一次，再指定做法</option><option value="239.616">03:59 · 使用真正保存的技能，要看證據</option><option value="316.736">05:16 · 換一份有缺漏與矛盾的資料</option><option value="387.16">06:27 · 修改一條規則，再重跑</option><option value="468.84">07:48 · 換成自己的工作方法與聽後自測</option></select>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#three-ways"><span class="toc-num">01</span>三種方式，先看懂用途</a></li>
+<li><a href="#first-try"><span class="toc-num">02</span>操作 1、2：先做一次，再指定做法</a></li>
+<li><a href="#use-skill"><span class="toc-num">03</span>操作 3：使用真正保存的 Skill</a></li>
+<li><a href="#reuse"><span class="toc-num">04</span>操作 4：換一份資料再用一次</a></li>
+<li><a href="#edit-skill"><span class="toc-num">05</span>操作 5：修改一條規則</a></li>
+<li><a href="#my-skill"><span class="toc-num">06</span>換成自己的工作方法</a></li>
+<li><a href="#record"><span class="toc-num">07</span>我的完成紀錄與離開前回答</a></li></ol></details></aside>
+<main id="main">
+<section class="hero"><p class="eyebrow">14:20–15:10 · 50 分鐘</p>
+<h1>單元二：從 Gems、GPTs 到自己的第一個 Skill</h1>
+<p class="lead">同一件整理工作，每次都要重新交代規則嗎？這一單元用一則活動通知，體驗把「做事的方法」保存成技能（Skill），換一份資料也能照同樣的方法完成，再親自核對結果。</p>
+</section>
+<div class="callout tip"><span class="label">這一單元完成什麼</span><p>依序完成五個操作：先做一次 → 指定做法 → 使用保存的技能 → 換資料再用 → 改一條規則。最後留下技能檔、兩份結果與修改紀錄，並想好一個自己下次想保存的工作方法。</p></div>
+<ul class="flow" aria-label="本單元五個操作">
+  <li><b>① 先做一次</b>普通聊天，只給一句需求</li>
+  <li><b>② 指定做法</b>貼上完整規則，再整理一次</li>
+  <li><b>③ 使用技能</b>點名技能，不再貼規則</li>
+  <li><b>④ 換資料再用</b>缺漏與矛盾也照規則處理</li>
+  <li><b>⑤ 改一條規則</b>修改技能檔，重跑核對</li>
+</ul>
+<h3 id="get-ready">開始前：下載練習包</h3>
+<ol><li>下載並解壓縮<a href="downloads/skill-intro-workspace.zip" download>練習包</a>，裡面的 learner-workspace 資料夾有資料 A、B、C 三份文字檔，以及已經寫好的技能。</li><li>用 Codex 或 Antigravity 開啟 learner-workspace 資料夾。技能放在資料夾內的 .agents/skills/event-notice-intro/ 裡；名稱以句點開頭的資料夾，在檔案總管中預設可能看不到。</li><li>若使用 Gemini 網頁版且帳號已有 Skills 功能，可匯入<a href="downloads/event-notice-intro-skill.zip" download>技能包</a>。</li><li>找不到技能入口時，可以和同學配對操作；只在聊天中貼上規則的模擬體驗也可以練習，但請在紀錄中另外標示。</li></ol>
+<div class="sample-links"><a href="downloads/skill-intro-workspace.zip" download>下載練習包</a><a href="downloads/event-notice-intro-skill.zip" download>下載技能包</a><a href="examples/skill-intro/learner-workspace/.agents/skills/event-notice-intro/SKILL.md">閱讀技能檔 SKILL.md</a></div>
+
+<h2 id="three-ways"><span class="num">01</span>三種方式，先看懂用途</h2>
+<p>單元一練習了怎麼把需求說清楚。如果同一種整理工作每週都要做，每次都重新貼上全部規則既費時，也容易漏掉一條。各平台因此提供把指引「保存起來」的方式。</p>
+<div class="table-wrap"><table><thead><tr><th>方式</th><th>你怎麼使用</th><th>保存了什麼</th></tr></thead><tbody>
+<tr><th scope="row">一般聊天</th><td>每次提供這次的需求與規則</td><td>只有這段對話的上下文</td></tr>
+<tr><th scope="row">Gems／GPTs</th><td>選擇某個用途的自訂助手，再提供資料</td><td>助手的用途、指引及參考資料等設定</td></tr>
+<tr><th scope="row">Skill（技能）</th><td>點名技能，或由平台判斷何時使用</td><td>可重用的工作方法，可附參考檔、範本或程式</td></tr>
+</tbody></table></div>
+<dl class="glossary"><dt>Gems</dt><dd>Gemini 的自訂助手功能。</dd><dt>GPTs</dt><dd>ChatGPT 的自訂助手功能。</dd><dt>Skill</dt><dd>一個資料夾，核心是一份 SKILL.md 說明檔：寫明技能的名稱、什麼時候使用，以及一步一步的工作方法。Gems／GPTs 常見的工作指引可以保存成技能，技能也能承載更多流程；實際能用的工具與帳號功能依平台而定。</dd></dl>
+<div class="callout note"><span class="label">產品現況</span><p>Google 公告 Gems 依帳號類型轉向 skills；OpenAI 的企業版遷移指引則是把 GPTs 轉向包含 skills／apps 的 plugins。這不表示所有舊功能都已無差異地搬移。<a href="https://support.google.com/gemini/answer/18560919?hl=en" target="_blank" rel="noopener">Google 說明</a>、<a href="https://learn.chatgpt.com/docs/migrate-custom-gpts" target="_blank" rel="noopener">OpenAI 說明</a></p></div>
+<p class="source-note">產品資訊查核日期：2026 年 10 月 7 日。實際入口請以自己的帳號為準。</p>
+
+<h2 id="first-try"><span class="num">02</span>操作 1、2：先做一次，再指定做法</h2>
+<p>以下是資料 A：資訊完整的活動。全部資料都是虛構的練習內容，請保留原有日期與內容。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">資料 A · 資訊完整的活動</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="活動名稱：AI 工具體驗小聚">活動名稱：AI 工具體驗小聚</span>
+<span class="line" data-text="參加對象：對 AI 工具有興趣的初學者">參加對象：對 AI 工具有興趣的初學者</span>
+<span class="line" data-text="活動時間：2026 年 10 月 17 日 14:00–15:00">活動時間：2026 年 10 月 17 日 14:00–15:00</span>
+<span class="line" data-text="地點：教學大樓三樓 R301 教室">地點：教學大樓三樓 R301 教室</span>
+<span class="line" data-text="名額：20 人">名額：20 人</span>
+<span class="line" data-text="報名方式：向活動窗口報名">報名方式：向活動窗口報名</span>
+<span class="line" data-text="報名期限：2026 年 10 月 15 日 17:00">報名期限：2026 年 10 月 15 日 17:00</span>
+<span class="line" data-text="準備事項：自備筆記型電腦">準備事項：自備筆記型電腦</span></code></pre></figure>
+<h3 id="op1">操作 1：照平常的方式問</h3>
+<p>在沒有載入練習技能的普通聊天中，貼上這句，再貼資料 A。留下第一份結果。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">操作 1 · 只給一句需求</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請用臺灣繁體中文，把以下活動資訊整理成一則通知。">請用臺灣繁體中文，把以下活動資訊整理成一則通知。</span></code></pre></figure>
+<details class="explain"><summary>可能的輸出範例｜操作 1・資料 A</summary><div>
+<p class="source-note">以下為編製的示例，實際回答可能不同。先自己操作，再展開比較。</p>
+<p><strong>AI 工具體驗小聚活動通知</strong></p>
+<p>歡迎對 AI 工具有興趣的初學者參加「AI 工具體驗小聚」！活動將於 2026 年 10 月 17 日 14:00–15:00，在教學大樓三樓 R301 教室舉行，名額為 20 人。</p>
+<p>請於 2026 年 10 月 15 日 17:00 前向活動窗口報名，並自備筆記型電腦。</p>
+<p><strong>比較重點：</strong>一般聊天也可能正確整理資訊，但沒有指定固定欄位時，下一次的版面可能不同；這個示例不代表一定需要技能才能完成。</p>
+</div></details>
+<p>看看：資訊有沒有改變？AI 有沒有加入原資料沒提供的內容？你還想指定什麼？</p>
+<h3 id="op2">操作 2：指定固定做法</h3>
+<p>另開新聊天，貼上下面的規則，再貼同一份資料 A。這是體驗「固定指引」的效果，還沒有建立 Gem、GPT，也還沒有安裝技能。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">操作 2 · 貼上完整規則</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請以臺灣繁體中文整理活動通知。">請以臺灣繁體中文整理活動通知。</span>
+<span class="line" data-text="輸出兩個區塊：「活動通知」與「待確認」。">輸出兩個區塊：「活動通知」與「待確認」。</span>
+<span class="line" data-text="活動通知固定列出：活動名稱、對象、時間、地點、報名方式、報名期限。">活動通知固定列出：活動名稱、對象、時間、地點、報名方式、報名期限。</span>
+<span class="line" data-text="只使用我提供的資訊，不加入未提供的費用、網址、聯絡人或其他事實。">只使用我提供的資訊，不加入未提供的費用、網址、聯絡人或其他事實。</span>
+<span class="line" data-text="缺少的欄位標示「待確認」；有矛盾時保留不同內容，列出需要確認的問題。">缺少的欄位標示「待確認」；有矛盾時保留不同內容，列出需要確認的問題。</span>
+<span class="line" data-text="如果必要資訊都完整且一致，「待確認」寫「目前無」。">如果必要資訊都完整且一致，「待確認」寫「目前無」。</span></code></pre></figure>
+<details class="explain"><summary>可能的輸出範例｜操作 2・資料 A</summary><div>
+<p class="source-note">以下為編製的示例，實際回答可能不同。先自己操作，再展開比較。</p>
+<p><strong>活動通知</strong></p>
+<ul><li>活動名稱：AI 工具體驗小聚</li><li>對象：對 AI 工具有興趣的初學者</li><li>時間：2026 年 10 月 17 日 14:00–15:00</li><li>地點：教學大樓三樓 R301 教室</li><li>報名方式：向活動窗口報名</li><li>報名期限：2026 年 10 月 15 日 17:00</li><li>名額：20 人</li><li>準備事項：自備筆記型電腦</li></ul>
+<p><strong>待確認</strong></p>
+<p>目前無。</p>
+<p><strong>比較重點：</strong>這次有兩個指定區塊與六個必要欄位；名額與準備事項都有原資料支持。它展示的是聊天中遵守指引的結果，還不能證明技能已保存或載入。</p>
+</div></details>
+<p>比較兩次結果：哪些原本就做到了？哪些是指定規則後才容易檢查？</p>
+
+<h2 id="use-skill"><span class="num">03</span>操作 3：使用真正保存的 Skill</h2>
+<p>技能檔位於 learner-workspace/.agents/skills/event-notice-intro/SKILL.md，裡面寫的正是操作 2 的規則。請開啟工作區、開新對話，再點名或選取技能；這次不用貼完整規則。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">操作 3 · 點名技能</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請使用 event-notice-intro 技能，以臺灣繁體中文整理以下活動資料。">請使用 event-notice-intro 技能，以臺灣繁體中文整理以下活動資料。</span></code></pre></figure>
+<p>接著貼上資料 A。Codex 可以在技能選擇器點選，或輸入 $event-notice-intro 點名；其他平台依當時的入口操作。</p>
+<details class="explain"><summary>可能的輸出範例｜操作 3・資料 A</summary><div>
+<p class="source-note">以下為編製的示例，實際回答可能不同。先自己操作，再展開比較。</p>
+<p><strong>活動通知</strong></p>
+<ul><li>活動名稱：AI 工具體驗小聚</li><li>對象：對 AI 工具有興趣的初學者</li><li>時間：2026 年 10 月 17 日 14:00–15:00</li><li>地點：教學大樓三樓 R301 教室</li><li>報名方式：向活動窗口報名</li><li>報名期限：2026 年 10 月 15 日 17:00</li><li>名額：20 人</li><li>準備事項：自備筆記型電腦</li></ul>
+<p><strong>待確認</strong></p>
+<p>目前無。</p>
+<p><strong>比較重點：</strong>結果可以和操作 2 很接近；差別在於完整做法已保存為技能，這次只需要提供技能名稱與資料。這份輸出本身不代表技能載入成功，仍要查看平台的載入或讀取紀錄。</p>
+</div></details>
+<div class="callout warn"><span class="label">怎麼確認技能真的被使用</span><p>先找到「技能已選取」或「讀取了 SKILL.md」之類看得見的紀錄，再檢查答案。只有 AI 自己說「已使用」，不足以確認載入；沒有載入證據就先記為「待確認」。直接請 AI 讀檔，或在聊天中模擬，也可以練習，但要在紀錄中分別標示。</p></div>
+
+<h2 id="reuse"><span class="num">04</span>操作 4：換一份資料再用一次</h2>
+<p>資料 B 故意有缺漏與矛盾：沒有地點、報名表沒有連結，兩份備註寫了不同的報名期限。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">資料 B · 故意有缺漏與矛盾</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="活動名稱：讀書交流會">活動名稱：讀書交流會</span>
+<span class="line" data-text="參加對象：想分享閱讀心得的人">參加對象：想分享閱讀心得的人</span>
+<span class="line" data-text="活動時間：2026 年 10 月 24 日 10:00–11:30">活動時間：2026 年 10 月 24 日 10:00–11:30</span>
+<span class="line" data-text="報名方式：填寫線上報名表，連結尚未提供">報名方式：填寫線上報名表，連結尚未提供</span>
+<span class="line" data-text="第一份備註：報名期限為 2026 年 10 月 22 日 17:00">第一份備註：報名期限為 2026 年 10 月 22 日 17:00</span>
+<span class="line" data-text="第二份備註：報名期限為 2026 年 10 月 23 日 17:00">第二份備註：報名期限為 2026 年 10 月 23 日 17:00</span>
+<span class="line" data-text="準備事項：自備一本想分享的書">準備事項：自備一本想分享的書</span></code></pre></figure>
+<p>開新對話，使用相同技能，貼上資料 B；不用重新交代完整規則。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">操作 4 · 同一個技能，換一份資料</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請使用 event-notice-intro 技能，以臺灣繁體中文整理以下活動資料。">請使用 event-notice-intro 技能，以臺灣繁體中文整理以下活動資料。</span></code></pre></figure>
+<details class="explain"><summary>可能的輸出範例｜操作 4・資料 B</summary><div>
+<p class="source-note">以下為編製的示例，實際回答可能不同。先自己操作，再展開比較。</p>
+<p><strong>活動通知</strong></p>
+<ul><li>活動名稱：讀書交流會</li><li>對象：想分享閱讀心得的人</li><li>時間：2026 年 10 月 24 日 10:00–11:30</li><li>地點：待確認</li><li>報名方式：填寫線上報名表；連結待確認</li><li>報名期限：待確認。第一份備註為 2026 年 10 月 22 日 17:00；第二份備註為 2026 年 10 月 23 日 17:00。</li><li>準備事項：自備一本想分享的書</li></ul>
+<p><strong>待確認</strong></p>
+<ol><li>活動地點為何？</li><li>線上報名表連結為何？</li><li>正確報名期限是 2026 年 10 月 22 日還是 10 月 23 日 17:00？</li></ol>
+<p><strong>比較重點：</strong>換資料後仍使用相同格式，而且沒有自行補造地點、連結，也沒有自己選定其中一個期限。</p>
+</div></details>
+<h3>完成檢核 · Check it</h3>
+<ul class="checklist"><li>地點未提供，是否標示「待確認」？</li><li>報名表連結未提供，是否保留缺漏，而不是編一個網址？</li><li>兩個不同的期限是否都保留，並列為待確認的問題？</li></ul>
+<p>答案通順不等於資訊正確。請把回答與原資料逐項對照。</p>
+
+<h2 id="edit-skill"><span class="num">05</span>操作 5：修改一條規則</h2>
+<p>先保留技能原檔的副本，再加入一條新規則：讓「準備事項」成為固定欄位。你可以自己用文字編輯器修改 SKILL.md，也可以請 AI Agent 幫你改，並檢查它改了什麼。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">要加入的規則</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="在「活動通知」中增加「準備事項」欄位；只使用原資料，未提供時標示「待確認」。">在「活動通知」中增加「準備事項」欄位；只使用原資料，未提供時標示「待確認」。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">操作 5 · 請 Agent 修改技能檔</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的學生。請用一般用語說明，一次帶我做一小步。">我是完全沒有寫程式經驗的學生。請用一般用語說明，一次帶我做一小步。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請先把 event-notice-intro 技能的說明檔 SKILL.md 另存一份備份，告訴我備份放在哪裡。">請先把 event-notice-intro 技能的說明檔 SKILL.md 另存一份備份，告訴我備份放在哪裡。</span>
+<span class="line" data-text="接著在原技能的工作方法加入這條規則：在「活動通知」中增加「準備事項」欄位；只使用原資料，未提供時標示「待確認」。其他規則都保留，不要改動。">接著在原技能的工作方法加入這條規則：在「活動通知」中增加「準備事項」欄位；只使用原資料，未提供時標示「待確認」。其他規則都保留，不要改動。</span>
+<span class="line" data-text="改完請把新增或改動的句子列給我看，並告訴我接下來要怎麼重新載入技能、開新對話重試。">改完請把新增或改動的句子列給我看，並告訴我接下來要怎麼重新載入技能、開新對話重試。</span></code></pre></figure>
+<p>保存後重新載入技能，開新對話再整理一次資料 A，應出現「準備事項：自備筆記型電腦」。</p>
+<p>如果修改前的回答就已經列出準備事項（原技能允許把其他已提供的資訊列在六個欄位之後），請再試<a href="examples/skill-intro/learner-workspace/資料C.txt">資料 C</a>：它和資料 A 相同，只是沒有準備事項。修改後應仍出現「準備事項：待確認」，並列入待確認區塊。</p>
+<details class="explain"><summary>可能的輸出範例｜操作 5・修改後重跑資料 A／C</summary><div>
+<p class="source-note">以下為編製的示例，實際回答可能不同。此處呈現技能修改、保存並重新載入後，再次整理的可能結果。</p>
+<p><strong>重跑資料 A：活動通知</strong></p>
+<ul><li>活動名稱：AI 工具體驗小聚</li><li>對象：對 AI 工具有興趣的初學者</li><li>時間：2026 年 10 月 17 日 14:00–15:00</li><li>地點：教學大樓三樓 R301 教室</li><li>報名方式：向活動窗口報名</li><li>報名期限：2026 年 10 月 15 日 17:00</li><li>準備事項：自備筆記型電腦</li><li>名額：20 人</li></ul>
+<p><strong>待確認</strong>：目前無。</p>
+<p><strong>重跑資料 C：活動通知</strong></p>
+<ul><li>活動名稱：AI 工具體驗小聚</li><li>對象：對 AI 工具有興趣的初學者</li><li>時間：2026 年 10 月 17 日 14:00–15:00</li><li>地點：教學大樓三樓 R301 教室</li><li>報名方式：向活動窗口報名</li><li>報名期限：2026 年 10 月 15 日 17:00</li><li>準備事項：待確認</li><li>名額：20 人</li></ul>
+<p><strong>待確認</strong>：請確認參加者需要準備或攜帶什麼。</p>
+<p><strong>比較重點：</strong>準備事項已成為固定欄位。資料 C 沒有提供準備事項，因此應保留欄位並標示待確認，不能沿用資料 A 的筆記型電腦。</p>
+</div></details>
+<div class="callout note"><span class="label">修改技能，就是在定義自己的做事方法</span><p>只在這次對話裡說「多加一欄」，下一次新對話就會忘記；寫進技能檔並保存，下一次才會照做。改完一定要用新資料重跑，確認改動真的生效。</p></div>
+
+<h2 id="my-skill"><span class="num">06</span>換成自己的工作方法</h2>
+<p>活動通知只是練習。想一想：在你的課程、實驗或小組工作中，有哪件事每次都要用同樣的方法整理？例如實驗課的準備清單、小組會議紀錄、報告的分工表。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">建立自己的技能 · 可改寫</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的學生。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。">我是完全沒有寫程式經驗的學生。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="我想把一件常做的整理工作保存成技能。請先問我三件事，等我回答後再動手：（1）每次要整理什麼資料（2）每次一定要列出哪些欄位（3）資料有缺漏或互相矛盾時要怎麼處理。">我想把一件常做的整理工作保存成技能。請先問我三件事，等我回答後再動手：（1）每次要整理什麼資料（2）每次一定要列出哪些欄位（3）資料有缺漏或互相矛盾時要怎麼處理。</span>
+<span class="line" data-text="我回答後，請在目前資料夾的技能區 .agents/skills 建立一個新技能，名稱用英文小寫字母與連字號，工作方法用臺灣繁體中文寫，只寫我說過的規則，不要自行加規則。">我回答後，請在目前資料夾的技能區 .agents/skills 建立一個新技能，名稱用英文小寫字母與連字號，工作方法用臺灣繁體中文寫，只寫我說過的規則，不要自行加規則。</span>
+<span class="line" data-text="做完請告訴我技能檔放在哪裡，再給我一份資訊完整、一份故意缺一個欄位的虛構範例資料，讓我開新對話點名這個技能來測試。">做完請告訴我技能檔放在哪裡，再給我一份資訊完整、一份故意缺一個欄位的虛構範例資料，讓我開新對話點名這個技能來測試。</span></code></pre></figure>
+<p>單元三與自主練習的單元四、五也會用到同樣的概念：<a href="downloads/develop-static-web-app-SKILL.md">develop-static-web-app 技能</a>保存了「把教學圖做成可驗收網頁工具」的六個步驟。打開它看看，比較它和 event-notice-intro 的寫法有什麼共同點。</p>
+
+<h2 id="record"><span class="num">07</span>我的完成紀錄與離開前回答</h2>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>我的紀錄</th></tr></thead><tbody>
+<tr><td>平台</td><td>自己填寫</td></tr>
+<tr><td>實作方式</td><td>實際技能載入／直接讀檔／聊天模擬／配對檢查</td></tr>
+<tr><td>資料 A：格式與資訊是否符合</td><td>自己填寫</td></tr>
+<tr><td>資料 B：是否找到地點、連結與期限問題</td><td>自己填寫</td></tr>
+<tr><td>修改後是否出現準備事項</td><td>自己填寫</td></tr>
+<tr><td>我下次想保存的一個工作方法</td><td>自己填寫</td></tr>
+</tbody></table></div>
+<h3>驗收表</h3>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>通過依據</th><th>不通過例子</th></tr></thead><tbody>
+<tr><td>載入紀錄</td><td>有選取技能、讀取檔案等看得見的證據；沒有證據則標「待確認」</td><td>只憑 AI 宣稱已使用就認定成功</td></tr>
+<tr><td>固定格式</td><td>包含「活動通知」與「待確認」兩個區塊、六個必要欄位</td><td>只寫一段宣傳文，缺少欄位</td></tr>
+<tr><td>資訊忠實</td><td>原日期、數值與對象一致</td><td>改變時間、增加「免費入場」等資訊</td></tr>
+<tr><td>缺漏處理</td><td>資料 B 的地點與報名連結標為待確認</td><td>編造教室或網址</td></tr>
+<tr><td>矛盾處理</td><td>資料 B 的兩個期限都保留，並請人確認</td><td>自行認定後一份才是正確版本</td></tr>
+<tr><td>修改生效</td><td>準備事項成為固定欄位；沒資料時也標待確認</td><td>只改了這一次的回答，技能檔沒有保存</td></tr>
+</tbody></table></div>
+<h3>離開前回答</h3>
+<ol><li>Gems／GPTs 的共同用途是：A 每次重新交代全部規則；B 保存某個用途的指引與資料；C 保證答案永遠正確。</li><li>把技能全文貼進聊天，就能證明技能已安裝、會自動載入嗎？</li><li>面對兩個互相矛盾的報名期限，你希望 AI 如何處理？</li></ol>
+<details class="explain"><summary>參考答案</summary><div>
+<ol><li>B：預先保存某個用途的指引與資料。</li><li>不能。貼全文是在聊天中提供指引；仍需另外確認技能已保存、載入並被使用。</li><li>保留兩個版本，列出矛盾，請人確認。</li></ol>
+</div></details>
+<p>保留技能檔、兩份結果與修改紀錄。技能能保存工作方法，輸出仍需要檢查；不同平台不一定有相同的工具、入口或生成結果。</p>
+<div class="sample-links"><a href="https://learn.chatgpt.com/docs/build-skills" target="_blank" rel="noopener">Codex／ChatGPT skills 說明</a><a href="https://www.antigravity.google/docs/skills?tab=ide" target="_blank" rel="noopener">Antigravity skills 說明</a><a href="https://support.google.com/gemini/answer/17094296?hl=en" target="_blank" rel="noopener">Gemini skills 說明</a></div>
+<nav class="pager" aria-label="上下頁"><a href="unit01.html">← 單元一</a><a href="unit03.html">單元三 →</a></nav>
+
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("hwai-handout-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    // A server without byte-range support (e.g. python -m http.server) leaves the
+    // streamed audio unseekable: setting currentTime silently snaps back to 0.
+    // In that case load the whole file once as a blob, which is always seekable.
+    var canSeek = function (t) {
+      for (var i = 0; i < audio.seekable.length; i++) {
+        if (t >= audio.seekable.start(i) && t <= audio.seekable.end(i)) return true;
+      }
+      return false;
+    };
+    var blobLoading = null;
+    var loadWholeFile = function () {
+      if (!blobLoading) {
+        var source = audio.querySelector("source");
+        var rate = audio.playbackRate;
+        blobLoading = fetch(audio.currentSrc || (source && source.src))
+          .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+          .then(function (blob) {
+            return new Promise(function (resolve) {
+              audio.addEventListener("loadedmetadata", function () {
+                audio.playbackRate = rate;
+                resolve();
+              }, { once: true });
+              audio.src = URL.createObjectURL(blob);
+              audio.load();
+            });
+          });
+        blobLoading.catch(function () { blobLoading = null; });
+      }
+      return blobLoading;
+    };
+    var seekTo = function (t, thenPlay) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      t = Math.max(0, Math.min(max, t));
+      var jump = function () {
+        audio.currentTime = t;
+        updateUI();
+        if (thenPlay) audio.play();
+      };
+      if (t === 0 || canSeek(t)) jump();
+      else loadWholeFile().then(jump, jump);
+    };
+
+    var chapterSelect = document.getElementById("podcastChapter");
+    if (chapterSelect) {
+      var chapterStarts = Array.prototype.slice.call(chapterSelect.options)
+        .filter(function (o) { return o.value !== ""; })
+        .map(function (o) { return Number(o.value); });
+      chapterSelect.addEventListener("change", function () {
+        if (chapterSelect.value === "") return;
+        var target = Number(chapterSelect.value);
+        if (!isFinite(target)) return;
+        if (isFinite(audio.duration)) seekTo(target, true);
+        else {
+          audio.addEventListener("loadedmetadata", function () { seekTo(target, true); }, { once: true });
+          audio.load();
+        }
+      });
+      // Keep the menu on the chapter that is playing.
+      audio.addEventListener("timeupdate", function () {
+        var current = "";
+        chapterStarts.forEach(function (s) { if (audio.currentTime >= s - 0.05) current = String(s); });
+        var match = Array.prototype.filter.call(chapterSelect.options, function (o) { return o.value !== "" && Number(o.value) === Number(current); })[0];
+        if (match && chapterSelect.value !== match.value) chapterSelect.value = match.value;
+      });
+    }
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
