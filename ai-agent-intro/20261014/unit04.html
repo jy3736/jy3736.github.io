@@ -2,7 +2,7 @@
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
-<script>(function(){var t;try{t=localStorage.getItem('hwai-handout-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+<script>(function(){var t;try{t=localStorage.getItem('hwai-handout-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('hwai-handout-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('hwai-handout-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%AC%3C/text%3E%3C/svg%3E">
 <title>單元四：視光處方轉換器（自主練習）</title>
@@ -92,67 +92,29 @@ img { max-width: 100%; }
 
 /* ---------- Layout ---------- */
 
-.site-header {
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-.site-header .inner {
-  width: var(--layout-w);
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  align-items: center;
-  justify-content: space-between;
-  padding-block: 0.7rem;
-}
-.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
-.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
-.site-header nav a { text-decoration: none; color: var(--muted); }
-.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
-
-/* Hovering a nav number shows that unit's full title instantly, in a strip under the header. */
-.site-header .inner { position: relative; }
-/* the label is scaled, never the <a>: a transform on the link would make it the
-   containing block for the strip below and collapse it to the link's width */
-.site-header nav a > span { display: inline-block; transition: transform 0.12s ease; }
-.site-header nav a { transition: color 0.12s ease; }
-.site-header nav a:hover,
-.site-header nav a:focus-visible { color: var(--accent); }
-.site-header nav a:hover > span,
-.site-header nav a:focus-visible > span { transform: scale(1.18); }
-.site-header nav a[data-title]::after {
-  content: attr(data-title);
-  display: none;
-  position: absolute;
-  top: calc(100% + 0.4rem);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  /* the box hugs the title: its own width plus roughly 10%, and never wider than the header */
-  width: max-content;
-  max-width: 90%;
-  padding: 0.55rem 1em;
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 1.12rem;
-  font-weight: 700;
-  line-height: 1.4;
-  text-align: center;
-  box-shadow: 0 10px 28px rgb(0 0 0 / 18%);
-  pointer-events: none;
-}
-.site-header nav a:hover::after,
-.site-header nav a:focus-visible::after { display: block; }
-@media (prefers-reduced-motion: reduce) {
-  .site-header nav a, .site-header nav a > span { transition: none; }
-  .site-header nav a:hover > span, .site-header nav a:focus-visible > span { transform: none; }
-}
-@media (max-width: 960px) {
-  /* touch screens have no hover: the strip would stick after a tap */
-  .site-header nav a[data-title]::after { content: none; }
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
 }
 
 .page {
@@ -188,17 +150,18 @@ img { max-width: 100%; }
 .toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
 .toc li { margin: 0.1rem 0; }
 .toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
-.toc a {
+.toc details a {
   display: block;
   padding: 0.3rem 0.6rem;
   border-left: 2px solid transparent;
   color: var(--muted);
   text-decoration: none;
 }
-.toc a:hover { color: var(--text); }
-.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
 
-main { min-width: 0; padding-block: 2rem 4rem; }
+main { min-width: 0; padding-block: 3.5rem 4rem; }
 
 /* ---------- Typography ---------- */
 
@@ -505,6 +468,12 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   cursor: pointer;
 }
 .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
 .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- Podcast player (sidebar) ---------- */
@@ -615,6 +584,7 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 @media (max-width: 960px) {
   :root { --layout-w: 92%; }
   .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
   .toc-qr { display: none; }
 }
 @media (max-width: 640px) {
@@ -644,8 +614,9 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
     --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
     color-scheme: light;
   }
-  .theme-toggle, .toc-qr { display: none !important; }
-  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page-tools, .toc-qr { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
   .page { display: block; }
   details.explain > div { display: block; }
   body { font-size: 12pt; background: #fff; color: #000; }
@@ -678,30 +649,31 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 
 /* Workshop additions: responsive source-document content and version comparisons. */
 .page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
 .sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
 .sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
 .source-note { color:var(--muted); font-size:.9rem; }
 main { overflow-wrap:anywhere; }
 .prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
-@media(max-width:640px) { .site-header .brand { font-size:.95rem; } .card-grid { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
 
 main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
 
-.page.no-toc { grid-template-columns: minmax(0, 1fr); }
 .podcast-chapters { width:100%; min-width:0; margin-top:.7rem; padding:.35rem; font:inherit; font-size:.82rem; color:var(--text); background:var(--surface-2); border:1px solid var(--border); border-radius:.35rem; }
 .page.no-toc .toc-audio { max-width:40rem; margin:0 0 1.5rem; }
 </style>
 </head>
 <body>
 <a class="skip-link" href="#main">跳到主要內容</a>
-<header class="site-header"><div class="inner"><a class="brand" href="index.html">中華醫事 × AI Agent 實作講義</a><nav aria-label="講義"><a href="index.html" data-title="中華醫事科技大學 × AI Agent 實作講義"><span>首頁</span></a>
-<a href="unit01.html" data-title="單元一：從機器學習到 AI Agent"><span>AI 概念</span></a>
-<a href="unit02.html" data-title="單元二：從 Gems、GPTs 到自己的第一個 Skill"><span>Skill</span></a>
-<a href="unit03.html" data-title="單元三：AI Agent 與 Vibe Coding 的專案操作"><span>網頁APP</span></a>
-<a href="unit04.html" data-title="單元四：視光處方轉換器（自主練習）" aria-current="page"><span>處方轉換</span></a>
-<a href="unit05.html" data-title="單元五：醫檢稀釋換算器（自主練習）"><span>稀釋換算</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
 <div class="page">
-<aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">中華醫事 × AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="中華醫事科技大學 × AI Agent 實作講義"><span>首頁</span></a>
+<a href="unit01.html" title="單元一：從機器學習到 AI Agent"><span>AI 概念</span></a>
+<a href="unit02.html" title="單元二：從 Gems、GPTs 到自己的第一個 Skill"><span>Skill</span></a>
+<a href="unit03.html" title="單元三：AI Agent 與 Vibe Coding 的專案操作"><span>網頁APP</span></a>
+<a href="unit04.html" title="單元四：視光處方轉換器（自主練習）" aria-current="page"><span>處方轉換</span></a>
+<a href="unit05.html" title="單元五：醫檢稀釋換算器（自主練習）"><span>稀釋換算</span></a></nav><div class="toc-audio">
 <div class="toc-audio-header"><span class="toc-audio-title">🎧 深度導讀 Podcast</span><span class="toc-audio-badge">11:33</span></div>
 <audio id="podcast-audio" preload="metadata" aria-label="處方轉換：從手算到三階段網頁驗收"><source src="audio/unit04-podcast.mp3" type="audio/mpeg"></audio>
 <div class="toc-audio-controls">
@@ -717,15 +689,15 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <li><a href="#section-04"><span class="toc-num">04</span>給 AI Agent 的 MVP 提示詞</a></li>
 <li><a href="#section-05"><span class="toc-num">05</span>完成 MVP 後的改進要求</a></li>
 <li><a href="#section-06"><span class="toc-num">06</span>學生驗收紀錄</a></li>
-<li><a href="#outcomes"><span class="toc-num">07</span>預期成果 · 三階段版本比較</a></li></ol></details></aside>
+<li><a href="#outcomes"><span class="toc-num">07</span>預期成果 · 三階段版本比較</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
 <main id="main">
 <section class="hero"><p class="eyebrow">單元四 · 自主練習 · 視光系</p>
 <h1>單元四：視光處方轉換器</h1>
 <p class="lead">完整題目、可改寫提示詞、手算案例與驗收紀錄。先自行實作，再用保留的三個版本比較。</p>
 </section>
-<p><a href="unit03.html#first-page">← 單元三：共用製作流程</a></p>
-<div class="callout tip" id="workflow-map"><span class="label">沿用單元三的製作流程</span><p>接著單元三的專案練習頁，將教學圖規則做成可操作工具。依序完成需求、專案、最小版本、實測、修改、交付。</p></div>
-<div class="table-wrap"><table><thead><tr><th>共用流程</th><th>本案例對應段落</th></tr></thead><tbody><tr><td><a href="unit03.html#wf-1-brief">1 需求</a></td><td><a href="#section-02">讀教學圖與課堂規則</a></td></tr><tr><td><a href="unit03.html#wf-2-project">2 專案</a></td><td><a href="#wf-project">準備空白資料夾與本機素材</a></td></tr><tr><td><a href="unit03.html#wf-3-build">3 最小版本</a></td><td><a href="#section-04">從 Basic 開始，保存提示與原始成果</a></td></tr><tr><td><a href="unit03.html#wf-4-check">4 實測</a></td><td><a href="#section-03">先寫預期，再操作與核對</a></td></tr><tr><td><a href="unit03.html#wf-5-refine">5 修改</a></td><td><a href="#section-05">Minor 補完整規格；Detailed 指定畫面與排列</a></td></tr><tr><td>6 交付</td><td><a href="#section-06">保留三版本、實際截圖與驗收表</a></td></tr></tbody></table></div>
+<div class="callout tip" id="workflow-map"><span class="label">製作流程</span><p>把處方轉換規則做成可操作工具，依序完成六個步驟；點選右欄可跳到本頁對應段落。</p></div>
+<div class="table-wrap"><table><thead><tr><th>步驟</th><th>本頁段落</th></tr></thead><tbody><tr><td>1 需求</td><td><a href="#section-02">讀教學圖與課堂規則</a></td></tr><tr><td>2 專案</td><td><a href="#wf-project">準備空白資料夾與本機素材</a></td></tr><tr><td>3 最小版本</td><td><a href="#prompt-short">從 Basic 開始，保存提示與原始成果</a></td></tr><tr><td>4 實測</td><td><a href="#section-03">先寫預期，再操作與核對</a></td></tr><tr><td>5 修改</td><td><a href="#prompt-full">Minor 補完整規格；Detailed 指定畫面與排列</a></td></tr><tr><td>6 交付</td><td><a href="#section-06">保留三版本、實際截圖與驗收表</a></td></tr></tbody></table></div>
 <h2 id="section-01"><span class="num">01</span>練習目標</h2>
 <p>製作一個可在瀏覽器直接開啟的小工具，將一筆<strong>虛構的眼鏡處方</strong>從負柱鏡形式轉換為正柱鏡形式。你要先說清楚需求，再請 AI Agent 做出最小可行產品（MVP），接著親自核對計算結果，最後提出一項具體的改進要求。</p>
 <p>這是計算與介面設計練習，請只使用虛構數值。請勿輸入真實個案資料；本工具不得提供處方建議，也不得用於臨床決策。</p>
@@ -752,7 +724,7 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 </ol>
 <p>第 3 條要特別小心：原軸度剛好是 90 度時，加 90 得到 180 度，<strong>沒有超過 180，所以不減</strong>，答案就是 180 度。如果寫成「等於 180 也要減」，就會得到 0 度這個無效的軸度。</p>
 <h3>圖解：從負柱鏡轉換為正柱鏡</h3>
-<figure class="page-figure"><p><img alt="處方轉換圖解：虛構處方 -2.00 D / -1.00 D × 180° 轉換為 -3.00 D / +1.00 D × 90°。紅線表示柱鏡軸；270° 是計算中間值，不是有效軸度。兩種處方光學效果相同，只是表示方式不同。僅供課堂練習，不可用於臨床。" loading="lazy" src="figures/視光處方轉換示意圖.png"/></p>
+<figure class="page-figure"><p><img alt="處方轉換圖解：虛構處方 -2.00 D / -1.00 D × 180° 轉換為 -3.00 D / +1.00 D × 90°。紅線表示柱鏡軸；270° 是計算中間值，不是有效軸度。兩種處方光學效果相同，只是表示方式不同。僅供課堂練習，不可用於臨床。" loading="lazy" src="figures/視光處方轉換示意圖.webp"/></p>
 </figure>
 <p>圖中的虛構範例可用來理解每一步：球面度數為 -2.00 + (-1.00) = -3.00 D；柱面度數由 -1.00 D 改為 +1.00 D；軸度由 180° 加 90°，得到中間值 270°，再減 180°，得到有效軸度 90°。眼睛示意圖中的紅線表示柱鏡軸；270° 僅供說明計算過程，不能當成有效處方軸度。圖上的 0° 和 180° 是方向刻度；處方軸度使用 1°–180° 表示。轉換前後的處方光學效果相同，只是表示方式不同。</p>
 <h3>輸入的合理範圍</h3>
@@ -824,28 +796,31 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <p>先開啟一個新的空白專案資料夾。本單元依序有短版、完整版與改進版三個階段，請保留每個階段的成果，重點在比較「自由規格 → 少量指定 → 詳細指定」如何改變成果。短版不指定配色或欄位版面；完整版增加簡單外觀要求；改進版明列配色、區塊位置與手機排列。</p>
 <p>兩段都刻意寫成你自己講得出來的樣子：從頭到尾只有「我想要一個什麼樣的工具」。處方轉換的部分講得很清楚（那是你的專業），軟體的部分只描述你要看到什麼結果，不去指定程式怎麼寫（那是 AI 的工作）。</p>
 <div class="table-wrap"><table><caption>外觀規格：自由 → 少量指定 → 詳細指定</caption><thead><tr><th>階段</th><th>提示詞指定什麼</th><th>要比較的外觀</th></tr></thead><tbody><tr><td>自由規格</td><td>空白起點，不套用先前的網頁外觀；不指定配色或欄位版面。</td><td>本次原始成果使用瀏覽器預設外觀。</td></tr><tr><td>少量指定</td><td>白底、深色文字、藍色按鈕、單欄順序；其餘細節由 AI 決定。</td><td>輸入 → 結果 → 規則與說明。</td></tr><tr><td>詳細指定</td><td>清楚描述配色、文字大小、留白、圓角、區塊位置與手機排列。</td><td>青綠配色；大視窗左側輸入、右側結果與兩欄範例；窄視窗改為單欄。</td></tr></tbody></table></div>
-<h3 id="wf-project">先準備案例專案</h3><p>建立自己的 optometry-practice 資料夾，保存需求、提示與預期答案。Basic 在另一個空白資料夾、新對話中，只貼下方第一階段提示，不先提供完整規格或先前網頁。Minor 另存為 02-full；Detailed 先複製完整版功能到 03-improved，再依指定配色與區塊位置修改。本頁教學圖在 Detailed 階段放入本機 assets/；每版保留實際截圖與驗收紀錄。</p>
+<h3 id="wf-project">先準備案例專案</h3><p>建立自己的 optometry-practice 資料夾，保存需求、提示與預期答案。Basic 在另一個空白資料夾、新對話中，只貼下方第一階段提示，不先提供完整規格或先前網頁。Minor 在另一個空白資料夾（02-full）、新對話中從頭製作，不沿用短版；Detailed 把已通過第 2 階段檢核的完整版複製到 03-improved，再依指定配色與區塊位置修改。本頁教學圖在 Detailed 階段放入本機 assets/；每版保留實際截圖與驗收紀錄。</p>
 <h3 id="prompt-short">第一步 Basic：瀏覽器預設外觀 · 先貼短版</h3>
-<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-1-explainer.png" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-1-explainer.png" alt="視光第1階段短版的概念圖：輸入 -2.00 D / -1.00 D × 180°，得到 -3.00 D / +1.00 D × 90°。原軸度 90° 應得到 180°，91° 應得到 1°。" loading="lazy"></a><figcaption>短版的概念導覽，圖卡的版面與小數格式僅供示意；從空白起點實際產生的網頁見下方截圖。 點圖可開啟大圖。</figcaption></figure>
+<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-1-explainer.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-1-explainer.webp" alt="視光第1階段短版的概念圖：輸入 -2.00 D / -1.00 D × 180°，得到 -3.00 D / +1.00 D × 90°。原軸度 90° 應得到 180°，91° 應得到 1°。" loading="lazy"></a><figcaption>短版的概念導覽，圖卡的版面與小數格式僅供示意；從空白起點實際產生的網頁見下方截圖。 點圖可開啟大圖。</figcaption></figure>
 
-<p>先在新的空白資料夾、新對話中貼這段，不提供之前做好的網頁。完成後，先試一組正常數值，再記錄你想補充的要求。</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">本階段的建議提示詞</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的視光系學生。請把這次當作全新的空白資料夾；不要使用之前做過的網頁、配色或排列方式，也不要查看其他專案。只使用瀏覽器原本的字、欄位和按鈕外觀，不另外美化。">我是完全沒有寫程式經驗的視光系學生。請把這次當作全新的空白資料夾；不要使用之前做過的網頁、配色或排列方式，也不要查看其他專案。只使用瀏覽器原本的字、欄位和按鈕外觀，不另外美化。</span>
-<span class="line" data-text=""></span>
-<span class="line" data-text="我想做一個把負柱鏡處方換成正柱鏡處方的小工具。輸入球面度數、柱面度數、軸度，按一下就顯示新處方。">我想做一個把負柱鏡處方換成正柱鏡處方的小工具。輸入球面度數、柱面度數、軸度，按一下就顯示新處方。</span>
+<p>在新的空白資料夾開新對話，依序貼上兩段提示：第一段只設定全新的起點，等 AI 回覆後，再貼第二段提出工具需求。完成後，先試一組正常數值，再記錄你想補充的要求。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：設定全新的起點</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的視光系學生。接下來要在這個全新的空白資料夾做一個小工具。">我是完全沒有寫程式經驗的視光系學生。接下來要在這個全新的空白資料夾做一個小工具。</span>
+<span class="line" data-text="請不要使用之前做過的網頁、配色或排列方式，也不要查看其他專案；畫面只使用瀏覽器原本的字、欄位和按鈕外觀，不另外美化。">請不要使用之前做過的網頁、配色或排列方式，也不要查看其他專案；畫面只使用瀏覽器原本的字、欄位和按鈕外觀，不另外美化。</span>
+<span class="line" data-text="這一步先不要建立任何檔案，回覆「了解」，等我提出需求。">這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：提出工具需求</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想做一個把負柱鏡處方換成正柱鏡處方的小工具。輸入球面度數、柱面度數、軸度，按一下就顯示新處方。">我想做一個把負柱鏡處方換成正柱鏡處方的小工具。輸入球面度數、柱面度數、軸度，按一下就顯示新處方。</span>
 <span class="line" data-text="規則是：新球面＝球面＋柱面；新柱面＝原柱面變號；新軸度＝原軸度＋90，只有超過 180 才減去 180。">規則是：新球面＝球面＋柱面；新柱面＝原柱面變號；新軸度＝原軸度＋90，只有超過 180 才減去 180。</span>
 <span class="line" data-text="請做成在自己的電腦上雙擊就能開啟、不用安裝也不用連網的網頁。做完用編號步驟告訴我要開哪個檔案、填哪三格、按哪個按鈕、去哪裡看結果。請幫我核對 -2、-1、180 得到 -3、+1、90；不要只給我程式叫我自己完成。">請做成在自己的電腦上雙擊就能開啟、不用安裝也不用連網的網頁。做完用編號步驟告訴我要開哪個檔案、填哪三格、按哪個按鈕、去哪裡看結果。請幫我核對 -2、-1、180 得到 -3、+1、90；不要只給我程式叫我自己完成。</span></code></pre></figure>
 <h4>預期成果 · 第 1 階段</h4><p>輸入 -2.00 D / -1.00 D × 180°，得到 -3.00 D / +1.00 D × 90°。原軸度 90° 應得到 180°，91° 應得到 1°。</p><p><a href="examples/validated/optometry/01-short/index.html">開啟已實測的短版示範</a> · <a href="examples/validated/optometry/01-short/prompt.md">本階段提示詞</a></p>
-<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-1-screenshot.png" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-1-screenshot.png" alt="視光短版實際截圖：輸入 -2、-1、180，結果 -3.00 D / +1.00 D × 90°。" loading="lazy"></a><figcaption>空白起點的短版原始成果：沒有套用先前的網頁外觀，使用瀏覽器預設外觀。輸入 -2 / -1 / 180，得到 -3.00 D、+1.00 D、90°。這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
-<p class="source-note">本次 AI 自行決定度數顯示兩位小數、軸度限整數 1–180，並接受柱面 0；它沒有加入完整版的球面與柱面度數上下限。柱面 0 仍算軸度的行為，正是接著應辨認並提出修正的項目。 <a href="downloads/unit03-concise-blank-start.json">查看空白起點生成紀錄</a>。</p>
-<h4>完成檢核 · 第 1 階段</h4><p>手算五組案例，尤其核對軸度 90° 與 91°；錯填時不得留下上一筆答案。</p><p class="source-note">本階段示範於 2026-10-04 通過 25 項瀏覽器檢查；同一提示仍可能得到不同成果，請自行驗收。<a href="downloads/unit03-demo-validation.json">查看實測紀錄</a>。</p>
+<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-1-screenshot.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-1-screenshot.webp" alt="視光短版實際截圖：輸入 -2、-1、180，結果 -3.00 D / +1.00 D × 90°。" loading="lazy"></a><figcaption>空白起點的短版原始成果：沒有套用先前的網頁外觀，使用瀏覽器預設外觀。輸入 -2 / -1 / 180，得到 -3.00 D、+1.00 D、90°。這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
+<p class="source-note">本次 AI 自行決定度數顯示兩位小數、軸度限整數 1–180，並接受柱面 0；它沒有加入完整版的球面與柱面度數上下限。柱面 0 仍算軸度的行為，正是接著應辨認並提出修正的項目。</p>
+<h4>完成檢核 · 第 1 階段</h4><p>手算五組案例，尤其核對軸度 90° 與 91°；錯填時不得留下上一筆答案。</p><p class="source-note">同一段提示每次可能得到不同成果，請自行驗收。</p>
 
 <p>做出來以後先別急著往下。花兩分鐘操作它，然後把下面這些問題問自己一遍：軸度填 90，它給我幾度？柱面度數填 0，它會怎麼處理？柱面度數填 +1.00 呢？軸度填 3.5 或填 200 會怎樣？度數顯示幾位小數，是誰決定的？</p>
 <p>短版沒有錯，它只是把這些決定全部交給了 AI。你在畫面上看到的每一個「它自己決定的細節」，都是你沒講的部分。</p>
 <h3 id="prompt-full">第二步 Minor：白底、藍色按鈕、單欄 · 再貼完整版</h3>
-<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-2-explainer.png" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-2-explainer.png" alt="視光第2階段完整版的概念圖：三個欄位與輸出都有單位；限制輸入範圍、阻擋錯填，度數顯示兩位小數。新球面度數可以低於 -20 D。" loading="lazy"></a><figcaption>完整版的概念導覽，說明功能核對重點；「少量指定」的白底單欄實際版面見下方截圖。 點圖可開啟大圖。</figcaption></figure>
+<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-2-explainer.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-2-explainer.webp" alt="視光第2階段完整版的概念圖：三個欄位與輸出都有單位；限制輸入範圍、阻擋錯填，度數顯示兩位小數。新球面度數可以低於 -20 D。" loading="lazy"></a><figcaption>完整版的概念導覽，說明功能核對重點；「少量指定」的白底單欄實際版面見下方截圖。 點圖可開啟大圖。</figcaption></figure>
 
-<p>接著請 AI 依照下面這段重做一次（或另開一個資料夾重來）。完整版講的就是你剛才發現自己漏掉的那些事：</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">本階段的建議提示詞</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想要一個處方轉換的網頁小工具，名字叫「視光處方轉換器」。用途是：把一筆負柱鏡（柱面度數是負值）的眼鏡處方，換算成光學效果相同的正柱鏡（柱面度數是正值）處方。我完全沒有寫程式經驗，請替我完成需要的檔案，不要要求我讀懂或修改程式。">我想要一個處方轉換的網頁小工具，名字叫「視光處方轉換器」。用途是：把一筆負柱鏡（柱面度數是負值）的眼鏡處方，換算成光學效果相同的正柱鏡（柱面度數是正值）處方。我完全沒有寫程式經驗，請替我完成需要的檔案，不要要求我讀懂或修改程式。</span>
+<p>完整版不是修改短版，而是從頭重做：在另一個空白資料夾開新對話，依序貼上兩段提示，第一段設定全新的起點，第二段提出完整版需求。完整版講的就是你剛才發現自己漏掉的那些事：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：設定全新的起點（不沿用短版）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的視光系學生。這次要從頭做一個全新的版本：請把這個資料夾當作全新的空白資料夾，不要查看或沿用之前做過的任何版本（包括短版）的網頁、程式、配色或排列方式。請替我完成需要的檔案，不要要求我讀懂或修改程式。">我是完全沒有寫程式經驗的視光系學生。這次要從頭做一個全新的版本：請把這個資料夾當作全新的空白資料夾，不要查看或沿用之前做過的任何版本（包括短版）的網頁、程式、配色或排列方式。請替我完成需要的檔案，不要要求我讀懂或修改程式。</span>
+<span class="line" data-text="這一步先不要建立任何檔案，回覆「了解」，等我提出需求。">這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：完整版需求</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想要一個處方轉換的網頁小工具，名字叫「視光處方轉換器」。用途是：把一筆負柱鏡（柱面度數是負值）的眼鏡處方，換算成光學效果相同的正柱鏡（柱面度數是正值）處方。">我想要一個處方轉換的網頁小工具，名字叫「視光處方轉換器」。用途是：把一筆負柱鏡（柱面度數是負值）的眼鏡處方，換算成光學效果相同的正柱鏡（柱面度數是正值）處方。</span>
 <span class="line" data-text=""></span>
 <span class="line" data-text="使用方式：在我自己的筆電上雙擊就能打開的網頁，不用安裝軟體、不用註冊帳號，沒有網路也要能算。">使用方式：在我自己的筆電上雙擊就能打開的網頁，不用安裝軟體、不用註冊帳號，沒有網路也要能算。</span>
 <span class="line" data-text=""></span>
@@ -869,7 +844,7 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <span class="line" data-text=""></span>
 <span class="line" data-text="數字顯示：度數顯示到小數點後兩位，計算過程要用完整的數字，不要提早四捨五入。轉換後的柱面度數要正常帶正號顯示，不要出現 -0.00 這種結果。軸度是整數，不要加小數點。轉換後的球面度數有可能低於 -20.00 D（兩個度數相加的結果），那是正常的，不要當成錯誤。">數字顯示：度數顯示到小數點後兩位，計算過程要用完整的數字，不要提早四捨五入。轉換後的柱面度數要正常帶正號顯示，不要出現 -0.00 這種結果。軸度是整數，不要加小數點。轉換後的球面度數有可能低於 -20.00 D（兩個度數相加的結果），那是正常的，不要當成錯誤。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="畫面安排（少量指定）：白底、深色文字、藍色操作按鈕。所有內容由上往下排成一欄：標題、輸入、結果、規則與說明，不要左右分欄。欄位之間留空間，其他大小與細節由你安排。請重新安排這一版的外觀，不套用前一版的網頁。">畫面安排（少量指定）：白底、深色文字、藍色操作按鈕。所有內容由上往下排成一欄：標題、輸入、結果、規則與說明，不要左右分欄。欄位之間留空間，其他大小與細節由你安排。請重新安排這一版的外觀，不套用前一版的網頁。</span>
+<span class="line" data-text="畫面安排（少量指定）：白底、深色文字、藍色操作按鈕。所有內容由上往下排成一欄：標題、輸入、結果、規則與說明，不要左右分欄。欄位之間留空間，其他大小與細節由你安排。">畫面安排（少量指定）：白底、深色文字、藍色操作按鈕。所有內容由上往下排成一欄：標題、輸入、結果、規則與說明，不要左右分欄。欄位之間留空間，其他大小與細節由你安排。</span>
 <span class="line" data-text=""></span>
 <span class="line" data-text="畫面與操作：字不要太小、顏色對比夠清楚、手機打開不跑版，用鍵盤的 Tab（跳到下一格）與 Enter（確認）也能從頭操作到底。畫面上要看得到那三條轉換規則，還要用一兩句話說明：負柱鏡和正柱鏡只是同一張處方的兩種表示方式，光學效果相同，正負號不代表好壞，也不代表散光的嚴重程度。另外請放一行明顯的字：「本工具僅供自行練習計算，數值均為虛構，不可作為臨床或處方的依據。」">畫面與操作：字不要太小、顏色對比夠清楚、手機打開不跑版，用鍵盤的 Tab（跳到下一格）與 Enter（確認）也能從頭操作到底。畫面上要看得到那三條轉換規則，還要用一兩句話說明：負柱鏡和正柱鏡只是同一張處方的兩種表示方式，光學效果相同，正負號不代表好壞，也不代表散光的嚴重程度。另外請放一行明顯的字：「本工具僅供自行練習計算，數值均為虛構，不可作為臨床或處方的依據。」</span>
 <span class="line" data-text=""></span>
@@ -877,18 +852,17 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <span class="line" data-text=""></span>
 <span class="line" data-text="做完請用編號步驟帶我找到檔案、開啟網頁、填入數值、按按鈕、查看結果。再告訴我怎麼填幾組處方進去、對照手算的結果確認它沒算錯。你如果沒有真的自己算過、對過答案，就不要跟我說「已經驗證完成」。">做完請用編號步驟帶我找到檔案、開啟網頁、填入數值、按按鈕、查看結果。再告訴我怎麼填幾組處方進去、對照手算的結果確認它沒算錯。你如果沒有真的自己算過、對過答案，就不要跟我說「已經驗證完成」。</span></code></pre></figure>
 <h4>預期成果 · 第 2 階段</h4><p><strong>外觀驗收：</strong>白底、深色文字、藍色按鈕；輸入 → 結果 → 規則與說明的單欄版面。</p><p>三個欄位與輸出都有單位；限制輸入範圍、阻擋錯填，度數顯示兩位小數。新球面度數可以低於 -20 D。</p><p><a href="examples/validated/optometry/02-full/index.html">開啟已實測的完整版示範</a> · <a href="examples/validated/optometry/02-full/prompt.md">本階段提示詞</a></p>
-<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-2-screenshot.png" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-2-screenshot.png" alt="視光完整版實際截圖：輸入 -20、-2、180，結果 -22.00 D / +2.00 D × 90°，輸出不受輸入球面下限限制。" loading="lazy"></a><figcaption>少量指定截圖（白底、藍色按鈕、單欄）：輸入 -20 / -2 / 180，得到 -22.00 D / +2.00 D × 90°；核對「輸入限制不套用到輸出」。 這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
-<h4>完成檢核 · 第 2 階段</h4><p>試空白、文字、柱面 0 或正值、軸度小數及超界；用 Tab 與 Enter 操作，再離線重新開啟。</p><p class="source-note">本階段示範於 2026-10-04 通過 28 項瀏覽器檢查；同一提示仍可能得到不同成果，請自行驗收。<a href="downloads/unit03-demo-validation.json">查看實測紀錄</a>。</p>
+<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-2-screenshot.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-2-screenshot.webp" alt="視光完整版實際截圖：輸入 -20、-2、180，結果 -22.00 D / +2.00 D × 90°，輸出不受輸入球面下限限制。" loading="lazy"></a><figcaption>少量指定截圖（白底、藍色按鈕、單欄）：輸入 -20 / -2 / 180，得到 -22.00 D / +2.00 D × 90°；核對「輸入限制不套用到輸出」。 這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
+<h4>完成檢核 · 第 2 階段</h4><p>試空白、文字、柱面 0 或正值、軸度小數及超界；用 Tab 與 Enter 操作，再離線重新開啟。</p><p class="source-note">同一段提示每次可能得到不同成果，請自行驗收。</p>
 
 <h2 id="section-05"><span class="num">05</span>完成 MVP 後的改進要求</h2>
 <h3 id="prompt-improved">第三步 Detailed：清楚指定畫面與手機排列 · 提出改進要求</h3>
-<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-3-explainer.png" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-3-explainer.png" alt="視光第3階段改進版的概念圖：保留完整版的欄位與算法，增加五組範例、清除、欄位旁提醒與圖解。載入範例後仍要按「轉換」並對照預期答案。" loading="lazy"></a><figcaption>改進版的概念導覽，說明範例與核對功能；詳細畫面與排列要求的實際成果見下方截圖。 點圖可開啟大圖。</figcaption></figure>
-<p>先保留完整版的成果，再在副本上提出改進要求；這份改進版保留原有欄位與算法，再以具體的畫面與排列要求改變外觀。</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">本階段的建議提示詞</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的學生。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。">我是完全沒有寫程式經驗的學生。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。</span>
-<span class="line" data-text=""></span>
-<span class="line" data-text="請先保留完整版，在另外一份副本上修改。原本的欄位、計算方式與小數位數不要改動。">請先保留完整版，在另外一份副本上修改。原本的欄位、計算方式與小數位數不要改動。</span>
-<span class="line" data-text=""></span>
-<span class="line" data-text="畫面安排（詳細指定）：計算規則、輸入欄位和小數位數都保持不變，這次請依下列要求重新安排畫面。">畫面安排（詳細指定）：計算規則、輸入欄位和小數位數都保持不變，這次請依下列要求重新安排畫面。</span>
+<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-3-explainer.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-3-explainer.webp" alt="視光第3階段改進版的概念圖：保留完整版的欄位與算法，增加五組範例、清除、欄位旁提醒與圖解。載入範例後仍要按「轉換」並對照預期答案。" loading="lazy"></a><figcaption>改進版的概念導覽，說明範例與核對功能；詳細畫面與排列要求的實際成果見下方截圖。 點圖可開啟大圖。</figcaption></figure>
+<p>改進版是在已驗收的完整版上改進：先確認完整版通過第 2 階段的完成檢核，再依序貼上兩段提示，第一段複製這份完整版，第二段在副本上提出改進要求。改進版保留原有欄位與算法，只以具體的畫面與排列要求改變外觀。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：複製已通過檢核的完整版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的學生。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。">我是完全沒有寫程式經驗的學生。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。</span>
+<span class="line" data-text="請先把已經通過第 2 階段檢核的完整版複製一份到新的資料夾，之後只修改這份副本；完整版保留不動。原本的欄位、計算方式與小數位數不要改動。">請先把已經通過第 2 階段檢核的完整版複製一份到新的資料夾，之後只修改這份副本；完整版保留不動。原本的欄位、計算方式與小數位數不要改動。</span>
+<span class="line" data-text="複製好後告訴我副本放在哪裡，先不要做其他修改，等我提出改進需求。">複製好後告訴我副本放在哪裡，先不要做其他修改，等我提出改進需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：改進版需求</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="畫面安排（詳細指定）：計算規則、輸入欄位和小數位數都保持不變，這次請依下列要求重新安排畫面。">畫面安排（詳細指定）：計算規則、輸入欄位和小數位數都保持不變，這次請依下列要求重新安排畫面。</span>
 <span class="line" data-text="（1）整體像一張青綠色的學習工作台：淡青綠背景、深色文字、青綠主要按鈕；每一區是白底圓角卡片，結果區用淡青色。錯誤要有清楚文字，不要只改顏色。">（1）整體像一張青綠色的學習工作台：淡青綠背景、深色文字、青綠主要按鈕；每一區是白底圓角卡片，結果區用淡青色。錯誤要有清楚文字，不要只改顏色。</span>
 <span class="line" data-text="（2）在筆電的大視窗，頂端放標題與練習用途提醒。左邊約占三分之一，放輸入與轉換按鈕；右邊約占三分之二，上方放結果、下方放五組範例。三個結果左右並排，範例每列兩張。底部左邊放規則，右邊放「如何核對結果」及教學圖。">（2）在筆電的大視窗，頂端放標題與練習用途提醒。左邊約占三分之一，放輸入與轉換按鈕；右邊約占三分之二，上方放結果、下方放五組範例。三個結果左右並排，範例每列兩張。底部左邊放規則，右邊放「如何核對結果」及教學圖。</span>
 <span class="line" data-text="（3）一般文字與欄位名稱要清楚，補充說明可以稍小；結果數字約是一般文字的兩倍大。區塊之間與卡片內側留空間，文字不要貼邊。按鈕要讓手指容易點到，用鍵盤移動時也看得出目前停在哪裡。">（3）一般文字與欄位名稱要清楚，補充說明可以稍小；結果數字約是一般文字的兩倍大。區塊之間與卡片內側留空間，文字不要貼邊。按鈕要讓手指容易點到，用鍵盤移動時也看得出目前停在哪裡。</span>
@@ -916,8 +890,8 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <span class="line" data-text=""></span>
 <span class="line" data-text="做完請用一般用語說明改了哪些畫面和操作，不要列程式寫法。用編號步驟帶我載入每組範例、按計算、對照預期答案、按清除；再告訴我怎麼縮小視窗，確認內容有改成一欄。請區分你親自測過的結果與還要我確認的項目。">做完請用一般用語說明改了哪些畫面和操作，不要列程式寫法。用編號步驟帶我載入每組範例、按計算、對照預期答案、按清除；再告訴我怎麼縮小視窗，確認內容有改成一欄。請區分你親自測過的結果與還要我確認的項目。</span></code></pre></figure>
 <h4>預期成果 · 第 3 階段</h4><p><strong>外觀驗收：</strong>青綠色工作台：左側輸入、右側結果與兩欄範例；底部規則與核對圖解。手機或窄視窗時依指定順序改成單欄。</p><p>保留完整版的欄位與算法，增加五組範例、清除、欄位旁提醒與圖解。載入範例後仍要按「轉換」並對照預期答案。</p><p><a href="examples/validated/optometry/03-improved/index.html">開啟已實測的改進版示範</a> · <a href="examples/validated/optometry/03-improved/prompt.md">本階段提示詞</a></p>
-<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-3-screenshot.png" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-3-screenshot.png" alt="視光改進版實際截圖：載入範例 4，輸入 0.25、-0.75、90，結果 -0.50 D / +0.75 D × 180°；可見五組範例與清除按鈕。" loading="lazy"></a><figcaption>詳細指定截圖（青綠分區工作台）：按範例 4，再按轉換；結果 -0.50 D / +0.75 D × 180°。畫面包含五組範例、預期答案與清除按鈕。 這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
-<h4>完成檢核 · 第 3 階段</h4><p>核對青綠配色、桌面分區與手機單欄；逐一載入五組範例並轉換；清除欄位、答案與提醒；只用鍵盤操作範例按鈕，確認說明圖能載入。</p><p class="source-note">本階段示範於 2026-10-04 通過 38 項瀏覽器檢查；同一提示仍可能得到不同成果，請自行驗收。<a href="downloads/unit03-demo-validation.json">查看實測紀錄</a>。</p>
+<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-3-screenshot.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-3-screenshot.webp" alt="視光改進版實際截圖：載入範例 4，輸入 0.25、-0.75、90，結果 -0.50 D / +0.75 D × 180°；可見五組範例與清除按鈕。" loading="lazy"></a><figcaption>詳細指定截圖（青綠分區工作台）：按範例 4，再按轉換；結果 -0.50 D / +0.75 D × 180°。畫面包含五組範例、預期答案與清除按鈕。 這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
+<h4>完成檢核 · 第 3 階段</h4><p>核對青綠配色、桌面分區與手機單欄；逐一載入五組範例並轉換；清除欄位、答案與提醒；只用鍵盤操作範例按鈕，確認說明圖能載入。</p><p class="source-note">同一段提示每次可能得到不同成果，請自行驗收。</p>
 
 <h2 id="section-06"><span class="num">06</span>學生驗收紀錄</h2>
 <ul>
@@ -931,10 +905,8 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <p class="source-note">比較重點：短版從空白起點生成，沒有另外美化，採用瀏覽器原本的欄位與瀏覽器提醒；它接受柱面 0，未限制球面及柱面度數範圍。完整版加入明確範圍、柱面 0 不需轉換的提醒、處方說明與版面；改進版再加入五組範例、清除、欄位旁提醒與圖解。</p>
 <div class="table-wrap"><table><thead><tr><th>階段</th><th>開啟成果</th><th>重點</th></tr></thead><tbody><tr><td>第一階段：自由規格</td><td><a href="examples/validated/optometry/01-short/index.html">開啟 第一階段：自由規格</a></td><td>空白起點、原生外觀；辨認本次 AI 自行決定的細節。</td></tr><tr><td>第二階段：少量指定</td><td><a href="examples/validated/optometry/02-full/index.html">開啟 第二階段：少量指定</a></td><td>白底藍色單欄；核對輸入、精度與錯填。</td></tr><tr><td>第三階段：詳細指定</td><td><a href="examples/validated/optometry/03-improved/index.html">開啟 第三階段：詳細指定</a></td><td>青綠色工作台：左側輸入、右側結果與兩欄範例；底部規則與核對圖解。核對範例、提醒與手機版面。</td></tr></tbody></table>
 </div>
-<div class="sample-links"><a href="downloads/optometry-validated-stages.zip" download>下載本次實測的三階段成果與提示詞</a><a href="examples/validated/optometry/README.md">閱讀本次示範的開啟與核對步驟</a><a href="downloads/source-materials/Exercise Handout 1 - Optometry Prescription Transposer.md" download>下載原始練習單</a></div>
-<p class="source-note">本頁共三張概念投影片與三張實際網頁截圖，圖卡不是可操作的工具。<a href="downloads/unit03-demo-validation.md">本次實測紀錄</a>記載數值、錯填、鍵盤、手機與離線測試；請另外完成自己的驗收。</p><details><summary>原有視光範例：保留供比較</summary><p>比較範例的短版可能無法通過本頁全部驗收，請依本題的驗收清單核對結果。</p><div class="sample-links"><a href="examples/optometry/01-短版提示詞/index.html">原有短版</a><a href="examples/optometry/02-完整版提示詞/index.html">原有完整版</a><a href="examples/optometry/03-改進版/index.html">原有改進版</a><a href="downloads/optometry-stages.zip" download>下載原有三階段資料</a></div></details>
-<details><summary>另存的教師示範專案</summary><p><a href="examples/teacher-demos/視光-處方轉換器/index.html">開啟原有教師範例</a>。這是另外一套既有成品，可能接受不同輸入或提供其他結果，不當作三階段練習的唯一驗收標準。</p>
-</details><nav class="pager" aria-label="上下頁"><a href="unit03.html">← 單元三</a><a href="unit05.html">單元五：醫檢稀釋換算 →</a></nav>
+<div class="sample-links"><a href="downloads/optometry-validated-stages.zip" download>下載本次實測的三階段成果與提示詞</a></div>
+<p class="source-note">本頁的概念圖卡與網頁截圖都只是圖片，不是可操作的工具；請自行完成驗收。</p><nav class="pager" aria-label="上下頁"><a href="unit03.html">← 單元三</a><a href="unit05.html">單元五：醫檢稀釋換算 →</a></nav>
 
 </main>
 </div>
@@ -1044,6 +1016,44 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
       try { localStorage.setItem("hwai-handout-theme", next); } catch (e) {}
       paintTheme();
     });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("hwai-handout-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("hwai-handout-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
   }
 
   // Podcast player in the sidebar.
@@ -1181,6 +1191,14 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
       });
     });
   }
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
 
   // Back-to-top button.
   var toTop = document.querySelector(".to-top");
