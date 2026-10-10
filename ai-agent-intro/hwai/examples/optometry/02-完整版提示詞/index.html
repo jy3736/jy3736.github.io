@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>視光處方轉換器</title>
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --ink: #1a1d23;
+    --muted: #4a5160;
+    --line: #c9d0da;
+    --accent: #1b4f9c;
+    --accent-ink: #ffffff;
+    --warn-bg: #fdecec;
+    --warn-ink: #8a1c1c;
+    --note-bg: #eef3fb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 56px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 0 0 10px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .field { margin-bottom: 16px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .unit { font-weight: 400; color: var(--muted); }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 17px;
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+  }
+  input:focus-visible, button:focus-visible {
+    outline: 3px solid #0a58ca;
+    outline-offset: 2px;
+  }
+  .hint { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  button {
+    font-size: 17px;
+    font-weight: 600;
+    padding: 12px 28px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+  }
+  button:hover { background: #163f7d; }
+  .errors {
+    background: var(--warn-bg);
+    border: 1px solid #e0a3a3;
+    border-left: 6px solid var(--warn-ink);
+    color: var(--warn-ink);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 16px;
+  }
+  .errors ul { margin: 6px 0 0; padding-left: 20px; }
+  .result { background: var(--note-bg); border: 1px solid #b8c9e6; border-radius: 8px; padding: 16px; margin-top: 16px; }
+  .result dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 8px 0 0; }
+  .result dt { font-weight: 600; color: var(--muted); }
+  .result dd { margin: 0; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .rx { margin-top: 14px; font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+  ol, ul { padding-left: 22px; }
+  .disclaimer {
+    background: #fff8e1;
+    border: 2px solid #b8860b;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-weight: 600;
+  }
+  @media (max-width: 420px) {
+    body { font-size: 16px; }
+    .result dl { grid-template-columns: 1fr; gap: 2px 0; }
+    .result dd { margin-bottom: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>視光處方轉換器</h1>
+  <p class="lead">把一筆負柱鏡處方換算成光學效果相同的正柱鏡處方。</p>
+
+  <p class="disclaimer">本工具僅供自行練習計算，數值均為虛構，不可作為臨床或處方的依據。</p>
+
+  <form class="card" id="form" novalidate>
+    <h2>輸入處方</h2>
+
+    <div class="field">
+      <label for="sph">球面度數 Sphere <span class="unit">（單位：D）</span></label>
+      <input type="text" inputmode="decimal" id="sph" autocomplete="off" aria-describedby="sph-hint">
+      <p class="hint" id="sph-hint">範圍 -20.00 D 至 +20.00 D，例如 -2.00</p>
+    </div>
+
+    <div class="field">
+      <label for="cyl">柱面度數 Cylinder <span class="unit">（單位：D）</span></label>
+      <input type="text" inputmode="decimal" id="cyl" autocomplete="off" aria-describedby="cyl-hint">
+      <p class="hint" id="cyl-hint">必須是負值：-20.00 D 到小於 0，例如 -1.00</p>
+    </div>
+
+    <div class="field">
+      <label for="axis">軸度 Axis <span class="unit">（單位：度）</span></label>
+      <input type="text" inputmode="numeric" id="axis" autocomplete="off" aria-describedby="axis-hint">
+      <p class="hint" id="axis-hint">1 到 180 之間的整數，不接受小數</p>
+    </div>
+
+    <button type="submit">轉換</button>
+
+    <div id="output" role="status" aria-live="polite"></div>
+  </form>
+
+  <section class="card">
+    <h2>轉換規則</h2>
+    <ol>
+      <li>新球面度數 ＝ 原球面度數 ＋ 原柱面度數</li>
+      <li>新柱面度數 ＝ 原柱面度數的相反數</li>
+      <li>新軸度 ＝ 原軸度 ＋ 90；<strong>只有在結果大於 180 時</strong>才減去 180</li>
+    </ol>
+    <p>原軸度剛好 90 度時，加 90 等於 180，並未超過 180，所以不減，答案就是 180 度。</p>
+  </section>
+
+  <section class="card">
+    <h2>負柱鏡與正柱鏡</h2>
+    <p>負柱鏡與正柱鏡只是同一張處方的兩種表示方式，光學效果完全相同。正負號只代表柱面度數採用哪一種寫法，不代表好壞，也不代表散光的嚴重程度。</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById('form');
+  var output = document.getElementById('output');
+
+  // 以固定兩位小數顯示，並避免 -0.00
+  function fmt(value) {
+    var rounded = Math.round(value * 100) / 100;
+    if (Object.is(rounded, -0) || rounded === 0) rounded = 0;
+    var body = Math.abs(rounded).toFixed(2);
+    return (rounded < 0 ? '-' : '+') + body;
+  }
+
+  function readNumber(raw) {
+    var text = raw.trim();
+    if (text === '') return { empty: true };
+    if (!/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(text)) return { bad: true };
+    var n = Number(text);
+    if (!isFinite(n)) return { bad: true };
+    return { value: n };
+  }
+
+  function convert() {
+    var sphRaw = document.getElementById('sph').value;
+    var cylRaw = document.getElementById('cyl').value;
+    var axisRaw = document.getElementById('axis').value;
+    var errors = [];
+
+    var s = readNumber(sphRaw);
+    if (s.empty) errors.push('球面度數：這一格還沒填，請輸入 -20.00 到 +20.00 之間的數字。');
+    else if (s.bad) errors.push('球面度數：「' + sphRaw.trim() + '」不是數字，請只填數字，例如 -2.00。');
+    else if (s.value < -20 || s.value > 20) errors.push('球面度數：' + s.value + ' D 超出合理範圍，請填 -20.00 到 +20.00 之間的數字。');
+
+    var c = readNumber(cylRaw);
+    if (c.empty) errors.push('柱面度數：這一格還沒填，請輸入一個負值，例如 -1.00。');
+    else if (c.bad) errors.push('柱面度數：「' + cylRaw.trim() + '」不是數字，請只填數字，例如 -1.00。');
+    else if (c.value === 0) errors.push('柱面度數填 0 代表沒有散光：不需要轉換，也沒有軸度可言。');
+    else if (c.value > 0) errors.push('柱面度數是正值（' + fmt(c.value) + ' D），代表這張處方本來就是正柱鏡了，不需要再轉換。本工具只把負柱鏡換成正柱鏡。');
+    else if (c.value < -20) errors.push('柱面度數：' + c.value + ' D 超出合理範圍，請填 -20.00 到小於 0 之間的數字。');
+
+    var a = readNumber(axisRaw);
+    if (a.empty) errors.push('軸度：這一格還沒填，請輸入 1 到 180 之間的整數。');
+    else if (a.bad) errors.push('軸度：「' + axisRaw.trim() + '」不是數字，請只填 1 到 180 之間的整數。');
+    else if (!Number.isInteger(a.value)) errors.push('軸度：' + a.value + ' 度是小數，軸度只收整數，例如 4 或 90。');
+    else if (a.value < 1 || a.value > 180) errors.push('軸度：' + a.value + ' 度超出範圍，處方軸度是 1 到 180 度（不使用 0 度）。');
+
+    if (errors.length > 0) {
+      var items = errors.map(function (m) { return '<li>' + m + '</li>'; }).join('');
+      output.innerHTML =
+        '<div class="errors"><strong>請先修正以下項目，這次沒有進行計算：</strong><ul>' + items + '</ul></div>';
+      return;
+    }
+
+    var newSph = s.value + c.value;
+    var newCyl = -c.value;
+    var newAxis = a.value + 90;
+    if (newAxis > 180) newAxis = newAxis - 180;   // 等於 180 時不減
+
+    output.innerHTML =
+      '<div class="result">' +
+        '<h2>轉換後的正柱鏡處方</h2>' +
+        '<dl>' +
+          '<dt>球面度數 Sphere</dt><dd>' + fmt(newSph) + ' D</dd>' +
+          '<dt>柱面度數 Cylinder</dt><dd>' + fmt(newCyl) + ' D</dd>' +
+          '<dt>軸度 Axis</dt><dd>' + newAxis + '°</dd>' +
+        '</dl>' +
+        '<p class="rx">' + fmt(newSph) + ' D / ' + fmt(newCyl) + ' D × ' + newAxis + '°</p>' +
+      '</div>';
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();   // Enter 或按鈕都走同一條路
+    convert();
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('hwai-handout-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('hwai-handout-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('hwai-handout-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%AC%3C/text%3E%3C/svg%3E">
+<title>單元四練習單：視光處方轉換器</title>
+<meta name="description" content="單元四的自主練習集中在一頁：題目規則、MVP 驗收清單、短版／完整版／改進版三段提示，以及手算核對與驗收紀錄表。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools, .toc-qr { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+.podcast-chapters { width:100%; min-width:0; margin-top:.7rem; padding:.35rem; font:inherit; font-size:.82rem; color:var(--text); background:var(--surface-2); border:1px solid var(--border); border-radius:.35rem; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">中華醫事 × AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="中華醫事科技大學 × AI Agent 實作講義"><span>首頁</span></a>
+<a href="unit01.html" title="單元一：從機器學習到 AI Agent"><span>AI 概念</span></a>
+<a href="unit02.html" title="單元二：從 Gems、GPTs 到自己的第一個 Skill"><span>Skill</span></a>
+<a href="unit03.html" title="單元三：AI Agent 與 Vibe Coding 的專案操作"><span>網頁APP</span></a>
+<a href="unit04.html" title="單元四：視光處方轉換器（自主練習）" aria-current="page"><span>處方轉換</span></a>
+<a href="unit05.html" title="單元五：醫檢稀釋換算器（自主練習）"><span>稀釋換算</span></a></nav><a class="side-sheet" href="unit04-practice.html" aria-current="page"><span aria-hidden="true">📝</span>單元四練習單</a><details><summary>本頁目錄</summary><ol><li><a href="#rules"><span class="toc-num">01</span>題目說明</a></li>
+<li><a href="#mvp"><span class="toc-num">02</span>MVP 驗收清單</a></li>
+<li><a href="#project"><span class="toc-num">03</span>開始前：準備專案資料夾</a></li>
+<li><a href="#stage1"><span class="toc-num">04</span>第一步 Basic：瀏覽器預設外觀 · 先貼短版</a></li>
+<li><a href="#stage2"><span class="toc-num">05</span>第二步 Minor：白底、藍色按鈕、單欄 · 再貼完整版</a></li>
+<li><a href="#stage3"><span class="toc-num">06</span>第三步 Detailed：清楚指定畫面與手機排列</a></li>
+<li><a href="#record"><span class="toc-num">07</span>我的核對紀錄</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">單元四 · 練習單 · 視光系</p>
+<h1>單元四練習單：視光處方轉換器</h1>
+<p class="lead">把負柱鏡處方換成正柱鏡處方的小工具，依序做出短版、完整版與改進版三個版本，每一版都親自手算核對。</p>
+</section>
+<div class="callout tip"><span class="label">怎麼使用這份練習單</span><p>先讀題目與驗收清單，自己手算預期答案；再依序貼上三個階段的提示，每一階段都展開「可能的 AI 回覆」比較、對照預期成果，並把工具算出的結果填進第 07 節的核對紀錄。列印後也可以直接填寫。</p></div>
+<ul class="flow" aria-label="三個階段">
+  <li><b>第 1 階段 Basic</b>只給短版需求，看 AI 自己決定了什麼</li>
+  <li><b>第 2 階段 Minor</b>從頭重做，補上完整規格</li>
+  <li><b>第 3 階段 Detailed</b>在完整版副本上指定畫面與排列</li>
+</ul>
+
+<h2 id="rules"><span class="num">01</span>題目說明</h2>
+<p>視光系學生正在練習處方轉換。請製作一個單頁工具，提供以下三個輸入欄位：</p>
+<ul>
+<li>球面度數（Sphere，單位：D）</li>
+<li>柱面度數（Cylinder，單位：D）</li>
+<li>軸度（Axis，單位：度）</li>
+</ul>
+<h3>名詞說明：負柱鏡與正柱鏡</h3>
+<ul>
+<li><strong>負柱鏡（minus-cylinder）</strong>：處方中的柱面度數是負值，例如 <code>-1.00 D</code>。</li>
+<li><strong>正柱鏡（plus-cylinder）</strong>：處方中的柱面度數是正值，例如 <code>+1.00 D</code>。</li>
+</ul>
+<p>兩者是散光矯正處方的不同表示方式；依規則轉換時，球面度數、柱面度數和軸度要一起調整，轉換前後的光學效果相同。正負號只表示柱面度數採用哪一種表示方式，不代表好壞或散光程度。</p>
+<p>使用者按下「轉換」後，畫面要顯示等效的正柱鏡處方。請依照以下課堂規則計算：</p>
+<ol>
+<li>新球面度數 = 原球面度數 + 原柱面度數。</li>
+<li>新柱面度數 = 原柱面度數的相反數。</li>
+<li>新軸度 = 原軸度 + 90 度；<strong>只有在結果大於 180 度時</strong>才減去 180 度。</li>
+<li>軸度採 1 至 180 度表示，不使用 0 度作為處方軸度。</li>
+<li>度數顯示至小數點後兩位；計算過程不可先行四捨五入。</li>
+</ol>
+<p>第 3 條要特別小心：原軸度剛好是 90 度時，加 90 得到 180 度，<strong>沒有超過 180，所以不減</strong>，答案就是 180 度。如果寫成「等於 180 也要減」，就會得到 0 度這個無效的軸度。</p>
+<h3>圖解：從負柱鏡轉換為正柱鏡</h3>
+<figure class="page-figure"><p><img alt="處方轉換圖解：虛構處方 -2.00 D / -1.00 D × 180° 轉換為 -3.00 D / +1.00 D × 90°。紅線表示柱鏡軸；270° 是計算中間值，不是有效軸度。兩種處方光學效果相同，只是表示方式不同。僅供課堂練習，不可用於臨床。" loading="lazy" src="figures/視光處方轉換示意圖.webp"/></p>
+</figure>
+<p>圖中的虛構範例可用來理解每一步：球面度數為 -2.00 + (-1.00) = -3.00 D；柱面度數由 -1.00 D 改為 +1.00 D；軸度由 180° 加 90°，得到中間值 270°，再減 180°，得到有效軸度 90°。眼睛示意圖中的紅線表示柱鏡軸；270° 僅供說明計算過程，不能當成有效處方軸度。圖上的 0° 和 180° 是方向刻度；處方軸度使用 1°–180° 表示。轉換前後的處方光學效果相同，只是表示方式不同。</p>
+<h3>輸入的合理範圍</h3>
+<ul>
+<li>球面度數：-20.00 D 到 +20.00 D。</li>
+<li>柱面度數：-20.00 D 到 <strong>小於 0</strong>。因為這個工具是把負柱鏡換成正柱鏡，輸入的柱面度數一定是負值。</li>
+<li>柱面度數填 0 代表沒有散光，既不需要轉換，也沒有軸度可言，請顯示提醒而不是計算。填正值代表那張處方已經是正柱鏡了，也請顯示提醒。</li>
+<li>軸度：1 到 180 之間的整數，不接受小數。</li>
+</ul>
+<p>轉換後的球面度數是兩個度數相加，有可能低於 -20.00 D（例如 -20.00 加 -2.00 得到 -22.00），這是正常的，不要因此當成錯誤。範圍限制只適用於使用者輸入的值。</p>
+<p>網頁要顯示轉換規則，並在每個輸入與輸出欄位標示名稱和單位。遇到空白、非數字或不符合條件的輸入時，要顯示清楚易懂的錯誤訊息。轉換後的柱面度數要正常顯示正號，不可以出現 <code>-0.00</code> 這種結果。</p>
+
+<h2 id="mvp"><span class="num">02</span>MVP 驗收清單</h2>
+<p>你不需要看懂程式碼。以下每一項都是用眼睛看畫面、用手操作就能檢查的；只要有一項做不到，就把它寫進「學生驗收紀錄」，再請 AI Agent 修。</p>
+<ul>
+<li>AI 會告訴你要點哪個檔案；雙擊它就能用瀏覽器打開工具，不必安裝軟體、不必註冊帳號。</li>
+<li>把 Wi-Fi 關掉再重新整理頁面，工具照樣算得出答案。</li>
+<li>填入三個數值、按下「轉換」，就看到轉換後的球面度數、柱面度數和軸度三個答案，每個都標了單位。</li>
+<li>畫面上看得到三條轉換規則、負柱鏡與正柱鏡的簡短說明，以及「僅供練習、不可用於臨床」的提醒。</li>
+<li>故意亂填試試看：欄位留空、打中文字、球面度數填 +30、柱面度數填 0、柱面度數填 +1.00、軸度填 0、軸度填 200、軸度填 3.5。每一種都要跳出看得懂的提醒，而不是算出一個答案，也不是整頁沒反應。</li>
+<li>不用滑鼠也能操作：用 Tab 鍵在欄位間移動、Enter 鍵送出，而且看得出現在停在哪個欄位。</li>
+<li>視窗縮到手機寬度時版面不破圖、文字不需左右捲動。</li>
+<li>請先自行手算，再用下列案例核對結果：</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">球面度數</th>
+<th style="text-align: right;">柱面度數</th>
+<th style="text-align: right;">軸度</th>
+<th>預期正柱鏡處方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">-2.00 D</td>
+<td style="text-align: right;">-1.00 D</td>
+<td style="text-align: right;">180°</td>
+<td>-3.00 D / +1.00 D × 90°</td>
+</tr>
+<tr>
+<td style="text-align: right;">+1.50 D</td>
+<td style="text-align: right;">-2.25 D</td>
+<td style="text-align: right;">100°</td>
+<td>-0.75 D / +2.25 D × 10°</td>
+</tr>
+<tr>
+<td style="text-align: right;">-4.00 D</td>
+<td style="text-align: right;">-0.50 D</td>
+<td style="text-align: right;">1°</td>
+<td>-4.50 D / +0.50 D × 91°</td>
+</tr>
+<tr>
+<td style="text-align: right;">+0.25 D</td>
+<td style="text-align: right;">-0.75 D</td>
+<td style="text-align: right;">90°</td>
+<td>-0.50 D / +0.75 D × 180°</td>
+</tr>
+<tr>
+<td style="text-align: right;">-1.00 D</td>
+<td style="text-align: right;">-0.50 D</td>
+<td style="text-align: right;">91°</td>
+<td>-1.50 D / +0.50 D × 1°</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>最後兩組是專門用來抓錯的邊界案例，請一定要試：第四組的軸度加 90 剛好等於 180，<strong>不必減</strong>，答錯的工具會給你 0°；第五組的軸度加 90 等於 181，<strong>要減</strong>，答錯的工具會給你 181°。</p>
+
+<h2 id="project"><span class="num">03</span>開始前：準備專案資料夾</h2>
+<p>先開啟一個新的空白專案資料夾。本單元依序有短版、完整版與改進版三個階段，請保留每個階段的成果，重點在比較「自由規格 → 少量指定 → 詳細指定」如何改變成果。短版不指定配色或欄位版面；完整版增加簡單外觀要求；改進版明列配色、區塊位置與手機排列。</p>
+<p>兩段都刻意寫成你自己講得出來的樣子：從頭到尾只有「我想要一個什麼樣的工具」。處方轉換的部分講得很清楚（那是你的專業），軟體的部分只描述你要看到什麼結果，不去指定程式怎麼寫（那是 AI 的工作）。</p>
+<div class="table-wrap"><table><caption>外觀規格：自由 → 少量指定 → 詳細指定</caption><thead><tr><th>階段</th><th>提示詞指定什麼</th><th>要比較的外觀</th></tr></thead><tbody><tr><td>自由規格</td><td>空白起點，不套用先前的網頁外觀；不指定配色或欄位版面。</td><td>本次原始成果使用瀏覽器預設外觀。</td></tr><tr><td>少量指定</td><td>白底、深色文字、藍色按鈕、單欄順序；其餘細節由 AI 決定。</td><td>輸入 → 結果 → 規則與說明。</td></tr><tr><td>詳細指定</td><td>清楚描述配色、文字大小、留白、圓角、區塊位置與手機排列。</td><td>青綠配色；大視窗左側輸入、右側結果與兩欄範例；窄視窗改為單欄。</td></tr></tbody></table></div>
+<h3 id="wf-project">先準備案例專案</h3><p>建立自己的 optometry-practice 資料夾，保存需求、提示與預期答案。Basic 在另一個空白資料夾、新對話中，只貼下方第一階段提示，不先提供完整規格或先前網頁。Minor 在另一個空白資料夾（02-full）、新對話中從頭製作，不沿用短版；Detailed 把已通過第 2 階段檢核的完整版複製到 03-improved，再依指定配色與區塊位置修改。本頁教學圖在 Detailed 階段放入本機 assets/；每版保留實際截圖與驗收紀錄。</p>
+
+<h2 id="stage1"><span class="num">04</span>第一步 Basic：瀏覽器預設外觀 · 先貼短版</h2>
+<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-1-explainer.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-1-explainer.webp" alt="視光第1階段短版的概念圖：輸入 -2.00 D / -1.00 D × 180°，得到 -3.00 D / +1.00 D × 90°。原軸度 90° 應得到 180°，91° 應得到 1°。" loading="lazy"></a><figcaption>短版的概念導覽，圖卡的版面與小數格式僅供示意；從空白起點實際產生的網頁見下方截圖。 點圖可開啟大圖。</figcaption></figure>
+
+<p>在新的空白資料夾開新對話，依序貼上兩段提示：第一段只設定全新的起點，等 AI 回覆後，再貼第二段提出工具需求。完成後，先試一組正常數值，再記錄你想補充的要求。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：設定全新的起點</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的視光系學生。接下來要在這個全新的空白資料夾做一個小工具。">我是完全沒有寫程式經驗的視光系學生。接下來要在這個全新的空白資料夾做一個小工具。</span>
+<span class="line" data-text="請不要使用之前做過的網頁、配色或排列方式，也不要查看其他專案；畫面只使用瀏覽器原本的字、欄位和按鈕外觀，不另外美化。">請不要使用之前做過的網頁、配色或排列方式，也不要查看其他專案；畫面只使用瀏覽器原本的字、欄位和按鈕外觀，不另外美化。</span>
+<span class="line" data-text="這一步先不要建立任何檔案，回覆「了解」，等我提出需求。">這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：提出工具需求</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想做一個把負柱鏡處方換成正柱鏡處方的小工具。輸入球面度數、柱面度數、軸度，按一下就顯示新處方。">我想做一個把負柱鏡處方換成正柱鏡處方的小工具。輸入球面度數、柱面度數、軸度，按一下就顯示新處方。</span>
+<span class="line" data-text="規則是：新球面＝球面＋柱面；新柱面＝原柱面變號；新軸度＝原軸度＋90，只有超過 180 才減去 180。">規則是：新球面＝球面＋柱面；新柱面＝原柱面變號；新軸度＝原軸度＋90，只有超過 180 才減去 180。</span>
+<span class="line" data-text="請做成在自己的電腦上雙擊就能開啟、不用安裝也不用連網的網頁。做完用編號步驟告訴我要開哪個檔案、填哪三格、按哪個按鈕、去哪裡看結果。請幫我核對 -2、-1、180 得到 -3、+1、90；不要只給我程式叫我自己完成。">請做成在自己的電腦上雙擊就能開啟、不用安裝也不用連網的網頁。做完用編號步驟告訴我要開哪個檔案、填哪三格、按哪個按鈕、去哪裡看結果。請幫我核對 -2、-1、180 得到 -3、+1、90；不要只給我程式叫我自己完成。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 1 階段</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 1 階段可能的回覆</span></div></div><pre><code><span class="line" data-text="（提示 1 之後）了解。">（提示 1 之後）了解。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="（提示 2 之後）">（提示 2 之後）</span>
+<span class="line" data-text="已在這個資料夾做好「負柱鏡轉正柱鏡小工具」，雙擊就能開啟，不用安裝也不用連網。">已在這個資料夾做好「負柱鏡轉正柱鏡小工具」，雙擊就能開啟，不用安裝也不用連網。</span>
+<span class="line" data-text="（1）在資料夾中找到 index.html，用滑鼠雙擊，它會在瀏覽器開啟。">（1）在資料夾中找到 index.html，用滑鼠雙擊，它會在瀏覽器開啟。</span>
+<span class="line" data-text="（2）在「球面度數」填 -2.00，「柱面度數」填 -1.00，「軸度」填 180。">（2）在「球面度數」填 -2.00，「柱面度數」填 -1.00，「軸度」填 180。</span>
+<span class="line" data-text="（3）按「轉換處方」。">（3）按「轉換處方」。</span>
+<span class="line" data-text="（4）在按鈕下方看結果：新球面度數、新柱面度數和新軸度。">（4）在按鈕下方看結果：新球面度數、新柱面度數和新軸度。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="我核對過 -2.00、-1.00、180：">我核對過 -2.00、-1.00、180：</span>
+<span class="line" data-text="新球面＝-2.00＋（-1.00）＝-3.00 D">新球面＝-2.00＋（-1.00）＝-3.00 D</span>
+<span class="line" data-text="新柱面＝-1.00 變號＝+1.00 D">新柱面＝-1.00 變號＝+1.00 D</span>
+<span class="line" data-text="新軸度＝180＋90＝270，超過 180，減去 180 得 90°">新軸度＝180＋90＝270，超過 180，減去 180 得 90°</span>
+<span class="line" data-text="結果是 -3.00 D / +1.00 D × 90°，和你給的答案相同。">結果是 -3.00 D / +1.00 D × 90°，和你給的答案相同。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="補充：度數顯示到小數點後兩位；軸度請填 1 到 180 的整數。柱面填 0 時，工具仍會照公式算出軸度。">補充：度數顯示到小數點後兩位；軸度請填 1 到 180 的整數。柱面填 0 時，工具仍會照公式算出軸度。</span></code></pre></figure>
+</div></details>
+<h3>預期成果 · 第 1 階段</h3><p>輸入 -2.00 D / -1.00 D × 180°，得到 -3.00 D / +1.00 D × 90°。原軸度 90° 應得到 180°，91° 應得到 1°。</p><p><a href="examples/validated/optometry/01-short/index.html">開啟已實測的短版示範</a> · <a href="examples/validated/optometry/01-short/prompt.md">本階段提示詞</a></p>
+<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-1-screenshot.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-1-screenshot.webp" alt="視光短版實際截圖：輸入 -2、-1、180，結果 -3.00 D / +1.00 D × 90°。" loading="lazy"></a><figcaption>空白起點的短版原始成果：沒有套用先前的網頁外觀，使用瀏覽器預設外觀。輸入 -2 / -1 / 180，得到 -3.00 D、+1.00 D、90°。這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
+<p class="source-note">本次 AI 自行決定度數顯示兩位小數、軸度限整數 1–180，並接受柱面 0；它沒有加入完整版的球面與柱面度數上下限。柱面 0 仍算軸度的行為，正是接著應辨認並提出修正的項目。</p>
+<h3>完成檢核 · 第 1 階段</h3><p>手算五組案例，尤其核對軸度 90° 與 91°；錯填時不得留下上一筆答案。</p><p class="source-note">同一段提示每次可能得到不同成果，請自行驗收。</p>
+
+<p>做出來以後先別急著往下。花兩分鐘操作它，然後把下面這些問題問自己一遍：軸度填 90，它給我幾度？柱面度數填 0，它會怎麼處理？柱面度數填 +1.00 呢？軸度填 3.5 或填 200 會怎樣？度數顯示幾位小數，是誰決定的？</p>
+<p>短版沒有錯，它只是把這些決定全部交給了 AI。你在畫面上看到的每一個「它自己決定的細節」，都是你沒講的部分。</p>
+
+<h2 id="stage2"><span class="num">05</span>第二步 Minor：白底、藍色按鈕、單欄 · 再貼完整版</h2>
+<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-2-explainer.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-2-explainer.webp" alt="視光第2階段完整版的概念圖：三個欄位與輸出都有單位；限制輸入範圍、阻擋錯填，度數顯示兩位小數。新球面度數可以低於 -20 D。" loading="lazy"></a><figcaption>完整版的概念導覽，說明功能核對重點；「少量指定」的白底單欄實際版面見下方截圖。 點圖可開啟大圖。</figcaption></figure>
+
+<p>完整版不是修改短版，而是從頭重做：在另一個空白資料夾開新對話，依序貼上兩段提示，第一段設定全新的起點，第二段提出完整版需求。完整版講的就是你剛才發現自己漏掉的那些事：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：設定全新的起點（不沿用短版）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我是完全沒有寫程式經驗的視光系學生。這次要從頭做一個全新的版本：請把這個資料夾當作全新的空白資料夾，不要查看或沿用之前做過的任何版本（包括短版）的網頁、程式、配色或排列方式。請替我完成需要的檔案，不要要求我讀懂或修改程式。">我是完全沒有寫程式經驗的視光系學生。這次要從頭做一個全新的版本：請把這個資料夾當作全新的空白資料夾，不要查看或沿用之前做過的任何版本（包括短版）的網頁、程式、配色或排列方式。請替我完成需要的檔案，不要要求我讀懂或修改程式。</span>
+<span class="line" data-text="這一步先不要建立任何檔案，回覆「了解」，等我提出需求。">這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：完整版需求</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想要一個處方轉換的網頁小工具，名字叫「視光處方轉換器」。用途是：把一筆負柱鏡（柱面度數是負值）的眼鏡處方，換算成光學效果相同的正柱鏡（柱面度數是正值）處方。">我想要一個處方轉換的網頁小工具，名字叫「視光處方轉換器」。用途是：把一筆負柱鏡（柱面度數是負值）的眼鏡處方，換算成光學效果相同的正柱鏡（柱面度數是正值）處方。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="使用方式：在我自己的筆電上雙擊就能打開的網頁，不用安裝軟體、不用註冊帳號，沒有網路也要能算。">使用方式：在我自己的筆電上雙擊就能打開的網頁，不用安裝軟體、不用註冊帳號，沒有網路也要能算。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="輸入欄位（每一個都要標示清楚名稱和單位）：">輸入欄位（每一個都要標示清楚名稱和單位）：</span>
+<span class="line" data-text="（1）球面度數 Sphere（單位 D）">（1）球面度數 Sphere（單位 D）</span>
+<span class="line" data-text="（2）柱面度數 Cylinder（單位 D）">（2）柱面度數 Cylinder（單位 D）</span>
+<span class="line" data-text="（3）軸度 Axis（單位 度）">（3）軸度 Axis（單位 度）</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="另外給我一個「轉換」按鈕，和一個明顯的結果區。">另外給我一個「轉換」按鈕，和一個明顯的結果區。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="計算與輸出：按下轉換後，請算出並顯示新的球面度數、柱面度數和軸度三個值，都要標上單位。規則是：">計算與輸出：按下轉換後，請算出並顯示新的球面度數、柱面度數和軸度三個值，都要標上單位。規則是：</span>
+<span class="line" data-text="（1）新球面度數 = 原球面度數 + 原柱面度數">（1）新球面度數 = 原球面度數 + 原柱面度數</span>
+<span class="line" data-text="（2）新柱面度數 = 原柱面度數的相反數">（2）新柱面度數 = 原柱面度數的相反數</span>
+<span class="line" data-text="（3）新軸度 = 原軸度 + 90；只有在結果大於 180 的時候才減去 180">（3）新軸度 = 原軸度 + 90；只有在結果大於 180 的時候才減去 180</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="第 3 條請照字面做：原軸度剛好是 90 的時候，加 90 等於 180，沒有超過 180，所以不要減，答案就是 180 度。如果寫成「等於 180 也減」，會算出 0 度，那不是有效的處方軸度。">第 3 條請照字面做：原軸度剛好是 90 的時候，加 90 等於 180，沒有超過 180，所以不要減，答案就是 180 度。如果寫成「等於 180 也減」，會算出 0 度，那不是有效的處方軸度。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="合理範圍：球面度數 -20.00 D 到 +20.00 D；柱面度數 -20.00 D 到小於 0；軸度是 1 到 180 之間的整數，不收小數。柱面度數一定是負值，因為這個工具是把負柱鏡換成正柱鏡：填 0 代表沒有散光，不需要轉換也沒有軸度可言；填正值代表那張處方本來就是正柱鏡了。這兩種情況都請提醒我，不要硬算。">合理範圍：球面度數 -20.00 D 到 +20.00 D；柱面度數 -20.00 D 到小於 0；軸度是 1 到 180 之間的整數，不收小數。柱面度數一定是負值，因為這個工具是把負柱鏡換成正柱鏡：填 0 代表沒有散光，不需要轉換也沒有軸度可言；填正值代表那張處方本來就是正柱鏡了。這兩種情況都請提醒我，不要硬算。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="錯誤處理：欄位空白、填的不是數字、超出上面的合理範圍、軸度填了小數，或數字大到電腦算不出來，都不要計算，改成顯示一句我看得懂的提醒，告訴我哪一格不對、為什麼不對。頁面不可以整個沒反應。">錯誤處理：欄位空白、填的不是數字、超出上面的合理範圍、軸度填了小數，或數字大到電腦算不出來，都不要計算，改成顯示一句我看得懂的提醒，告訴我哪一格不對、為什麼不對。頁面不可以整個沒反應。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="數字顯示：度數顯示到小數點後兩位，計算過程要用完整的數字，不要提早四捨五入。轉換後的柱面度數要正常帶正號顯示，不要出現 -0.00 這種結果。軸度是整數，不要加小數點。轉換後的球面度數有可能低於 -20.00 D（兩個度數相加的結果），那是正常的，不要當成錯誤。">數字顯示：度數顯示到小數點後兩位，計算過程要用完整的數字，不要提早四捨五入。轉換後的柱面度數要正常帶正號顯示，不要出現 -0.00 這種結果。軸度是整數，不要加小數點。轉換後的球面度數有可能低於 -20.00 D（兩個度數相加的結果），那是正常的，不要當成錯誤。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="畫面安排（少量指定）：白底、深色文字、藍色操作按鈕。所有內容由上往下排成一欄：標題、輸入、結果、規則與說明，不要左右分欄。欄位之間留空間，其他大小與細節由你安排。">畫面安排（少量指定）：白底、深色文字、藍色操作按鈕。所有內容由上往下排成一欄：標題、輸入、結果、規則與說明，不要左右分欄。欄位之間留空間，其他大小與細節由你安排。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="畫面與操作：字不要太小、顏色對比夠清楚、手機打開不跑版，用鍵盤的 Tab（跳到下一格）與 Enter（確認）也能從頭操作到底。畫面上要看得到那三條轉換規則，還要用一兩句話說明：負柱鏡和正柱鏡只是同一張處方的兩種表示方式，光學效果相同，正負號不代表好壞，也不代表散光的嚴重程度。另外請放一行明顯的字：「本工具僅供自行練習計算，數值均為虛構，不可作為臨床或處方的依據。」">畫面與操作：字不要太小、顏色對比夠清楚、手機打開不跑版，用鍵盤的 Tab（跳到下一格）與 Enter（確認）也能從頭操作到底。畫面上要看得到那三條轉換規則，還要用一兩句話說明：負柱鏡和正柱鏡只是同一張處方的兩種表示方式，光學效果相同，正負號不代表好壞，也不代表散光的嚴重程度。另外請放一行明顯的字：「本工具僅供自行練習計算，數值均為虛構，不可作為臨床或處方的依據。」</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請不要加的東西：個案紀錄、診斷、治療或配鏡建議、真實的病人資料，以及任何需要連到外面網站或服務的功能。">請不要加的東西：個案紀錄、診斷、治療或配鏡建議、真實的病人資料，以及任何需要連到外面網站或服務的功能。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="做完請用編號步驟帶我找到檔案、開啟網頁、填入數值、按按鈕、查看結果。再告訴我怎麼填幾組處方進去、對照手算的結果確認它沒算錯。你如果沒有真的自己算過、對過答案，就不要跟我說「已經驗證完成」。">做完請用編號步驟帶我找到檔案、開啟網頁、填入數值、按按鈕、查看結果。再告訴我怎麼填幾組處方進去、對照手算的結果確認它沒算錯。你如果沒有真的自己算過、對過答案，就不要跟我說「已經驗證完成」。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 2 階段</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 2 階段可能的回覆</span></div></div><pre><code><span class="line" data-text="（提示 1 之後）了解。">（提示 1 之後）了解。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="（提示 2 之後）">（提示 2 之後）</span>
+<span class="line" data-text="已做好「視光處方轉換器」，雙擊就能開啟，不用安裝、不用帳號，沒有網路也能算。">已做好「視光處方轉換器」，雙擊就能開啟，不用安裝、不用帳號，沒有網路也能算。</span>
+<span class="line" data-text="（1）在資料夾中找到 index.html，用滑鼠雙擊開啟。">（1）在資料夾中找到 index.html，用滑鼠雙擊開啟。</span>
+<span class="line" data-text="（2）依序填入球面度數 Sphere（D）、柱面度數 Cylinder（D）、軸度 Axis（度）；按 Tab 可以跳到下一格。">（2）依序填入球面度數 Sphere（D）、柱面度數 Cylinder（D）、軸度 Axis（度）；按 Tab 可以跳到下一格。</span>
+<span class="line" data-text="（3）按「轉換」，或直接按 Enter。">（3）按「轉換」，或直接按 Enter。</span>
+<span class="line" data-text="（4）在結果區看新球面度數、新柱面度數和新軸度，三個都標有單位。">（4）在結果區看新球面度數、新柱面度數和新軸度，三個都標有單位。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="我親自用下面五組處方核對過：">我親自用下面五組處方核對過：</span>
+<span class="line" data-text="輸入｜預期正柱鏡處方｜工具結果">輸入｜預期正柱鏡處方｜工具結果</span>
+<span class="line" data-text="-2.00 D / -1.00 D × 180°｜-3.00 D / +1.00 D × 90°｜相同">-2.00 D / -1.00 D × 180°｜-3.00 D / +1.00 D × 90°｜相同</span>
+<span class="line" data-text="+1.50 D / -2.25 D × 100°｜-0.75 D / +2.25 D × 10°｜相同">+1.50 D / -2.25 D × 100°｜-0.75 D / +2.25 D × 10°｜相同</span>
+<span class="line" data-text="-4.00 D / -0.50 D × 1°｜-4.50 D / +0.50 D × 91°｜相同">-4.00 D / -0.50 D × 1°｜-4.50 D / +0.50 D × 91°｜相同</span>
+<span class="line" data-text="+0.25 D / -0.75 D × 90°｜-0.50 D / +0.75 D × 180°｜相同（加 90 剛好 180，沒有減）">+0.25 D / -0.75 D × 90°｜-0.50 D / +0.75 D × 180°｜相同（加 90 剛好 180，沒有減）</span>
+<span class="line" data-text="-1.00 D / -0.50 D × 91°｜-1.50 D / +0.50 D × 1°｜相同（加 90 得 181，減成 1）">-1.00 D / -0.50 D × 91°｜-1.50 D / +0.50 D × 1°｜相同（加 90 得 181，減成 1）</span>
+<span class="line" data-text="另外試了 -20.00 / -2.00 × 180，得到 -22.00 D / +2.00 D × 90°；轉換後低於 -20 D 是正常的，沒有被當成錯誤。">另外試了 -20.00 / -2.00 × 180，得到 -22.00 D / +2.00 D × 90°；轉換後低於 -20 D 是正常的，沒有被當成錯誤。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="錯填時不會計算：欄位空白、填文字、球面超過 ±20、柱面填 0 或正值、軸度填 0、200 或 3.5，都會顯示是哪一格不對、為什麼不對。">錯填時不會計算：欄位空白、填文字、球面超過 ±20、柱面填 0 或正值、軸度填 0、200 或 3.5，都會顯示是哪一格不對、為什麼不對。</span>
+<span class="line" data-text="請你也自己填幾組，對照手算結果。">請你也自己填幾組，對照手算結果。</span></code></pre></figure>
+</div></details>
+<h3>預期成果 · 第 2 階段</h3><p><strong>外觀驗收：</strong>白底、深色文字、藍色按鈕；輸入 → 結果 → 規則與說明的單欄版面。</p><p>三個欄位與輸出都有單位；限制輸入範圍、阻擋錯填，度數顯示兩位小數。新球面度數可以低於 -20 D。</p><p><a href="examples/validated/optometry/02-full/index.html">開啟已實測的完整版示範</a> · <a href="examples/validated/optometry/02-full/prompt.md">本階段提示詞</a></p>
+<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-2-screenshot.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-2-screenshot.webp" alt="視光完整版實際截圖：輸入 -20、-2、180，結果 -22.00 D / +2.00 D × 90°，輸出不受輸入球面下限限制。" loading="lazy"></a><figcaption>少量指定截圖（白底、藍色按鈕、單欄）：輸入 -20 / -2 / 180，得到 -22.00 D / +2.00 D × 90°；核對「輸入限制不套用到輸出」。 這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
+<h3>完成檢核 · 第 2 階段</h3><p>試空白、文字、柱面 0 或正值、軸度小數及超界；用 Tab 與 Enter 操作，再離線重新開啟。</p><p class="source-note">同一段提示每次可能得到不同成果，請自行驗收。</p>
+
+<h2 id="stage3"><span class="num">06</span>第三步 Detailed：清楚指定畫面與手機排列</h2>
+<figure class="page-figure prompt-explainer"><a href="figures/optometry-prompt-3-explainer.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-3-explainer.webp" alt="視光第3階段改進版的概念圖：保留完整版的欄位與算法，增加五組範例、清除、欄位旁提醒與圖解。載入範例後仍要按「轉換」並對照預期答案。" loading="lazy"></a><figcaption>改進版的概念導覽，說明範例與核對功能；詳細畫面與排列要求的實際成果見下方截圖。 點圖可開啟大圖。</figcaption></figure>
+<p>改進版是在已驗收的完整版上改進：先確認完整版通過第 2 階段的完成檢核，再依序貼上兩段提示，第一段複製這份完整版，第二段在副本上提出改進要求。改進版保留原有欄位與算法，只以具體的畫面與排列要求改變外觀。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：複製已通過檢核的完整版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。">我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。</span>
+<span class="line" data-text="請先把已經通過第 2 階段檢核的完整版複製一份到新的資料夾，之後只修改這份副本；完整版保留不動。原本的欄位、計算方式與小數位數不要改動。">請先把已經通過第 2 階段檢核的完整版複製一份到新的資料夾，之後只修改這份副本；完整版保留不動。原本的欄位、計算方式與小數位數不要改動。</span>
+<span class="line" data-text="複製好後告訴我副本放在哪裡，先不要做其他修改，等我提出改進需求。">複製好後告訴我副本放在哪裡，先不要做其他修改，等我提出改進需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：改進版需求</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="畫面安排（詳細指定）：計算規則、輸入欄位和小數位數都保持不變，這次請依下列要求重新安排畫面。">畫面安排（詳細指定）：計算規則、輸入欄位和小數位數都保持不變，這次請依下列要求重新安排畫面。</span>
+<span class="line" data-text="（1）整體像一張青綠色的學習工作台：淡青綠背景、深色文字、青綠主要按鈕；每一區是白底圓角卡片，結果區用淡青色。錯誤要有清楚文字，不要只改顏色。">（1）整體像一張青綠色的學習工作台：淡青綠背景、深色文字、青綠主要按鈕；每一區是白底圓角卡片，結果區用淡青色。錯誤要有清楚文字，不要只改顏色。</span>
+<span class="line" data-text="（2）在筆電的大視窗，頂端放標題與練習用途提醒。左邊約占三分之一，放輸入與轉換按鈕；右邊約占三分之二，上方放結果、下方放五組範例。三個結果左右並排，範例每列兩張。底部左邊放規則，右邊放「如何核對結果」及教學圖。">（2）在筆電的大視窗，頂端放標題與練習用途提醒。左邊約占三分之一，放輸入與轉換按鈕；右邊約占三分之二，上方放結果、下方放五組範例。三個結果左右並排，範例每列兩張。底部左邊放規則，右邊放「如何核對結果」及教學圖。</span>
+<span class="line" data-text="（3）一般文字與欄位名稱要清楚，補充說明可以稍小；結果數字約是一般文字的兩倍大。區塊之間與卡片內側留空間，文字不要貼邊。按鈕要讓手指容易點到，用鍵盤移動時也看得出目前停在哪裡。">（3）一般文字與欄位名稱要清楚，補充說明可以稍小；結果數字約是一般文字的兩倍大。區塊之間與卡片內側留空間，文字不要貼邊。按鈕要讓手指容易點到，用鍵盤移動時也看得出目前停在哪裡。</span>
+<span class="line" data-text="（4）在手機或較窄的視窗，改成由上往下的一欄：輸入、結果、範例、規則、核對圖解。三個結果和範例也一張一張往下排；不用左右滑動才能看完，欄位旁的錯誤文字要完整顯示。">（4）在手機或較窄的視窗，改成由上往下的一欄：輸入、結果、範例、規則、核對圖解。三個結果和範例也一張一張往下排；不用左右滑動才能看完，欄位旁的錯誤文字要完整顯示。</span>
+<span class="line" data-text="（5）沒有網路時，圖片、計算與按鈕仍要能用。請替我處理需要的檔案，最後用一般用語說明如何開啟與核對。">（5）沒有網路時，圖片、計算與按鈕仍要能用。請替我處理需要的檔案，最後用一般用語說明如何開啟與核對。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="載入範例按鈕：我有五組處方每次都要拿來核對，每次重打很麻煩。請幫這五組各做一個按鈕，按下去就自動把那組數字填進欄位，按鈕旁邊寫出應該算出來的答案，我用來對照工具算得對不對。五組是：">載入範例按鈕：我有五組處方每次都要拿來核對，每次重打很麻煩。請幫這五組各做一個按鈕，按下去就自動把那組數字填進欄位，按鈕旁邊寫出應該算出來的答案，我用來對照工具算得對不對。五組是：</span>
+<span class="line" data-text="（1）-2.00 D / -1.00 D × 180° → -3.00 D / +1.00 D × 90°">（1）-2.00 D / -1.00 D × 180° → -3.00 D / +1.00 D × 90°</span>
+<span class="line" data-text="（2）+1.50 D / -2.25 D × 100° → -0.75 D / +2.25 D × 10°">（2）+1.50 D / -2.25 D × 100° → -0.75 D / +2.25 D × 10°</span>
+<span class="line" data-text="（3）-4.00 D / -0.50 D × 1° → -4.50 D / +0.50 D × 91°">（3）-4.00 D / -0.50 D × 1° → -4.50 D / +0.50 D × 91°</span>
+<span class="line" data-text="（4）+0.25 D / -0.75 D × 90° → -0.50 D / +0.75 D × 180°">（4）+0.25 D / -0.75 D × 90° → -0.50 D / +0.75 D × 180°</span>
+<span class="line" data-text="（5）-1.00 D / -0.50 D × 91° → -1.50 D / +0.50 D × 1°">（5）-1.00 D / -0.50 D × 91° → -1.50 D / +0.50 D × 1°</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="第 4 組和第 5 組是我拿來抓錯的：第 4 組加 90 剛好等於 180，不必減；第 5 組加 90 等於 181，要減成 1。">第 4 組和第 5 組是我拿來抓錯的：第 4 組加 90 剛好等於 180，不必減；第 5 組加 90 等於 181，要減成 1。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="清除按鈕：按下去把所有欄位清空，之前的答案和錯誤提醒也一起消失。">清除按鈕：按下去把所有欄位清空，之前的答案和錯誤提醒也一起消失。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="錯誤提醒的位置：放在出錯的那一格旁邊，不要全部塞在頁面最上面，這樣我才知道是哪一格填錯。">錯誤提醒的位置：放在出錯的那一格旁邊，不要全部塞在頁面最上面，這樣我才知道是哪一格填錯。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="「如何核對結果」說明：加一小段，重新講一次三條轉換規則，並且寫清楚：有效軸度是 1° 到 180° 的整數；計算中間可能出現 270°，那只是中間值，不能當成處方軸度；示意圖上的紅線代表柱鏡軸；轉換前後的處方光學效果相同，只是表示方式不同。">「如何核對結果」說明：加一小段，重新講一次三條轉換規則，並且寫清楚：有效軸度是 1° 到 180° 的整數；計算中間可能出現 270°，那只是中間值，不能當成處方軸度；示意圖上的紅線代表柱鏡軸；轉換前後的處方光學效果相同，只是表示方式不同。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="操作：請讓我用 Tab 鍵移到新按鈕，再按 Enter 操作；目前停在哪裡要看得清楚。">操作：請讓我用 Tab 鍵移到新按鈕，再按 Enter 操作；目前停在哪裡要看得清楚。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請不要加的東西：個案紀錄、診斷、治療或配鏡建議、真實的病人資料、處方存檔，以及任何需要連到外面網站或服務的功能。">請不要加的東西：個案紀錄、診斷、治療或配鏡建議、真實的病人資料、處方存檔，以及任何需要連到外面網站或服務的功能。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="做完請用一般用語說明改了哪些畫面和操作，不要列程式寫法。用編號步驟帶我載入每組範例、按計算、對照預期答案、按清除；再告訴我怎麼縮小視窗，確認內容有改成一欄。請區分你親自測過的結果與還要我確認的項目。">做完請用一般用語說明改了哪些畫面和操作，不要列程式寫法。用編號步驟帶我載入每組範例、按計算、對照預期答案、按清除；再告訴我怎麼縮小視窗，確認內容有改成一欄。請區分你親自測過的結果與還要我確認的項目。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 3 階段</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 3 階段可能的回覆</span></div></div><pre><code><span class="line" data-text="（提示 1 之後）">（提示 1 之後）</span>
+<span class="line" data-text="已把完整版複製一份，副本放在 03-improved 資料夾；原本的完整版沒有改動。副本的欄位、計算方式與小數位數都和完整版相同。請告訴我想怎麼改進。">已把完整版複製一份，副本放在 03-improved 資料夾；原本的完整版沒有改動。副本的欄位、計算方式與小數位數都和完整版相同。請告訴我想怎麼改進。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="（提示 2 之後）">（提示 2 之後）</span>
+<span class="line" data-text="已在 03-improved 副本中改好畫面；計算規則、欄位和小數位數都沒有改動。">已在 03-improved 副本中改好畫面；計算規則、欄位和小數位數都沒有改動。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="改了哪些畫面和操作">改了哪些畫面和操作</span>
+<span class="line" data-text="（1）淡青綠背景、白底圓角卡片、青綠色「轉換」按鈕；結果區是淡青色，錯誤會用文字說明。">（1）淡青綠背景、白底圓角卡片、青綠色「轉換」按鈕；結果區是淡青色，錯誤會用文字說明。</span>
+<span class="line" data-text="（2）大視窗：左邊放輸入，右邊上方三個結果並排、下方五組範例每列兩張；底部左邊是規則，右邊是「如何核對結果」與示意圖。">（2）大視窗：左邊放輸入，右邊上方三個結果並排、下方五組範例每列兩張；底部左邊是規則，右邊是「如何核對結果」與示意圖。</span>
+<span class="line" data-text="（3）新增「範例 1」到「範例 5」按鈕，旁邊寫出預期答案；新增「清除」按鈕。">（3）新增「範例 1」到「範例 5」按鈕，旁邊寫出預期答案；新增「清除」按鈕。</span>
+<span class="line" data-text="（4）錯誤提醒改放在出錯欄位旁邊。">（4）錯誤提醒改放在出錯欄位旁邊。</span>
+<span class="line" data-text="（5）示意圖存在 assets 資料夾，沒有網路也能顯示。">（5）示意圖存在 assets 資料夾，沒有網路也能顯示。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請照這樣核對">請照這樣核對</span>
+<span class="line" data-text="（1）雙擊 03-improved 資料夾中的 index.html。">（1）雙擊 03-improved 資料夾中的 index.html。</span>
+<span class="line" data-text="（2）按「範例 1」，再按「轉換」，應得到 -3.00 D / +1.00 D × 90°。">（2）按「範例 1」，再按「轉換」，應得到 -3.00 D / +1.00 D × 90°。</span>
+<span class="line" data-text="（3）依序做範例 2 到 5；範例 4 應為 -0.50 D / +0.75 D × 180°，範例 5 應為 -1.50 D / +0.50 D × 1°。">（3）依序做範例 2 到 5；範例 4 應為 -0.50 D / +0.75 D × 180°，範例 5 應為 -1.50 D / +0.50 D × 1°。</span>
+<span class="line" data-text="（4）按「清除」，欄位、結果和提醒都應消失。">（4）按「清除」，欄位、結果和提醒都應消失。</span>
+<span class="line" data-text="（5）把瀏覽器視窗拉窄，內容應改成一欄：輸入、結果、範例、規則、核對圖解。">（5）把瀏覽器視窗拉窄，內容應改成一欄：輸入、結果、範例、規則、核對圖解。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="我親自測過：五組範例的轉換結果、清除按鈕、用 Tab 和 Enter 操作範例按鈕。">我親自測過：五組範例的轉換結果、清除按鈕、用 Tab 和 Enter 操作範例按鈕。</span>
+<span class="line" data-text="還要你確認：窄視窗或手機上是否好讀，以及關掉網路後示意圖是否仍會顯示。">還要你確認：窄視窗或手機上是否好讀，以及關掉網路後示意圖是否仍會顯示。</span></code></pre></figure>
+</div></details>
+<h3>預期成果 · 第 3 階段</h3><p><strong>外觀驗收：</strong>青綠色工作台：左側輸入、右側結果與兩欄範例；底部規則與核對圖解。手機或窄視窗時依指定順序改成單欄。</p><p>保留完整版的欄位與算法，增加五組範例、清除、欄位旁提醒與圖解。載入範例後仍要按「轉換」並對照預期答案。</p><p><a href="examples/validated/optometry/03-improved/index.html">開啟已實測的改進版示範</a> · <a href="examples/validated/optometry/03-improved/prompt.md">本階段提示詞</a></p>
+<figure class="page-figure prompt-screenshot"><a href="figures/optometry-prompt-3-screenshot.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/optometry-prompt-3-screenshot.webp" alt="視光改進版實際截圖：載入範例 4，輸入 0.25、-0.75、90，結果 -0.50 D / +0.75 D × 180°；可見五組範例與清除按鈕。" loading="lazy"></a><figcaption>詳細指定截圖（青綠分區工作台）：按範例 4，再按轉換；結果 -0.50 D / +0.75 D × 180°。畫面包含五組範例、預期答案與清除按鈕。 這是實際瀏覽器截圖；點圖可開啟大圖。</figcaption></figure>
+<h3>完成檢核 · 第 3 階段</h3><p>核對青綠配色、桌面分區與手機單欄；逐一載入五組範例並轉換；清除欄位、答案與提醒；只用鍵盤操作範例按鈕，確認說明圖能載入。</p><p class="source-note">同一段提示每次可能得到不同成果，請自行驗收。</p>
+
+<h2 id="record"><span class="num">07</span>我的核對紀錄</h2>
+<p>先在「預期」欄確認自己的手算答案，再把每一階段工具實際顯示的結果填進去；不一致時，寫進下方的驗收紀錄，再請 AI Agent 修改。</p>
+<div class="table-wrap record wide"><table><caption>手算案例 · 填入工具顯示的結果</caption><thead><tr><th>輸入（球面 / 柱面 × 軸度）</th><th>預期正柱鏡處方</th><th>第 1 階段</th><th>第 2 階段</th><th>第 3 階段</th></tr></thead><tbody>
+<tr><td>-2.00 D / -1.00 D × 180°</td><td>-3.00 D / +1.00 D × 90°</td><td></td><td></td><td></td></tr>
+<tr><td>+1.50 D / -2.25 D × 100°</td><td>-0.75 D / +2.25 D × 10°</td><td></td><td></td><td></td></tr>
+<tr><td>-4.00 D / -0.50 D × 1°</td><td>-4.50 D / +0.50 D × 91°</td><td></td><td></td><td></td></tr>
+<tr><td>+0.25 D / -0.75 D × 90°</td><td>-0.50 D / +0.75 D × 180°（加 90 剛好 180，不減）</td><td></td><td></td><td></td></tr>
+<tr><td>-1.00 D / -0.50 D × 91°</td><td>-1.50 D / +0.50 D × 1°（加 90 得 181，要減）</td><td></td><td></td><td></td></tr>
+</tbody></table></div>
+<div class="table-wrap record wide"><table><caption>錯填測試 · 有出現看得懂的提醒就打 ✓，算出答案或沒反應就寫下看到什麼</caption><thead><tr><th>故意這樣填</th><th>第 1 階段</th><th>第 2 階段</th><th>第 3 階段</th></tr></thead><tbody>
+<tr><td>欄位留空</td><td></td><td></td><td></td></tr>
+<tr><td>打中文字</td><td></td><td></td><td></td></tr>
+<tr><td>球面度數填 +30</td><td></td><td></td><td></td></tr>
+<tr><td>柱面度數填 0</td><td></td><td></td><td></td></tr>
+<tr><td>柱面度數填 +1.00</td><td></td><td></td><td></td></tr>
+<tr><td>軸度填 0</td><td></td><td></td><td></td></tr>
+<tr><td>軸度填 200</td><td></td><td></td><td></td></tr>
+<tr><td>軸度填 3.5</td><td></td><td></td><td></td></tr>
+</tbody></table></div>
+<div class="table-wrap record"><table><caption>學生驗收紀錄</caption><tbody>
+<tr><th scope="row">AI Agent 正確完成的一件事</th><td></td></tr>
+<tr><th scope="row">我發現的一個問題或不清楚之處</th><td></td></tr>
+<tr><th scope="row">我用來重現問題的輸入</th><td></td></tr>
+<tr><th scope="row">我要求的修改，以及我如何確認修改有效</th><td></td></tr>
+</tbody></table></div>
+<nav class="pager" aria-label="上下頁"><a href="unit04.html">← 單元四</a><a href="unit05.html">單元五 →</a></nav>
+
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容保留所有權利；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("hwai-handout-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("hwai-handout-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("hwai-handout-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    // A server without byte-range support (e.g. python -m http.server) leaves the
+    // streamed audio unseekable: setting currentTime silently snaps back to 0.
+    // In that case load the whole file once as a blob, which is always seekable.
+    var canSeek = function (t) {
+      for (var i = 0; i < audio.seekable.length; i++) {
+        if (t >= audio.seekable.start(i) && t <= audio.seekable.end(i)) return true;
+      }
+      return false;
+    };
+    var blobLoading = null;
+    var loadWholeFile = function () {
+      if (!blobLoading) {
+        var source = audio.querySelector("source");
+        var rate = audio.playbackRate;
+        blobLoading = fetch(audio.currentSrc || (source && source.src))
+          .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+          .then(function (blob) {
+            return new Promise(function (resolve) {
+              audio.addEventListener("loadedmetadata", function () {
+                audio.playbackRate = rate;
+                resolve();
+              }, { once: true });
+              audio.src = URL.createObjectURL(blob);
+              audio.load();
+            });
+          });
+        blobLoading.catch(function () { blobLoading = null; });
+      }
+      return blobLoading;
+    };
+    var seekTo = function (t, thenPlay) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      t = Math.max(0, Math.min(max, t));
+      var jump = function () {
+        audio.currentTime = t;
+        updateUI();
+        if (thenPlay) audio.play();
+      };
+      if (t === 0 || canSeek(t)) jump();
+      else loadWholeFile().then(jump, jump);
+    };
+
+    var chapterSelect = document.getElementById("podcastChapter");
+    if (chapterSelect) {
+      var chapterStarts = Array.prototype.slice.call(chapterSelect.options)
+        .filter(function (o) { return o.value !== ""; })
+        .map(function (o) { return Number(o.value); });
+      chapterSelect.addEventListener("change", function () {
+        if (chapterSelect.value === "") return;
+        var target = Number(chapterSelect.value);
+        if (!isFinite(target)) return;
+        if (isFinite(audio.duration)) seekTo(target, true);
+        else {
+          audio.addEventListener("loadedmetadata", function () { seekTo(target, true); }, { once: true });
+          audio.load();
+        }
+      });
+      // Keep the menu on the chapter that is playing.
+      audio.addEventListener("timeupdate", function () {
+        var current = "";
+        chapterStarts.forEach(function (s) { if (audio.currentTime >= s - 0.05) current = String(s); });
+        var match = Array.prototype.filter.call(chapterSelect.options, function (o) { return o.value !== "" && Number(o.value) === Number(current); })[0];
+        if (match && chapterSelect.value !== match.value) chapterSelect.value = match.value;
+      });
+    }
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>

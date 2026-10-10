@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('hwai-handout-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('hwai-handout-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('hwai-handout-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%AC%3C/text%3E%3C/svg%3E">
+<title>單元一：從機器學習到 AI Agent</title>
+<meta name="description" content="從機器學習與辨別式 AI 談起，認識 AI、Chat／Work／Codex 的角色，完成通用學習情境對話、資料整理與需求驗收練習。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools, .toc-qr { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+.podcast-chapters { width:100%; min-width:0; margin-top:.7rem; padding:.35rem; font:inherit; font-size:.82rem; color:var(--text); background:var(--surface-2); border:1px solid var(--border); border-radius:.35rem; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">中華醫事 × AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="中華醫事科技大學 × AI Agent 實作講義"><span>首頁</span></a>
+<a href="unit01.html" title="單元一：從機器學習到 AI Agent" aria-current="page"><span>AI 概念</span></a>
+<a href="unit02.html" title="單元二：從 Gems、GPTs 到自己的第一個 Skill"><span>Skill</span></a>
+<a href="unit03.html" title="單元三：AI Agent 與 Vibe Coding 的專案操作"><span>網頁APP</span></a>
+<a href="unit04.html" title="單元四：視光處方轉換器（自主練習）"><span>處方轉換</span></a>
+<a href="unit05.html" title="單元五：醫檢稀釋換算器（自主練習）"><span>稀釋換算</span></a></nav><a class="side-sheet" href="unit01-practice.html"><span aria-hidden="true">📝</span>單元一練習單</a><div class="toc-audio">
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 深度導讀 Podcast</span><span class="toc-audio-badge">15:35</span></div>
+<audio id="podcast-audio" preload="metadata" aria-label="從機器學習到 AI Agent：訓練、判斷與清楚交辦"><source src="audio/unit01-podcast.mp3" type="audio/mpeg"></audio>
+<div class="toc-audio-controls">
+<button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
+<div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
+</div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 15:35</span></div>
+<div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
+<select id="podcastChapter" class="podcast-chapters" aria-label="音訊章節跳轉"><option value="">選擇章節</option><option value="0">00:00 · 聊天工具之前，AI 已經在工作</option><option value="79.016">01:19 · 機器學習：資料、答案、訓練與評估</option><option value="156.592">02:36 · 打磚塊：親眼觀察模型學會預測</option><option value="244.536">04:04 · Jev：限定答案的判斷，仍要核對</option><option value="313.808">05:13 · 辨別、生成、對話、推理與代理</option><option value="396.04">06:36 · Chat、Work、Codex 要看交付物</option><option value="485.568">08:05 · 用小組報告練習提問與測試</option><option value="591.104">09:51 · 整理資料時，缺漏不能補造</option><option value="734.824">12:14 · 把模糊要求拆成五欄</option><option value="820.632">13:40 · 四個練習步驟與聽後自測</option></select>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#before-genai"><span class="toc-num">01</span>ChatGPT 之前的 AI：機器學習與辨別式 AI</a></li>
+<li><a href="#jev"><span class="toc-num">02</span>新趨勢：Jev，只做判斷的新一代 AI</a></li>
+<li><a href="#concepts"><span class="toc-num">03</span>不同 AI 使用方式，處理不同任務</a></li>
+<li><a href="#roles"><span class="toc-num">04</span>Chat、Work、Codex：依任務與成果選擇</a></li>
+<li><a href="#role-practice"><span class="toc-num">05</span>直接試用：回答、整理成果與小工具</a></li>
+<li><a href="#exercise"><span class="toc-num">06</span>把想法寫成清楚的需求</a></li>
+<li><a href="#workflow"><span class="toc-num">07</span>每個練習都走同樣的四個階段</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">13:20–14:10 · 50 分鐘</p>
+<h1>單元一：從機器學習到 AI Agent</h1>
+<p class="lead">先回顧 ChatGPT 出現之前就已經在醫療與生活中工作的 AI（機器學習與辨別式 AI），再認識 AI 的不同工作方式，再用學習計畫與小組報告的通用情境練習交辦。你不必先會寫程式，但要能說清楚需求、核對資料，並判斷成果是否正確。</p></section>
+<div class="callout tip"><span class="label">這一單元完成什麼</span><p>能分辨「我要一個回答」、「我要整理好的成果」與「我要可操作的工具」；能寫出使用者、輸入、規則、輸出與驗收條件。課堂先完成一個 Chat 練習與需求表，Work 練習可依現場時間試用或課後練習。</p></div>
+<div class="slide-launch"><button type="button" id="startSlides">開啟單元一投影片 · 9 張</button><span>← → 換頁 · Esc 返回講義</span></div>
+<h2 id="before-genai"><span class="num">01</span>ChatGPT 之前的 AI：機器學習與辨別式 AI</h2>
+<figure class="page-figure instructor-slide" data-slide-title="從例子中學會判斷">
+<a href="figures/unit01-slide-01a-machine-learning.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-slide-01a-machine-learning.webp" alt="從例子中學會判斷：從資料、標籤與訓練到預測；用沒看過的資料檢驗成效。" loading="lazy" width="1536" height="1024"></a>
+<figcaption>從資料、標籤與訓練到預測；用沒看過的資料檢驗成效。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+
+<p>2022 年底 ChatGPT 推出後，「AI」幾乎成了「會聊天、會寫東西的 AI」的代名詞。其實在那之前，AI 早已在身邊工作：信箱自動過濾垃圾郵件、銀行在刷卡瞬間判斷是否盜刷、手機用臉部辨識解鎖；醫療領域也有電腦輔助偵測，在醫學影像上標出可疑區域，提醒專業人員多看一眼。這些 AI 大多不產生新內容，而是<strong>看了資料之後，給出一個判斷</strong>。這類 AI 稱為<strong>辨別式 AI</strong>（Discriminative AI），背後的方法就是<strong>機器學習</strong>。</p>
+
+<h3 id="ml-basics">機器學習：讓電腦從例子中找出規則</h3>
+<p>傳統的程式由人把規則一條條寫出來，例如「數值超出參考區間就標記異常」。但很多判斷牽涉的因素太多、太細，人寫不完。<strong>機器學習</strong>換一個做法：準備大量「過去的例子＋當時的正確答案」，讓電腦自己反覆調整，找出能預測答案的規則。學好的規則稱為<strong>模型</strong>。</p>
+<ul class="flow">
+  <li><b>① 收集資料</b>過去的影像、檢驗數值、檢查紀錄等例子</li>
+  <li><b>② 標上答案</b>每個例子的結果，例如專業人員的判讀或後續確診</li>
+  <li><b>③ 訓練模型</b>電腦反覆比對「猜的」和「正確答案」，逐步修正</li>
+  <li><b>④ 預測新資料</b>遇到新的例子時，給出判斷</li>
+  <li><b>⑤ 檢驗成效</b>用沒看過的資料計算準確率或誤差</li>
+</ul>
+
+<h3 id="discriminative">辨別式 AI 與生成式 AI 有什麼不同</h3>
+<p>兩者都用機器學習訓練，差別在於<strong>要回答的問題</strong>和<strong>交出的成果</strong>。辨別式 AI 回答「這是哪一類？」或「會是多少？」；生成式 AI 則依照指示產生新的文字、圖片或程式。</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>比較重點</th><th>辨別式 AI（ChatGPT 之前的主流）</th><th>生成式 AI（例如 ChatGPT）</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">回答的問題</th><td>「這張眼底影像是否疑似病變？」「這份報告需不需要人工複核？」</td><td>「幫我把這段衛教內容寫得更易懂」「把實驗步驟整理成檢核表」</td></tr>
+    <tr><th scope="row">輸出</th><td>一個類別、分數或數字</td><td>一段新的文字、圖片、表格或程式</td></tr>
+    <tr><th scope="row">常見應用</th><td>影像篩檢、細胞分類、異常數值提醒、品管偏移偵測、檢體量預測</td><td>衛教文字草稿、資料整理、報告摘要、製作網頁工具</td></tr>
+    <tr><th scope="row">怎麼判斷好壞</th><td>和正確答案比對，計算準確率或誤差</td><td>多半沒有唯一答案，需要人判斷內容是否正確、合用</td></tr>
+    <tr><th scope="row">能做的事</th><td>通常只會一件事：訓練它回答的那個問題</td><td>同一個模型可以處理許多不同的任務</td></tr>
+  </tbody>
+</table></div>
+<div class="card-grid">
+  <div class="card"><span class="tag">分類 Classification</span><h4>判斷屬於哪一類</h4><p>眼底影像是否疑似病變？血液抹片上的這顆細胞屬於哪一類？這份報告要不要人工複核？</p></div>
+  <div class="card"><span class="tag">迴歸 Regression</span><h4>預測一個數字</h4><p>明天檢驗室大約會收到多少檢體？病人預計要等幾分鐘？</p></div>
+  <div class="card"><span class="tag">異常偵測 Anomaly Detection</span><h4>找出不尋常的資料</h4><p>儀器的品管數值是否開始偏移？這筆結果和同一位病人過去的數值相比是否突然改變？</p></div>
+</div>
+
+<figure class="page-figure instructor-slide" data-slide-title="打磚塊：AI 只學預測落點">
+<a href="figures/unit01-slide-01b-arkanoid-learning.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-slide-01b-arkanoid-learning.webp" alt="打磚塊：AI 只學預測落點：把遊戲中的位置、落點、誤差與模型檔，對應到機器學習的六個概念。" loading="lazy" width="1536" height="1024"></a>
+<figcaption>把遊戲中的位置、落點、誤差與模型檔，對應到機器學習的六個概念。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+<h3 id="arkanoid-demo">用打磚塊遊戲看辨別式 AI 怎麼學</h3>
+<p>下面的打磚塊遊戲有兩種模式：<strong>手動</strong>由你控制球拍；<strong>電腦（機器學習）</strong>則交給一個小型神經網路。這個神經網路只學一件事：<strong>看到球目前的位置和方向，預測球會落在哪裡</strong>。輸出是一個數字（落點的橫向位置），所以它是一個做「迴歸」的辨別式 AI。它不會聊天，也不會產生新內容，但會越玩越準。</p>
+<p><a class="download" href="examples/arkanoid-ml/arkanoid-ml.html" target="_blank" rel="noopener">開啟打磚塊 AI 遊戲</a><a class="download" href="examples/arkanoid-ml/arkanoid-pretrained-model.json" download>下載已訓練好的模型</a></p>
+<p>遊戲中的每個元素，都能對應到機器學習的名詞，也能對應到醫事情境：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>遊戲中看到的</th><th>機器學習的說法</th><th>換成醫事情境（預測檢驗報告是否需要人工複核）</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">球的位置 x、y 與方向 dx、dy</th><td><strong>特徵</strong>（Feature）：模型用來判斷的輸入資料</td><td>各項檢驗數值、與前次結果的差距、檢體狀態註記</td></tr>
+    <tr><th scope="row">球實際落下的位置</th><td><strong>標籤</strong>（Label）：正確答案</td><td>醫檢師最後是否判定需要複驗</td></tr>
+    <tr><th scope="row">每一次球落下</th><td>一筆<strong>訓練資料</strong></td><td>一份過去的檢驗報告及其處理結果</td></tr>
+    <tr><th scope="row">「梯度更新次數」持續增加</th><td><strong>訓練</strong>：依照猜錯的程度調整模型</td><td>用歷史報告建立複核預測模型</td></tr>
+    <tr><th scope="row">藍色三角形（預測落點）</th><td><strong>預測</strong>（Prediction）</td><td>模型對新報告提出「建議複核」的提醒</td></tr>
+    <tr><th scope="row">預測誤差圖、AI 接球率</th><td><strong>模型評估</strong>：準不準？</td><td>被提醒的報告中，真正需要複驗的比例；需要複驗卻被漏掉的比例</td></tr>
+    <tr><th scope="row">儲存、匯出、匯入模型</th><td><strong>部署</strong>：把訓練好的模型拿去使用</td><td>把模型放進檢驗資訊系統，自動標記需要優先查看的報告</td></tr>
+  </tbody>
+</table></div>
+<p>這個遊戲裡的答案不需要人工標記：球落下時，遊戲本身就知道正確落點，模型可以立刻拿來學習。真實的醫療資料通常沒有這麼方便，每一筆答案都需要專業人員判讀或追蹤確認，標上答案往往是最花時間的步驟。</p>
+<div class="callout try">
+  <span class="label">動手試試：看著 AI 從不會到會</span>
+  <ol class="steps">
+    <li><p>開啟遊戲，點選「<strong>電腦（機器學習）</strong>」，再按「<strong>重置模型</strong>」。剛開始模型的參數是隨機的，球拍幾乎接不到球。</p></li>
+    <li><p>把「遊戲速度」拉到 16× 左右，觀察「誤差中位數」和「AI 接球率」。誤差圖上的紅點（接不到）會逐漸被藍點（接得到）取代：<strong>資料越多，模型越準</strong>。</p></li>
+    <li><p>按「<strong>重置模型</strong>」後改按「<strong>預先訓練 2,000 球</strong>」，模型一次看完 2,000 球的資料再上場，比較它和邊玩邊學的差別。</p></li>
+    <li><p>切回「<strong>手動</strong>」模式自己玩一會兒。你打出的每一球也會成為訓練資料，再切回電腦模式看看它學到什麼。</p></li>
+    <li><p>按「<strong>匯入檔案…</strong>」，選擇剛才下載的已訓練模型。電腦模式會立刻變得很準：這就是把訓練好的模型<strong>部署</strong>出去使用。</p></li>
+  </ol>
+</div>
+<div class="callout note">
+  <span class="label">辨別式 AI 的限制</span>
+  <p><strong>它只會被訓練的那一件事。</strong>遊戲中的模型只學過「球往下掉時會落在哪裡」，所以球往上飛時，球拍只會回到中間等待；它也不會告訴你為什麼這樣判斷。<strong>模型的品質取決於資料</strong>：用某一台儀器或某一群病人訓練的模型，換了儀器、檢驗方法或族群，表現可能變差，需要重新驗證。</p>
+</div>
+<div class="callout tip">
+  <span class="label">從辨別式 AI 到生成式 AI</span>
+  <p>ChatGPT 這類生成式 AI 也是用機器學習訓練出來的，只是它學的問題換成了「<strong>接下來最適合出現的文字是什麼</strong>」，並且用了大量文字資料。學會了這件事，同一個模型就能回答問題、整理資料、寫程式。下一節先看一個 2026 年的新例子，第 03 節再把這些 AI 使用方式放在一起比較。</p>
+</div>
+<h2 id="jev"><span class="num">02</span>新趨勢：Jev，只做判斷的新一代 AI</h2>
+<figure class="page-figure instructor-slide" data-slide-title="Jev：給選項，拿到判斷">
+<a href="figures/unit01-slide-02-jev-decisions.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-slide-02-jev-decisions.webp" alt="Jev：給選項，拿到判斷：提供情況、問題與答案範圍，檢查回傳的判斷與機率，再決定下一步。" loading="lazy" width="1536" height="1024"></a>
+<figcaption>提供情況、問題與答案範圍，檢查回傳的判斷與機率，再決定下一步。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+
+<p>2026 年 9 月，新創公司 <strong>TypeSafe AI</strong> 結束隱形期，宣布募得 4,000 萬美元種子資金，並發表第一個產品 <strong>Jev</strong>。執行長兼共同創辦人 Diogo Almeida 曾是 OpenAI 研究員，參與 ChatGPT 與 GPT-4 的研發。TypeSafe 把 Jev 稱為一種新的模型類別：<strong>System One Model</strong>。這個名稱借自心理學家康納曼（Daniel Kahneman）的說法：System 1 是快速、直覺的判斷，System 2 是緩慢、仔細的推理。Jev 不聊天、不寫文章，專門做快速的判斷，而且是給其他軟體呼叫使用的。</p>
+
+<h3 id="jev-how">Jev 怎麼運作：先給選項，再回傳機率</h3>
+<p>軟體把一段「情況說明」和幾個問題一起交給 Jev，並事先限定可以接受的答案。Jev 不會寫出一段文字，而是回傳每個答案的<strong>機率</strong>，以及它對這次判斷的<strong>信心程度</strong>。官方提供三種題型：</p>
+<div class="card-grid">
+  <div class="card"><span class="tag">是非題</span><h4>回答是或否</h4><p>回傳「這句話成立」的機率。例如：這份檢驗報告是否需要人工複核？</p></div>
+  <div class="card"><span class="tag">選擇題</span><h4>從選項中挑一個</h4><p>每個選項各有一個機率。例如：這則病人訊息屬於掛號、用藥還是檢查結果詢問？</p></div>
+  <div class="card"><span class="tag">量表題</span><h4>在等級上評分</h4><p>在「低、中、高」這類等級上給分數。例如：這則病人描述的情況緊急程度是低、中還是高？</p></div>
+</div>
+<p>因為每個答案都附有機率，使用 Jev 的系統可以設定<strong>門檻</strong>：信心夠高就自動處理，信心不夠就再查資料，或轉給人工判斷。官方舉的應用都是企業的大量重複流程，例如客服案件分類、發票審核、資安警示分級，以及檢查 AI Agent 的工作成果。</p>
+
+<h3 id="jev-compare">Jev、辨別式 AI 與生成式 AI 比一比</h3><div class="table-wrap"><table>
+  <thead><tr><th>比較重點</th><th>傳統機器學習（辨別式 AI）</th><th>Jev（System One Model）</th><th>生成式 AI（例如 ChatGPT）</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">回答的問題</th><td>訓練時就決定好的一個問題</td><td>每次由軟體提出問題，答案限定在給定的選項內</td><td>幾乎任何問題或指令</td></tr>
+    <tr><th scope="row">輸入</th><td>整理好的數字或類別欄位（特徵）</td><td>一段情況說明（例如一則訊息、一張單據的內容）加上問題與選項</td><td>自由的文字、圖片或檔案</td></tr>
+    <tr><th scope="row">輸出</th><td>類別、機率或數字</td><td>各選項的機率、是非機率或量表分數，並附信心程度</td><td>新產生的文字、圖片或程式</td></tr>
+    <tr><th scope="row">換一個新問題</th><td>要重新收集、標註資料，再訓練一個新模型</td><td>依官方說明，改寫問題與選項即可，不必重新訓練</td><td>改寫提示即可</td></tr>
+    <tr><th scope="row">速度</th><td>很快</td><td>官方宣稱不到 1 秒（數十到數百毫秒）</td><td>較慢，複雜問題常需數秒以上</td></tr>
+    <tr><th scope="row">怎麼使用</th><td>嵌在系統裡自動運作</td><td>由程式或 AI Agent 呼叫，結果交給下一個步驟</td><td>人直接對話，或由 AI Agent 使用</td></tr>
+    <tr><th scope="row">怎麼判斷好壞</th><td>和正確答案比對，計算準確率</td><td>除了準確率，還要看機率是否可信：說「八成把握」的判斷，實際上是否約八成正確</td><td>多半沒有唯一答案，需要人判斷</td></tr>
+  </tbody>
+</table></div>
+<p>簡單地說：Jev 的<strong>輸出形式像辨別式 AI</strong>（只給判斷和機率），<strong>理解能力則來自大型語言模型</strong>（看得懂一段文字描述的情況，換問題不必重新訓練）。</p>
+
+<h3 id="jev-arkanoid">用打磚塊遊戲來想 Jev</h3>
+<p>第 01 節打磚塊遊戲裡的神經網路，只會回答「球會落在哪裡」。如果想問它「這一球會不會漏接？」，就得重新設計輸出、重新收集資料、重新訓練，這就是傳統機器學習「一個模型只做一件事」的特性。Jev 的想法則是：準備一個通用的判斷模型，每次換一個問題和一組選項來問它。另外，遊戲中的模型只給出一個落點，沒有說自己有多少把握；Jev 會附上信心程度，讓系統決定什麼時候交給人處理。</p>
+
+<div class="callout warn">
+  <span class="label">讀新產品新聞的提醒</span>
+  <p>Jev 目前只開放候補名單的開發者試用。速度、成本與判斷品質，都是公司自行公布的測試結果，尚待第三方驗證。看到新產品的宣傳數字時，先把它當成公司的「主張」，而不是已經證實的「事實」。</p>
+</div>
+<div class="callout tip">
+  <span class="label">重點</span>
+  <p>AI 的發展不是「生成式 AI 取代辨別式 AI」。許多工作流程真正需要的，是快速、可以設定門檻的判斷。Jev 這類新模型，是把大型語言模型的理解能力，用「辨別式」的形式交付給軟體使用。</p>
+</div>
+<p class="sources" style="font-size:0.9rem;color:var(--muted)">資料來源（整理於 2026 年 10 月）：<a href="https://siliconangle.com/2026/09/16/typesafe-ai-exits-stealth-with-40m-to-build-ai-for-use-by-software/" target="_blank" rel="noopener">SiliconANGLE</a>、<a href="https://www.morningstar.com/news/business-wire/20260915525333/typesafe-ai-emerges-from-stealth-with-40m-in-funding-with-new-model-for-composable-ai" target="_blank" rel="noopener">Business Wire 新聞稿</a>、<a href="https://www.width.ai/post/what-is-jev-ai-typesafe" target="_blank" rel="noopener">Width.ai 說明</a>。</p>
+
+<h2 id="concepts"><span class="num">03</span>不同 AI 使用方式，處理不同任務</h2>
+<figure class="page-figure instructor-slide" data-slide-title="不同 AI，處理不同任務">
+<a href="figures/unit01-slide-03-ai-task-map.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-slide-03-ai-task-map.webp" alt="不同 AI，處理不同任務：不同 AI 能力可以一起工作；AI Agent 結合模型與工具完成任務。" loading="lazy" width="1536" height="1024"></a>
+<figcaption>不同 AI 能力可以一起工作；AI Agent 結合模型與工具完成任務。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+
+<p>這些名詞不是彼此完全分開的盒子；一個 Agent 可以使用生成式模型與推理能力，也可以透過對話接收你的要求。</p>
+<div class="table-wrap"><table><thead><tr><th>概念</th><th>做什麼</th><th>課堂情境</th></tr></thead><tbody><tr><td>辨別式 AI／機器學習</td><td>依資料辨識、分類或預測。</td><td>把虛構的活動物品依用途分類；分類結果仍須核對。</td></tr><tr><td>生成式 AI</td><td>依要求產生文字、圖像或其他內容。</td><td>起草一段讀書方法的說明，再對照提供的資料。</td></tr><tr><td>Chatbot</td><td>透過對話解釋、討論與追問。</td><td>問「目標與待辦事項有什麼不同？」</td></tr><tr><td>推理模型</td><td>協助多步分析、比較與規劃。</td><td>逐步列出哪些操作值得測試，仍由你核對。</td></tr><tr><td>AI Agent</td><td>在授權範圍內讀取資料、操作工具並完成多步工作。</td><td>在指定資料夾讀取練習規格、建立網頁，再依測試結果修改。</td></tr></tbody></table>
+</div>
+<p>名稱不是正確性的保證。回答得流暢、步驟很多或網頁很漂亮，都不能代替來源核對與實際操作。</p>
+<h2 id="roles"><span class="num">04</span>Chat、Work、Codex：依任務與成果選擇</h2>
+<p>AI 的使用方式可分成三種工作角色：Chat 是對話夥伴，Work 是處理完整任務的助理，Codex 是製作或修改數位工具的夥伴。這是幫助你交辦工作的分類，不表示每種工具只有一項能力。</p>
+<p><strong>Chat 與 Work 都可能處理檔案。</strong>差別不能只看有沒有上傳附件；要看你需要的是來回討論，還是依一份資料完成多個整理步驟並交付成品。功能是否能用，仍以現場帳號、權限與工具介面為準。</p>
+<figure class="page-figure role-infographic instructor-slide" data-slide-title="Chat、Work、Codex：三種工作角色">
+<a href="figures/unit01-chat-work-codex-roles.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-chat-work-codex-roles.webp" alt="醫事課堂三種工作角色：Chat 解釋 5 mL 原液加 20 mL 稀釋液得到最終體積 25 mL；Work 依虛構小組會議整理待辦，缺漏標示待確認；Codex 製作視光或醫檢工具，學生親自操作並以手算核對。" loading="lazy"></a>
+<figcaption>依需要選擇對話回答、待辦文件或可操作工具；三種成果都要由你對照講義、來源或手算檢查。 點圖可開啟大圖。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+<div class="table-wrap"><table><thead><tr><th>比較重點</th><th>Chat</th><th>Work</th><th>Codex／現場 AI Agent</th></tr></thead><tbody>
+<tr><td>主要工作</td><td>解釋、回答、一起想。</td><td>依提供的資料完成一項完整整理工作。</td><td>在專案中製作或修改網頁工具。</td></tr>
+<tr><td>你交代什麼</td><td>想理解的問題，接著依回答追問。</td><td>資料來源、整理步驟與成品格式。</td><td>專案位置、使用者、操作、規則與驗收。</td></tr>
+<tr><td>通用課堂例子</td><td>解釋目標與待辦事項的差別。</td><td>把虛構小組會議紀錄整理成待辦表。</td><td>製作自己的專案準備清單頁。</td></tr>
+<tr><td>成果長什麼樣子</td><td>你聽得懂的解釋與可繼續追問的回答。</td><td>能保存、繼續編輯的摘要或表格。</td><td>自己能開啟並操作的網頁與專案檔案。</td></tr>
+<tr><td>你怎麼檢查</td><td>能否用自己的話說明，是否符合講義。</td><td>每列是否對得上來源，有無補造資料。</td><td>自己輸入數值、看結果、試錯填與邊界。</td></tr>
+</tbody></table></div>
+<h3 id="chat-role">Chat：先理解，再追問</h3>
+<p>遇到不懂的名詞，可以先要一個簡單例子，再根據回答追問。你可以指定「只用這份講義」、「先不要談程式」，也可以指出哪一句仍不清楚。這種練習的成果主要留在對話中。</p>
+<h3 id="work-role">Work：先提供材料，再交付整理成果</h3>
+<p>把 Work 想成接手一件較完整工作的助理：它先閱讀你的資料，再分類、整理、列出缺漏，最後交付一份你能保存的成品。你要明確說出來源與格式；資料沒有寫的事情，應標示待確認。</p>
+<h3 id="codex-role">Codex：在專案裡動手做出工具</h3>
+<p>把 Codex 想成製作夥伴。它能依需求建立或修改專案檔案；你不必先看懂程式碼，但要說清楚欄位、單位、規則和正確答案。網頁做出來後，你要親自操作。本工作坊也可依現場安排使用其他 AI Agent，重點是清楚交辦與保存可驗收的成果。</p>
+<div class="callout note"><span class="label">沒有程式背景也能開始</span><p>你負責專業情境、需求與驗收；AI 協助實作。遇到看不懂的內容，請它用一般用語說明改了哪些檔案、如何開啟、要測試什麼。不要因 AI 說「完成」就省略檢查。</p></div>
+<h2 id="role-practice"><span class="num">05</span>直接試用：回答、整理成果與小工具</h2>
+<figure class="page-figure instructor-slide" data-slide-title="現在試試：你要交付什麼？">
+<a href="figures/unit01-slide-05-practice.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-slide-05-practice.webp" alt="現在試試：你要交付什麼？：對話回答、待辦文件與可操作網頁，各有不同的完成檢核。" loading="lazy" width="1536" height="1024"></a>
+<figcaption>對話回答、待辦文件與可操作網頁，各有不同的完成檢核。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+<h3>練習 A：Chat 解釋一個學習概念</h3>
+<h4>題目敘述 · Problem Statement</h4><p>同學分不清「目標」與「待辦事項」。請用準備一次小組報告的例子釐清，不需要任何科系背景。</p>
+<h4>建議 Prompt · Suggested Prompt</h4><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：說明我的程度與溝通方式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。">我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。</span>
+<span class="line" data-text="這一步先不要建立任何檔案，回覆「了解」，等我提出需求。">這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：Chat · 簡單解釋，再追問</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我在準備一次小組報告，想弄懂「目標」和「待辦事項」有什麼不同。例子是：完成清楚的報告；週三前整理三份參考資料。">我在準備一次小組報告，想弄懂「目標」和「待辦事項」有什麼不同。例子是：完成清楚的報告；週三前整理三份參考資料。</span>
+<span class="line" data-text="請先用兩三句話解釋，再指出這兩句各屬於哪一種。最後問我一題，讓我用自己的話回答；如果我答錯，請換一個日常例子說明。這一步只要討論，不用做網頁。">請先用兩三句話解釋，再指出這兩句各屬於哪一種。最後問我一題，讓我用自己的話回答；如果我答錯，請換一個日常例子說明。這一步只要討論，不用做網頁。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜練習 A</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">練習 A 可能的回覆</span></div></div><pre><code><span class="line" data-text="（提示 1 之後）了解。">（提示 1 之後）了解。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="（提示 2 之後）">（提示 2 之後）</span>
+<span class="line" data-text="目標是你最後想達成的結果；待辦事項是為了達成目標要做的具體動作，通常會寫出期限或負責人。">目標是你最後想達成的結果；待辦事項是為了達成目標要做的具體動作，通常會寫出期限或負責人。</span>
+<span class="line" data-text="「完成清楚的報告」是目標，因為它描述想要的成果。">「完成清楚的報告」是目標，因為它描述想要的成果。</span>
+<span class="line" data-text="「週三前整理三份參考資料」是待辦事項，因為它是具體行動，還有期限和數量。">「週三前整理三份參考資料」是待辦事項，因為它是具體行動，還有期限和數量。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="換你試試：「製作五頁投影片」是目標，還是待辦事項？請用自己的話說明原因。">換你試試：「製作五頁投影片」是目標，還是待辦事項？請用自己的話說明原因。</span></code></pre></figure>
+</div></details>
+<h4>預期成果 · Expected Outcome</h4><p>回答區分想完成的成果與具體行動，並詢問哪一個是待辦事項。</p><h4>完成檢核 · Check it</h4><p>不看 AI 回答，自己說出：「完成清楚的報告是目標；週三前整理三份資料是待辦。」如果仍混淆，請它換一種說法，但保留相同數字。</p>
+<h3>練習 B：Chat 幫忙想測試方向</h3>
+<p>一份三項準備清單，勾選兩項與三項時應顯示不同結果。請 AI 幫忙說明為什麼兩種狀態都值得測，再自己核對。</p><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：說明我的程度與溝通方式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。">我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。</span>
+<span class="line" data-text="這一步先不要建立任何檔案，回覆「了解」，等我提出需求。">這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：Chat · 一起討論驗收</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想做一份準備清單，共有讀懂題目、整理資料、準備驗收三項。每勾一項，完成數就增加一項，顯示 0／3 到 3／3。">我想做一份準備清單，共有讀懂題目、整理資料、準備驗收三項。每勾一項，完成數就增加一項，顯示 0／3 到 3／3。</span>
+<span class="line" data-text="先不要製作網頁，請幫我列出「怎麼操作、應該看到什麼」的對照表：全不勾、勾兩項、三項全勾、取消其中一項。請說明為什麼每一種都值得試，最後問我還想檢查哪一種情況。">先不要製作網頁，請幫我列出「怎麼操作、應該看到什麼」的對照表：全不勾、勾兩項、三項全勾、取消其中一項。請說明為什麼每一種都值得試，最後問我還想檢查哪一種情況。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜練習 B</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">練習 B 可能的回覆</span></div></div><pre><code><span class="line" data-text="（提示 1 之後）了解。">（提示 1 之後）了解。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="（提示 2 之後）">（提示 2 之後）</span>
+<span class="line" data-text="怎麼操作｜應該看到什麼｜為什麼值得試">怎麼操作｜應該看到什麼｜為什麼值得試</span>
+<span class="line" data-text="全部不勾｜0／3｜確認一開始就是零，沒有多算">全部不勾｜0／3｜確認一開始就是零，沒有多算</span>
+<span class="line" data-text="勾兩項｜2／3｜確認部分完成時數字正確">勾兩項｜2／3｜確認部分完成時數字正確</span>
+<span class="line" data-text="三項全勾｜3／3｜確認全部完成時數字正確">三項全勾｜3／3｜確認全部完成時數字正確</span>
+<span class="line" data-text="從全勾取消一項｜2／3｜確認取消後數字會減少，不只會增加">從全勾取消一項｜2／3｜確認取消後數字會減少，不只會增加</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="想再確認一下：重新整理頁面後，你希望勾選還保留，還是回到 0／3？如果要保留，需要先說清楚。">想再確認一下：重新整理頁面後，你希望勾選還保留，還是回到 0／3？如果要保留，需要先說清楚。</span></code></pre></figure>
+</div></details>
+<p><strong>預期成果：</strong>勾選兩項 → 2／3，勾選三項 → 3／3。<strong>完成檢核：</strong>你能說出部分完成與全部完成的差別，並加測取消勾選後數量是否減少。</p>
+<h3>練習 C：Work 用提供的材料交付待辦表</h3>
+<h4>題目敘述 · Problem Statement</h4><p>你的小組有一段會議紀錄，希望整理成可保存的待辦表。下方就是全部來源；直接把紀錄與提示一起貼入工具即可。</p><figure class="code"><div class="code-head"><div><span class="code-title">提供給 Work 的虛構會議紀錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="教學小組會議紀錄（全部為虛構）">教學小組會議紀錄（全部為虛構）</span>
+<span class="line" data-text="目標：完成一份讀書交流報告。">目標：完成一份讀書交流報告。</span>
+<span class="line" data-text="組員甲：整理三份參考資料，期限為討論前。">組員甲：整理三份參考資料，期限為討論前。</span>
+<span class="line" data-text="組員乙：整理報告大綱，期限尚未決定。">組員乙：整理報告大綱，期限尚未決定。</span>
+<span class="line" data-text="待辦：確認投影設備，尚未分配負責人。">待辦：確認投影設備，尚未分配負責人。</span>
+<span class="line" data-text="待辦：整理成果展示圖片，尚未決定負責人與期限。">待辦：整理成果展示圖片，尚未決定負責人與期限。</span></code></pre></figure>
+<h4>建議 Prompt · Suggested Prompt</h4><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：說明我的程度與溝通方式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。">我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。</span>
+<span class="line" data-text="這一步先不要建立任何檔案，回覆「了解」，等我提出需求。">這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：Work · 依來源整理待辦表</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請只根據上面的「教學小組會議紀錄」，整理成待辦表，欄位是工作項目、負責人、期限、待確認事項。">請只根據上面的「教學小組會議紀錄」，整理成待辦表，欄位是工作項目、負責人、期限、待確認事項。</span>
+<span class="line" data-text="沒有寫明的負責人或期限請填「待確認」，不要替小組決定。最後列出還需要討論的事情。">沒有寫明的負責人或期限請填「待確認」，不要替小組決定。最後列出還需要討論的事情。</span>
+<span class="line" data-text="先在對話中給我看表格，再保存成一份可下載、用一般文字編輯器就能閱讀的文件。請告訴我檔名、放在哪裡、怎麼開啟，不要只貼出程式或要求我自己轉檔。">先在對話中給我看表格，再保存成一份可下載、用一般文字編輯器就能閱讀的文件。請告訴我檔名、放在哪裡、怎麼開啟，不要只貼出程式或要求我自己轉檔。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜練習 C</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">練習 C 可能的回覆</span></div></div><pre><code><span class="line" data-text="（提示 1 之後）了解。">（提示 1 之後）了解。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="（提示 2 之後）">（提示 2 之後）</span>
+<span class="line" data-text="工作項目｜負責人｜期限｜待確認事項">工作項目｜負責人｜期限｜待確認事項</span>
+<span class="line" data-text="整理三份參考資料｜組員甲｜討論前｜無">整理三份參考資料｜組員甲｜討論前｜無</span>
+<span class="line" data-text="整理報告大綱｜組員乙｜待確認｜期限尚未決定">整理報告大綱｜組員乙｜待確認｜期限尚未決定</span>
+<span class="line" data-text="確認投影設備｜待確認｜待確認｜尚未分配負責人">確認投影設備｜待確認｜待確認｜尚未分配負責人</span>
+<span class="line" data-text="整理成果展示圖片｜待確認｜待確認｜尚未決定負責人與期限">整理成果展示圖片｜待確認｜待確認｜尚未決定負責人與期限</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="還需要討論：">還需要討論：</span>
+<span class="line" data-text="（1）報告大綱什麼時候完成。">（1）報告大綱什麼時候完成。</span>
+<span class="line" data-text="（2）投影設備由誰確認、何時確認。">（2）投影設備由誰確認、何時確認。</span>
+<span class="line" data-text="（3）成果展示圖片由誰整理、何時完成。">（3）成果展示圖片由誰整理、何時完成。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="已保存成文字檔「待辦表.txt」，放在目前的工作資料夾。在資料夾中雙擊這個檔案，就會用記事本或文字編輯器打開，內容與上面的表格相同。">已保存成文字檔「待辦表.txt」，放在目前的工作資料夾。在資料夾中雙擊這個檔案，就會用記事本或文字編輯器打開，內容與上面的表格相同。</span></code></pre></figure>
+</div></details>
+<h4>預期成果 · Expected Outcome</h4><p>四個待辦工作：整理參考資料、整理大綱、確認設備、整理圖片。只有第一項有明確期限；第三與第四項的負責人都待確認。</p><h4>完成檢核 · Check it</h4><ul><li>逐列找回來源句子，確認沒有新增來源未提到的任務。</li><li>未決定的資料沒有被填成虛構姓名或日期。</li><li>打開交付的文件，確定表格內容與對話中的版本一致。</li></ul>
+<h3>練習 D：Codex 製作可操作成果</h3>
+<p>請 Codex 在指定資料夾做出練習 B 的準備清單網頁：三個勾選項目，並顯示完成數量。這與「請解釋工具怎麼做」不同：你要收到能開啟、能勾選、能再次修改的檔案。</p><p>先比較：對話回答、待辦文件、可操作網頁，這三種成果各要怎麼驗收？</p><details class="explain"><summary>可能的 AI 回覆｜練習 D</summary><div>
+<p class="source-note">以下只是參考，每次的字句、檔名與外觀都可能不同；請親自打開網頁操作，用完成檢核判斷。</p><figure class="code"><div class="code-head"><div><span class="code-title">練習 D 可能的回覆</span></div></div><pre><code><span class="line" data-text="已在你指定的資料夾建立準備清單網頁，檔名是 index.html。">已在你指定的資料夾建立準備清單網頁，檔名是 index.html。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="怎麼開啟：">怎麼開啟：</span>
+<span class="line" data-text="（1）打開你指定的資料夾。">（1）打開你指定的資料夾。</span>
+<span class="line" data-text="（2）雙擊 index.html，它會用瀏覽器開啟。">（2）雙擊 index.html，它會用瀏覽器開啟。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="畫面上有三個勾選項目：讀懂題目、整理資料、準備驗收，下方顯示「已完成 0／3」。">畫面上有三個勾選項目：讀懂題目、整理資料、準備驗收，下方顯示「已完成 0／3」。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="我已經依照練習 B 的對照表試過：">我已經依照練習 B 的對照表試過：</span>
+<span class="line" data-text="全部不勾｜已完成 0／3">全部不勾｜已完成 0／3</span>
+<span class="line" data-text="勾兩項｜已完成 2／3">勾兩項｜已完成 2／3</span>
+<span class="line" data-text="三項全勾｜已完成 3／3，全部完成！">三項全勾｜已完成 3／3，全部完成！</span>
+<span class="line" data-text="從全勾取消一項｜已完成 2／3">從全勾取消一項｜已完成 2／3</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="目前關閉或重新整理頁面後，勾選會回到 0／3。如果你希望保留勾選，請告訴我，我再幫你加上。">目前關閉或重新整理頁面後，勾選會回到 0／3。如果你希望保留勾選，請告訴我，我再幫你加上。</span></code></pre></figure>
+</div></details>
+<h4>可能的成果 · Possible Result</h4><p>下面是一個可能做出來的網頁。打開後依練習 B 的四種情況親自勾選，看完成數是否相同。你的版本外觀可以不一樣，只要操作結果一致即可。</p>
+<p><a class="download" href="examples/prep-checklist/index.html" target="_blank" rel="noopener">開啟可能的成果網頁</a></p>
+<h4>完成檢核 · Check it</h4><ul><li>能在資料夾找到檔案，雙擊後用瀏覽器開啟。</li><li>依序試全不勾、勾兩項、三項全勾、取消一項，完成數分別是 0／3、2／3、3／3、2／3。</li><li>不要只相信 AI 說「已測試」；以你自己操作看到的結果為準。</li></ul>
+
+<h2 id="exercise"><span class="num">06</span>把想法寫成清楚的需求</h2>
+<figure class="page-figure role-infographic instructor-slide" data-slide-title="把醫事想法寫成清楚的需求">
+<a href="figures/unit01-section-02-prompt-guide.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-section-02-prompt-guide.webp" alt="課堂用醫檢稀釋換算器的四項需求：目標、使用情境、預期成果、完成條件與界線。輸入同單位濃度 C₁、C₂ 與最終體積 V₂，顯示原液與稀釋液體積；要求手算一致、錯填提示、離線可用與虛構資料。" loading="lazy"></a>
+<figcaption>把「幫我做一個稀釋工具」補成可驗收的需求：交代使用者、欄位與單位、計算結果、錯填提示及課堂界線。 點圖可開啟大圖。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+<ul class="flow"><li><b>① 目標</b>製作自己的學習準備清單，避免漏掉需要完成的事情。</li><li><b>② 使用情境</b>沒有程式背景的學生，在自己的筆電上練習與核對。</li><li><b>③ 預期成果</b>標題、用途與項目清楚，勾選後顯示完成數量。</li><li><b>④ 完成條件與界線</b>數量一致、取消勾選會更新、離線可用，不收集個人資料。</li></ul><div class="callout try"><span class="label">比較兩種說法</span><p><strong>太簡略：</strong>「幫我做一個準備清單。」</p><p><strong>更清楚：</strong>「請做一個給學生使用的準備清單網頁，提供讀懂題目、整理資料、準備驗收三個勾選項目，顯示完成數量。全不選是 0／3；選兩項是 2／3；取消勾選也要更新。在本機離線使用，不收集個人資料。」</p></div>
+<figure class="page-figure instructor-slide" data-slide-title="把「幫我做清單」說清楚">
+<a href="figures/unit01-slide-06-checklist-spec.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-slide-06-checklist-spec.webp" alt="把「幫我做清單」說清楚：用五欄需求與四組操作，把「正確」寫成看得見的驗收結果。" loading="lazy" width="1536" height="1024"></a>
+<figcaption>用五欄需求與四組操作，把「正確」寫成看得見的驗收結果。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+<h3>題目敘述 · Problem Statement</h3>
+<p>你準備參加網頁工具實作。請先用 AI 對話釐清：誰會使用、輸入什麼、應得到什麼、怎樣確認正確。只討論虛構的課堂例子。</p>
+<h3>建議 Prompt · Suggested Prompt</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 1：說明我的程度與溝通方式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。">我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。</span>
+<span class="line" data-text="這一步先不要建立任何檔案，回覆「了解」，等我提出需求。">這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</span></code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">提示 2：建議 Prompt · 可改寫</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想做「學習準備清單」，項目是讀懂題目、整理資料、準備驗收。勾選後顯示已完成幾項；取消勾選後也要更新。">我想做「學習準備清單」，項目是讀懂題目、整理資料、準備驗收。勾選後顯示已完成幾項；取消勾選後也要更新。</span>
+<span class="line" data-text="請先幫我整理一份五欄表：誰使用、怎麼操作、更新規則、畫面結果、如何確認。至少寫出全不勾、勾兩項、全勾三個例子和應有的完成數。">請先幫我整理一份五欄表：誰使用、怎麼操作、更新規則、畫面結果、如何確認。至少寫出全不勾、勾兩項、全勾三個例子和應有的完成數。</span>
+<span class="line" data-text="這一步先不要製作網頁。不增加登入、個人資料或其他功能。需要我補充時，請用簡單問題問我，不要假設我懂程式。">這一步先不要製作網頁。不增加登入、個人資料或其他功能。需要我補充時，請用簡單問題問我，不要假設我懂程式。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜需求表</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">需求表 可能的回覆</span></div></div><pre><code><span class="line" data-text="（提示 1 之後）了解。">（提示 1 之後）了解。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="（提示 2 之後）">（提示 2 之後）</span>
+<span class="line" data-text="誰使用｜準備小組報告或課堂練習的人，在自己的筆電上使用">誰使用｜準備小組報告或課堂練習的人，在自己的筆電上使用</span>
+<span class="line" data-text="怎麼操作｜勾選或取消勾選三個項目：讀懂題目、整理資料、準備驗收">怎麼操作｜勾選或取消勾選三個項目：讀懂題目、整理資料、準備驗收</span>
+<span class="line" data-text="更新規則｜每勾一項，完成數加一；每取消一項，完成數減一">更新規則｜每勾一項，完成數加一；每取消一項，完成數減一</span>
+<span class="line" data-text="畫面結果｜清單下方顯示「已完成 幾／3」">畫面結果｜清單下方顯示「已完成 幾／3」</span>
+<span class="line" data-text="如何確認｜依下面的例子親自操作，看完成數是否相同">如何確認｜依下面的例子親自操作，看完成數是否相同</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="確認例子：">確認例子：</span>
+<span class="line" data-text="全部不勾｜已完成 0／3">全部不勾｜已完成 0／3</span>
+<span class="line" data-text="勾兩項｜已完成 2／3">勾兩項｜已完成 2／3</span>
+<span class="line" data-text="三項全勾｜已完成 3／3">三項全勾｜已完成 3／3</span>
+<span class="line" data-text="從全勾取消一項｜已完成 2／3">從全勾取消一項｜已完成 2／3</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="想請你補充一件事：關閉或重新整理頁面後，勾選要保留，還是回到 0／3？">想請你補充一件事：關閉或重新整理頁面後，勾選要保留，還是回到 0／3？</span></code></pre></figure>
+</div></details><h3>預期成果 · Expected Outcome</h3>
+<p>你得到一份五欄需求表：誰使用、怎麼操作、更新規則、畫面結果、如何確認。全不選是 0／3，選兩項是 2／3，全選是 3／3。</p>
+<h3>完成檢核 · Check it</h3>
+<ul><li>能用自己的話說明這份需求，而不是只照貼 AI 的回答。</li><li>逐項對照自己的清單需求，找到一項未講清楚的要求並補上。</li><li>沒有增加需求未提到的功能或個人資料。</li></ul>
+<p>需求表只寫「正確計算」還不夠。把本題的至少三組操作與預期結果寫進去，AI 才能知道你如何確認「正確」。</p>
+<h2 id="workflow"><span class="num">07</span>每個練習都走同樣的四個階段</h2>
+<figure class="page-figure role-infographic instructor-slide" data-slide-title="醫事實作：從交辦到驗收">
+<a href="figures/unit01-section-03-workflow.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit01-section-03-workflow.webp" alt="醫事實作四階段：選視光或醫檢題目、交代使用者與輸入規則、先寫預期答案、操作正常與錯填及邊界案例。C₁＝10 mg/mL、C₂＝2 mg/mL、V₂＝25 mL，預期原液 5 mL、稀釋液 20 mL。修改後再測，短版、完整版、改進版各自保留。" loading="lazy"></a>
+<figcaption>先寫下手算預期答案，再操作與驗收；記錄落差、修改後重測，並保留短版、完整版與改進版的成果。 點圖可開啟大圖。 <button type="button" class="slide-open">投影這張</button></figcaption>
+</figure>
+<ul class="flow"><li><b>① 題目敘述</b>知道誰要用、輸入什麼、要解決哪個小問題。</li><li><b>② 建議 Prompt</b>把需求寫清楚，必要時依自己的情境改寫。</li><li><b>③ 預期成果</b>先知道畫面應有什麼、每種操作應得到什麼結果。</li><li><b>④ 完成檢核</b>親自操作，核對數字，記錄問題與修改後結果。</li></ul><div class="callout warn"><span class="label">把判斷留在自己手上</span><p>這些練習只使用虛構資料。AI 起草的說明、整理的資料與建立的網頁，都要對照來源或手算檢查；不作為臨床、處方或檢驗實務依據。</p></div>
+<p>這一單元結束前，留下你自己的五欄需求表。</p>
+<nav class="pager" aria-label="上下頁"><a href="index.html">← 首頁</a><a href="unit02.html">單元二 →</a></nav>
+
+<style>
+.slide-launch {display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin:1.5rem 0;padding:1rem;border:1px solid var(--border);border-radius:12px;}
+.slide-launch span {color:var(--muted);font-size:.9rem;}
+.slide-launch button,.slide-open {background:#075985;color:white;border:0;border-radius:8px;padding:.6rem 1rem;font:inherit;cursor:pointer;}
+.slide-open {margin:.5rem 0 .2rem .5rem;font-size:.9rem;white-space:nowrap;}
+.slide-launch button:focus-visible,.slide-open:focus-visible,.projector button:focus-visible {outline:3px solid #fbbf24;outline-offset:3px;}
+.projector {position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:#07101e;color:white;overflow:hidden;}
+.projector::backdrop {background:#07101e;}
+.projector[open] {display:flex;flex-direction:column;}
+.projector-stage {flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px;}
+.projector-stage img {display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;}
+.projector-controls {display:flex;align-items:center;justify-content:center;gap:.65rem;flex-wrap:wrap;padding:10px;background:#111c2e;}
+.projector button {font:inherit;font-size:1rem;background:#24364f;color:white;border:1px solid #60738f;border-radius:7px;padding:.5rem .85rem;cursor:pointer;}
+.projector button:disabled {opacity:.35;cursor:default;}
+.projector output {min-width:4rem;text-align:center;}
+.projector-title {text-align:center;font-size:1rem;margin:0;padding:8px 12px 0;}
+@media(max-width:600px){.projector-controls {gap:.3rem;padding:7px;}.projector button{font-size:.85rem;padding:.45rem;}.projector-title{font-size:.85rem;}}
+@media print {.slide-launch,.slide-open,.projector{display:none!important;}}
+</style>
+<dialog class="projector" id="unit01Projector" aria-label="單元一投影片" aria-describedby="projectorTitle">
+<p id="projectorTitle" class="projector-title"></p>
+<div class="projector-stage"><img id="projectorImage" alt=""></div>
+<div class="projector-controls"><button type="button" id="slidePrev" aria-label="上一張投影片">← 上一張</button><output id="slideCount" aria-live="polite"></output><button type="button" id="slideNext" aria-label="下一張投影片">下一張 →</button><button type="button" id="slideFullscreen">全螢幕</button><button type="button" id="slideClose">返回講義</button></div>
+</dialog>
+<script>
+(function () {
+  var slides = Array.from(document.querySelectorAll('.instructor-slide'));
+  var dialog = document.getElementById('unit01Projector');
+  var image = document.getElementById('projectorImage');
+  var previous = document.getElementById('slidePrev');
+  var next = document.getElementById('slideNext');
+  var fullscreen = document.getElementById('slideFullscreen');
+  var current = 0, opener, oldOverflow;
+  var paintToken = 0;
+  function paint() {
+    // Swap image, title and counter together once the new image is decoded, so a
+    // slow image never sits under the next slide's title; a later paint wins.
+    var index = current, token = ++paintToken;
+    var source = slides[index].querySelector('img'), src = source.getAttribute('src');
+    var incoming = new Image(); incoming.src = src;
+    var show = function () {
+      if (token !== paintToken) return;
+      image.src = src; image.alt = source.alt;
+      document.getElementById('projectorTitle').textContent = slides[index].dataset.slideTitle;
+      document.getElementById('slideCount').textContent = (index + 1) + ' / ' + slides.length;
+    };
+    if (incoming.decode) incoming.decode().then(show, show); else show();
+    previous.disabled = current === 0; next.disabled = current === slides.length - 1;
+    [current - 1, current + 1].forEach(function (i) { if (slides[i]) new Image().src = slides[i].querySelector('img').getAttribute('src'); });
+  }
+  function open(index, trigger) {
+    current = index; opener = trigger; paint(); oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden'; dialog.showModal();
+    document.getElementById('slideClose').focus();
+  }
+  function close() {
+    if (document.fullscreenElement === document.documentElement) document.exitFullscreen().catch(function () {});
+    dialog.close();
+  }
+  slides.forEach(function (slide, index) {
+    slide.querySelector('.slide-open').addEventListener('click', function (e) { open(index, e.currentTarget); });
+  });
+  document.getElementById('startSlides').addEventListener('click', function (e) { open(0, e.currentTarget); });
+  previous.addEventListener('click', function () { if (current > 0) { current--; paint(); } });
+  next.addEventListener('click', function () { if (current < slides.length - 1) { current++; paint(); } });
+  document.getElementById('slideClose').addEventListener('click', close);
+  fullscreen.hidden = !document.documentElement.requestFullscreen;
+  fullscreen.addEventListener('click', function () {
+    var operation = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    operation.catch(function () { fullscreen.textContent = '請用瀏覽器全螢幕'; });
+  });
+  document.addEventListener('fullscreenchange', function () { fullscreen.textContent = document.fullscreenElement === document.documentElement ? '離開全螢幕' : '全螢幕'; });
+  dialog.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault(); current = Math.max(0, Math.min(slides.length - 1, current + (e.key === 'ArrowRight' ? 1 : -1))); paint();
+    } else if (e.key === 'Home' || e.key === 'End') {
+      e.preventDefault(); current = e.key === 'Home' ? 0 : slides.length - 1; paint();
+    }
+  });
+  dialog.addEventListener('cancel', function (e) { e.preventDefault(); close(); });
+  dialog.addEventListener('close', function () { document.body.style.overflow = oldOverflow; if (opener) opener.focus(); });
+})();
+</script>
+
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容保留所有權利；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("hwai-handout-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("hwai-handout-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("hwai-handout-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    // A server without byte-range support (e.g. python -m http.server) leaves the
+    // streamed audio unseekable: setting currentTime silently snaps back to 0.
+    // In that case load the whole file once as a blob, which is always seekable.
+    var canSeek = function (t) {
+      for (var i = 0; i < audio.seekable.length; i++) {
+        if (t >= audio.seekable.start(i) && t <= audio.seekable.end(i)) return true;
+      }
+      return false;
+    };
+    var blobLoading = null;
+    var loadWholeFile = function () {
+      if (!blobLoading) {
+        var source = audio.querySelector("source");
+        var rate = audio.playbackRate;
+        blobLoading = fetch(audio.currentSrc || (source && source.src))
+          .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+          .then(function (blob) {
+            return new Promise(function (resolve) {
+              audio.addEventListener("loadedmetadata", function () {
+                audio.playbackRate = rate;
+                resolve();
+              }, { once: true });
+              audio.src = URL.createObjectURL(blob);
+              audio.load();
+            });
+          });
+        blobLoading.catch(function () { blobLoading = null; });
+      }
+      return blobLoading;
+    };
+    var seekTo = function (t, thenPlay) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      t = Math.max(0, Math.min(max, t));
+      var jump = function () {
+        audio.currentTime = t;
+        updateUI();
+        if (thenPlay) audio.play();
+      };
+      if (t === 0 || canSeek(t)) jump();
+      else loadWholeFile().then(jump, jump);
+    };
+
+    var chapterSelect = document.getElementById("podcastChapter");
+    if (chapterSelect) {
+      var chapterStarts = Array.prototype.slice.call(chapterSelect.options)
+        .filter(function (o) { return o.value !== ""; })
+        .map(function (o) { return Number(o.value); });
+      chapterSelect.addEventListener("change", function () {
+        if (chapterSelect.value === "") return;
+        var target = Number(chapterSelect.value);
+        if (!isFinite(target)) return;
+        if (isFinite(audio.duration)) seekTo(target, true);
+        else {
+          audio.addEventListener("loadedmetadata", function () { seekTo(target, true); }, { once: true });
+          audio.load();
+        }
+      });
+      // Keep the menu on the chapter that is playing.
+      audio.addEventListener("timeupdate", function () {
+        var current = "";
+        chapterStarts.forEach(function (s) { if (audio.currentTime >= s - 0.05) current = String(s); });
+        var match = Array.prototype.filter.call(chapterSelect.options, function (o) { return o.value !== "" && Number(o.value) === Number(current); })[0];
+        if (match && chapterSelect.value !== match.value) chapterSelect.value = match.value;
+      });
+    }
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>

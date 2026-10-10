@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('hwai-handout-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('hwai-handout-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('hwai-handout-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%AC%3C/text%3E%3C/svg%3E">
+<title>單元三練習單：促銷購物車結帳試算器</title>
+<meta name="description" content="單元三的實作集中在一頁：檢查 60 項商品資料、建立購物車試算器、驗算折扣、調整畫面與整理商品型錄，並記錄自己的核對結果。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools, .toc-qr { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+.podcast-chapters { width:100%; min-width:0; margin-top:.7rem; padding:.35rem; font:inherit; font-size:.82rem; color:var(--text); background:var(--surface-2); border:1px solid var(--border); border-radius:.35rem; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">中華醫事 × AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="中華醫事科技大學 × AI Agent 實作講義"><span>首頁</span></a>
+<a href="unit01.html" title="單元一：從機器學習到 AI Agent"><span>AI 概念</span></a>
+<a href="unit02.html" title="單元二：從 Gems、GPTs 到自己的第一個 Skill"><span>Skill</span></a>
+<a href="unit03.html" title="單元三：AI Agent 與 Vibe Coding 的專案操作" aria-current="page"><span>網頁APP</span></a>
+<a href="unit04.html" title="單元四：視光處方轉換器（自主練習）"><span>處方轉換</span></a>
+<a href="unit05.html" title="單元五：醫檢稀釋換算器（自主練習）"><span>稀釋換算</span></a></nav><a class="side-sheet" href="unit03-practice.html" aria-current="page"><span aria-hidden="true">📝</span>單元三練習單</a><details><summary>本頁目錄</summary><ol><li><a href="#prep"><span class="toc-num">01</span>開始前：準備專案資料夾</a></li>
+<li><a href="#problem"><span class="toc-num">02</span>題目敘述</a></li>
+<li><a href="#prompt"><span class="toc-num">03</span>建議 Prompt</a></li>
+<li><a href="#check"><span class="toc-num">04</span>完成檢核</a></li>
+<li><a href="#ui"><span class="toc-num">05</span>進一步調整畫面</a></li>
+<li><a href="#catalog"><span class="toc-num">06</span>整理商品型錄，讓挑選更直覺</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">單元三 · 練習單</p>
+<h1>單元三練習單</h1>
+<p class="lead">把服飾門市的促銷結帳問題做成網頁 APP：讀懂題目 → 檢查商品資料 → 清楚交辦 → 驗算折扣 → 調整畫面 → 整理商品型錄。</p>
+</section>
+<div class="callout tip"><span class="label">怎麼使用這份練習單</span><p>節次編號和單元三相同，文中提到「第 04 節」就是本頁的第 04 節。每段提示都先自己試，再展開「可能的 AI 回覆」比較，並打開可能的成果對照。驗算結果請寫在「我的核對紀錄」，列印後也可以直接填寫。</p></div>
+
+<h2 id="prep"><span class="num">01</span>開始前：準備專案資料夾</h2>
+<p>建立一個新的空白資料夾，例如 retail-checkout，並用 AI Agent（Codex 或 Antigravity）開啟它。第 03 節會請你把商品資料 products.json 下載到這個資料夾。</p>
+
+<h2 id="problem"><span class="num">02</span>題目敘述</h2>
+<p class="meta">🏷️ 零售定價 · 商品類別折扣 × 購物車結帳折扣</p>
+<p>服飾門市同時販售當季新品、過季商品和較早期的促銷庫存。顧客選購多件商品時，每件商品先依類別折扣計價；結帳時，再依折後小計決定是否享有整車折扣。商品折扣和整車折扣兩層規則交錯，店員不容易在結帳前快速算出應付金額。請設計一個促銷購物車結帳試算器，讓使用者挑選商品、設定數量，並清楚看見逐項折扣、小計、結帳折扣和最後應付金額。本練習提供 60 項虛構服飾商品資料，包含促銷類別與商品類型。</p>
+<figure class="page-figure"><img src="figures/unit02a-sale-rules-infographic.webp" alt="促銷計算資訊圖：先算商品類別折扣，新品不打折、過季品八折、促銷庫存六折，再加總折後小計，依序檢查一千元九五折、兩千元八八折、三千元八折、五千元七五折的單一結帳級距，最後計算應付金額；範例小計三千二百元套用八折，應付二千五百六十元。" loading="lazy"><figcaption>先套用各商品的類別折扣，再依折後小計套用一個結帳折扣級距。</figcaption></figure>
+
+<h2 id="prompt"><span class="num">03</span>建議 Prompt</h2>
+<h3>先檢查 60 項商品資料</h3>
+<p>請先<a href="downloads/products.json" download>下載 60 項商品資料（products.json）</a>，並將檔案放進 AI Agent 正在處理的專案資料夾。接著請 AI Agent 檢視這份資料，再用它製作購物車試算器；不必重新手動輸入或貼上整份清單。</p>
+<h3 id="ex1-prompt-data">先檢查 60 項商品資料</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">檢查試算用商品清單</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請讀取這個專案資料夾中的 products.json，檢查並整理商品清單。資料應有 60 項虛構服飾商品，每項包含 id、name、price、category 和 type；category 分成當季新品、過季品、促銷庫存，每類各 20 項；type 標示上衣、褲子、外套、裙裝等商品類型。請檢查商品 ID 是否重複、原價是否都是 10 元的倍數，並依促銷類別與商品類型整理成容易閱讀的摘要表。先回報檢查結果，不要修改 products.json，也不要建立網頁。">請讀取這個專案資料夾中的 products.json，檢查並整理商品清單。資料應有 60 項虛構服飾商品，每項包含 id、name、price、category 和 type；category 分成當季新品、過季品、促銷庫存，每類各 20 項；type 標示上衣、褲子、外套、裙裝等商品類型。請檢查商品 ID 是否重複、原價是否都是 10 元的倍數，並依促銷類別與商品類型整理成容易閱讀的摘要表。先回報檢查結果，不要修改 products.json，也不要建立網頁。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜商品資料檢查</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">商品資料檢查可能的回覆</span></div></div><pre><code><span class="line" data-text="已讀取 products.json。這一步只做檢查，沒有修改檔案，也沒有建立網頁。">已讀取 products.json。這一步只做檢查，沒有修改檔案，也沒有建立網頁。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="檢查結果">檢查結果</span>
+<span class="line" data-text="（1）共 60 項商品；當季新品、過季品、促銷庫存各 20 項。">（1）共 60 項商品；當季新品、過季品、促銷庫存各 20 項。</span>
+<span class="line" data-text="（2）每項都有 id、name、price、category、type 五個欄位，沒有缺漏。">（2）每項都有 id、name、price、category、type 五個欄位，沒有缺漏。</span>
+<span class="line" data-text="（3）商品 ID 沒有重複。">（3）商品 ID 沒有重複。</span>
+<span class="line" data-text="（4）原價都是 10 元的倍數，最低 190 元，最高 2,880 元。">（4）原價都是 10 元的倍數，最低 190 元，最高 2,880 元。</span>
+<span class="line" data-text="（5）商品類型共 8 種：上衣、褲子、外套、裙裝、洋裝、連身服、配件、鞋款。">（5）商品類型共 8 種：上衣、褲子、外套、裙裝、洋裝、連身服、配件、鞋款。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="促銷類別 × 商品類型（件數）">促銷類別 × 商品類型（件數）</span>
+<span class="line" data-text="促銷類別｜上衣｜褲子｜外套｜裙裝｜洋裝｜連身服｜配件｜鞋款｜合計">促銷類別｜上衣｜褲子｜外套｜裙裝｜洋裝｜連身服｜配件｜鞋款｜合計</span>
+<span class="line" data-text="當季新品｜7｜3｜4｜3｜1｜1｜1｜0｜20">當季新品｜7｜3｜4｜3｜1｜1｜1｜0｜20</span>
+<span class="line" data-text="過季品｜5｜4｜3｜1｜3｜0｜3｜1｜20">過季品｜5｜4｜3｜1｜3｜0｜3｜1｜20</span>
+<span class="line" data-text="促銷庫存｜4｜3｜3｜2｜1｜1｜5｜1｜20">促銷庫存｜4｜3｜3｜2｜1｜1｜5｜1｜20</span>
+<span class="line" data-text="合計｜16｜10｜10｜6｜5｜2｜9｜2｜60">合計｜16｜10｜10｜6｜5｜2｜9｜2｜60</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="資料可以直接用來製作購物車試算器。需要時請告訴我下一步。">資料可以直接用來製作購物車試算器。需要時請告訴我下一步。</span></code></pre></figure>
+</div></details>
+<h3>再建立購物車試算器</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">促銷購物車結帳試算器</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我想做一個「促銷購物車結帳試算器」，讓店員把顧客選的商品加進購物車後，能馬上看出每樣商品折多少、整車還能不能再折，以及最後要付多少錢。請把畫面做成繁體中文，讓我能用瀏覽器直接開啟這個小工具。請讀取專案資料夾中的 products.json，使用裡面的 60 項商品資料，不要另造或遺漏商品。完成後請把小工具存成一個檔案，讓我開啟這個檔案就能在瀏覽器中使用。">我想做一個「促銷購物車結帳試算器」，讓店員把顧客選的商品加進購物車後，能馬上看出每樣商品折多少、整車還能不能再折，以及最後要付多少錢。請把畫面做成繁體中文，讓我能用瀏覽器直接開啟這個小工具。請讀取專案資料夾中的 products.json，使用裡面的 60 項商品資料，不要另造或遺漏商品。完成後請把小工具存成一個檔案，讓我開啟這個檔案就能在瀏覽器中使用。</span>
+<span class="line" data-text="商品折扣分三種：當季新品照原價，不打折；過季品打 8 折；較早期的促銷庫存打 6 折。商品清單和購物車裡，請讓人看得出商品類別、原價、折扣和折後單價。">商品折扣分三種：當季新品照原價，不打折；過季品打 8 折；較早期的促銷庫存打 6 折。商品清單和購物車裡，請讓人看得出商品類別、原價、折扣和折後單價。</span>
+<span class="line" data-text="我希望店員可以從商品清單挑商品、輸入數量後加入購物車，也可以改數量或移除商品。數量請限制為正整數。購物車每一項都要列出品名、類別、數量、折後單價和這一項的金額。">我希望店員可以從商品清單挑商品、輸入數量後加入購物車，也可以改數量或移除商品。數量請限制為正整數。購物車每一項都要列出品名、類別、數量、折後單價和這一項的金額。</span>
+<span class="line" data-text="結帳時，請先把每項商品的類別折扣算好，再加總成「折後商品小計」。接著看小計符合哪個結帳折扣，只用符合的最高一級，不要把不同級距的折扣一層層累加：未滿 1,000 元沒有結帳折扣；滿 1,000 元打 95 折，滿 2,000 元打 88 折，滿 3,000 元打 8 折，滿 5,000 元打 75 折。像小計 3,200 元，就只打 8 折，不再另外打 95 折或 88 折。最後應付金額請四捨五入到整數元。">結帳時，請先把每項商品的類別折扣算好，再加總成「折後商品小計」。接著看小計符合哪個結帳折扣，只用符合的最高一級，不要把不同級距的折扣一層層累加：未滿 1,000 元沒有結帳折扣；滿 1,000 元打 95 折，滿 2,000 元打 88 折，滿 3,000 元打 8 折，滿 5,000 元打 75 折。像小計 3,200 元，就只打 8 折，不再另外打 95 折或 88 折。最後應付金額請四捨五入到整數元。</span>
+<span class="line" data-text="結帳摘要請列出原價合計、商品折扣後的小計、套用的結帳折扣級距、折抵金額和最後應付金額。只要商品或數量有變動，金額就要跟著更新；如果購物車是空的，也請顯示清楚的提示。">結帳摘要請列出原價合計、商品折扣後的小計、套用的結帳折扣級距、折抵金額和最後應付金額。只要商品或數量有變動，金額就要跟著更新；如果購物車是空的，也請顯示清楚的提示。</span>
+<span class="line" data-text="畫面請清楚好操作，手機和電腦都方便使用，重要金額要容易看見。這個小工具只用虛構商品資料，不連接真實商店或顧客資料。完成後，請簡單告訴我怎麼使用，以及怎麼確認折扣有算對。">畫面請清楚好操作，手機和電腦都方便使用，重要金額要容易看見。這個小工具只用虛構商品資料，不連接真實商店或顧客資料。完成後，請簡單告訴我怎麼使用，以及怎麼確認折扣有算對。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜購物車試算器</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">購物車試算器可能的回覆</span></div></div><pre><code><span class="line" data-text="已用 products.json 的 60 項商品做好「促銷購物車結帳試算器」，存成專案資料夾中的 index.html 一個檔案，不連接真實商店或顧客資料。">已用 products.json 的 60 項商品做好「促銷購物車結帳試算器」，存成專案資料夾中的 index.html 一個檔案，不連接真實商店或顧客資料。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="怎麼使用">怎麼使用</span>
+<span class="line" data-text="（1）在專案資料夾雙擊 index.html，用瀏覽器開啟。">（1）在專案資料夾雙擊 index.html，用瀏覽器開啟。</span>
+<span class="line" data-text="（2）在商品清單看每項商品的類別、原價、折扣和折後單價。">（2）在商品清單看每項商品的類別、原價、折扣和折後單價。</span>
+<span class="line" data-text="（3）輸入數量（只接受 1、2、3 這類正整數），按「加入購物車」。">（3）輸入數量（只接受 1、2、3 這類正整數），按「加入購物車」。</span>
+<span class="line" data-text="（4）在購物車可以改數量或按「移除」；按「清空購物車」會全部清除，並顯示空車提示。">（4）在購物車可以改數量或按「移除」；按「清空購物車」會全部清除，並顯示空車提示。</span>
+<span class="line" data-text="（5）結帳摘要會即時顯示原價合計、折後商品小計、結帳折扣級距、折抵金額和最後應付金額。">（5）結帳摘要會即時顯示原價合計、折後商品小計、結帳折扣級距、折抵金額和最後應付金額。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="怎麼確認折扣有算對">怎麼確認折扣有算對</span>
+<span class="line" data-text="請先手算，再放進購物車對照：">請先手算，再放進購物車對照：</span>
+<span class="line" data-text="購物車內容｜折後商品小計｜結帳折扣｜應付">購物車內容｜折後商品小計｜結帳折扣｜應付</span>
+<span class="line" data-text="編織皮革腰帶 1 條｜680 元｜無｜680 元">編織皮革腰帶 1 條｜680 元｜無｜680 元</span>
+<span class="line" data-text="條紋棉質T恤、雙色針織圍巾、柔軟居家短襪三入組各 1 件｜1,000 元｜95 折｜950 元">條紋棉質T恤、雙色針織圍巾、柔軟居家短襪三入組各 1 件｜1,000 元｜95 折｜950 元</span>
+<span class="line" data-text="V領針織上衣 2 件、毛呢報童帽 3 件｜3,200 元｜8 折｜2,560 元">V領針織上衣 2 件、毛呢報童帽 3 件｜3,200 元｜8 折｜2,560 元</span>
+<span class="line" data-text="小計 3,200 元只套用 8 折，不會再疊加 95 折或 88 折。也請試著把數量改成 0、負數或小數，應該會被擋下。">小計 3,200 元只套用 8 折，不會再疊加 95 折或 88 折。也請試著把數量改成 0、負數或小數，應該會被擋下。</span></code></pre></figure>
+</div></details>
+<div class="callout note"><span class="label">範例提醒：細節可以不同，要求的功能一項都不能少</span><p>下方每段提示後的成果範例，都只是其中一種可能。你做出來的畫面、配色、商品排列和操作細節，可能和範例不太一樣；這沒有關係。但<strong>提示中要求的每一個元素與功能都必須具備</strong>，並通過第 04 節的檢核，才算完成。請對照下面的清單逐項確認，缺少的部分再請 AI Agent 補上。</p></div>
+<h3 id="ex1-result-init">可能的成果 · 初始版</h3>
+<p><a href="examples/retail-checkout/init.html" target="_blank" rel="noopener">開啟初始版範例</a>（在新分頁開啟）。你的版面可以不同，但必須具備：</p>
+<ul class="checklist">
+  <li>使用 products.json 的 60 項商品，沒有另造或遺漏；可直接用瀏覽器開啟，不連接真實商店系統。</li>
+  <li>新品不打折、過季品 8 折、促銷庫存 6 折；清單與購物車看得出商品類別、原價、折扣和折後單價。</li>
+  <li>可以加入商品、調整數量（只接受正整數）、移除商品；購物車每項列出品名、類別、數量、折後單價和金額。</li>
+  <li>結帳小計以「商品類別折扣後」的金額計算，只套用最高符合的一個級距：未滿 1,000 元無結帳折扣；滿 1,000 元 95 折、滿 2,000 元 88 折、滿 3,000 元 8 折、滿 5,000 元 75 折。</li>
+  <li>摘要顯示原價合計、折後商品小計、結帳折扣級距、折抵金額和最後應付金額；應付金額四捨五入到整數元。</li>
+  <li>商品或數量變動時金額即時更新；購物車是空的時有清楚提示。</li>
+</ul>
+
+<h2 id="check"><span class="num">04</span>完成檢核</h2>
+<figure class="page-figure"><a href="figures/unit03-slide-04a-verify-pricing.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖卡"><img src="figures/unit03-slide-04a-verify-pricing.webp" alt="先算預期答案，再測小工具；原價 100 元；新品 100 元；過季品 80 元；促銷庫存 60 元；折後小計 → 結帳折扣 → 應付；900 → 不再折扣 → 900；1,000 → 95 折 → 950；2,000 → 88 折 → 1,760；3,000 → 8 折 → 2,400；5,000 → 75 折 → 3,750；3,200 × 0.8 ＝ 2,560 元；級距不累加，只用最高符合的一級" loading="lazy" width="1536" height="1024"></a>
+<figcaption>商品折扣與結帳級距分開驗算；折後小計 3,200 元只套用 8 折，應付 2,560 元。點圖可開啟大圖。</figcaption></figure>
+<h3 id="ex1-check-pricing">驗算折扣金額</h3>
+<ul class="checklist">
+  <li>上方圖卡以原價 100 元示意（新品 100、過季品 80、促銷庫存 60 元）；商品資料中沒有 100 元的商品，請改用實際商品核對：編織皮革腰帶（新品，原價 680 元）折後 680 元；雙色針織圍巾（過季品，原價 590 元）折後 472 元；柔軟居家短襪三入組（促銷庫存，原價 190 元）折後 114 元。</li>
+  <li>購物車只放 1 條編織皮革腰帶：小計 680 元，未滿 1,000 元，是否沒有結帳折扣、應付 680 元？</li>
+  <li>條紋棉質T恤、雙色針織圍巾、柔軟居家短襪三入組各 1 件：小計剛好 1,000 元，是否只套用 95 折、應付 950 元？</li>
+  <li>輕薄針織背心、抽繩休閒短褲、雙色針織圍巾、柔軟居家短襪三入組各 1 件：小計剛好 2,000 元，是否只套用 88 折、應付 1,760 元？</li>
+  <li>薄款連帽外套、雙面穿背心、雙色針織圍巾各 1 件：小計剛好 3,000 元，是否只套用 8 折、應付 2,400 元？</li>
+  <li>V領針織上衣 2 件、毛呢報童帽 3 件：小計 3,200 元，是否只套用 8 折，最後應付 2,560 元？</li>
+  <li>輕薄針織背心 3 件、棉質短版針織衫 2 件：小計剛好 5,000 元，是否只套用 75 折、應付 3,750 元？</li>
+</ul>
+<h3 id="ex1-check-interaction">檢查操作和畫面</h3>
+<ul class="checklist">
+  <li>修改購買數量或移除商品後，小計、折扣級距和應付金額是否一起更新？</li>
+  <li>購物車清空時，是否顯示空車提示，而且不會出現錯誤金額？商品清單是否能正常顯示在小工具中？</li>
+</ul>
+<div class="table-wrap record"><table><caption>我的核對紀錄 · 先手算預期，再填入工具顯示的應付金額</caption><thead><tr><th>購物車內容</th><th>預期應付</th><th>我的工具顯示</th></tr></thead><tbody>
+<tr><td>編織皮革腰帶 1 條</td><td>680 元</td><td></td></tr>
+<tr><td>條紋棉質T恤、雙色針織圍巾、柔軟居家短襪三入組各 1 件</td><td>950 元</td><td></td></tr>
+<tr><td>輕薄針織背心、抽繩休閒短褲、雙色針織圍巾、柔軟居家短襪三入組各 1 件</td><td>1,760 元</td><td></td></tr>
+<tr><td>薄款連帽外套、雙面穿背心、雙色針織圍巾各 1 件</td><td>2,400 元</td><td></td></tr>
+<tr><td>V領針織上衣 2 件、毛呢報童帽 3 件</td><td>2,560 元</td><td></td></tr>
+<tr><td>輕薄針織背心 3 件、棉質短版針織衫 2 件</td><td>3,750 元</td><td></td></tr>
+</tbody></table></div>
+<div class="table-wrap record"><table><caption>我的核對紀錄 · 操作檢查</caption><tbody>
+<tr><th scope="row">改數量、移除後，小計、級距和應付有一起更新嗎？</th><td></td></tr>
+<tr><th scope="row">清空購物車時，空車提示是否出現、金額是否正常？</th><td></td></tr>
+<tr><th scope="row">數量填 0、負數或小數時，是否被擋下？</th><td></td></tr>
+</tbody></table></div>
+
+<h2 id="ui"><span class="num">05</span>進一步調整畫面</h2>
+<h3>提出外觀調整需求</h3>
+<p>AI Agent 第一次生成的畫面，可以先視為 80 分的起點：主要功能已經做出來，但外觀、資訊層次或操作細節可能還不完全符合門市實際需要。先完成第 04 節的檢核，確認小工具操作和金額都正確，再根據使用情境指出最需要改善的地方，例如讓商品價格更醒目、讓結帳摘要更容易找到，或讓手機畫面更好操作。請一次提出清楚、具體的調整需求，請 AI Agent 修改後再親自查看；經過幾輪「觀察、描述、修改、檢查」，一步步從 80 分進步到 85 分、90 分，甚至朝著 100 分的理想終點前進。</p>
+<p>這些分數用來比喻逐步改善的過程，不是固定的評分標準。AI Agent 可以協助修改畫面，但「什麼才算更好用」要由熟悉使用情境的人判斷。每次調整後都要確認原有商品、操作方式、折扣規則和計算結果仍然正確，再決定是否繼續修整。</p>
+<figure class="page-figure"><img src="figures/unit02a-checkout-ui-concept.webp" alt="促銷購物車小工具的畫面示意：左側挑選三項服飾商品，中間顯示購物車，右側顯示折後小計 3,200 元、結帳折扣 8 折和最後應付 2,560 元。" loading="lazy"><figcaption>成果畫面示意：商品選擇、購物車與結帳摘要的其中一種呈現方式，可參考配色與資訊安排。</figcaption></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">讓畫面更像服飾門市的促銷小工具</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="這個促銷購物車小工具的操作和金額我已經確認正確，請保留目前所有商品、操作方式、折扣規則和計算結果，不要改動或拿掉。這次只想調整畫面，讓它更像服飾門市使用的促銷工具；可以參考上方示意圖的配色和資訊安排。">這個促銷購物車小工具的操作和金額我已經確認正確，請保留目前所有商品、操作方式、折扣規則和計算結果，不要改動或拿掉。這次只想調整畫面，讓它更像服飾門市使用的促銷工具；可以參考上方示意圖的配色和資訊安排。</span>
+<span class="line" data-text="請用溫暖明亮的米白色作為底色，深綠色呈現標題，暖橘色標出折扣、價格和主要按鈕。商品資訊請分成容易辨認的小卡片，商品名稱、類別、原價和折後價格要清楚好讀；購物車裡的最後應付金額請特別醒目。">請用溫暖明亮的米白色作為底色，深綠色呈現標題，暖橘色標出折扣、價格和主要按鈕。商品資訊請分成容易辨認的小卡片，商品名稱、類別、原價和折後價格要清楚好讀；購物車裡的最後應付金額請特別醒目。</span>
+<span class="line" data-text="手機和電腦上都要看得清楚、方便操作。完成後請簡單說明畫面有哪些地方調整了，並提醒我再檢查商品選取、購物車操作和折扣金額是否仍然正確。">手機和電腦上都要看得清楚、方便操作。完成後請簡單說明畫面有哪些地方調整了，並提醒我再檢查商品選取、購物車操作和折扣金額是否仍然正確。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜畫面調整</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">畫面調整可能的回覆</span></div></div><pre><code><span class="line" data-text="已調整畫面；商品、操作方式、折扣規則和計算方式都沒有改動。">已調整畫面；商品、操作方式、折扣規則和計算方式都沒有改動。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="調整了哪些地方">調整了哪些地方</span>
+<span class="line" data-text="（1）底色改成米白色，標題改成深綠色。">（1）底色改成米白色，標題改成深綠色。</span>
+<span class="line" data-text="（2）折扣、價格和「加入購物車」等主要按鈕改用暖橘色。">（2）折扣、價格和「加入購物車」等主要按鈕改用暖橘色。</span>
+<span class="line" data-text="（3）商品改成小卡片，每張列出商品名稱、類別、原價和折後價格。">（3）商品改成小卡片，每張列出商品名稱、類別、原價和折後價格。</span>
+<span class="line" data-text="（4）購物車的最後應付金額放大並加上底色，一眼就能看到。">（4）購物車的最後應付金額放大並加上底色，一眼就能看到。</span>
+<span class="line" data-text="（5）手機寬度時，商品、購物車和結帳摘要改成由上往下排列。">（5）手機寬度時，商品、購物車和結帳摘要改成由上往下排列。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請再檢查">請再檢查</span>
+<span class="line" data-text="（1）挑幾項商品加入購物車，改數量、移除，確認金額跟著更新。">（1）挑幾項商品加入購物車，改數量、移除，確認金額跟著更新。</span>
+<span class="line" data-text="（2）放入 V領針織上衣 2 件、毛呢報童帽 3 件，應付仍應是 2,560 元。">（2）放入 V領針織上衣 2 件、毛呢報童帽 3 件，應付仍應是 2,560 元。</span>
+<span class="line" data-text="（3）把瀏覽器視窗縮窄，確認手機寬度下也好讀、好按。">（3）把瀏覽器視窗縮窄，確認手機寬度下也好讀、好按。</span></code></pre></figure>
+</div></details>
+<h3 id="ex1-result-ui">可能的成果 · 畫面調整版</h3>
+<p><a href="examples/retail-checkout/section-05.html" target="_blank" rel="noopener">開啟畫面調整版範例</a>（在新分頁開啟）。配色深淺、卡片樣式可以和範例不同，但必須具備：</p>
+<ul class="checklist">
+  <li>米白色底色、深綠色標題，折扣、價格與主要按鈕以暖橘色標出。</li>
+  <li>商品資訊分成小卡片，商品名稱、類別、原價和折後價格清楚好讀。</li>
+  <li>購物車裡的最後應付金額特別醒目；手機和電腦上都看得清楚、方便操作。</li>
+  <li>原有商品、操作方式、折扣規則和計算結果都沒有改變，初始版的清單仍全部通過。</li>
+</ul>
+<div class="table-wrap record"><table><caption>我的紀錄 · 畫面調整</caption><tbody>
+<tr><th scope="row">我觀察到最需要改善的一點</th><td></td></tr>
+<tr><th scope="row">調整後，V領針織上衣 2 件、毛呢報童帽 3 件的應付仍是 2,560 元嗎？</th><td></td></tr>
+</tbody></table></div>
+
+<h2 id="catalog"><span class="num">06</span>整理商品型錄，讓挑選更直覺</h2>
+<h3>把商品選擇區改成視覺化型錄</h3>
+<p>完成第 05 節的畫面調整後，再從顧客或門市人員挑選商品的角度，改善商品選擇區。型錄可以同時依「促銷狀態」和「商品類型」整理：促銷狀態包括新品、過季品、促銷庫存；商品類型則可包括上衣、褲子、外套、裙裝和配件等。請 AI Agent 讓使用者能清楚辨認這兩種分類，並為不同商品類型加入相符的商品圖片或清楚易懂的視覺圖示，讓使用者能先看圖辨認商品，再閱讀名稱、價格和折扣資訊。若目前沒有可用的商品照片，請使用一致、清楚的示意圖，並避免使用失效的圖片連結。</p>
+<p>型錄不只要好看，也要讓人容易找到商品並加入購物車。請觀察類別是否清楚、商品卡片資訊是否易讀、加入購物車的按鈕是否明顯，以及在手機上是否方便瀏覽。完成後逐項操作並核對購物車與折扣金額，確保這次 UX（使用者體驗）改善沒有影響既有功能。</p>
+<figure class="page-figure"><img src="figures/unit02-section-06-catalog-ux.webp" alt="視覺化服飾商品型錄示意圖：新品、過季品和促銷庫存分成三個區域，卡片以毛衣、外套、長褲等服飾圖片、價格和加入購物車按鈕呈現。" loading="lazy"><figcaption>型錄示意：以促銷分類、服飾類型圖片和清楚的操作按鈕，幫助使用者快速瀏覽並挑選商品。</figcaption></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">把商品選擇區整理成視覺化商品型錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請改善這個促銷購物車小工具的商品選擇區，將商品整理成容易瀏覽的型錄。請同時呈現促銷狀態分類「新品」、「過季品」、「促銷庫存」，以及商品類型分類，例如「上衣」、「褲子」、「外套」、「裙裝」和「配件」，讓使用者容易找到想買的品項。請保留目前所有商品資料、折扣規則、購物車操作與計算結果，不要刪除或改動。">請改善這個促銷購物車小工具的商品選擇區，將商品整理成容易瀏覽的型錄。請同時呈現促銷狀態分類「新品」、「過季品」、「促銷庫存」，以及商品類型分類，例如「上衣」、「褲子」、「外套」、「裙裝」和「配件」，讓使用者容易找到想買的品項。請保留目前所有商品資料、折扣規則、購物車操作與計算結果，不要刪除或改動。</span>
+<span class="line" data-text="請為每一類商品加入相符的圖片或清楚易懂的視覺圖示，並以商品卡片呈現商品名稱、類別、原價與折後價格。若專案中沒有合適的商品照片，請使用風格一致的示意圖或圖示，不要放入不相關或可能失效的外部圖片連結。">請為每一類商品加入相符的圖片或清楚易懂的視覺圖示，並以商品卡片呈現商品名稱、類別、原價與折後價格。若專案中沒有合適的商品照片，請使用風格一致的示意圖或圖示，不要放入不相關或可能失效的外部圖片連結。</span>
+<span class="line" data-text="請讓使用者容易分辨商品類別、找到商品並加入購物車；在手機和電腦上都要方便瀏覽與操作。完成後請告訴我你改善了哪些地方，並檢查各類商品都能正確加入購物車，原有的數量、小計、折扣級距和應付金額仍然正確。">請讓使用者容易分辨商品類別、找到商品並加入購物車；在手機和電腦上都要方便瀏覽與操作。完成後請告訴我你改善了哪些地方，並檢查各類商品都能正確加入購物車，原有的數量、小計、折扣級距和應付金額仍然正確。</span></code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜商品型錄</summary><div>
+<p class="source-note">以下只是參考，每次的字句與排列都可能不同；請用完成檢核判斷，而不是逐字比對。</p><figure class="code"><div class="code-head"><div><span class="code-title">商品型錄可能的回覆</span></div></div><pre><code><span class="line" data-text="已把商品選擇區整理成型錄；原有商品資料、折扣規則、購物車操作和計算方式都保留。">已把商品選擇區整理成型錄；原有商品資料、折扣規則、購物車操作和計算方式都保留。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="改善了哪些地方">改善了哪些地方</span>
+<span class="line" data-text="（1）上方有兩排分類按鈕：促銷狀態（全部、當季新品、過季品、促銷庫存）與商品類型（全部、上衣、褲子、外套、裙裝、洋裝、連身服、配件、鞋款），兩排可以一起篩選。">（1）上方有兩排分類按鈕：促銷狀態（全部、當季新品、過季品、促銷庫存）與商品類型（全部、上衣、褲子、外套、裙裝、洋裝、連身服、配件、鞋款），兩排可以一起篩選。</span>
+<span class="line" data-text="（2）商品依促銷狀態分區顯示，每區標出件數。">（2）商品依促銷狀態分區顯示，每區標出件數。</span>
+<span class="line" data-text="（3）每種商品類型都有風格一致的示意圖示。專案中沒有商品照片，所以沒有放外部圖片連結。">（3）每種商品類型都有風格一致的示意圖示。專案中沒有商品照片，所以沒有放外部圖片連結。</span>
+<span class="line" data-text="（4）商品卡片列出名稱、類別、原價與折後價格，下方就是「加入購物車」按鈕。">（4）商品卡片列出名稱、類別、原價與折後價格，下方就是「加入購物車」按鈕。</span>
+<span class="line" data-text="（5）手機寬度時，卡片改成較少欄，分類按鈕會自動換行，不必左右滑動。">（5）手機寬度時，卡片改成較少欄，分類按鈕會自動換行，不必左右滑動。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="我做的檢查">我做的檢查</span>
+<span class="line" data-text="從三種促銷狀態各挑一項加入購物車：">從三種促銷狀態各挑一項加入購物車：</span>
+<span class="line" data-text="商品｜類別｜折後單價">商品｜類別｜折後單價</span>
+<span class="line" data-text="編織皮革腰帶｜當季新品｜680 元">編織皮革腰帶｜當季新品｜680 元</span>
+<span class="line" data-text="雙色針織圍巾｜過季品｜472 元">雙色針織圍巾｜過季品｜472 元</span>
+<span class="line" data-text="柔軟居家短襪三入組｜促銷庫存｜114 元">柔軟居家短襪三入組｜促銷庫存｜114 元</span>
+<span class="line" data-text="小計 1,266 元，套用 95 折，應付 1,203 元，與改版前相同。請你也從每一類各挑一項試試看。">小計 1,266 元，套用 95 折，應付 1,203 元，與改版前相同。請你也從每一類各挑一項試試看。</span></code></pre></figure>
+</div></details>
+<h3 id="ex1-result-catalog">可能的成果 · 商品型錄版</h3>
+<p><a href="examples/retail-checkout/section-06.html" target="_blank" rel="noopener">開啟商品型錄版範例</a>（在新分頁開啟）。分類按鈕、圖示風格和卡片排列可以和範例不同，但必須具備：</p>
+<ul class="checklist">
+  <li>同時呈現促銷狀態（新品、過季品、促銷庫存）與商品類型（例如上衣、褲子、外套、裙裝、配件）兩種分類。</li>
+  <li>每一類商品都有相符的圖片或風格一致的示意圖示，沒有不相關或失效的外部圖片連結。</li>
+  <li>商品卡片呈現名稱、類別、原價與折後價格，加入購物車的操作容易找到；手機和電腦都方便瀏覽。</li>
+  <li>各類商品都能正確加入購物車，原有的數量、小計、折扣級距和應付金額仍然正確。</li>
+</ul>
+<h3 id="ex1-catalog-check">檢查型錄和挑選流程</h3>
+<ul class="checklist">
+  <li>新品、過季品和促銷庫存是否容易辨認？上衣、褲子、外套等商品類型是否也能快速找到？</li>
+  <li>商品名稱、價格、折扣和加入購物車的操作是否容易找到？手機上是否也方便使用？</li>
+  <li>從每一類挑選商品後，購物車內容、折扣級距和應付金額是否仍正確？</li>
+</ul>
+<div class="table-wrap record"><table><caption>我的紀錄 · 型錄改版後各類各挑一項</caption><thead><tr><th>促銷狀態</th><th>我挑的商品</th><th>購物車顯示的折後單價</th></tr></thead><tbody>
+<tr><td>當季新品</td><td></td><td></td></tr>
+<tr><td>過季品</td><td></td><td></td></tr>
+<tr><td>促銷庫存</td><td></td><td></td></tr>
+</tbody></table></div>
+<nav class="pager" aria-label="上下頁"><a href="unit03.html">← 單元三</a><a href="unit04.html">單元四 →</a></nav>
+
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容保留所有權利；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("hwai-handout-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("hwai-handout-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("hwai-handout-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    // A server without byte-range support (e.g. python -m http.server) leaves the
+    // streamed audio unseekable: setting currentTime silently snaps back to 0.
+    // In that case load the whole file once as a blob, which is always seekable.
+    var canSeek = function (t) {
+      for (var i = 0; i < audio.seekable.length; i++) {
+        if (t >= audio.seekable.start(i) && t <= audio.seekable.end(i)) return true;
+      }
+      return false;
+    };
+    var blobLoading = null;
+    var loadWholeFile = function () {
+      if (!blobLoading) {
+        var source = audio.querySelector("source");
+        var rate = audio.playbackRate;
+        blobLoading = fetch(audio.currentSrc || (source && source.src))
+          .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+          .then(function (blob) {
+            return new Promise(function (resolve) {
+              audio.addEventListener("loadedmetadata", function () {
+                audio.playbackRate = rate;
+                resolve();
+              }, { once: true });
+              audio.src = URL.createObjectURL(blob);
+              audio.load();
+            });
+          });
+        blobLoading.catch(function () { blobLoading = null; });
+      }
+      return blobLoading;
+    };
+    var seekTo = function (t, thenPlay) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      t = Math.max(0, Math.min(max, t));
+      var jump = function () {
+        audio.currentTime = t;
+        updateUI();
+        if (thenPlay) audio.play();
+      };
+      if (t === 0 || canSeek(t)) jump();
+      else loadWholeFile().then(jump, jump);
+    };
+
+    var chapterSelect = document.getElementById("podcastChapter");
+    if (chapterSelect) {
+      var chapterStarts = Array.prototype.slice.call(chapterSelect.options)
+        .filter(function (o) { return o.value !== ""; })
+        .map(function (o) { return Number(o.value); });
+      chapterSelect.addEventListener("change", function () {
+        if (chapterSelect.value === "") return;
+        var target = Number(chapterSelect.value);
+        if (!isFinite(target)) return;
+        if (isFinite(audio.duration)) seekTo(target, true);
+        else {
+          audio.addEventListener("loadedmetadata", function () { seekTo(target, true); }, { once: true });
+          audio.load();
+        }
+      });
+      // Keep the menu on the chapter that is playing.
+      audio.addEventListener("timeupdate", function () {
+        var current = "";
+        chapterStarts.forEach(function (s) { if (audio.currentTime >= s - 0.05) current = String(s); });
+        var match = Array.prototype.filter.call(chapterSelect.options, function (o) { return o.value !== "" && Number(o.value) === Number(current); })[0];
+        if (match && chapterSelect.value !== match.value) chapterSelect.value = match.value;
+      });
+    }
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>

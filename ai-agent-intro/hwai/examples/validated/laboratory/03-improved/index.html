@@ -1,0 +1,110 @@
+<!doctype html><html lang="zh-Hant-TW"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>醫檢稀釋換算器 · 改進版</title><style>
+:root{color-scheme:light;--bg:#fff8ed;--ink:#473522;--accent:#9a5809;--line:#e3ccb0;--error:#a12b35;--result-bg:#fff0d8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,'PingFang TC','Microsoft JhengHei',sans-serif}
+main{max-width:1200px;margin:auto;padding:28px 24px 40px}.masthead{border-bottom:2px solid var(--accent);padding-bottom:16px;margin-bottom:24px}.eyebrow{font-size:14px;font-weight:750;color:var(--accent);letter-spacing:.05em;margin:0 0 6px}h1{font-size:34px;line-height:1.25;margin:6px 0 12px}h2{font-size:20px;margin:0 0 14px}p{margin:8px 0 14px}.lead{margin-bottom:12px}.hint,figcaption,.guide{font-size:14px}.notice{font-size:14px;margin:12px 0 0;padding:10px 14px;background:white;border-left:4px solid var(--accent)}
+.detailed-grid{display:grid;gap:24px;align-items:start}.card{padding:24px;background:white;border:1px solid var(--line);border-radius:12px;min-width:0}.entry{grid-area:entry}.result{grid-area:answer;background:var(--result-bg)}.samples{grid-area:examples}.rules{grid-area:rules}.explanation{grid-area:explain}
+.field{min-width:0;margin-bottom:18px}label{display:block;font-weight:650;margin:0 0 6px}input,select{width:100%;min-height:48px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:white;color:var(--ink);font:inherit}.field .hint{margin:6px 0 0}.units{display:grid;grid-template-columns:1fr 1fr;gap:16px}input[aria-invalid=true]{border-color:var(--error)}.error{font-size:16px;font-weight:650;color:var(--error);overflow-wrap:anywhere;margin:6px 0 0}.error:empty{display:none}
+button{min-height:48px;border:1px solid var(--accent);border-radius:6px;background:var(--accent);color:white;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer}button.secondary{color:var(--accent);background:white}button:hover{filter:brightness(.95)}:focus-visible{outline:3px solid var(--ink);outline-offset:3px}.actions{display:flex;flex-wrap:wrap;gap:12px}.result dl{margin:0;display:grid;gap:16px}.metric{border:1px solid var(--line);border-radius:8px;background:white;padding:16px;min-width:0}.metric dt{font-size:14px;font-weight:650}.metric dd{font-size:32px;font-weight:750;line-height:1.35;margin:8px 0 0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.rx{font-size:20px;font-weight:750;overflow-wrap:anywhere}.placeholder{margin:0}.output[hidden]{display:none}
+.sample-grid{display:grid;gap:16px}.sample{border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}.sample p{font-size:14px;margin:10px 0 0;overflow-wrap:anywhere}.sample button{width:100%;text-align:left}.math{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.rules ol,.rules ul,.explanation ol{padding-left:24px}li{margin:.4em 0}.explanation figure{margin:18px 0 0}img{display:block;max-width:100%;height:auto}figcaption{margin-top:10px}.guide{margin-top:24px}.guide a{color:var(--accent)}
+
+@media(min-width:900px){.detailed-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:'entry entry' 'answer answer' 'examples explain' 'rules rules'}.entry{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.entry>h2,.entry>.units,.entry>#errors,.entry>.actions{grid-column:1/-1}.entry .field{margin:0}.entry .units{grid-template-columns:repeat(2,minmax(0,1fr))}.result dl{grid-template-columns:repeat(2,minmax(0,1fr))}.sample-grid{grid-template-columns:minmax(0,1fr)}.sample{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:center}.sample p{margin:0}.sample button{text-align:center}}
+
+@media(max-width:899px){main{padding:20px 16px}.detailed-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:'entry' 'answer' 'examples' 'rules' 'explain'}.entry{display:block!important}.units,.result dl,.sample-grid{grid-template-columns:minmax(0,1fr)!important}.field{margin-bottom:18px}h1{font-size:28px}.card{padding:24px}.sample button{text-align:center}}
+</style></head><body><main><header class="masthead"><p class="eyebrow">AI AGENT 醫事實作 · 第 3 階段：詳細指定 · 配液練習單</p><h1>醫檢稀釋換算器</h1><p class="lead">先填入虛構案例，再將畫面上的結果和手算答案比較。</p><p class="notice">本工具僅供自行練習計算，數值均為虛構，不可作為臨床或檢驗實務的依據。</p></header><div class="detailed-grid" id="demo-screen"><form class="card entry" novalidate><h2>輸入濃度與最終體積</h2><div class="units"><div class="field"><label for="cunit">濃度單位（兩個濃度共用）</label><select id="cunit"><option>mg/mL</option><option>µg/mL</option><option>%（w/v）</option></select></div><div class="field"><label for="vunit">體積單位（所有體積共用）</label><select id="vunit"><option>mL</option><option>µL</option></select></div></div><div class="field"><label for="c1">原液濃度 C₁（<span class="cu">mg/mL</span>）</label><input type="text" inputmode="decimal" id="c1" autocomplete="off" aria-describedby="c1-hint c1-error"><p class="hint" id="c1-hint">必須大於 0</p><p class="error" role="alert" id="c1-error"></p></div><div class="field"><label for="c2">目標濃度 C₂（<span class="cu">mg/mL</span>）</label><input type="text" inputmode="decimal" id="c2" autocomplete="off" aria-describedby="c2-hint c2-error"><p class="hint" id="c2-hint">0 < C₂ ≤ C₁</p><p class="error" role="alert" id="c2-error"></p></div><div class="field"><label for="v2">最終體積 V₂（<span class="vu">mL</span>）</label><input type="text" inputmode="decimal" id="v2" autocomplete="off" aria-describedby="v2-hint v2-error"><p class="hint" id="v2-hint">必須大於 0；這是混合後的最終體積</p><p class="error" role="alert" id="v2-error"></p></div><div id="errors" role="alert" aria-live="polite"></div><div class="actions"><button type="submit">計算</button><button type="button" class="secondary" id="clear">清除</button></div></form><section class="card result" aria-live="polite"><h2>計算結果</h2><p id="placeholder" class="placeholder">填入數值，按「計算」後，這裡會顯示答案。</p><div id="output" class="output" hidden></div></section><section class="card samples"><h2>載入範例，再手算核對</h2><p class="hint">按按鈕只填入數值，再按計算按鈕；各範例旁列出預期答案。</p><div id="samples" class="sample-grid"><div class="sample"><button type="button" class="secondary">範例 1</button><p>輸入：10 / 2 / 25<br>預期：<strong>原液 5.000 mL；稀釋液 20.000 mL</strong></p></div><div class="sample"><button type="button" class="secondary">範例 2</button><p>輸入：8 / 2 / 12<br>預期：<strong>原液 3.000 mL；稀釋液 9.000 mL</strong></p></div><div class="sample"><button type="button" class="secondary">範例 3</button><p>輸入：5 / 5 / 10<br>預期：<strong>原液 10.000 mL；稀釋液 0.000 mL</strong></p></div><div class="sample"><button type="button" class="secondary">範例 4</button><p>輸入：3 / 1 / 10<br>預期：<strong>原液 3.333 mL；稀釋液 6.667 mL</strong></p></div></div></section><section class="card rules"><h2>計算公式</h2><ul class="math"><li>C₁V₁ = C₂V₂</li><li>V₁ =（C₂ × V₂）÷ C₁</li><li>稀釋液體積 = V₂ − V₁</li></ul><p>C₁ 與 C₂ 共用同一濃度單位，所有體積共用所選體積單位。選單只更新標示，不自動換算數字。C₂ = C₁ 時不需稀釋。</p><p>小數點後三位是本題的顯示規格，不代表實驗量具的精度或操作建議。</p></section><section class="card explanation"><h2>如何核對結果</h2><ul class="math"><li>C₁V₁ = C₂V₂</li><li>V₁ =（C₂ × V₂）÷ C₁</li><li>稀釋液體積 = V₂ − V₁</li></ul><ol><li>虛構題目：C₁ = 10 mg/mL、C₂ = 2 mg/mL、V₂ = 25 mL。</li><li>10 × V₁ = 2 × 25；V₁ = 50 ÷ 10 = 5 mL。</li><li>稀釋液 = 25 − 5 = 20 mL。</li></ol><p>V₂ 是混合後的最終體積：5 mL + 20 mL = 25 mL；V₂ 不是稀釋液體積。</p><figure><img src="assets/醫檢稀釋換算邏輯圖.png" alt="虛構稀釋：原液 5 mL 加稀釋液 20 mL，最終體積 25 mL。"><figcaption>僅供虛構課堂計算與核對。</figcaption></figure></section></div><p class="guide">雙擊 index.html 即可離線使用。用 Tab 移動、Enter 送出。<a href="prompt.md">本階段提示詞</a> · <a href="README.md">開啟與核對步驟</a></p></main><script>
+(() => {
+ 'use strict';
+ const config = {"track": "laboratory", "stage": 3, "samples": [{"values": ["10", "2", "25"], "expect": "原液 5.000 mL；稀釋液 20.000 mL"}, {"values": ["8", "2", "12"], "expect": "原液 3.000 mL；稀釋液 9.000 mL"}, {"values": ["5", "5", "10"], "expect": "原液 10.000 mL；稀釋液 0.000 mL"}, {"values": ["3", "1", "10"], "expect": "原液 3.333 mL；稀釋液 6.667 mL"}]};
+ const ids = config.track === 'optometry' ? ['sph','cyl','axis'] : ['c1','c2','v2'];
+ const form = document.querySelector('form');
+ const output = document.getElementById('output');
+ const summary = document.getElementById('errors');
+ const placeholder = document.getElementById('placeholder');
+ function resetFeedback() {
+   summary.replaceChildren();
+   ids.forEach(id => { const input=document.getElementById(id); input.removeAttribute('aria-invalid'); document.getElementById(id+'-error').textContent=''; });
+   output.hidden=true; output.replaceChildren(); placeholder.hidden=false;
+ }
+ function error(id,message) {
+   document.getElementById(id).setAttribute('aria-invalid','true');
+   if(config.stage===3) document.getElementById(id+'-error').textContent=message;
+   else { const p=document.createElement('p');p.className='error';p.textContent=message;summary.append(p); }
+ }
+ function read(id) {
+   const raw=document.getElementById(id).value.trim();
+   if(raw===''){error(id,'請填寫這一格：'+document.querySelector('label[for="'+id+'"]').textContent);return null;}
+   if(!/^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(raw)){error(id,'這一格不是有效數字，請只填數字。');return null;}
+   const number=Number(raw);
+   if(!Number.isFinite(number)){error(id,'這個數字超出電腦能處理的範圍，請改用一般的課堂數值。');return null;}
+   if(number===0 && /[1-9]/.test(raw.split(/[eE]/)[0])){error(id,'這個數字太小，超出電腦可表示的精度。');return null;}
+   return number;
+ }
+ function formatted(value,digits,signed=false) {
+   const f=new Intl.NumberFormat('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits,useGrouping:false,signDisplay:signed?'always':'auto'});
+   const text=f.format(value);
+   return /^-0(?:\.0+)?$/.test(text) ? (signed?'+':'')+text.slice(1) : text;
+ }
+ function row(list,label,value,id) {
+   const dt=document.createElement('dt');dt.textContent=label;
+   const dd=document.createElement('dd');dd.id=id;dd.textContent=value;
+   const group=document.createElement('div');group.className='metric';group.append(dt,dd);list.append(group);
+ }
+ function submit(event) {
+   event.preventDefault();resetFeedback();
+   const values=ids.map(read);
+   if(values.every(v=>v!==null)) {
+     if(config.track==='optometry') {
+       const [s,c,a]=values;
+       if(s < -20 || s > 20)error('sph','球面度數範圍為 -20.00 D 到 +20.00 D。');
+       if(c===0)error('cyl','柱面度數為 0：不需要轉換，也沒有軸度可言。');
+       else if(c>0)error('cyl','柱面度數已是正值；本工具只接受負柱鏡處方。');
+       else if(c < -20)error('cyl','柱面度數必須介於 -20.00 D 到小於 0。');
+       if(!Number.isInteger(a)||a<1||a>180)error('axis','軸度必須是 1 到 180 之間的整數。');
+     } else {
+       const [c1,c2,v2]=values;
+       if(c1<=0)error('c1','原液濃度 C₁ 必須大於 0。');
+       if(c2<=0)error('c2','目標濃度 C₂ 必須大於 0。');
+       else if(c1>0 && c2>c1)error('c2','目標濃度 C₂ 不可大於原液濃度 C₁；稀釋不會增加濃度。');
+       if(v2<=0)error('v2','最終體積 V₂ 必須大於 0。');
+     }
+   }
+   let invalid=document.querySelector('[aria-invalid="true"]');
+   if(invalid){invalid.focus();return;}
+   const list=document.createElement('dl');
+   let note=document.createElement('p');note.className='hint';
+   if(config.track==='optometry') {
+     const [s,c,a]=values;
+     let newAxis=a+90;if(newAxis>180)newAxis-=180;
+     row(list,'新球面度數 Sphere',formatted(s+c,2,true)+' D','result-sph');
+     row(list,'新柱面度數 Cylinder',formatted(-c,2,true)+' D','result-cyl');
+     row(list,'新軸度 Axis',newAxis+'°','result-axis');
+     const rx=document.createElement('p');rx.id='result-prescription';rx.className='rx';rx.textContent=formatted(s+c,2,true)+' D / '+formatted(-c,2,true)+' D × '+newAxis+'°';
+     output.append(list,rx);note.textContent='度數僅在顯示時取小數點後兩位；軸度以整數表示。';
+   } else {
+     const [c1,c2,v2]=values;
+     // Divide first so finite inputs do not overflow at the intermediate product.
+     const v1=c2===c1?v2:(c2/c1)*v2;
+     const diluent=c2===c1?0:v2-v1;
+     if(!Number.isFinite(v1)||!Number.isFinite(diluent)||v1===0){error('v2','這組數字超出電腦可可靠計算的範圍或精度，請改用一般課堂數值。');document.getElementById('v2').focus();return;}
+     const unit=config.stage===1?'mL':document.getElementById('vunit').value;
+     row(list,'原液體積 V₁',formatted(v1,3)+' '+unit,'result-v1');
+     row(list,'稀釋液體積',formatted(diluent,3)+' '+unit,'result-diluent');
+     output.append(list);note.textContent='顯示值四捨五入至小數點後三位；計算時保留完整精度。'+(c2===c1?' C₂ = C₁：不需加入稀釋液。':'');
+   }
+   output.append(note);output.hidden=false;placeholder.hidden=true;
+ }
+ form.addEventListener('submit',submit);
+ ids.forEach(id => document.getElementById(id).addEventListener('input',resetFeedback));
+ if(config.track==='laboratory'&&config.stage>1) {
+   function syncUnits(){document.querySelectorAll('.cu').forEach(el=>el.textContent=document.getElementById('cunit').value);document.querySelectorAll('.vu').forEach(el=>el.textContent=document.getElementById('vunit').value);resetFeedback();}
+   document.getElementById('cunit').addEventListener('change',syncUnits);document.getElementById('vunit').addEventListener('change',syncUnits);
+ }
+ if(config.stage===3) {
+   document.getElementById('clear').addEventListener('click',()=>{ids.forEach(id=>document.getElementById(id).value='');resetFeedback();document.getElementById(ids[0]).focus();});
+   document.getElementById('samples').querySelectorAll('button').forEach((button,index)=>button.addEventListener('click',()=>{
+     resetFeedback();config.samples[index].values.forEach((value,i)=>document.getElementById(ids[i]).value=value);
+     if(config.track==='laboratory'){document.getElementById('cunit').value='mg/mL';document.getElementById('vunit').value='mL';document.querySelectorAll('.cu').forEach(el=>el.textContent='mg/mL');document.querySelectorAll('.vu').forEach(el=>el.textContent='mL');}
+     document.getElementById(ids[0]).focus();
+   }));
+ }
+})();
+</script></body></html>
