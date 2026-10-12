@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
+<title>模組 07｜AI 專題：照護紀錄草稿填寫工具</title>
+<meta name="description" content="智慧雨林 AI Agent 工作坊模組 07：操作一個虛構的照護紀錄草稿工具，把口語敘述整理成欄位、用紅框標示缺漏，再用測試敘述檢查結果，請 AI Agent 逐層做出自己的版本；最後準備專題展示並回顧兩日內容。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+
+/* Shared additions (2026-10-11 restructure): pending sections, illustration notices, sidebar notes. */
+.pending { color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; margin: 0.8rem 0; }
+.callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
+.side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">智慧雨林 AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="講義首頁"><span>首頁</span></a>
+<a href="unit01.html" title="模組 01｜從 Chatbot 到 Agentic AI"><span>01 Agentic AI</span></a>
+<a href="unit02.html" title="模組 02｜VS Code 與工作空間"><span>02 共用專案</span></a>
+<a href="unit03.html" title="模組 03｜從 Gems、GPTs 到自己的第一個 Skill"><span>03 Skill 潮流</span></a>
+<a href="unit04.html" title="模組 04｜建構 RAG 式 Smart TA"><span>04 教學助理</span></a>
+<a href="unit05.html" title="模組 05｜讓教材上線"><span>05 發布教材</span></a>
+<a href="unit06.html" title="模組 06｜AI 專題：照護場域排班小工具"><span>06 排班工具</span></a>
+<a href="unit07.html" title="模組 07｜AI 專題：照護紀錄草稿填寫工具" aria-current="page"><span>07 照護紀錄</span></a></nav><a class="side-sheet" href="unit07-practice.html"><span aria-hidden="true">📝</span>模組 07 練習單</a><details><summary>本頁目錄</summary><ol><li><a href="#goals"><span class="toc-num">01</span>學習目標與階段成果</a></li>
+<li><a href="#topic1"><span class="toc-num">02</span>假設敘述與欄位規則</a></li>
+<li><a href="#topic2"><span class="toc-num">03</span>從口述到結構化草稿</a></li>
+<li><a href="#topic3"><span class="toc-num">04</span>缺漏標示與專業確認</a></li>
+<li><a href="#practice"><span class="toc-num">05</span>請 AI Agent 做出自己的版本</a></li>
+<li><a href="#topic4"><span class="toc-num">06</span>專題展示與兩日回顧</a></li>
+<li><a href="#checks"><span class="toc-num">07</span>成果檢核與使用界線</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">第二天 · 模組 07</p>
+<h1>模組 07｜AI 專題：照護紀錄草稿填寫工具</h1>
+<p class="lead">照護人員常用口語記下照護過程，例如「血壓一百三十六跟八十二，心跳一分鐘九十五下」。這個模組你會先操作一個做好的照護紀錄工具，把一段虛構的口語敘述整理成表單草稿；再用測試敘述檢查它哪裡整理錯、哪裡會提醒缺漏；最後請 AI Agent 一層一層做出自己的版本。不需要會寫程式：你負責訂清楚欄位規則、準備測試敘述，並親自核對每一個整理出來的數值。</p>
+<p class="lead">模組 06 的排班工具，練習了「先寫規則、一次一層、親自測試」。這一模組用同樣的方法處理文字資料，並多一個重點：<strong>工具只負責整理草稿，個案歸屬與正式儲存一定由人確認。</strong>最後一節帶你整理專題展示，回顧兩天做出的成果。</p>
+<ul class="meta"><li>對象：護理教師與長照場域夥伴</li><li>階段成果：紀錄草稿工具、一份測試紀錄與三分鐘專題展示</li></ul>
+<p class="meta-back"><a href="../../workshop2026_1017/index.html">← 查看兩日工作坊計畫</a></p></section>
+
+<h2 id="goals"><span class="num">01</span>學習目標與階段成果</h2>
+<div class="callout tip"><span class="label">這一模組完成什麼</span><p>你會得到三樣東西：一個<strong>照護紀錄草稿工具</strong>，可以貼上口語敘述、整理成欄位、用紅框標示缺漏，再由你確認個案後保存與匯出；一份<strong>測試紀錄</strong>，寫下每段測試敘述應該整理成什麼、實際整理成什麼；以及一份<strong>三分鐘專題展示</strong>的大綱。</p></div>
+<ul class="flow"><li><b>① 訂欄位規則</b>要整理哪些欄位、什麼是必填</li><li><b>② 操作範例</b>把一段口述整理成草稿</li><li><b>③ 測試範例</b>用六段敘述找出問題</li><li><b>④ 做自己的版本</b>請 AI Agent 一次加一層功能</li><li><b>⑤ 展示與回顧</b>說清楚範圍、資料與檢核</li></ul>
+<ul class="checklist">
+<li>說出這個紀錄工具第一版整理哪些欄位、不做什麼。</li>
+<li>分清「原文有說」「原文沒說」與「原文說得不清楚」三種情況，知道後兩種要留空。</li>
+<li>操作範例工具完成新增人員、擷取欄位、確認個案、保存、查詢與匯出。</li>
+<li>用六段測試敘述檢查工具，記下預期與實際結果。</li>
+<li>請 AI Agent 逐層做出自己的版本，並用同一組敘述驗收。</li>
+<li>用三分鐘說明自己的專題：範圍、安全資料、專業檢核與成果。</li>
+</ul>
+
+<h2 id="topic1"><span class="num">02</span>假設敘述與欄位規則</h2>
+<p>真實的照護紀錄有機構格式、專業術語、法規與交班流程。第一版先縮小範圍，只做<strong>一張可以核對的照護紀錄草稿</strong>：把一段口語敘述，整理成固定幾個欄位。</p>
+<div class="callout note"><span class="label">第一版範圍</span><p>從一段口語敘述，整理出日期、時間、食慾、進食量、血壓、心跳、體溫與備註；照護人員與個案從名單中選擇。</p><p><strong>重要原則：</strong>只填原文有依據的資料；原文沒說或說得不清楚，就留空並提醒人工確認，不能自行猜測。</p></div>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>第一版要做</th><th>第一版不做</th></tr></thead>
+<tbody>
+<tr><th scope="row">輸入</th><td>貼上一段口語照護敘述，原文完整保留</td><td>語音輸入、拍照辨識</td></tr>
+<tr><th scope="row">欄位</th><td>日期、時間、食慾、進食量、血壓、心跳、體溫、備註</td><td>護理診斷、評估量表、用藥紀錄</td></tr>
+<tr><th scope="row">人員</th><td>照護人員與個案用「人名 · 編號」下拉選單，新增時自動編號（C001、P001）</td><td>登入、權限、真實病歷號</td></tr>
+<tr><th scope="row">檢查</th><td>日期、個案必填；生命徵象有數值就要有單位；缺漏以紅框提示</td><td>判斷數值是否異常、給照護建議</td></tr>
+<tr><th scope="row">系統</th><td>純前端、資料只存在目前瀏覽器、可查詢與匯出 CSV</td><td>資料庫、雲端同步、上傳到機構系統</td></tr>
+</tbody></table></div>
+<p>用工具完成一筆紀錄，會依序經過四個步驟：</p>
+<ul class="flow"><li><b>① 貼上敘述</b>先選照護人員，再貼上原文</li><li><b>② 整理欄位</b>擷取後逐欄核對</li><li><b>③ 確認個案</b>由人從名單選擇資料歸屬</li><li><b>④ 儲存</b>必填欄位齊全才能保存</li></ul>
+
+<h3>一段假設的口語敘述</h3>
+<p>下面是本模組反覆使用的範例敘述。人名與內容都是虛構的，請照原樣使用，不要換成真實個案。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">範例敘述（虛構）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>今天早上去看陳阿公，他說昨晚沒睡好，稀飯大概吃半碗。血壓一百三十六跟八十二，心跳一分鐘九十五下，體溫三十六點九度，站起來有稍微晃一下。</code></pre></figure>
+<p>保留照護人員原本的說法，不必先改寫成制式句子。整理的工作交給工具，核對的工作留給人。</p>
+
+<h3>每個欄位的規則</h3>
+<div class="table-wrap wrap-first"><table>
+<thead><tr><th>欄位</th><th>規則</th><th>範例</th></tr></thead>
+<tbody>
+<tr><th scope="row">照護日期</th><td>必填。「今天」「昨天」換算成日期；沒有提到就留空</td><td>2026-10-17</td></tr>
+<tr><th scope="row">照護時間</th><td>選填。可寫時段或時刻</td><td>早上、08:30</td></tr>
+<tr><th scope="row">食慾</th><td>選填。只抄原文對食慾的描述</td><td>不太想吃、胃口不錯</td></tr>
+<tr><th scope="row">進食量</th><td>選填。保留原文的份量說法</td><td>稀飯大概吃半碗</td></tr>
+<tr><th scope="row">血壓</th><td>收縮壓、舒張壓兩個數值加一個單位</td><td>136／82，單位 mmHg</td></tr>
+<tr><th scope="row">心跳</th><td>數值加單位；「下」「次」都代表次／分</td><td>95，單位 bpm</td></tr>
+<tr><th scope="row">體溫</th><td>數值加單位；只說「度」時不知道是 °C 還是 °F</td><td>36.9，單位 °C</td></tr>
+<tr><th scope="row">備註</th><td>其他照護內容，原文另外完整保留</td><td>站起來有稍微晃一下</td></tr>
+<tr><th scope="row">照護人員、個案</th><td>從「人名 · 編號」下拉選單選擇；個案必填，不能只依原文稱呼自動歸檔</td><td>王小美 · C001、陳阿公 · P001</td></tr>
+</tbody></table></div>
+
+<h3>三種情況要分開處理</h3>
+<div class="card-grid">
+<div class="card"><span class="tag">原文有說</span><h4>照原文填</h4><p>「心跳一分鐘九十五下」→ 心跳 95、單位 bpm。</p></div>
+<div class="card"><span class="tag">原文沒說</span><h4>留空</h4><p>敘述沒有提到體重，就不填；不能用上次的紀錄補。</p></div>
+<div class="card"><span class="tag">原文說得不清楚</span><h4>留空並提醒</h4><p>「血壓一百三十六跟八十二」沒說單位，數值照填，單位留空，等人確認。</p></div>
+</div>
+<div class="callout try"><span class="label">先自己整理看看</span><p>不用工具，用上面的範例敘述，自己填一次八個欄位。哪幾個欄位你會留空？哪幾個單位你會留給人確認？</p></div>
+<details class="explain"><summary>參考答案｜範例敘述應整理成什麼</summary><div>
+<div class="table-wrap"><table>
+<thead><tr><th>欄位</th><th>應填</th><th>說明</th></tr></thead>
+<tbody>
+<tr><td>照護日期</td><td>當天日期</td><td>「今天」要換成實際照護那天；隔天才補登時要特別確認</td></tr>
+<tr><td>照護時間</td><td>早上</td><td>原文只說「早上」，不要自己補成 08:00</td></tr>
+<tr><td>食慾</td><td>（空白）</td><td>「昨晚沒睡好」是睡眠，不是食慾</td></tr>
+<tr><td>進食量</td><td>稀飯大概吃半碗</td><td>保留原文說法</td></tr>
+<tr><td>血壓</td><td>136／82，單位留空</td><td>原文沒說單位</td></tr>
+<tr><td>心跳</td><td>95，bpm</td><td>「一分鐘九十五下」已經說明是每分鐘次數</td></tr>
+<tr><td>體溫</td><td>36.9，單位留空</td><td>只說「度」，沒說攝氏或華氏</td></tr>
+<tr><td>備註</td><td>昨晚沒睡好；站起來有稍微晃一下</td><td>其他觀察都要留下</td></tr>
+</tbody></table></div>
+<p>你可能會想「臺灣量體溫一定是攝氏」。這是合理的推測，但仍是推測。第一版的規則是：<strong>工具不替人做推測，留空讓人選。</strong></p>
+</div></details>
+<div class="callout warn"><span class="label">這是教學原型</span><p>本模組的敘述、人名與欄位都是練習用的虛構假設，不代表任何機構的紀錄格式或護理標準。練習時只用虛構或已去識別化的文字，不要貼上真實個案的姓名、床號、病歷號或可辨識的細節。</p></div>
+
+<h2 id="topic2"><span class="num">03</span>從口述到結構化草稿</h2>
+<p>先用一個做好的版本跑一次，知道「完成」長什麼樣子。範例工具是一個 HTML 檔，不需要安裝；紀錄與名單只存在目前這個瀏覽器裡。</p>
+
+<h3>練習 A：用範例工具完成一筆紀錄</h3>
+<h4>題目敘述 · Problem Statement</h4><p>在範例工具中新增一位照護人員與一位個案，把第 02 節的範例敘述整理成草稿，核對後保存，再查詢並匯出 CSV。</p>
+<p><a class="download" href="examples/unit07-care-records/app/index.html" target="_blank" rel="noopener">開啟範例照護紀錄工具</a></p>
+<p class="source-note">右上角顯示「純前端版 · 請用 Codex 內建瀏覽器開啟」是正常的：這表示目前沒有接上 Codex，工具本身仍可完整操作。第 04 節會說明如何讓 Codex 連上這個頁面。</p>
+<h4>操作步驟</h4>
+<ol class="steps">
+<li><p><strong>新增照護人員。</strong>在「登錄／確認人員」旁按「＋ 新增」，輸入一個虛構姓名，例如「王小美」，按「確認新增」。</p><p>應看到：下拉選單出現「王小美 · C001」並已選取。</p></li>
+<li><p><strong>貼上敘述。</strong>把第 02 節的範例敘述貼進「貼上本次照護內容」。</p></li>
+<li><p><strong>擷取欄位。</strong>按「擷取欄位」。</p><p>應看到：上方出現「欄位已整理，請核對內容並確認這是誰的資料。」右側「整理結果」填入日期、時間、進食量與三項生命徵象。</p></li>
+<li><p><strong>逐欄核對。</strong>拿第 02 節的參考答案對照右側每一欄。</p><p>應看到：血壓 136／82、心跳 95 bpm、體溫 36.9；血壓單位與體溫單位是「選擇單位」（空白）。備註欄放的是整段原文。</p></li>
+<li><p><strong>先試著儲存。</strong>不選單位、不選個案，直接按「確認並儲存」。</p><p>應看到：「資料尚未完整，請補齊紅框標示的必要欄位。」血壓單位、體溫單位與個案三處出現紅框。</p></li>
+<li><p><strong>補齊並確認個案。</strong>依你的判斷選擇單位；在「這是誰的資料？」旁按「＋ 新增」，輸入「陳阿公」。</p><p>應看到：個案選單出現「陳阿公 · P001」。</p></li>
+<li><p><strong>儲存。</strong>按「確認並儲存」。</p><p>應看到：「紀錄已儲存在這台裝置的瀏覽器。」畫面清空，準備下一筆。</p></li>
+<li><p><strong>查詢與匯出。</strong>按上方「紀錄查詢與匯出」，在個案選「陳阿公 · P001」，按「匯出 CSV」，用 Excel 開啟。</p><p>應看到：表格中有剛才那一筆；CSV 有日期、時間、個案、各項數值與單位、備註、原文、確認人員等欄，中文正常。</p></li>
+</ol>
+<h4>預期成果 · Expected Outcome</h4><p>工具中保存了一筆陳阿公的紀錄，以及一份下載的 CSV。</p>
+<h4>完成檢核 · Check it</h4><ul><li>單位是你親自選的，不是工具自動填的。</li><li>重新整理頁面後，名單與紀錄仍在（存在瀏覽器裡）；換一個瀏覽器打開就看不到。</li><li>你知道清除瀏覽器網站資料會刪掉紀錄，所以重要資料要先匯出 CSV。</li></ul>
+
+<div class="callout note"><span class="label">也可以請 Codex 開啟完整範例包</span><p>範例包還有原始操作講義與給 Codex 的協作說明。下載解壓縮後，用 Codex 開啟資料夾，貼上下面這句。它改寫自範例包的說明：不指定啟動檔，由 Codex 依你的電腦選擇啟動方式。</p></div>
+<p><a class="download" href="examples/unit07-care-records.zip" download>下載完整範例包（zip）</a></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">請 Codex 開啟範例包（選做）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請先閱讀這個資料夾的 README.md 與 AGENTS.md，接著在本機啟動 app 資料夾的網站，並開啟 http://localhost:8765。請依我的電腦選擇可用的啟動方式；如果無法啟動，就直接用瀏覽器開啟 app/index.html。請向我簡短說明這個照護紀錄工具的操作流程，以及 guide.html 講義的內容，但先不要修改任何檔案。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜開啟範例包</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限，所以它會實際讀檔與啟動網站。每次的字句都可能不同。</p><figure class="code"><div class="code-head"><div><span class="code-title">可能的回覆</span></div></div><pre><code>我已讀過 README.md 和 AGENTS.md，並在 http://localhost:8765 啟動了 app 資料夾的網站，瀏覽器應該已經打開「照護紀錄簿」。
+
+操作流程是四步：
+（1）選照護人員，貼上口語敘述；
+（2）按「擷取欄位」，整理出日期、時間、食慾、進食量、血壓、心跳、體溫與備註；
+（3）照護人員從下拉選單確認個案；
+（4）按「確認並儲存」。另一個分頁可以查詢紀錄並匯出 CSV。資料只存在這個瀏覽器。
+
+guide.html 是操作與實作講義：前半是上面的操作範例，後半是六段逐層建立同類工具的提示詞。
+
+我沒有修改任何檔案。關閉啟動的程式後網站會停止；需要時告訴我，我再幫你重新啟動。</code></pre></figure>
+</div></details>
+
+<h3>看到紅框時</h3>
+<div class="card-grid">
+<div class="card"><span class="tag">日期沒有填</span><h4>補上實際照護日期</h4><p>原文沒有提到日期時，工具不會自己猜。請填實際照護的那一天，不是補登的那一天。</p></div>
+<div class="card"><span class="tag">單位沒有填</span><h4>依原始量測選擇</h4><p>有數值就要有單位。請依當時實際使用的量測方式選擇，不確定就回頭問記錄的人。</p></div>
+<div class="card"><span class="tag">個案沒有選</span><h4>由人確認歸屬</h4><p>從「人名 · 編號」下拉選單選擇；名單裡沒有時才新增。原文寫「阿公」不等於知道是哪一位。</p></div>
+</div>
+
+<h2 id="topic3"><span class="num">04</span>缺漏標示與專業確認</h2>
+<p>畫面顯示「欄位已整理」，不等於每一欄都整理對了。<strong>測試敘述</strong>就是先寫好「貼上什麼、應該整理成什麼」，再親自操作比對。下面六段敘述涵蓋三種情況：工具應該整理對的、工具應該提醒缺漏的，以及口語中容易出錯的說法。</p>
+
+<h3>練習 B：用六段敘述測試範例工具</h3>
+<h4>題目敘述 · Problem Statement</h4><p>依下表逐一操作範例工具。每做完一段，把「實際看到」記下來；全部做完再打開參考結果對照。</p>
+<p class="source-note">每段都從空白畫面開始：先選照護人員，貼上敘述，按「擷取欄位」，核對後再按「確認並儲存」。表中有寫「先選個案」的，請在儲存前選好個案；測試 4 刻意不選。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>測試</th><th>怎麼操作</th><th>預期看到</th></tr></thead>
+<tbody>
+<tr><td>1 內建範例</td><td>按畫面下方的「帶入範例」（王阿伯的敘述）</td><td>血壓 145／88 mmHg、心跳 96 bpm、體溫 36.8 °C 都整理出來，單位都有</td></tr>
+<tr><td>2 中文口述</td><td>貼上第 02 節的範例敘述，先選個案，再儲存</td><td>數值 136／82、95、36.9；血壓與體溫單位留空，儲存時這兩處出現紅框</td></tr>
+<tr><td>3 沒有日期</td><td>貼上測試 3 敘述，先選個案，再儲存</td><td>日期留空；儲存時只有日期出現紅框</td></tr>
+<tr><td>4 沒選個案</td><td>貼上測試 4 敘述，不選個案就儲存</td><td>個案出現紅框，紀錄沒有被保存</td></tr>
+<tr><td>5 「度半」</td><td>貼上測試 5 敘述，先選個案</td><td>體溫整理成 37.5，或留空並提醒確認；不能變成別的數字</td></tr>
+<tr><td>6 量了兩次</td><td>貼上測試 6 敘述，先選個案，再儲存</td><td>兩次血壓都看得到，或提醒有兩次量測要由人選；不能默默只留一次</td></tr>
+</tbody></table></div>
+<p>測試 3 到 6 的敘述如下（虛構），按「複製」再貼進工具。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">測試 3 · 沒有日期</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>早上去看陳阿公，稀飯吃半碗。血壓136/82 mmHg，心跳95次，體溫三十六點九度C。</code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-title">測試 4 · 沒選個案</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>今天下午去看李奶奶，午餐吃了七分滿。血壓128/76 mmHg，心跳80下，體溫三十六點五度C。</code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-title">測試 5 · 「度半」</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>今天晚上八點李奶奶說有點冷，體溫三十七度半C，心跳八十八下。</code></pre></figure>
+<figure class="code"><div class="code-head"><div><span class="code-title">測試 6 · 量了兩次</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>今天早上陳阿公血壓150/95 mmHg，休息十分鐘後再量血壓138/86 mmHg，心跳90下。</code></pre></figure>
+<details class="explain"><summary>參考結果｜範例工具的實際行為</summary><div>
+<p class="source-note">以下是 2026-10-11 用範例包中的工具實際操作的結果。如果範例包更新，結果可能不同。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>測試</th><th>實際看到</th><th>符合預期？</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>心跳 96 bpm 正確；<strong>血壓兩格空白</strong>；體溫變成 <strong>36</strong>，單位空白</td><td><strong>不符合</strong>：「血壓量起來是 145」多了「是」就認不出來；「36.8°C」的小數點沒有被當成數字的一部分</td></tr>
+<tr><td>2</td><td>136／82、95 bpm、36.9；儲存時血壓單位、體溫單位（與未選的個案）出現紅框</td><td>符合</td></tr>
+<tr><td>3</td><td>日期空白，其他欄位與單位都正確；儲存時只有日期出現紅框</td><td>符合</td></tr>
+<tr><td>4</td><td>個案出現紅框，「資料尚未完整」，沒有保存</td><td>符合（另外，「七分滿」沒有被整理進進食量，要人工補）</td></tr>
+<tr><td>5</td><td>體溫變成 <strong>37</strong>，單位空白，儲存時單位出現紅框</td><td><strong>不符合</strong>：「半」被丟掉。若只看紅框選了 °C 就儲存，會存下錯誤的 37</td></tr>
+<tr><td>6</td><td>血壓欄只有 150／95，沒有任何提醒，可以直接儲存</td><td><strong>不符合</strong>：第二次的 138／86 只留在備註的原文裡，表格與匯出的血壓欄看不到</td></tr>
+</tbody></table></div>
+<p>測試 1、5、6 說明三件事：</p>
+<ul>
+<li><strong>內建範例不一定測過。</strong>工具自己的「帶入範例」，就整理錯了兩項。</li>
+<li><strong>紅框只抓「空白」，抓不到「錯值」。</strong>37.5 變成 37，數值不是空的，紅框只提醒單位，不會提醒數字錯了。</li>
+<li><strong>沒提醒，不代表沒漏。</strong>兩次量測只留下一次，畫面看起來一切正常。</li>
+</ul>
+</div></details>
+<h4>預期成果 · Expected Outcome</h4><p>一份六列的測試紀錄，每列有「怎麼操作、預期看到、實際看到、是否符合」。</p>
+<h4>完成檢核 · Check it</h4><ul><li>六段敘述都是自己操作過，而不是只看參考結果。</li><li>能指出哪三段不符合預期，並用一句話說明原因。</li><li>能說出：為什麼「核對每一個數值」不能只靠紅框。</li></ul>
+
+<h3>讓 Codex 協助回填，判斷仍在你</h3>
+<p>範例工具還有一個設計：用 Codex 內建瀏覽器開啟本機網址時，頁面會向 Codex 提供三個工具（Site tools）。右上角會顯示「Codex 已連結（3 個工具）」。</p>
+<div class="table-wrap wrap-first"><table>
+<thead><tr><th>工具</th><th>能做什麼</th><th>不能做什麼</th></tr></thead>
+<tbody>
+<tr><th scope="row">讀取敘述</th><td>讀取畫面上尚未儲存的原文</td><td>讀取其他網頁或檔案</td></tr>
+<tr><th scope="row">回填照護欄位</th><td>把整理結果填進右側欄位，供人核對</td><td>選擇個案、按下「確認並儲存」</td></tr>
+<tr><th scope="row">查詢本機紀錄</th><td>依個案與日期查詢這個瀏覽器保存的紀錄</td><td>修改或刪除紀錄</td></tr>
+</tbody></table></div>
+<p>Codex 讀的是整段文字，所以「三十七度半」這類說法，可能整理得比規則式的「擷取欄位」好；但它也可能出錯，或替你推測單位。<strong>不論欄位是誰填的，核對的步驟都一樣。</strong></p>
+<p>先依前面的提示請 Codex 啟動範例包的網站，在 Codex 內建瀏覽器開啟 http://localhost:8765，貼上一段測試敘述，再貼下面這句。它就是範例包的「給Codex的第一句」。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">請 Codex 讀取敘述並回填欄位（選做）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請開啟 http://localhost:8765，確認頁面右上角顯示 Codex 已連結。接著讀取目前的照護敘述，只根據原文整理日期、時間、食慾、進食量、血壓、心跳、體溫與備註，並回填網頁欄位。原文沒有提供或單位不清楚的資料請保持空白，不要自行猜測；回填後由我人工確認個案與儲存。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜用測試 5 的敘述回填</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限，頁面也已顯示「Codex 已連結（3 個工具）」。回覆只是示意，不是真正的測試結果；請以畫面上實際回填的內容為準。</p><figure class="code"><div class="code-head"><div><span class="code-title">可能的回覆</span></div></div><pre><code>頁面右上角顯示「Codex 已連結（3 個工具）」。我讀取了目前的敘述，並回填以下欄位：
+
+・照護日期：今天的日期（原文寫「今天」）
+・照護時間：晚上八點
+・體溫：37.5，單位 °C（原文「三十七度半C」）
+・心跳：88，單位 bpm（原文「八十八下」）
+・備註：說有點冷
+・食慾、進食量、血壓：原文沒有提到，保持空白
+
+我沒有選擇個案，也沒有按下儲存。請你核對每一欄，確認這是哪一位個案後再儲存。</code></pre></figure>
+</div></details>
+<p><strong>完成後檢查：</strong>右側欄位與原文逐一對照；個案仍是空白，紀錄沒有被自動保存。</p>
+<div class="callout warn"><span class="label">專業確認不能交給工具</span><p>工具或 Codex 整理出的，都只是<strong>草稿</strong>。數值是否合理、單位是否正確、是哪一位個案、是否需要通報或處置，都要由具資格的照護人員判斷。工具不提供任何照護建議。</p></div>
+
+<h2 id="practice"><span class="num">05</span>請 AI Agent 做出自己的版本</h2>
+<p>現在從空白資料夾開始，請 AI Agent（例如 Codex）做出一個<strong>照護紀錄草稿工具的 MVP</strong>（最小可用版本）：能貼上敘述、能整理欄位、能提醒缺漏、能由人確認後保存、能查詢匯出。方法和模組 06 一樣：<strong>一次貼一段提示、做完一層就親自檢查</strong>，通過了才貼下一段。</p>
+
+<h3>練習 C：逐層做出紀錄草稿 MVP</h3>
+<h4>題目敘述 · Problem Statement</h4><p>在新的空資料夾中，依序完成準備與六層功能。每一層都附上建議提示、可能的 AI 回覆、完成後檢查與示範成果畫面。示範成果是依同一段提示做出的版本，每一層都存成獨立資料夾，可以直接打開操作；你的版本外觀與用字可以不同，只要通過同樣的檢查。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>階段</th><th>這一層加入什麼</th><th>做完後你可以</th></tr></thead>
+<tbody>
+<tr><td>準備</td><td>資料夾、說明你的程度</td><td>讓 AI 知道你不寫程式，一次只做一小步</td></tr>
+<tr><td>第 1 層</td><td>靜態畫面</td><td>輸入原文，手動填寫右側欄位</td></tr>
+<tr><td>第 2 層</td><td>中文口述擷取</td><td>按一下就把口語數字整理進欄位</td></tr>
+<tr><td>第 3 層</td><td>人員與個案名單</td><td>用「人名 · 編號」選人，新增時自動編號</td></tr>
+<tr><td>第 4 層</td><td>確認與本機保存</td><td>缺漏時看到紅框，齊全才保存</td></tr>
+<tr><td>第 5 層</td><td>查詢與匯出</td><td>依個案與日期查詢，匯出 CSV</td></tr>
+<tr><td>第 6 層</td><td>連結 Codex Site tools（選做）</td><td>請 Codex 讀取敘述、回填欄位、查詢紀錄</td></tr>
+</tbody></table></div>
+<h4>建議 Prompt · Suggested Prompt</h4><p>提示分成準備與六層，寫在下面各節。每一段都按「複製」，貼進<strong>同一個對話</strong>；做完該層的「完成後檢查」，通過了再貼下一段。</p>
+<div class="callout try"><span class="label">每一層都可以「改改看」</span><p>每層最後有一兩個小修改建議。先照原本的提示做完並通過檢查，再試著在提示中<strong>加一句或改一個詞</strong>，貼給 AI，看看結果怎麼變。一次只改一處；改壞了，可以對 AI 說「請把剛才的修改還原」。</p></div>
+
+<h3>準備：開好資料夾，說明你的程度</h3>
+<ol class="steps">
+<li><p>建立一個新資料夾，例如「我的照護紀錄工具」。</p></li>
+<li><p>用 Codex 開啟這個資料夾。</p></li>
+<li><p>貼上下面的提示（與模組 01 的「提示 1」相同）。之後每一層的提示都貼在<strong>同一個對話</strong>中。</p></li>
+</ol>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">準備：說明我的程度與溝通方式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。
+這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜準備</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限。每次的字句都可能不同。</p><figure class="code"><div class="code-head"><div><span class="code-title">可能的回覆</span></div></div><pre><code>了解。我會用一般用語說明，一次只做一小步，不會要求你讀程式或手動修改。
+目前這個資料夾是空的，我沒有建立任何檔案，等你提出需求。</code></pre></figure>
+</div></details>
+<p><strong>完成後檢查：</strong>AI 只回覆、沒有建立任何檔案。</p>
+
+<h3>第 1 層：先做靜態畫面</h3>
+<p>先把畫面與欄位做出來，還不需要自動整理。這樣你可以先確認欄位對不對，再決定要整理什麼。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 1 層：先做靜態畫面</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請建立純前端照護紀錄頁面。左邊選擇照護人員並輸入口語敘述，右邊顯示日期、時間、食慾、進食量、血壓、心跳、體溫與備註。先只做畫面。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 1 層</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限。回覆中「試過」的內容只是示意；每次的字句、檔名與外觀都可能不同，請親自打開檢查。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 1 層可能的回覆</span></div></div><pre><code>已在這個資料夾建立 index.html，是一個不需要伺服器或網路的網頁。
+
+怎麼開啟：在資料夾中雙擊 index.html，會用瀏覽器打開。
+
+左邊是「照護敘述」：一個照護人員下拉選單（目前是空的）和一個大的文字框。
+右邊是「整理結果」：日期、時間、食慾、進食量、血壓（收縮壓、舒張壓、單位）、心跳（數值、單位）、體溫（數值、單位）與備註，都可以手動輸入。
+目前還沒有自動整理，也不會保存資料。
+
+我打開試過：可以在左邊輸入文字，右邊每一欄都能手動填寫。下一步可以加入中文口述擷取。</code></pre></figure>
+</div></details>
+<p><strong>完成後檢查：</strong>可以輸入原文，也能手動修改右側每一個欄位；三項生命徵象都有獨立的單位欄。</p>
+<figure class="page-figure"><a href="figures/unit07-c1-static.webp" target="_blank" rel="noopener" title="開啟完整尺寸畫面"><img src="figures/unit07-c1-static.webp" alt="第 1 層成果：左邊照護人員與敘述，右邊八個欄位，生命徵象各有單位選單" loading="lazy" width="1280" height="1121"></a><figcaption>第 1 層：左邊是照護人員選單（還沒有人員）與口語敘述，右邊是八個欄位；血壓、心跳、體溫各有獨立的單位選單。目前只有畫面，不會整理或保存。</figcaption></figure>
+<p class="source-note"><a href="examples/unit07-build/layer1/index.html" target="_blank" rel="noopener">開啟第 1 層的示範成果</a>（每一層都是獨立的資料夾，內含 index.html）</p>
+<div class="callout try"><span class="label">改改看（選做）</span><ul>
+<li>在提示最後加一句：「再加一個『血氧』欄位，數值加單位 %。」<br>怎麼確認：右側多了血氧，有數值與單位兩格，原本欄位不變。</li>
+<li>加一句：「網站標題用『（虛構）日照中心照護紀錄』。」<br>怎麼確認：標題改變，欄位與排列不變。</li>
+</ul></div>
+
+<h3>第 2 層：加入中文口述擷取</h3>
+<p>讓工具把口語說法整理進欄位。這一層最重要的是：<strong>只填原文有依據的資料</strong>，單位不清楚就留空。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 2 層：加入中文口述擷取</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入中文照護敘述擷取。支援「一百三十六跟八十二」、「心跳一分鐘九十五下」及「三十六點九度」；只填原文有依據的資料，單位不清楚時保持空白。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 2 層</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限。回覆中「試過」的內容只是示意；請用練習 B 的敘述親自測試。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 2 層可能的回覆</span></div></div><pre><code>已在左邊加入「擷取欄位」按鈕。按下後會讀取原文，整理到右邊：
+
+・日期：原文有「今天」「昨天」或寫出日期時才填；
+・時間：早上、下午、晚上八點等說法；
+・食慾、進食量：抄錄原文中相關的句子；
+・血壓、心跳、體溫：中文數字（含「點」的小數）會轉成阿拉伯數字；
+・單位：原文寫了 mmHg、°C、「下」「次」才填，只寫「度」時單位留空。
+原文完整保留，不會被改寫。
+
+我用「血壓一百三十六跟八十二，心跳一分鐘九十五下，體溫三十六點九度」試過：
+血壓 136／82、單位空白；心跳 95、bpm；體溫 36.9、單位空白。</code></pre></figure>
+</div></details>
+<p><strong>完成後檢查：</strong>用練習 B 的測試 1、2、5 至少三種說法測試；數值正確，單位不清楚時是空白。</p>
+<figure class="page-figure"><a href="figures/unit07-c2-extract.webp" target="_blank" rel="noopener" title="開啟完整尺寸畫面"><img src="figures/unit07-c2-extract.webp" alt="第 2 層成果：範例敘述整理後，血壓 136／82 與體溫 36.9 的單位留空，心跳 95 bpm" loading="lazy" width="1280" height="1187"></a><figcaption>第 2 層：貼上第 02 節的範例敘述，按「擷取欄位」。血壓 136／82、體溫 36.9 的單位留空（原文沒說），心跳 95 因為原文說「下」而填 bpm；「昨晚沒睡好」放進備註，沒有被當成食慾。</figcaption></figure>
+<p class="source-note"><a href="examples/unit07-build/layer2/index.html" target="_blank" rel="noopener">開啟第 2 層的示範成果</a></p>
+<div class="callout warn"><span class="label">看看 AI 替你決定了什麼</span><p>提示沒有說「早上」要不要換成時刻、「七分滿」算不算進食量、量了兩次要填哪一次。AI 會自己決定。用練習 B 的六段敘述試一次，不符合你的意思，就在下一段提示中寫清楚。</p></div>
+<div class="callout try"><span class="label">改改看（選做）</span><ul>
+<li>加一句：「支援『三十七度半』，代表 37.5。」<br>怎麼確認：測試 5 的體溫整理成 37.5。</li>
+<li>加一句：「原文出現兩次以上同一種生命徵象時，欄位留空，並列出每一次的數值請人選擇。」<br>怎麼確認：測試 6 不會只留下第一次的血壓。</li>
+</ul></div>
+
+<h3>第 3 層：加入人員與個案名單</h3>
+<p>讓「是誰記的」「是誰的資料」都從名單中選擇，而不是讓工具從原文猜。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 3 層：加入人員與個案名單</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請為照護人員與個案各做一個「人名 · 編號」下拉選單及新增按鈕。新增時只輸入姓名，照護人員自動編為 C001，個案自動編為 P001，並保存在瀏覽器。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 3 層</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限。回覆中「試過」的內容只是示意；請親自新增並重新整理檢查。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 3 層可能的回覆</span></div></div><pre><code>已加入兩個名單：
+・左上「照護人員」：下拉選單加「＋ 新增」；
+・右下「這是誰的資料？」：個案下拉選單加「＋ 新增」。
+新增時只要輸入姓名，照護人員依序編為 C001、C002……，個案編為 P001、P002……。輸入已在名單中的姓名時，會直接選取原本那一位，不會重複建立。
+名單保存在這個瀏覽器的 localStorage，重新整理後仍在；換一個瀏覽器就看不到。
+
+擷取欄位時不會自動選個案，一定要由你從名單選擇。
+
+我試過：新增王小美、李大同兩位照護人員，得到 C001、C002；重新整理後兩位仍在選單中。</code></pre></figure>
+</div></details>
+<p><strong>完成後檢查：</strong>新增兩位人員，重新整理後仍能在下拉選單選取；擷取欄位後，個案仍是空白。</p>
+<figure class="page-figure"><a href="figures/unit07-c3-lists.webp" target="_blank" rel="noopener" title="開啟完整尺寸畫面"><img src="figures/unit07-c3-lists.webp" alt="第 3 層成果：新增個案的視窗，只需輸入姓名；照護人員已選王小美 · C001" loading="lazy" width="1280" height="1323"></a><figcaption>第 3 層：照護人員已新增為「王小美 · C001」；按個案旁的「＋ 新增」，只要輸入姓名，確認後會自動編為 P001。擷取欄位後，個案選單仍停在「請選擇個案」。</figcaption></figure>
+<p class="source-note"><a href="examples/unit07-build/layer3/index.html" target="_blank" rel="noopener">開啟第 3 層的示範成果</a></p>
+<div class="callout try"><span class="label">改改看（選做）</span><ul>
+<li>加一句：「個案編號改用 R001 開頭。」<br>怎麼確認：新增個案得到 R001，照護人員仍是 C001。</li>
+</ul></div>
+
+<h3>第 4 層：加入確認與本機保存</h3>
+<p>現在才讓工具保存。缺漏時<strong>停下來、指出位置</strong>，齊全了才存。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 4 層：加入確認與本機保存</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入確認儲存。日期一定要填；生命徵象有數值時一定要有單位；個案一定要選。缺漏時捲動到欄位並以紅框提示，確認後存入 localStorage。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 4 層</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限。回覆中「試過」的內容只是示意；請親自刪掉日期或單位檢查。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 4 層可能的回覆</span></div></div><pre><code>已在下方加入「確認並儲存」。按下時會檢查三件事：
+（1）照護日期有填；
+（2）血壓、心跳、體溫只要有數值，就要選單位；
+（3）個案有選。
+有缺漏時，缺的欄位加上紅框，畫面捲動到第一個紅框，並顯示「資料尚未完整」，不會保存。
+全部齊全才保存到這個瀏覽器，並清空畫面準備下一筆。原文、整理欄位、照護人員與個案會一起保存。
+
+我試過：刪掉日期按儲存，日期出現紅框；選好後再存，顯示「紀錄已儲存」。</code></pre></figure>
+</div></details>
+<p><strong>完成後檢查：</strong>用練習 B 的測試 2、3、4，紅框位置都和預期相同；重新整理後可讀回紀錄。</p>
+<figure class="page-figure"><a href="figures/unit07-c4-missing.webp" target="_blank" rel="noopener" title="開啟完整尺寸畫面"><img src="figures/unit07-c4-missing.webp" alt="第 4 層成果：未選單位與個案就儲存，血壓單位、體溫單位與個案出現紅框" loading="lazy" width="1280" height="1324"></a><figcaption>第 4 層：範例敘述整理後，沒選單位、沒選個案就按「確認並儲存」。血壓單位、體溫單位與個案三處出現紅框，上方顯示「資料尚未完整」，沒有保存。</figcaption></figure>
+<p class="source-note"><a href="examples/unit07-build/layer4/index.html" target="_blank" rel="noopener">開啟第 4 層的示範成果</a></p>
+<div class="callout try"><span class="label">改改看（選做）</span><ul>
+<li>加一句：「體溫若低於 34 或高於 42，儲存前跳出『請再確認數值』，但不阻止儲存。」<br>怎麼確認：把體溫改成 3.7 會出現提醒；確認後仍可儲存。這是提醒輸入錯誤，不是判斷病情。</li>
+</ul></div>
+
+<h3>第 5 層：加入查詢與匯出</h3>
+<p>讓保存的紀錄可以查、可以帶走。紀錄只存在瀏覽器，匯出 CSV 也是備份的方法。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 5 層：加入查詢與匯出</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入紀錄查詢與 CSV 匯出。個案使用「人名 · 編號」下拉選單，並可依日期篩選；匯出內容包含整理欄位、原文與確認人員。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 5 層</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限。回覆中「試過」的內容只是示意；請親自匯出並用 Excel 開啟檢查。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 5 層可能的回覆</span></div></div><pre><code>已在上方加入「紀錄查詢與匯出」分頁。可以選個案、選日期篩選，下方表格列出符合的紀錄。
+
+「匯出 CSV」會下載目前篩選的結果，檔名像「照護紀錄_2026-10-17.csv」。欄位有日期、時間、個案、食慾、進食量、收縮壓、舒張壓、血壓單位、心跳、心跳單位、體溫、體溫單位、備註、原文與確認人員。檔案開頭有 UTF-8 BOM，用 Excel 開啟中文不會變亂碼。
+
+我試過：存了兩位個案各一筆，選其中一位後匯出，CSV 只有那一筆。</code></pre></figure>
+</div></details>
+<p><strong>完成後檢查：</strong>篩選一位個案後匯出，確認數值、單位與原文完整，中文沒有亂碼。</p>
+<figure class="page-figure"><a href="figures/unit07-c5-history.webp" target="_blank" rel="noopener" title="開啟完整尺寸畫面"><img src="figures/unit07-c5-history.webp" alt="第 5 層成果：紀錄查詢分頁，篩選陳阿公後列出一筆紀錄與匯出按鈕" loading="lazy" width="1280" height="560"></a><figcaption>第 5 層：存了陳阿公與李奶奶各一筆，在「紀錄查詢與匯出」選陳阿公，只列出他的那一筆。按「匯出 CSV」下載的檔案有 15 欄（含原文與確認人員），開頭有 UTF-8 BOM。</figcaption></figure>
+<p class="source-note"><a href="examples/unit07-build/layer5/index.html" target="_blank" rel="noopener">開啟第 5 層的示範成果</a></p>
+<div class="callout try"><span class="label">改改看（選做）</span><ul>
+<li>加一句：「匯出時把數值和單位合成一欄，例如『136／82 mmHg』。」<br>怎麼確認：CSV 的欄位變少，但每個數值都還帶著單位。</li>
+</ul></div>
+
+<h3>第 6 層：連結 Codex Site tools（選做）</h3>
+<p>最後一層讓 Codex 能和同一個頁面協作。這一層用到較新的瀏覽器功能（WebMCP），只在 Codex 內建瀏覽器中有作用；沒有完成也不影響前五層的成果。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 6 層：連結 Codex Site tools</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請用 WebMCP 為頁面加入三個 Codex 工具：讀取目前敘述、回填擷取欄位、查詢本機紀錄。Codex 不可代替照護人員確認個案或按下正式儲存。完成後請依我的電腦選擇可用的方式，在本機啟動這個網站，告訴我要在 Codex 內建瀏覽器開啟哪個網址。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第 6 層</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限。回覆中「試過」的內容只是示意；請在 Codex 內建瀏覽器中親自檢查。</p><figure class="code"><div class="code-head"><div><span class="code-title">第 6 層可能的回覆</span></div></div><pre><code>已為頁面加入三個工具：
+・read_care_narrative：讀取目前畫面上的原文；
+・fill_extracted_care_fields：把整理結果回填到右側欄位，回填後顯示「請人工核對並確認個案後再儲存」；
+・list_local_care_records：依個案與日期查詢這個瀏覽器的紀錄。
+三個工具都不能選個案，也不能按儲存。
+
+我已在本機啟動網站：http://localhost:8765。請在 Codex 內建瀏覽器開啟這個網址，右上角應顯示「Codex 已連結（3 個工具）」。
+用一般瀏覽器開啟時會顯示「請用 Codex 內建瀏覽器開啟」，其他功能照常可用。</code></pre></figure>
+</div></details>
+<p><strong>完成後檢查：</strong>在 Codex 內建瀏覽器看到 3 個工具，並能用第 04 節那一句提示回填欄位；個案仍是空白，沒有被自動儲存。</p>
+<figure class="page-figure"><a href="figures/unit07-c6-tools.webp" target="_blank" rel="noopener" title="開啟完整尺寸畫面"><img src="figures/unit07-c6-tools.webp" alt="第 6 層成果：右上角顯示 Codex 已連結（3 個工具），體溫 37.5 °C 等欄位已回填，個案仍未選" loading="lazy" width="1280" height="1387"></a><figcaption>第 6 層：用測試程式模擬 Codex 連上頁面並呼叫「回填照護欄位」，填入測試 5 的整理結果。右上角顯示「Codex 已連結（3 個工具）」，上方提醒人工核對；個案仍是空白，沒有被儲存。用一般瀏覽器開啟時，右上角會顯示「請用 Codex 內建瀏覽器開啟」。</figcaption></figure>
+<p class="source-note"><a href="examples/unit07-build/layer6/index.html" target="_blank" rel="noopener">開啟第 6 層的示範成果</a>（資料夾內另有 README.md）</p>
+
+<h3>練習 C 的成果與檢核</h3>
+<h4>預期成果 · Expected Outcome</h4><p>資料夾中有一個照護紀錄草稿工具：貼上口語敘述後可以整理欄位，缺漏時有紅框，由你選擇個案後才保存，並能查詢與匯出 CSV。這就是紀錄草稿工具的 MVP。外觀可以和範例工具不同，只要操作結果一致。</p>
+<h4>完成檢核 · Check it</h4><ul><li>每一層的「完成後檢查」都由你親自操作通過，不是只看 AI 說「完成了」。</li><li>用練習 B 的測試 2、3、4 測你的版本，結果和預期相同。</li><li>如果試了「改改看」，記下你改了哪一句、結果怎麼變，以及原本的檢查是否仍然通過。</li></ul>
+
+<h3>練習 D：依測試結果修正</h3>
+<h4>題目敘述 · Problem Statement</h4><p>用練習 B 的測試 1、5、6 測你的版本。有不符合預期的，請 AI 修正；修正後<strong>六段敘述全部重做一次</strong>，確認沒有把原本對的地方改壞。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">依測試敘述修正（只留下你的版本沒通過的項目）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我用下面三段測試敘述檢查了目前的照護紀錄工具，發現實際整理結果和預期不同。請只修正這三點，不要改變其他功能與畫面：
+（1）「血壓量起來是145／88 mmHg，心跳每分鐘96下，體溫36.8°C」：血壓要整理成 145／88、mmHg；體溫要整理成 36.8、°C。「量起來是」這類說法和阿拉伯數字的小數點都要支援。
+（2）「體溫三十七度半C」：體溫要整理成 37.5、°C，不可以變成 37。
+（3）「血壓150/95 mmHg，休息十分鐘後再量血壓138/86 mmHg」：同一種生命徵象出現兩次以上時，血壓欄留空，並在畫面上列出每一次的數值，請照護人員選擇要記錄哪一次；不可以默默只留第一次。
+修正後請用這三段與原本的範例敘述各試一次，用一般用語告訴我怎麼操作、應該看到什麼。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜練習 D</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限。回覆中的測試結果只是示意；請用你自己的六段敘述重新操作判斷。</p><figure class="code"><div class="code-head"><div><span class="code-title">練習 D 可能的回覆</span></div></div><pre><code>已修正三點，其他功能沒有變動：
+（1）血壓前面出現「量起來是」「測到」等說法也能辨識；阿拉伯數字的小數點會保留，36.8°C 會整理成 36.8、°C。
+（2）「度半」會換成 .5，三十七度半C 整理成 37.5、°C。
+（3）同一種生命徵象出現兩次以上時，那一欄留空，並在欄位下方列出「第 1 次 150／95 mmHg、第 2 次 138／86 mmHg」，按其中一個才會填入。
+
+怎麼測：
+・按「帶入範例」：血壓 145／88 mmHg、體溫 36.8 °C。
+・貼上「三十七度半C」那段：體溫 37.5 °C。
+・貼上量兩次血壓那段：血壓欄空白，下方列出兩次數值等你選。
+・原本的陳阿公範例：結果和修正前一樣，血壓與體溫單位仍留空。</code></pre></figure>
+</div></details>
+<h4>預期成果 · Expected Outcome</h4><p>修正後，六段敘述都符合預期；或對仍不符合的項目，寫下原因與下一步。</p>
+<h4>完成檢核 · Check it</h4><ul><li>測試 1：血壓與體溫都整理正確，單位也正確。</li><li>測試 5：體溫是 37.5，不是 37。</li><li>測試 6：兩次血壓都看得到，由你選擇要記錄哪一次。</li><li>測試 2 到 4 重做後結果不變，尤其「只說『度』時單位留空」沒有被改成自動填 °C。</li></ul>
+<h4>示範版本的測試結果</h4>
+<p>用第 6 層的示範版本做完六段敘述：測試 1 到 4 符合預期，測試 5 與 6 不符合。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>測試</th><th>第 6 層示範版本</th><th>修正後</th></tr></thead>
+<tbody>
+<tr><td>1 內建範例</td><td>符合：145／88 mmHg、96 bpm、36.8 °C</td><td>不變</td></tr>
+<tr><td>2 中文口述</td><td>符合：血壓與體溫單位留空，儲存時出現紅框</td><td>不變</td></tr>
+<tr><td>3 沒有日期</td><td>符合：只有日期出現紅框</td><td>不變</td></tr>
+<tr><td>4 沒選個案</td><td>符合：只有個案出現紅框</td><td>不變</td></tr>
+<tr><td>5 「度半」</td><td><strong>不符合</strong>：體溫 37，單位留空</td><td>37.5 °C</td></tr>
+<tr><td>6 量了兩次</td><td><strong>不符合</strong>：只留 150／95，可直接儲存</td><td>血壓欄留空，列出兩次請人選；沒選就不能儲存</td></tr>
+</tbody></table></div>
+<p>第 2 層的提示寫明了「一百三十六跟八十二」等三種說法，所以示範版本在測試 1 到 4 都沒問題；提示沒提到的「度半」與「量兩次」，就照 AI 自己的判斷處理，結果不符合。這和原始範例工具不同（它連測試 1 都沒通過），所以<strong>練習 D 的提示要依你自己版本的結果刪減</strong>。示範版本只送出（2）（3）兩點，修正後六段敘述全部重做，都符合預期。</p>
+<figure class="page-figure"><a href="figures/unit07-d-test5.webp" target="_blank" rel="noopener" title="開啟完整尺寸畫面"><img src="figures/unit07-d-test5.webp" alt="修正後測試 5：體溫三十七度半C 整理成 37.5 °C" loading="lazy" width="1280" height="1411"></a><figcaption>修正後的測試 5：「三十七度半C」整理成 37.5、單位 °C。</figcaption></figure>
+<figure class="page-figure"><a href="figures/unit07-d-test6.webp" target="_blank" rel="noopener" title="開啟完整尺寸畫面"><img src="figures/unit07-d-test6.webp" alt="修正後測試 6：血壓欄留空並列出兩次量測，未選擇就儲存時收縮壓出現紅框" loading="lazy" width="1280" height="1491"></a><figcaption>修正後的測試 6：原文有兩次血壓，欄位留空並列出「第 1 次 150／95 mmHg」「第 2 次 138／86 mmHg」；還沒選就按儲存，收縮壓出現紅框，提醒選擇要記錄哪一次。</figcaption></figure>
+<p class="source-note"><a href="examples/unit07-build/fixed/index.html" target="_blank" rel="noopener">開啟修正後的示範成果</a></p>
+<p><a class="download" href="unit07-practice.html">開啟模組 07 練習單</a></p>
+
+<h2 id="topic4"><span class="num">06</span>專題展示與兩日回顧</h2>
+<p>兩天的工作坊做了兩個 AI 專題：模組 06 的排班工具與這一模組的紀錄草稿工具。展示時，重點不是工具有多漂亮，而是讓聽的人知道：<strong>它做什麼、用了什麼資料、你怎麼檢查它、它不能做什麼。</strong></p>
+
+<h3>練習 E：準備三分鐘專題展示</h3>
+<h4>題目敘述 · Problem Statement</h4><p>從模組 06 或模組 07 選一個你自己做出的版本，依下面四段準備三分鐘的展示。每段約 45 秒，邊說邊操作工具。</p>
+<div class="table-wrap wrap-first"><table>
+<thead><tr><th>段落</th><th>要說清楚什麼</th><th>以紀錄草稿工具為例</th></tr></thead>
+<tbody>
+<tr><th scope="row">① 專題範圍</th><td>解決什麼問題、第一版做什麼、不做什麼</td><td>把口語敘述整理成八個欄位草稿；不做診斷、不給照護建議</td></tr>
+<tr><th scope="row">② 安全資料</th><td>用了什麼資料、資料存在哪裡</td><td>只用虛構敘述；資料只存在瀏覽器，不上傳</td></tr>
+<tr><th scope="row">③ 專業檢核</th><td>用哪些測試檢查、哪裡沒通過、哪些判斷留給人</td><td>六段測試敘述；「度半」原本會錯；個案歸屬與儲存由人確認</td></tr>
+<tr><th scope="row">④ 成果展示</th><td>實際操作一次，說出下一步想改什麼</td><td>貼上一段敘述 → 擷取 → 紅框 → 確認個案 → 儲存 → 匯出</td></tr>
+</tbody></table></div>
+<p>如果想請 AI 幫你整理講稿，可以用下面的提示。講稿是草稿，裡面的測試結果要換成你自己實際看到的。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">整理三分鐘展示講稿（選做）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請閱讀這個資料夾中的工具與說明檔，幫我寫一份三分鐘的專題展示講稿，分成四段：專題範圍、安全資料、專業檢核、成果展示，每段約 45 秒。
+專業檢核的部分，請留下空格讓我自己填入實際測試結果，不要替我寫出測試是否通過。請用一般用語，不要使用程式術語。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜展示講稿</summary><div>
+<p class="source-note">以下假設使用本機的 Codex App，並已授予完整存取權限，會實際讀取資料夾中的檔案。每次的字句都可能不同。</p><figure class="code"><div class="code-head"><div><span class="code-title">可能的回覆</span></div></div><pre><code>我讀了 index.html 與 README.md，以下是三分鐘講稿草稿：
+
+【專題範圍｜約 45 秒】
+照護人員常用口語記錄，例如「血壓一百三十六跟八十二」。這個工具把一段敘述整理成日期、時間、食慾、進食量、血壓、心跳、體溫與備註八個欄位的草稿。它不做診斷，也不給照護建議。
+
+【安全資料｜約 45 秒】
+展示用的敘述都是虛構的。紀錄只存在這台電腦的瀏覽器，不會上傳；需要備份時匯出 CSV。
+
+【專業檢核｜約 45 秒】
+我準備了 ___ 段測試敘述。其中 ___ 段一開始沒有通過，原因是 ___；修正後 ___。
+工具只整理草稿，個案是誰、單位是否正確、要不要儲存，都由照護人員確認。
+
+【成果展示｜約 45 秒】
+（邊說邊操作）貼上敘述，按擷取欄位；沒說清楚的單位會留空，儲存時出現紅框；選好個案後儲存，再到查詢頁匯出。
+下一步我想改的是 ___。
+
+我沒有修改任何檔案。空格請依你實際的測試結果填寫。</code></pre></figure>
+</div></details>
+<h4>預期成果 · Expected Outcome</h4><p>一份四段的展示大綱，以及一次三分鐘的實際操作展示。</p>
+<h4>完成檢核 · Check it</h4><ul><li>四段都說到，而且「專業檢核」用的是自己實際操作的結果。</li><li>展示時至少讓聽的人看到一次「工具停下來、交給人確認」的畫面。</li><li>說得出一件這個工具<strong>不能</strong>做的事。</li></ul>
+
+<h3>兩日回顧：七個模組串成一條路</h3>
+<p>回頭看兩天的內容，每個模組都在練同一件事的不同部分：把需求說清楚、讓 AI Agent 動手、由你檢查結果。</p>
+<div class="table-wrap wrap-first"><table>
+<thead><tr><th>模組</th><th>主題</th><th>和 AI 專題的關係</th></tr></thead>
+<tbody>
+<tr><th scope="row"><a href="unit01.html">01</a></th><td>從 Chatbot 到 Agentic AI</td><td>把需求寫成看得到、可以驗收的條件</td></tr>
+<tr><th scope="row"><a href="unit02.html">02</a></th><td>VS Code 與工作空間</td><td>讓 AI Agent 在專案資料夾裡工作</td></tr>
+<tr><th scope="row"><a href="unit03.html">03</a></th><td>從 Gems、GPTs 到自己的第一個 Skill</td><td>把做事的方法存成技能；資料有缺漏時標出來請人確認</td></tr>
+<tr><th scope="row"><a href="unit04.html">04</a></th><td>建構 RAG 式 Smart TA</td><td>先檢索指定資料，再生成內容</td></tr>
+<tr><th scope="row"><a href="unit05.html">05</a></th><td>讓教材上線</td><td>把內容整理成教案，發布成別人打得開的網頁</td></tr>
+<tr><th scope="row"><a href="unit06.html">06</a></th><td>AI 專題：照護場域排班小工具</td><td>規則分成必要限制與偏好，用測試案例驗收</td></tr>
+<tr><th scope="row">07</th><td>AI 專題：照護紀錄草稿填寫工具</td><td>只填有依據的資料，缺漏標示，由人確認</td></tr>
+</tbody></table></div>
+<div class="callout try"><span class="label">寫給自己的一句話</span><p>在練習單上，為每個模組寫一句「我做出了什麼」與一句「回到工作現場，我想先用在哪裡」。不用寫得完整，寫你真的會去做的事。</p></div>
+
+<h2 id="checks"><span class="num">07</span>成果檢核與使用界線</h2>
+<h3>每一層都走同樣的循環</h3>
+<ul class="flow"><li><b>① 寫清楚規則</b>欄位、必填與「不清楚就留空」</li><li><b>② 一次一層</b>每段提示只加一種功能</li><li><b>③ 先寫預期</b>貼上前寫好應該整理成什麼</li><li><b>④ 親自核對</b>以自己看到的結果為準</li></ul>
+<h3>離開本模組前，確認你有這些成果</h3>
+<ul class="checklist">
+<li>一個照護紀錄草稿工具，用範例敘述能完成擷取、紅框提示、確認個案、保存與匯出。</li>
+<li>一份六段測試敘述的紀錄，寫下修正前後的實際結果。</li>
+<li>一份三分鐘專題展示的大綱。</li>
+<li>能說明為什麼紅框沒出現，不代表每個數值都對。</li>
+</ul>
+<div class="callout warn"><span class="label">把判斷留在自己手上</span><p>本模組的敘述、人名與欄位全部是虛構的教學資料，紀錄工具只是教學原型。真實的照護紀錄涉及個人資料保護、機構規範與專業責任，紀錄內容須由具資格的照護人員確認與負責。</p></div>
+<ul>
+<li>不要把真實個案的姓名、床號、病歷號、照片或可辨識的細節放進練習資料。</li>
+<li>工具整理出的是草稿；沒有出現紅框，只代表必填欄位不是空的，不代表數值正確。</li>
+<li>紀錄只存在目前的瀏覽器；清除網站資料就會消失，重要資料要先匯出。</li>
+<li>使用雲端 AI 服務或讓 AI Agent 讀取資料前，先確認機構對資料上傳與存取的規定。</li>
+<li>本講義的範例與原型僅供教學與討論，不宜直接用於真實場域或正式紀錄。</li>
+</ul>
+<p>兩天的工作坊到這裡結束。回到工作現場時，可以從一個小問題開始：先寫清楚規則與測試，再請 AI Agent 一層一層做，每一層都由你親自確認。</p>
+<nav class="pager" aria-label="上下頁"><a href="unit06.html">← 模組 06：AI 專題：照護場域排班小工具</a><a href="index.html">講義首頁 →</a></nav>
+<style>
+/* Unit 08 prose blocks wrap long narratives, prompts and replies. */
+.code pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: visible; }
+</style>
+
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。智慧雨林 AI Agent 護理教育與長照場域應用工作坊講義；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為工作坊教材，軟體畫面與功能可能隨版本更新而調整；範例與原型僅供教學與討論。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("handouts-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("handouts-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("handouts-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+</script>
+</body>
+</html>

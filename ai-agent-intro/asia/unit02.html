@@ -1,0 +1,1318 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
+<title>模組 02｜讓 AI 進入專案：VS Code 與工作空間</title>
+<meta name="description" content="在 VS Code 開啟共用專案，確認可用的 AI Agent，建立虛構準備清單，記錄成果並由第二個 Agent 接手小幅改進。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+
+/* Shared additions (2026-10-11 restructure): pending sections, illustration notices, sidebar notes. */
+.pending { color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; margin: 0.8rem 0; }
+.callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
+.side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">智慧雨林 AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="講義首頁"><span>首頁</span></a>
+<a href="unit01.html" title="模組 01｜從 Chatbot 到 Agentic AI"><span>01 Agentic AI</span></a>
+<a href="unit02.html" title="模組 02｜VS Code 與工作空間" aria-current="page"><span>02 共用專案</span></a>
+<a href="unit03.html" title="模組 03｜從 Gems、GPTs 到自己的第一個 Skill"><span>03 Skill 潮流</span></a>
+<a href="unit04.html" title="模組 04｜建構 RAG 式 Smart TA"><span>04 教學助理</span></a>
+<a href="unit05.html" title="模組 05｜讓教材上線"><span>05 發布教材</span></a>
+<a href="unit06.html" title="模組 06｜AI 專題：照護場域排班小工具"><span>06 排班工具</span></a>
+<a href="unit07.html" title="模組 07｜AI 專題：照護紀錄草稿填寫工具"><span>07 照護紀錄</span></a></nav><a class="side-sheet" href="unit02-practice.html"><span aria-hidden="true">📝</span>模組 02 練習單</a>
+<p class="side-note">練習單已同步練習 A～E，含工具、實測與交班檢查清單。</p>
+<details><summary>本頁目錄</summary><ol><li><a href="#goals"><span class="toc-num">01</span>學習目標與階段成果</a></li>
+<li><a href="#workspace"><span class="toc-num">02</span>專案、工作空間與對話，哪裡不一樣</a></li>
+<li><a href="#vscode-setup"><span class="toc-num">03</span>安裝 VS Code，開啟一個練習專案</a></li>
+<li><a href="#agent-setup"><span class="toc-num">04</span>四種 Agent 的安裝、登入與可用性確認</a></li>
+<li><a href="#shared-project"><span class="toc-num">05</span>一份共用說明，讓不同 AI 接力做同一件事</a></li>
+<li><a href="#first-agent"><span class="toc-num">06</span>第一個 AI：做出第一版，自己動手試</a></li>
+<li><a href="#handover"><span class="toc-num">07</span>寫好交班紀錄，交給下一個 AI</a></li>
+<li><a href="#second-agent"><span class="toc-num">08</span>第二個 Agent：接手小幅改進，保留原有功能</a></li>
+<li><a href="#accounts"><span class="toc-num">09</span>講師示範：帳號、工作階段與可用額度</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">第一天 · 模組 02</p>
+<h1>模組 02｜讓 AI 進入專案：VS Code 與工作空間</h1>
+<p class="lead">在模組 01，我們練習把「幫我做一個工具」說成清楚的需求，並用自己的操作結果判斷 AI 是否完成。這一模組把需求放進一個真的資料夾：你會在 VS Code 開啟專案，讓 AI 讀取指定材料、做出第一版，再把進度寫下來，交給另一個 Agent 接著做。</p>
+<p class="lead">這裡主要用 Codex 示範，也認識 Claude Code、GitHub Copilot 與 Google Antigravity。簡單任務用一個工具就可以完成；長期做教材與專題時，知道怎麼換工具、留下紀錄，會讓工作比較容易延續。你不必一次訂閱好幾種服務，也不用先學會寫程式。你的工作是說清楚需求、確認資料夾、核對修改與實際操作；AI 負責協助實作。</p>
+<ul class="meta"><li>講師：楊榮林教授／吳樺姍</li><li>對象：護理教師與長照場域夥伴</li><li>階段成果：一個可接手的本機專案與一份交接紀錄</li></ul>
+<p class="meta-back"><a href="../../workshop2026_1017/index.html">← 查看兩日工作坊計畫</a></p></section>
+
+<h2 id="goals"><span class="num">01</span>學習目標與階段成果</h2>
+<div class="callout tip"><span class="label">這一模組完成什麼</span><p>完成一個「虛構工作坊準備清單」本機專案：第一個 Agent 建立三項清單與完成數，第二個可用的 Agent 閱讀交接紀錄，加入「全部取消」按鈕，再確認原有的勾選與計數仍然正確。最後留下一份能讓別人接著工作的交接紀錄與實際檢查結果。</p></div>
+<h3>今天的工作順序</h3>
+<ul class="flow"><li><b>① 確認環境</b>開啟 VS Code 與自己的練習資料夾。</li><li><b>② 確認工具</b>分別登入，確認至少兩個 Agent 真正可用。</li><li><b>③ 做出第一版</b>用共用規格建立清單，親自試操作。</li><li><b>④ 保存與交接</b>把目標、檔案、進度、待辦與檢查結果存成文字。</li><li><b>⑤ 換工具接著做</b>讓第二個 Agent 先讀紀錄，只做一項改進。</li><li><b>⑥ 重新驗收</b>既有功能與新增功能都要再試一次。</li></ul>
+<h3>離開本模組前，我能做到</h3>
+<ul class="checklist">
+<li>說出專案資料夾、VS Code 工作空間與 AI 對話各保存什麼。</li>
+<li>依官方來源找到四種工具的設定路徑，知道自己哪些已登入且可用。</li>
+<li>使用至少兩個可用 Agent，依序處理同一個專案。</li>
+<li>在檔案總管找到原始資料、成果與交接紀錄。</li>
+<li>說出第二個 Agent 讀了哪些檔案、改了什麼、哪些舊功能還正常。</li>
+<li>遇到登入或額度問題時，先保存成果與進度，再決定等待、改用其他可用工具或請講師協助。</li>
+</ul>
+
+<h2 id="workspace"><span class="num">02</span>專案、工作空間與對話，哪裡不一樣</h2>
+<h3>把 VS Code 當作工作桌</h3>
+<p>你可以把 VS Code 想成一張工作桌，專案資料夾是桌上的工作夾，Agent 是你請來協助的夥伴。工作夾裡有你提供的材料、任務說明、AI 做出的成果與後續紀錄。換一位夥伴時，工作夾還在，但新夥伴不一定知道前面談過什麼，所以需要讀取留下來的資料。</p>
+<p>這次只用一個資料夾當作工作空間，不需要先學多資料夾設定，也不要求建立 GitHub 儲存庫。VS Code 是開啟、閱讀與管理檔案的地方；它本身不是某個 AI 帳號。安裝 Agent 擴充功能後，還要完成該服務的登入與存取確認。</p>
+<h3>什麼會留下來</h3>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">名稱</th><th scope="col">保存什麼</th><th scope="col">換工具時怎麼處理</th></tr></thead>
+<tbody>
+<tr><th scope="row">專案資料夾</th><td>原始材料、任務規格、成果檔案與文字紀錄</td><td>用第二個 Agent 開啟同一個資料夾，明確指定要讀的檔案</td></tr>
+<tr><th scope="row">VS Code 工作空間</th><td>目前開啟的資料夾與編輯環境</td><td>確認左側顯示正確的專案名稱；不要開到另一份複本</td></tr>
+<tr><th scope="row">Agent 對話</th><td>這個工具或工作階段裡的問答與上下文</td><td>不假設其他工具看得到；把重要決定寫進專案紀錄</td></tr>
+<tr><th scope="row">帳號與額度</th><td>服務的登入身分、權限與使用限制</td><td>各自確認；安裝擴充功能不代表已有可用權限</td></tr>
+<tr><th scope="row">交接紀錄</th><td>目標、已做、未做、檔案、檢查與界線</td><td>新夥伴先讀、先復述，再開始修改</td></tr>
+</tbody></table></div>
+<div class="callout note"><span class="label">換模型、換工具、換帳號，三件不同的事</span><p>在同一工具內換模型，不一定換了服務或帳號；從 Codex 換到 Claude Code、Copilot 或 Antigravity，是換工具與其工作環境；在 Codex 登出再登入另一個 ChatGPT 帳號，是換登入身分。三者都不等於「自動把前面的對話交給新的 Agent」。本模組用專案內的交接檔案延續工作。</p></div>
+
+<h2 id="vscode-setup"><span class="num">03</span>安裝 VS Code，開啟一個練習專案</h2>
+<h3>練習 A 的環境準備</h3>
+<ol class="steps">
+<li>從 <a href="https://code.visualstudio.com/download" target="_blank" rel="noopener">VS Code 官方下載頁</a>選擇自己的作業系統。若已安裝，先確認能正常開啟，並使用與擴充功能相容的版本。</li>
+<li>Windows 通常可使用 User setup 安裝程式；依機構電腦的管理規定操作。macOS 開啟下載的安裝映像，將 Visual Studio Code.app 拖到 Applications，再開啟程式。Linux 請依官方頁面的發行版套件說明安裝。來源核對：2026-10-11，<a href="https://code.visualstudio.com/docs/setup/windows" target="_blank" rel="noopener">Windows 安裝</a>、<a href="https://code.visualstudio.com/docs/setup/mac" target="_blank" rel="noopener">macOS 安裝</a>、<a href="https://code.visualstudio.com/docs/setup/linux" target="_blank" rel="noopener">Linux 安裝</a>。Linux 的個別安裝流程需依講師課前確認的設備補充，不在課堂臨時猜指令。</li>
+<li>用電腦的檔案總管建立一個新資料夾，名稱是 <code>workshop-prep-checklist</code>。放在自己找得到、可以寫入的位置，記下位置。不放真實病歷、學生個資、密碼或服務憑證。</li>
+<li>在 VS Code 選擇 <strong>File → Open Folder</strong>（檔案 → 開啟資料夾），選剛才的 <code>workshop-prep-checklist</code>。確認左側 Explorer（檔案總管）頂端就是這個名稱。若詢問工作空間信任，確認這是自己建立的練習資料夾，再依畫面與機構規定選擇；不確定的來源先問講師。</li>
+<li>找到三個位置：Explorer 用來看檔案，Extensions 用來管理擴充功能，Agent 面板用來交辦。這次不需要你手動修改程式；程式出問題時，用一般文字描述操作與結果，請 AI 修正。</li>
+</ol>
+<p class="source-note">一般介面依據（核對於 2026-10-11）：<a href="https://code.visualstudio.com/docs/getstarted/userinterface" target="_blank" rel="noopener">VS Code 使用者介面</a>。中文或英文選單名稱可能不同，以作用和目前畫面核對。</p>
+<div class="callout tip"><span class="label">也可以請 AI 帶你安裝</span><p>已經能使用 GitHub Copilot Chat 的學員，可以改做第 04 節的<a href="#install-with-copilot">安裝練習</a>：請 Copilot 一步步帶你安裝 VS Code，再由 VS Code 裡的 Agent 安裝 Codex、Claude Code 與 Antigravity 三個擴充功能。</p></div>
+
+<h3>練習 A：確認 Agent 看的是哪個資料夾</h3>
+<h4>題目敘述 · Problem Statement</h4>
+<p>你要讓 AI 協助這個新專案，先確認它的工作位置。現在不建立工具，只請它說明看得到的專案範圍。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">先確認位置，不修改檔案</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我沒有寫程式經驗。請用一般用語，一次帶我做一小步，不要要求我手動修改程式。
+這次練習的專案是目前在 VS Code 開啟的 workshop-prep-checklist 資料夾。
+請先告訴我你能讀取的專案位置與目前看到的檔案；如果這個工具需要我加入資料夾或檔案作為上下文，請告訴我怎麼做。
+先不要建立、修改、刪除或移動任何檔案，也不要讀取專案外的資料。
+如果無法確認位置，請直接說明，不要猜測。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜確認工作位置</summary><div>
+<p class="source-note">以下只是參考；路徑與檔案清單依你的電腦不同。請用實際檔案總管核對。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">練習 A 可能的回覆</span></div></div><pre><code>目前的專案是 workshop-prep-checklist。這是一個新資料夾，目前沒有看到你的練習檔案。
+我還沒有修改任何檔案。下一步可以把共用規格與虛構資料交給我，再決定要建立什麼。</code></pre></figure>
+</div></details>
+<h4>預期成果 · Expected Outcome</h4>
+<p>AI 指出正確的專案資料夾，或清楚說出它還缺少存取範圍。沒有程式檔案被建立。</p>
+<h4>完成檢核 · Check it</h4>
+<p>自己看 Explorer 的資料夾名稱，和 AI 說的名稱、位置對照。如果出現另一個專案、整個 Documents 或你沒有指定的路徑，先修正範圍再繼續。</p>
+
+<h2 id="agent-setup"><span class="num">04</span>四種 Agent 的安裝、登入與可用性確認</h2>
+<h3>安裝成功，還不等於能用</h3>
+<p>今天會認識四條設定路徑。你可以先裝好適合自己的工具，但完成練習只需要<strong>兩個確實可用的 Agent</strong>。老師以 Codex 示範主要流程；Claude Code 的付費工作流程可以由講師展示。不要為了跟上畫面而臨時購買多個訂閱。</p>
+<p>擴充功能的搜尋名稱可能很相近。從官方文件的安裝連結進入，再核對產品與發行者。登入後，用「只讀取、不要修改」的小任務確認它能回應並取得這個專案的上下文。若只看到圖示，還沒有登入或不能回應，就記成「已安裝，尚未可用」。</p>
+<h3>帳號與設定入口（官方頁面核對：2026-10-11）</h3>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">工具</th><th scope="col">官方入口／識別</th><th scope="col">帳號條件與課堂安排</th></tr></thead>
+<tbody>
+<tr><th scope="row">OpenAI Codex</th><td><a href="https://learn.chatgpt.com/docs/codex/ide" target="_blank" rel="noopener">IDE 官方指南</a>；<a href="https://marketplace.visualstudio.com/items?itemName=openai.chatgpt" target="_blank" rel="noopener">官方擴充功能</a>，ID <code>openai.chatgpt</code></td><td>用自己的 ChatGPT 帳號登入；目前官方說明包含 Free 等方案，實際權限與額度依帳號確認。本課做本機專案，不把免費本機使用與 Codex Cloud 權限混為一談。<a href="https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan" target="_blank" rel="noopener">方案說明</a></td></tr>
+<tr><th scope="row">Anthropic Claude Code</th><td><a href="https://code.claude.com/docs/en/vs-code" target="_blank" rel="noopener">VS Code 官方指南</a>；<a href="https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code" target="_blank" rel="noopener">官方擴充功能</a>，ID <code>anthropic.claude-code</code></td><td>需要符合資格的付費 Claude 方案或 Claude Console 帳號；一般免費 Claude 聊天帳號不能直接當成已取得 Claude Code 使用權。沒有資格者看講師示範，再用其他可用工具練習。</td></tr>
+<tr><th scope="row">GitHub Copilot</th><td><a href="https://code.visualstudio.com/docs/setup/copilot" target="_blank" rel="noopener">VS Code 官方設定</a></td><td>使用 GitHub 帳號與可用的 Copilot 權限；符合資格的帳號可使用 Copilot Free 的月度額度。不要把它與 Microsoft Copilot 或 Claude Cowork 混為同一產品。</td></tr>
+<tr><th scope="row">Google Antigravity</th><td><a href="https://www.antigravity.google/docs/ide/extensions/vscode" target="_blank" rel="noopener">官方 VS Code 指南</a>；<a href="https://marketplace.visualstudio.com/items?itemName=Google.google-antigravity" target="_blank" rel="noopener">官方擴充功能</a>，ID <code>Google.google-antigravity</code></td><td>官方已有 macOS／Linux／Windows 的 VS Code 擴充功能；可用個人 Google 帳號登入，包含免費層級，仍須確認當前權限與額度。<a href="https://www.antigravity.google/docs/ide/extensions/" target="_blank" rel="noopener">登入與授權</a></td></tr>
+</tbody></table></div>
+<p>不在此固定寫入價格、每月次數或保證可用的模型。頁面說明與現場帳號不同時，先記錄差異，再請講師確認。</p>
+
+<h3 id="install-with-copilot">安裝練習：請 GitHub Copilot 帶你裝好 VS Code 與三個擴充功能</h3>
+<p>如果你已經能使用 GitHub Copilot 的 Chat，可以把它當成安裝助教：先在 GitHub 網站的 Copilot Chat 請它一步步帶你安裝 VS Code；VS Code 開啟後，再請 VS Code 裡的 Copilot 以 Agent 模式替你安裝 Codex、Claude Code 與 Google Antigravity 三個擴充功能。這也是第一次體驗「Agent 會在你的電腦上執行動作」：每一個安裝指令都要先看懂、再由你核准。</p>
+<p>下方四條「設定路徑」是手動做法；兩者擇一即可，結果要一樣。安裝完成不代表能用，登入與只讀測試仍依各工具的設定路徑完成。</p>
+<h4>題目敘述 · Problem Statement</h4>
+<p>你的電腦還沒有 VS Code，或還沒裝好需要的擴充功能。請用已經能使用的 GitHub Copilot Chat，完成兩件事：裝好 VS Code；在 VS Code 裝好三個官方擴充功能 <code>openai.chatgpt</code>（Codex）、<code>anthropic.claude-code</code>（Claude Code）、<code>Google.google-antigravity</code>（Antigravity）。不安裝其他擴充功能，也不讓 AI 替你登入任何帳號。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<p><strong>第一部分（還沒有 VS Code 時）：</strong>用瀏覽器開啟 GitHub 網站的 Copilot Chat，貼上提示 1。已經裝好 VS Code 的人直接跳到提示 2。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 1：GitHub 網站 Copilot Chat｜帶我安裝 VS Code</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我沒有寫程式經驗，也不需要了解安裝細節。請直接在我的電腦上，自行找出 VS Code 的官方網站，並告訴我你使用的網址，僅從官網下載並安裝 Visual Studio Code，其餘操作請自動完成。
+請自動辨識作業系統，安裝時優先使用預設選項。只有遇到需要我選擇、授權或輸入密碼時，才透過彈出視窗或對話詢問我。若受到學校或機構管理限制，請暫停並說明，不要繞過限制或關閉安全設定。
+完成後請開啟 VS Code，確認檔案總管與擴充功能可用，並簡短回報安裝結果。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜帶我安裝 VS Code</summary><div>
+<p class="source-note">以下示例假設使用本機的 OpenAI Codex App，並已授予完整存取權限，所以 AI 能直接在電腦上下載與安裝；每次的字句、步驟與作業系統細節都可能不同。若使用 GitHub 網站的 Copilot Chat，它只能在對話中回答，通常會改為給你步驟。請以自己的畫面與實際安裝結果為準。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">提示 1 可能的回覆</span></div></div><pre><code>已辨識你的電腦是 macOS（Apple 晶片）。
+我查到 VS Code 的官方網站是 https://code.visualstudio.com，由 Microsoft 提供，只從這裡下載官方安裝檔。
+已下載並以預設方式把 Visual Studio Code 安裝到「應用程式」資料夾；沒有更改任何安全設定。
+第一次開啟時，macOS 跳出「這是從網路下載的 App，確定要開啟嗎？」，已請你確認並按下「打開」。
+VS Code 已開啟，左側可以看到檔案總管與擴充功能圖示。
+安裝結果：成功。版本號可在選單「Code → 關於 Visual Studio Code」查看。
+下一步：在 VS Code 開啟 Copilot 的 Chat，貼上提示 2 安裝三個擴充功能。</code></pre></figure>
+</div></details>
+<p><strong>第二部分（VS Code 已能開啟）：</strong>在 VS Code 開啟 Copilot 的 Chat 面板，把對話模式切換為 <strong>Agent</strong>，再貼上提示 2。若 Agent 提出要執行的指令並請你核准，先確認它只是在安裝這三個擴充功能，再按核准。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 2：VS Code 的 Copilot（Agent 模式）｜安裝三個擴充功能</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我沒有寫程式經驗，也不需要了解安裝細節。請直接在這台電腦的 VS Code 安裝三個擴充功能：OpenAI 的 Codex、Anthropic 的 Claude Code，以及 Google Antigravity，其餘操作請自動完成。
+請自行在 VS Code 官方擴充功能市集找出這三個擴充功能，核對發行者分別是 OpenAI、Anthropic 與 Google，並告訴我它們的識別碼；不要安裝名稱相似的非官方版本，也不要安裝其他擴充功能，已安裝的不必重裝。只有遇到需要我選擇、授權或輸入密碼時，才透過彈出視窗或對話詢問我。若受到學校或機構管理限制，請暫停並說明，不要繞過限制或關閉安全設定。不要替我登入任何帳號，也不要修改 VS Code 設定。
+完成後請確認三個擴充功能都出現在已安裝清單中，並簡短回報安裝結果。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜安裝三個擴充功能</summary><div>
+<p class="source-note">以下示例假設使用本機的 OpenAI Codex App，並已授予完整存取權限，所以 AI 能直接替你安裝；每次的字句與過程都可能不同。這段不代表已替你安裝完成，請以檢核表的實際結果為準。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">提示 2 可能的回覆</span></div></div><pre><code>已在 VS Code 官方擴充功能市集找到三個擴充功能，並核對發行者：
+- Codex：發行者 OpenAI，識別碼 openai.chatgpt
+- Claude Code：發行者 Anthropic，識別碼 anthropic.claude-code
+- Google Antigravity：發行者 Google，識別碼 Google.google-antigravity
+原本三個都沒有安裝，已逐一安裝完成；沒有安裝其他擴充功能，也沒有修改 VS Code 設定。
+再次檢查已安裝清單：三個識別碼都在，左側也出現 Codex、Claude Code 與 Antigravity 的圖示。
+Antigravity 第一次開啟面板時，會在你的電腦安裝本機服務；若出現授權詢問，請確認後再繼續。
+三個工具都還沒有登入，請在各自的面板用本人帳號登入；Claude Code 需要符合資格的付費方案或 Console 帳號。
+安裝結果：成功。下一步：依下方各設定路徑登入，並用練習 A 的提示做只讀測試。</code></pre></figure>
+</div></details>
+<h4>預期成果 · Expected Outcome</h4>
+<p>VS Code 能正常開啟；擴充功能清單中有 Codex、Claude Code 與 Google Antigravity 三個官方擴充功能，沒有多裝其他項目。三個工具都還沒登入是正常的，接下來依下方各設定路徑登入並做只讀測試。</p>
+<h4>完成檢核 · Check it</h4>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">檢查項目</th><th scope="col">怎麼確認</th><th scope="col">應該看到什麼</th></tr></thead>
+<tbody>
+<tr><th scope="row">VS Code</th><td>關閉後重新開啟 VS Code</td><td>能正常開啟，左側有 Explorer（檔案總管）與 Extensions（擴充功能）圖示</td></tr>
+<tr><th scope="row">三個擴充功能</th><td>開啟 Extensions，查看「已安裝」</td><td>Codex（OpenAI）、Claude Code（Anthropic）、Google Antigravity（Google）都在，發行者正確</td></tr>
+<tr><th scope="row">識別碼</th><td>看 Agent 最後一次執行 <code>code --list-extensions</code> 的結果</td><td>包含 <code>openai.chatgpt</code>、<code>anthropic.claude-code</code>、<code>Google.google-antigravity</code></td></tr>
+<tr><th scope="row">範圍</th><td>回頭看 Agent 執行過的指令</td><td>只有檢查與安裝這三個擴充功能；沒有修改設定、登入帳號或安裝其他項目</td></tr>
+</tbody></table></div>
+<div class="callout warn"><span class="label">核准指令前，先看三件事</span><p>這個指令裝的是不是上面三個識別碼之一？有沒有要求管理員權限、關閉安全設定或下載其他網站的檔案？會不會改動專案以外的資料？任何一項看不懂，就先請 Agent 用一般用語解釋，或請講師確認。機構管理的電腦若不允許安裝，請改由講師或管理人員協助，不要自行繞過限制。Copilot Free 的對話次數有月度限制，安裝時一次交辦一件事即可。</p></div>
+<p class="source-note">GitHub 網站的 Copilot Chat 入口、VS Code 內建 Copilot 的 Agent 模式名稱與 <code>code</code> 指令是否預設可用，會隨版本與作業系統不同；這個練習尚未在現場設備實測，課前需確認。擴充功能識別碼依上表官方連結，核對於 2026-10-11。</p>
+
+<h3>Codex 設定路徑</h3>
+<ol class="steps">
+<li>由上表的官方擴充功能連結安裝或啟用 Codex。</li>
+<li>在 VS Code 開啟 Codex 圖示；圖示不明顯時，開啟 Command Palette，使用官方指南中的 <strong>Codex: Open Codex Sidebar</strong>。</li>
+<li>在尚未登入的畫面選 <strong>Sign in with ChatGPT</strong>，完成瀏覽器登入後返回 VS Code。帳號密碼與驗證碼由本人輸入，不貼入提示。</li>
+<li>打開專案，用練習 A 的提示確認位置；本機任務維持在目前資料夾，不選雲端工作。</li>
+</ol>
+<p class="source-note">依據：<a href="https://learn.chatgpt.com/docs/codex/ide" target="_blank" rel="noopener">Codex IDE</a>、<a href="https://learn.chatgpt.com/docs/auth" target="_blank" rel="noopener">官方登入說明</a>，核對於 2026-10-11。</p>
+
+<h3>Claude Code 設定路徑</h3>
+<ol class="steps">
+<li>由官方擴充功能連結安裝 Claude Code。也可開啟 Extensions：Mac 為 <kbd>Cmd+Shift+X</kbd>，Windows／Linux 為 <kbd>Ctrl+Shift+X</kbd>；搜尋產品並核對 Anthropic 官方入口。</li>
+<li>開啟 Claude Code 面板，按 <strong>Sign in</strong>，在瀏覽器完成自己的帳號授權。</li>
+<li>確認帳號具備上表所述資格，再用練習 A 的只讀提示確認專案位置。沒有付費／Console 資格時，記錄「觀看講師示範」，改選其他可用 Agent。</li>
+</ol>
+<p class="source-note">依據：<a href="https://code.claude.com/docs/en/vs-code" target="_blank" rel="noopener">Claude Code VS Code 指南</a>，核對於 2026-10-11。擴充功能與 Marketplace 可能顯示不同最低 VS Code 版本；課前採相容的最新穩定版本，依實際安裝頁確認，不在講義鎖死舊版號。</p>
+
+<h3>GitHub Copilot 設定路徑</h3>
+<ol class="steps">
+<li>在 VS Code 的 Copilot 狀態入口選 <strong>Use AI Features</strong>，依目前畫面完成 GitHub 登入及必要的功能啟用。</li>
+<li>確認目前 GitHub 帳號的 Copilot 資格；沒有訂閱的符合資格帳號可依畫面使用 Free 方案。</li>
+<li>在可用的 Agent 工作流程中開啟此專案，先用練習 A 確認上下文，再做本機檔案任務。只會回答文字而不能編輯專案的模式，不算完成本模組的 Agent 實作。</li>
+</ol>
+<p class="source-note">依據：<a href="https://code.visualstudio.com/docs/setup/copilot" target="_blank" rel="noopener">VS Code Copilot 設定</a>、<a href="https://code.visualstudio.com/docs/agents/overview" target="_blank" rel="noopener">VS Code AI 工作流程</a>，核對於 2026-10-11。模型名稱與帳單歸屬依所選服務與登入方式，不由畫面出現某個模型名稱推斷。</p>
+
+<h3>Google Antigravity 設定路徑</h3>
+<ol class="steps">
+<li>依官方 VS Code 指南，開啟 Extensions 搜尋 <strong>Google Antigravity</strong>，核對 Google 發行者，或使用上表的官方安裝連結。</li>
+<li>按 <strong>Install</strong>，開啟 Activity Bar 的 Antigravity 圖示。官方說明首次啟動會安裝本機 <code>agy</code> 後端服務；機構電腦若受限制，先請講師或管理人員協助。</li>
+<li>選 <strong>Sign In</strong>，用自己的個人 Google 帳號在瀏覽器完成登入，再確認方案與可用額度。</li>
+<li>回到同一個專案，用練習 A 的提示確認工作位置。這條路徑是 VS Code 擴充功能，不要求學員另換到獨立 IDE。</li>
+</ol>
+<p class="source-note">依據：<a href="https://www.antigravity.google/docs/ide/extensions/vscode" target="_blank" rel="noopener">Antigravity VS Code 指南</a>、<a href="https://www.antigravity.google/docs/ide/extensions/" target="_blank" rel="noopener">官方登入與授權</a>，核對於 2026-10-11。</p>
+
+
+<h2 id="shared-project"><span class="num">05</span>一份共用說明，讓不同 AI 接力做同一件事</h2>
+<h3>像交班一樣：靠紀錄接手，不靠記憶</h3>
+<p>護理與照護現場的交班，不是要下一班記得上一班說過的每句話，而是看交班紀錄：目前狀況、已完成什麼、還要注意什麼。讓兩個 AI 接力做同一個專案，道理一樣。不同的 AI 看不到彼此的對話，能共同看到的，只有放在同一個資料夾裡的文件。</p>
+<p>所以這一節先準備一份<strong>共用說明</strong>：要做什麼、長什麼樣子、怎樣算完成、哪些事不能做。之後不論交給哪一個 AI，都先請它讀這份說明。這樣你比較的不是哪個工具比較厲害，而是它們能不能照同一份說明，把同一件事做好。</p>
+<h3>這次要做的小工具</h3>
+<p>一張虛構的「工作坊準備清單」網頁，只用來練習，不記錄真實人員，也不用在正式照護工作。分兩次完成：</p>
+<ul class="flow"><li><b>第一版（第一個 AI）</b>三個可以勾選的項目，下方顯示完成了幾項。</li><li><b>第二版（第二個 AI）</b>只多一個「全部取消」按鈕，其他都不改。</li></ul>
+<p>第二版刻意只改一件事。這樣你一眼就能看出接手的 AI 改了什麼，也能確認原本的勾選有沒有被改壞。</p>
+<h3>共用說明（兩個 AI 都要先讀）</h3>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">項目</th><th scope="col">說明</th></tr></thead>
+<tbody>
+<tr><th scope="row">這是什麼</th><td>虛構的工作坊準備清單，練習用</td></tr>
+<tr><th scope="row">誰使用</th><td>你自己，在自己的筆電上</td></tr>
+<tr><th scope="row">清單內容</th><td>三個項目，依序是「讀懂題目」「整理資料」「準備驗收」；文字和順序都不改，也不多加項目</td></tr>
+<tr><th scope="row">第一版畫面</th><td>標題「工作坊準備清單」，三個可以勾選的項目，下方顯示「已完成 N／3」</td></tr>
+<tr><th scope="row">數字怎麼變</th><td>勾一項多一、取消一項少一，最少 0、最多 3；重新整理頁面後，回到全部沒勾、0／3</td></tr>
+<tr><th scope="row">第二版只改一件事</th><td>多一個「全部取消」按鈕；項目、文字、順序和原本的勾選方式都不動</td></tr>
+<tr><th scope="row">怎麼打開</th><td>在資料夾裡雙擊成果檔案，就會用瀏覽器打開；不用登入，也不用連上網路</td></tr>
+<tr><th scope="row">工作範圍</th><td>AI 只在 workshop-prep-checklist 這個資料夾裡做事，不另外安裝其他軟體</td></tr>
+<tr><th scope="row">資料界線</th><td>全部虛構；不收集個人資料、不上傳、不分享到網路；不用來做真正的照護決定</td></tr>
+<tr><th scope="row">怎樣算完成</th><td>你親手照第 06 節（B1～B7）與第 08 節（D1～D5）的操作試過，結果都相符才算；AI 說「完成了」不算</td></tr>
+</tbody></table></div>
+<p>表格中加上引號的文字，就是畫面上應該出現的字，檢查時逐字對照。</p>
+<h3>清單裡的三個項目</h3>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">順序</th><th scope="col">項目</th><th scope="col">提醒自己的用途</th></tr></thead>
+<tbody>
+<tr><th scope="row">1</th><td>讀懂題目</td><td>先說出使用者與預期成果</td></tr>
+<tr><th scope="row">2</th><td>整理資料</td><td>只使用這份虛構練習資料</td></tr>
+<tr><th scope="row">3</th><td>準備驗收</td><td>先列出操作與應該看到的結果</td></tr>
+</tbody></table></div>
+<p>這就是全部的練習資料，沒有姓名、病歷或真實服務對象。「提醒自己的用途」只是說明，不是要勾選的第四項。第 06 節的提示會把這三項交給 AI，AI 會另外存成一份資料檔，讓下一個 AI 能核對內容有沒有被改動。</p>
+<details class="explain"><summary>想看 AI 保存的資料檔長什麼樣子（不必看懂）</summary><div>
+<p class="source-note">這是 AI 讀的格式，你不需要看懂或修改。第 06 節的提示已經包含這段內容，直接複製提示即可。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind">資料檔</span><span class="code-title">data/items.json</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>{
+  "project": "虛構工作坊準備清單",
+  "items": [
+    {"id": "read-task", "label": "讀懂題目", "note": "先說出使用者與預期成果"},
+    {"id": "organize-data", "label": "整理資料", "note": "只使用這份虛構練習資料"},
+    {"id": "prepare-checks", "label": "準備驗收", "note": "先列出操作與應該看到的結果"}
+  ]
+}</code></pre></figure>
+</div></details>
+<h3>資料夾裡會有哪些文件</h3>
+<p>你不必自己建立這些檔案。第 06 節交辦時，AI 會照共用說明建立；你只要在 VS Code 左側的檔案總管找到它們。名稱以 .md 結尾的是一般文字檔，在 VS Code 點開就能閱讀。</p>
+<div class="table-wrap wrap-first"><table>
+<thead><tr><th scope="col">你會看到的檔案</th><th scope="col">裡面是什麼</th><th scope="col">什麼時候打開</th></tr></thead>
+<tbody>
+<tr><th scope="row"><code>README.md</code></th><td>這個專案的簡介，以及怎麼打開成果</td><td>第一次打開專案，或忘了怎麼開的時候</td></tr>
+<tr><th scope="row"><code>docs/task-spec.md</code></th><td>上面那份共用說明</td><td>交辦給任何一個 AI 之前，先請它讀</td></tr>
+<tr><th scope="row"><code>data/items.json</code></th><td>三個清單項目的原始資料</td><td>不必自己打開；請 AI 核對它有沒有被改動</td></tr>
+<tr><th scope="row"><code>app/index.html</code></th><td>做出來的清單網頁</td><td>在電腦的資料夾裡雙擊，用瀏覽器打開，親手試用</td></tr>
+<tr><th scope="row"><code>logs/handover.md</code></th><td>交班紀錄：目前狀況、已完成、待完成、不能改的事</td><td>換另一個 AI 之前更新，讓下一位先讀</td></tr>
+<tr><th scope="row"><code>logs/test-record.md</code></th><td>試用紀錄：應該看到什麼、實際看到什麼</td><td>每次親手試完，記下結果</td></tr>
+</tbody></table></div>
+<p>這些都是看得懂的一般文件，不依賴任何工具的特殊設定。換工具時，只要告訴新的 AI「先讀這幾份文件」，它就能接手。</p>
+<div class="callout tip"><span class="label">用一般話交辦就好</span><p>你不需要知道網頁怎麼做出來，只要說清楚<strong>你想看到什麼、按了之後應該發生什麼</strong>。例如：「我按下全部取消後，三項都要變成沒勾，數字回到 0／3。」比起要求某種做法，這樣的描述更容易檢查，也更不容易被 AI 誤解。結果不對時，同樣用「我做了什麼、預期看到什麼、實際看到什麼」告訴它，請它修正。</p></div>
+<h3>隨時可以用的幾句話：讓 AI 跟著說明走</h3>
+<p>和 AI 一起做專案，最常見的不是它做不到，而是它做得太多、說得太難，或換了一個 AI 之後忘了前面的約定。下面幾句話照平常說話的方式寫，遇到對應的情況就複製貼上；［ ］裡的文字換成你自己的情況。不用一次全部用上，也可以用自己的話改寫，只要守住三個原則：<strong>先讀說明再動手、一次只做一件事、我親手試過才算完成</strong>。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">開始前｜先讀說明，再動手</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>在開始之前，請先讀 docs/task-spec.md 和 logs/handover.md。讀完後用三、四句話告訴我：這次要做什麼、目前做到哪裡、你打算先做哪一件事。我確認沒問題，你再開始。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">它做太多時｜拉回這次的範圍</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>等一下，先不要繼續改。這次只要做「［這次的那一件事］」，其他地方請維持原樣。請告訴我你剛才多改了哪些地方，並把它們改回原來的樣子。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">看不懂它在說什麼時｜請它說白話</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我沒有寫程式經驗，剛才那段我看不太懂。請用一般話再說一次：你改了哪些地方？我打開畫面後，會看到什麼不一樣？</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">結果不對時｜說清楚我看到什麼</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我剛剛試過了：我［做了什麼］，預期會看到［應該出現什麼］，但實際看到［實際出現什麼］。請照共用說明修正，改完告訴我要再試哪幾個步驟。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">它說「完成了」時｜我自己試過才算</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>謝謝，你說已經完成了。請先不要幫我標成通過。告訴我要怎麼親手試、每一步應該看到什麼，我試完再把結果告訴你。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">換另一個 AI 之前｜先寫好交班紀錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我接下來要換另一個 AI 接手。請把目前的狀況寫進 logs/handover.md：完成了什麼、還沒完成什麼、哪些事不能改、我親手試過的結果。寫完就先停下來，不要再改其他檔案。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">新的 AI 剛接手時｜先讀紀錄，再開口</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>你是接手的 AI，看不到前一位的對話。請先讀 docs/task-spec.md、logs/handover.md 和 logs/test-record.md，用自己的話告訴我目前狀況和下一步。先不要改任何檔案，等我說可以再開始。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">我突然有新點子時｜先記下來，不要岔開</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我突然想到想加［新點子］，但這次先不要做。請把它記在 logs/handover.md 的「之後再考慮」，這次還是只完成原本的那一件事。</code></pre></figure>
+<p class="source-note">這些句子不需要技術用語。AI 回答得太長或太難時，直接說「請用三句話、一般用語再說一次」就好；不確定要不要同意 AI 的做法時，先問它「這樣做會改到哪些地方？」再決定。</p>
+<div class="callout warn"><span class="label">先講清楚範圍，再同意 AI 動手</span><p>請 AI 只在這個練習資料夾裡建立和修改檔案。如果它要求讀取其他資料夾、安裝新軟體、上傳或公開分享，先停下來想想是否真的需要；一份三項清單用不到整台電腦。即使網頁只放在你的電腦裡，AI 讀到的內容仍可能傳給提供服務的公司處理，所以這次只用虛構資料。</p></div>
+
+<h2 id="first-agent"><span class="num">06</span>第一個 AI：做出第一版，自己動手試</h2>
+<h3>練習 B：請 AI 做出一張可以打開的清單</h3>
+<h4>題目敘述 · Problem Statement</h4>
+<p>選一個你已經確認可以用的 AI 工具（示範用 Codex），請它照第 05 節的共用說明，做出第一版清單網頁，並準備好之後交班要用的文件。你不用告訴它怎麼做，只要說清楚想看到什麼樣子。這一輪先不做「全部取消」，那是下一個 AI 的工作。</p>
+<p>過程中如果 AI 做太多、說得太難，或停下來問你看不懂的問題，用第 05 節那幾句話把它拉回來就好。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">第一個 AI｜做出第一版清單</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我沒有寫程式經驗，也不需要了解製作細節。請在我目前打開的 workshop-prep-checklist 資料夾裡，幫我做一張「工作坊準備清單」網頁，其餘的事情請自動完成。
+
+我想要的樣子：
+- 最上面的標題是「工作坊準備清單」。
+- 下面有三個可以勾選的項目，依序是「讀懂題目」「整理資料」「準備驗收」。
+- 最下面顯示「已完成 N／3」：一開始是 0／3，每勾一項就多 1，取消一項就少 1。
+- 重新整理頁面後，回到全部沒勾、0／3。
+- 我在資料夾裡雙擊這個網頁，就能直接用瀏覽器打開，不用登入，也不用連上網路。
+
+這次先不要做「全部取消」按鈕，之後會請另一個 AI 接手加上。
+
+除了網頁，也請在資料夾裡準備好這幾份文件，讓之後接手的 AI 看得懂：
+- 共用說明（docs/task-spec.md）：寫下上面這些要求，並註明第二版只會多一個「全部取消」按鈕。
+- 簡介（README.md）：說明這是什麼、怎麼打開。
+- 交班紀錄（logs/handover.md）：目前做到哪裡、下一步要做什麼、哪些事不能改。
+- 試用紀錄（logs/test-record.md）：列出我要試的操作和應該看到的結果；我還沒試過的請寫「尚未測試」，不要寫成通過。
+- 把下面這段清單資料原封不動存成 data/items.json（這段我看不懂也沒關係，請不要改動任何字）：
+{
+  "project": "虛構工作坊準備清單",
+  "items": [
+    {"id": "read-task", "label": "讀懂題目", "note": "先說出使用者與預期成果"},
+    {"id": "organize-data", "label": "整理資料", "note": "只使用這份虛構練習資料"},
+    {"id": "prepare-checks", "label": "準備驗收", "note": "先列出操作與應該看到的結果"}
+  ]
+}
+
+請只在這個資料夾裡做事。如果資料夾裡已經有檔案，先看過再動，不要刪掉或蓋掉原本的內容。不要加登入、上傳、雲端儲存或其他我沒提到的功能，也不要安裝其他軟體。只有遇到需要我選擇、授權或輸入密碼時，才詢問我。
+
+完成後請用一般用語簡短告訴我：做好了哪些東西、怎麼打開網頁、我要親手試哪幾個步驟。如果你能自己打開網頁試用，也請告訴我你試了什麼、結果如何。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第一版</summary><div>
+<p class="source-note">以下示例假設使用本機的 OpenAI Codex App，並已授予完整存取權限，所以 AI 能直接建立檔案，也能自己打開網頁試用；每次的字句與過程都可能不同。AI 自己試過，不等於你已經試過；這段也不代表你的電腦上已經做好，請以你親手試用的結果為準。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">練習 B 可能的回覆</span></div></div><pre><code>做好了。我在 workshop-prep-checklist 資料夾裡完成了這些：
+- 網頁 app/index.html：標題「工作坊準備清單」，三個可以勾選的項目，下方顯示「已完成 0／3」。
+- 共用說明、簡介、交班紀錄和試用紀錄各一份。
+- 清單資料已原封不動存成 data/items.json。
+這次沒有做「全部取消」按鈕。
+
+怎麼打開：在電腦的資料夾裡進入 workshop-prep-checklist → app，雙擊 index.html，就會用瀏覽器打開。
+
+我自己打開網頁試了一次：一開始是 0／3；勾兩項變 2／3；全勾變 3／3；取消一項回到 2／3；重新整理後回到 0／3。這些記在試用紀錄的「AI 試用」，你親手試的部分還是「尚未測試」。
+
+請照試用紀錄的 B1～B7 親手試一次，再把結果告訴我。</code></pre></figure>
+</div></details>
+<h4>預期成果 · Expected Outcome</h4>
+<p>在 VS Code 左側的檔案總管，看得到第 05 節列出的六份文件。雙擊網頁後，看得到標題、三個項目和「已完成 0／3」。簡介說得出怎麼打開網頁；試用紀錄把「應該看到什麼」和「實際看到什麼」分開寫。</p>
+<h4>完成檢核 · Check it</h4>
+<ol>
+<li>在電腦的資料夾裡找到 app 裡的 index.html，雙擊用瀏覽器打開。如果只在 VS Code 看到一大段文字，那不算打開網頁。</li>
+<li>照下表一步一步勾選、取消、重新整理。</li>
+<li>把自己看到的結果逐項記下來。和表格不一樣時，用「我做了什麼、預期看到什麼、實際看到什麼」告訴 AI，請它修正，再從第一步重新試。</li>
+<li>每一項都相符，才進入下一節交班；還沒修好的，就寫進待完成，不要勉強寫成已完成。</li>
+</ol>
+<h4>第一版的試用步驟</h4>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">編號</th><th scope="col">怎麼操作</th><th scope="col">應該看到什麼</th></tr></thead>
+<tbody>
+<tr><th scope="row">B1</th><td>第一次打開網頁</td><td>三項都沒勾；已完成 0／3</td></tr>
+<tr><th scope="row">B2</th><td>勾「讀懂題目」和「整理資料」</td><td>兩項已勾；已完成 2／3</td></tr>
+<tr><th scope="row">B3</th><td>再勾「準備驗收」</td><td>三項都勾了；已完成 3／3</td></tr>
+<tr><th scope="row">B4</th><td>三項都勾時，取消「整理資料」</td><td>兩項已勾；已完成 2／3</td></tr>
+<tr><th scope="row">B5</th><td>重新整理頁面</td><td>三項都沒勾；已完成 0／3</td></tr>
+<tr><th scope="row">B6</th><td>對照第 05 節的三個項目</td><td>文字和順序完全相同；沒有多出第四項</td></tr>
+<tr><th scope="row">B7</th><td>看看畫面上還有什麼</td><td>沒有登入、上傳、雲端儲存，也還沒有「全部取消」</td></tr>
+</tbody></table></div>
+<h4>試完之後：把結果告訴 AI</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">把親手試的結果告訴 AI</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我親手試過了，結果如下：
+［照 B1～B7 逐項寫下你看到的；沒試的寫「尚未測試」］
+不對的地方是：我［做了什麼］，預期看到［應該出現什麼］，實際看到［實際出現什麼］。（都正常就寫「沒有問題」）
+請照共用說明修正，只改這次有問題的地方，其他維持原樣。改好後告訴我要再試哪幾個步驟。
+也請把我親手試的結果記進試用紀錄，和你自己試的結果分開寫；我沒試過的，繼續寫「尚未測試」。最後更新交班紀錄，讓下一個 AI 知道哪些已經確認、哪些還沒有。</code></pre></figure>
+
+<h2 id="handover"><span class="num">07</span>寫好交班紀錄，交給下一個 AI</h2>
+<h3>只說「接著做」，下一位不知道從哪裡開始</h3>
+<p>如果你只對新的 AI 說「接著剛才做」，它不會知道「剛才」是什麼，因為它看不到上一個 AI 的對話。就像第 05 節說的交班：把重要的事寫下來，下一位先讀紀錄再接手。要寫的是：這個專案要做什麼、目前做到哪裡、有哪些文件、還差什麼，以及哪些地方不能改。</p>
+<p>交班前，先確認第一個 AI 已經停下來、沒有還在改東西。它的對話可以留著給自己參考，但下一個 AI 只會看資料夾裡的文件。<strong>不要同時讓兩個 AI 改同一個網頁</strong>；這堂課練的是一位做完、存好，再換下一位。</p>
+<h3>練習 C：請 AI 寫好交班紀錄</h3>
+<h4>題目敘述 · Problem Statement</h4>
+<p>第一版試過之後，請同一個 AI 把目前的狀況寫進交班紀錄（logs/handover.md）。你要核對的是：紀錄寫的，和資料夾裡的文件、你親手試的結果是不是一致，而不是文字寫得漂不漂亮。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">請 AI 寫交班紀錄（這一步不改網頁）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>第一版我已經親手試過了。接下來要換另一個 AI 接手，請先幫我把交班紀錄寫好，其餘的事情請自動完成。
+請先看過資料夾裡現在的文件和網頁，再更新 logs/handover.md，寫清楚：
+- 這個專案要做什麼。
+- 目前做到哪裡、已經完成什麼、還有什麼沒完成。
+- 資料夾裡有哪些文件，各自是做什麼的。
+- 我親手試過的結果：照試用紀錄寫，我沒試過的就寫「尚未測試」。
+- 下一位 AI 要做的事：只加一個「全部取消」按鈕，按下去三項都變成沒勾、顯示 0／3，其他都維持原樣。
+- 不能改的事：三個項目的文字和順序、數字怎麼變、重新整理後回到 0／3。
+這一步只寫紀錄，請不要改網頁，也不要加任何功能。請用一般人看得懂的話寫，下一位 AI 和我都要看得懂。
+寫完後請簡短告訴我：紀錄放在哪裡、我要特別核對哪幾段。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜交班紀錄</summary><div>
+<p class="source-note">以下示例假設使用本機的 OpenAI Codex App，並已授予完整存取權限，所以 AI 能直接讀取並更新資料夾裡的文件；每次的字句都可能不同。請打開 logs/handover.md 親自核對，不要只看這段回覆。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">練習 C 可能的回覆</span></div></div><pre><code>交班紀錄寫好了，放在 logs/handover.md。
+我先看過資料夾裡的六份文件和網頁，再照實際狀況寫：
+- 目前狀況：第一版已完成；依你寫在試用紀錄的結果，B1～B7 都相符。
+- 還沒完成：第二版的「全部取消」按鈕。
+- 下一位 AI 要做的事、不能改的事，寫在最後兩段。
+這一步沒有改動網頁，也沒有加任何功能。
+
+請特別核對兩段：「我親手試過的結果」是不是和你實際看到的一樣；「不能改的事」有沒有漏掉你在意的規則。</code></pre></figure>
+</div></details>
+<h4>好的交班紀錄長這樣：<code>logs/handover.md</code></h4>
+<p>可以用這份範本對照 AI 寫的紀錄，也可以直接複製給 AI，請它照這個樣子寫。［ ］裡的內容照實際狀況填寫；還沒確認的事，不能直接寫成「完成」。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind">範本</span><span class="code-title">logs/handover.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code># 交班紀錄｜工作坊準備清單（虛構練習）
+
+## 這個專案要做什麼
+一張可以勾選三個項目、顯示完成幾項的清單網頁。第二版只多一個「全部取消」按鈕。
+
+## 目前做到哪裡
+第一版：［已完成／還在修正，照實際狀況填寫］
+上一位做事的 AI：［工具名稱，例如 Codex］（不要寫帳號或密碼）
+紀錄日期：［今天日期］
+
+## 已經完成的事
+［只寫打開資料夾確認過、而且親手試過的內容］
+
+## 還沒完成的事
+- 第一版還沒過的步驟：［看試用紀錄填寫；都過了就寫「無」］
+- 第二版：加上「全部取消」按鈕（尚未開始）
+
+## 資料夾裡的文件
+- README.md：簡介，以及怎麼打開網頁
+- docs/task-spec.md：共用說明
+- data/items.json：三個項目的原始資料，不要改
+- app/index.html：清單網頁；第二版也只改這一個
+- logs/test-record.md：試用紀錄
+
+## 我親手試過的結果
+［照試用紀錄寫；還沒試的寫「尚未測試」］
+
+## 下一位 AI 要做的事
+1. 先讀共用說明、這份交班紀錄和試用紀錄，用自己的話說一次目前狀況，等我確認再動手。
+2. 只加一個「全部取消」按鈕：三項都勾時按下去，三項都變成沒勾，顯示「已完成 0／3」；全部沒勾時按，也還是 0／3；按完之後還可以再勾。
+
+## 不能改的事
+- 只在 workshop-prep-checklist 這個資料夾裡做事；一次只讓一個 AI 修改。
+- 三個項目的文字和順序不改，也不多加。
+- 一開始和重新整理後，都回到全部沒勾、0／3。
+- 不加登入、上傳、雲端儲存，不安裝其他軟體，也不放真實個人資料。
+- 加按鈕時不要重做整個網頁，也不要改壞原本的勾選和計數。
+
+## 還要確認的事
+［例如：檔案是否都存好了、還有沒有沒試的步驟］</code></pre></figure>
+<h4>試用紀錄長這樣：<code>logs/test-record.md</code></h4>
+<p>「AI 試用」和「我親手試」分開寫；只有你親手試過、而且相符，才把結果寫成通過。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind">範本</span><span class="code-title">logs/test-record.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code># 試用紀錄｜工作坊準備清單（虛構練習）
+試用日期：［今天日期］　試用的人：［你的名字或代號］
+這一版是哪個 AI 做的：［工具名稱］
+
+| 步驟 | 應該看到什麼 | AI 試用 | 我親手試 | 結果 |
+|---|---|---|---|---|
+| B1 第一次打開 | 三項都沒勾，0／3 | 尚未測試 | 尚未測試 | 尚未確認 |
+| B2 勾兩項 | 2／3 | 尚未測試 | 尚未測試 | 尚未確認 |
+| B3 三項都勾 | 3／3 | 尚未測試 | 尚未測試 | 尚未確認 |
+| B4 取消一項 | 2／3 | 尚未測試 | 尚未測試 | 尚未確認 |
+| B5 重新整理 | 三項都沒勾，0／3 | 尚未測試 | 尚未測試 | 尚未確認 |
+| B6 對照三個項目 | 文字和順序相同，沒有第四項 | 尚未測試 | 尚未測試 | 尚未確認 |
+| B7 畫面上沒有多的東西 | 沒有登入、上傳、雲端儲存，也還沒有「全部取消」 | 尚未測試 | 尚未測試 | 尚未確認 |
+
+## 第二版要再試一次
+加上「全部取消」後，B1～B6 要重新試；B7 改成「除了全部取消，沒有其他多出來的東西」。
+第二版新增的試用步驟 D1～D5，見第 08 節。
+
+## 不對的地方與修正
+我做了什麼／預期看到什麼／實際看到什麼／修好了嗎：［照實際情況填寫］
+AI 自己試的結果和我親手試的結果分開寫；沒試過的不要寫成通過。</code></pre></figure>
+<h4>預期成果 · Expected Outcome</h4>
+<p>交班紀錄讓第一次看的人也懂目前狀況；提到的文件在資料夾裡都找得到；下一步只有一件小事：加上「全部取消」。試過的結果寫得出是誰、怎麼試的。</p>
+<h4>完成檢核 · Check it</h4>
+<ul>
+<li>在 VS Code 左側的檔案總管點開 logs/handover.md 親自讀，不只看 AI 在對話裡的摘要。</li>
+<li>紀錄寫「已完成」的事，逐一確認真的有那份文件、你也真的試過。</li>
+<li>想像自己是下一個 AI：沒看過前面的對話，只讀這份紀錄，也知道要做什麼、不能改什麼、怎樣算完成。</li>
+<li>第一個 AI 已經停下來，沒有還在進行的修改。</li>
+</ul>
+
+<h2 id="second-agent"><span class="num">08</span>第二個 Agent：接手小幅改進，保留原有功能</h2>
+<h3>練習 D：新增「全部取消」，不重做專案</h3>
+<h4>題目敘述 · Problem Statement</h4>
+<p>切換到第二種自己已確認可用的 Agent，仍開啟同一個 workshop-prep-checklist。現在請它先讀資料與交接，復述理解，再加入一個小按鈕。這次不是請它從頭重做漂亮網頁，而是接著已有成果工作。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 1：第二個 Agent｜先讀交接，不改檔</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>你是這個專案的第二個 Agent。我沒有寫程式經驗，請用一般用語。
+目前開啟的是 workshop-prep-checklist，前一個 Agent 已停止修改。
+請先讀 README.md、docs/task-spec.md、data/items.json、logs/handover.md、logs/test-record.md、app/index.html。
+不同工具不一定共用對話，所以請以這些檔案為依據，不猜前面的討論。
+先不要修改檔案。請用五點復述：專案目標、目前完成內容、仍待處理問題、這次只做的小改進、如何確認原有功能沒壞。
+讀不到的檔案請列出，需要我確認的地方請標示待確認。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜第二個 Agent 讀交接</summary><div>
+<p class="source-note">以下只是參考，必須依你的檔案與實測紀錄判斷；不能從這段示例推斷第一版已通過。</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">練習 D 提示 1 可能的回覆</span></div></div><pre><code>1. 目標是本機三項準備清單，並加入全部取消。
+2. 目前有的成果與通過案例，我會依現有檔案和 test-record.md 列出。
+3. 如果紀錄寫尚未測試，我不會當作通過；會先指出待確認。
+4. 本次只新增全部取消，不改項目、順序或重新整理規則。
+5. 新功能測完後，還要再試勾兩項、全勾、取消一項與重新整理。</code></pre></figure>
+</div></details>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 2：第二個 Agent｜核對後只做一項改進</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我已核對你的復述，第一版待辦的處理方式是：［無待辦，或填已確認的問題與處理安排］。
+請在目前 app/index.html 新增一個「全部取消」按鈕，按下後取消三項勾選並顯示「已完成 0／3」。
+全不勾時按也保持 0／3；按後仍可以再勾選。
+保留原有三項文字、順序、勾選／取消計數與重新整理回到 0／3 的規則。
+不要重做整個專案、不新增資料或套件，不改 data/items.json，不加登入、雲端儲存或其他功能。
+只修改這個小改進需要的內容，並更新 README.md、logs/handover.md、logs/test-record.md 的進度。
+說明改了哪些檔案，哪些檢查真的做過，哪些需要我操作。沒做的測試仍寫尚未測試。</code></pre></figure>
+<h4>預期成果 · Expected Outcome</h4>
+<p>同一個 app/index.html 增加「全部取消」，既有三個項目與計數仍可操作；來源資料不變，紀錄指出第二位接手者的改進與尚待實測部分。</p>
+<h4>完成檢核 · Check it</h4>
+<p>先試新增按鈕，再重測 B1～B6。B7 中「尚無全部取消」只適用第一版；第二版有這個按鈕是預期改進，其他範圍限制仍保留。不要因新按鈕能按，就省略舊功能檢查。</p>
+<h4>第二版新增與回歸檢查</h4>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">編號</th><th scope="col">怎麼操作</th><th scope="col">應該看到什麼</th></tr></thead>
+<tbody>
+<tr><th scope="row">D1</th><td>全勾三項，按「全部取消」</td><td>三項都未勾；已完成 0／3</td></tr>
+<tr><th scope="row">D2</th><td>全不勾，再按「全部取消」</td><td>仍全未勾；已完成 0／3；沒有錯誤</td></tr>
+<tr><th scope="row">D3</th><td>全部取消後，勾「準備驗收」</td><td>該項已勾；已完成 1／3</td></tr>
+<tr><th scope="row">D4</th><td>再次操作 B1～B6</td><td>初始、勾兩項、全勾、取消、重新整理、標籤順序都保持原規格</td></tr>
+<tr><th scope="row">D5</th><td>比對修改與交接</td><td>同一專案、同一 app/index.html；data/items.json 不變；紀錄區分實測與尚未測試</td></tr>
+</tbody></table></div>
+
+<h3>練習 E：判斷是不是好的接手</h3>
+<h4>題目敘述 · Problem Statement</h4>
+<p>某個 Agent 看完「請新增全部取消」後，回覆如下。請對照共用規格，指出至少三個問題。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind">刻意設計的錯誤</span><span class="code-title">有問題的接手回覆（虛構）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我重新建立了一個更完整的專案。
+清單改成五項，還加了使用者登入與雲端同步。
+完成數現在會保存，重新整理後不清空。
+我把原始 data/items.json 刪掉，因為網頁已經有資料。
+全部取消已做好，所有功能都測試通過。</code></pre></figure>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">對照規格找出接手問題</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請把上面的接手回覆與本專案規格對照，列出超出範圍、改掉原規則、破壞來源與缺少測試證據的地方。
+每一點都引用規格或回覆原句。先不要修改任何檔案。</code></pre></figure>
+<h4>預期成果 · Expected Outcome</h4>
+<p>能指出新增項目與登入／同步超出範圍、改掉重新整理規則、刪除來源與宣稱測試卻缺乏證據等問題。</p>
+<h4>完成檢核 · Check it</h4>
+<p>不看參考答案，用自己的話說出至少三個問題及其規格依據。如果 AI 只說「很完整」，回頭問它是否遵守本次小改進的界線。</p>
+<details class="explain"><summary>參考答案｜有問題的接手</summary><div>
+<ul>
+<li>任務只准新增一個按鈕，重做專案與增加五項清單偏離範圍。</li>
+<li>登入與雲端同步違反不收集個資、不連外的規格。</li>
+<li>保留勾選改掉「重新整理回到 0／3」的原規則。</li>
+<li>刪除 items.json 破壞交接時可核對的原始來源。</li>
+<li>「全部測試通過」沒有列出操作、實際結果與方法，不能當成驗證證據。</li>
+</ul>
+</div></details>
+
+<h2 id="accounts"><span class="num">09</span>講師示範：帳號、工作階段與可用額度</h2>
+<h3>先保存進度，再處理工具限制</h3>
+<p>講師平常混用 Codex、Claude Code、GitHub Copilot 與 Antigravity，會依任務、慣用的溝通方式與當時可用資源選擇工具。這不代表每件事都要換工具；簡單工作用一個就好。持續做專案時，能保存需求與進度，才有條件讓其他可用工具接手。</p>
+<p>如果服務顯示達到限制，先停止新的工作要求，保存目前成果與交接紀錄，查看該帳號的使用狀態與畫面上的恢復時間，再選擇等待或使用另一個本來就有合法存取權的工具。這次不安排學員輪流消耗多個帳號，也不要求每個人都有兩個付費帳號。</p>
+<div class="callout note"><span class="label">講師專用示範與學員實作分開</span><p>講師有兩個自己的 ChatGPT 帳號，本段示範「確認身分 → 登出 → 登入另一個本人帳號 → 重讀保存的專案紀錄」。使用各帳號時仍按該服務規則與帳號限制操作。切換登入身分不會重置原帳號額度，也不能推定額度或對話已轉到新帳號。學員需要學的是辨認身分與保存專案，不必擁有多個付費帳號。</p></div>
+<h3>講師帳號切換示範（官方登入步驟核對：2026-10-11）</h3>
+<ol class="steps">
+<li>讓 Agent 完成本輪或停止修改，保存目前檔案，更新交接紀錄。將觀察者可看的專案與登入畫面分開；輸入密碼與驗證碼時由本人操作並遮蔽投影。</li>
+<li>在 Codex IDE 擴充功能的 <strong>profile menu</strong> 查看目前帳號與登入方式，確認是預期的帳號 A。把「身分 A」當作示範代號，不把完整登入資料寫入專案。</li>
+<li>查看目前使用狀態。官方 IDE 命令有 <code>/status</code> 可顯示工作階段與限制；若現場版本的選單不同，依當前狀態介面確認。只展示當時實際看到的資訊，不假設所有方案的額度一樣。<a href="https://learn.chatgpt.com/docs/developer-commands?surface=ide" target="_blank" rel="noopener">IDE 命令</a></li>
+<li>在 profile menu 選 <strong>Log out</strong>。確認回到未登入的畫面。</li>
+<li>選 <strong>Sign in with ChatGPT</strong>，在瀏覽器完成帳號 B 的登入。若瀏覽器仍選到 A，先在登入流程中核對並選擇正確身分，不把「網頁已登入」誤當「擴充功能已切換」。</li>
+<li>返回擴充功能，再查看 profile menu，確認目前身分是 B。檢查此帳號的可用性；若不能使用，就如實記錄並停止這段續作，不宣稱切換保證解決限制。</li>
+<li>保持同一個本機專案，開新的對話，貼下方的只讀提示。讓新工作階段從檔案復述目標與待辦，核對後才授權繼續小任務。</li>
+</ol>
+<p class="source-note">登入與登出依據：<a href="https://learn.chatgpt.com/docs/auth" target="_blank" rel="noopener">OpenAI Authentication</a>。官方亦說明 CLI 與 IDE 擴充功能共用登入快取；登出可能影響下一次 CLI／擴充功能登入，所以示範前先保存與停止相關工作。不要複製或展示驗證憑證檔。這段沒有在講師帳號上實際執行，課前需確認現場版本與選單位置。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">換帳號後，先從檔案確認進度</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>這是一個新的工作階段。請不要假設你看得到另一個帳號或工具的對話。
+目前開啟的是 workshop-prep-checklist。
+請只讀 README.md、docs/task-spec.md、data/items.json、logs/handover.md、logs/test-record.md、app/index.html。
+先用一般用語說明專案目標、實際現況、尚未完成事項與檢核方式，不修改檔案。
+讀不到或互相矛盾的地方請列為待確認，等我核對後再交辦。</code></pre></figure>
+<h3>遇到問題時，下一步怎麼選</h3>
+<div class="table-wrap wrap-first"><table>
+<thead><tr><th scope="col">看到的情況</th><th scope="col">先做什麼</th><th scope="col">接下來可選的做法</th></tr></thead>
+<tbody>
+<tr><th scope="row">已安裝但未登入</th><td>確認工具、本人帳號與官方登入畫面</td><td>完成登入後做只讀測試；不要先寫已可用</td></tr>
+<tr><th scope="row">帳號沒有該工具權限</th><td>保留設定紀錄，確認資格</td><td>選另一個已可用 Agent；需要付費的由講師示範</td></tr>
+<tr><th scope="row">服務顯示已達限制</th><td>保存成果、交接與目前問題，查看自己的狀態</td><td>等待畫面所示恢復，或改用另一個已取得權限的工具</td></tr>
+<tr><th scope="row">新 Agent 說不知道前面做什麼</th><td>指定共用規格與交接檔案</td><td>先復述再續作，不重建整個專案</td></tr>
+<tr><th scope="row">新 Agent 要做大幅重寫</th><td>對照本次只新增按鈕的範圍</td><td>縮小任務，核對修改與舊功能</td></tr>
+<tr><th scope="row">同一資料夾出現相互覆寫</th><td>停止其他正在修改的 Agent</td><td>保留檔案現況、確認正確版本，再一次只由一位處理</td></tr>
+</tbody></table></div>
+
+<nav class="pager" aria-label="上下頁"><a href="unit01.html">← 模組 01：從 Chatbot 到 Agentic AI</a><a href="unit03.html">模組 03：從 Gems、GPTs 到自己的第一個 Skill →</a></nav>
+
+
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。智慧雨林 AI Agent 護理教育與長照場域應用工作坊講義；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為工作坊教材，軟體畫面與功能可能隨版本更新而調整；範例與原型僅供教學與討論。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("handouts-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("handouts-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("handouts-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+</script>
+</body>
+</html>

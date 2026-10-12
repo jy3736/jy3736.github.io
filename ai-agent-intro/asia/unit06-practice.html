@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
+<title>模組 06｜AI 專題：照護場域排班小工具 · 練習單</title>
+<meta name="description" content="模組 06 練習單：看懂兩份 CSV 與必要限制，操作範例工具，用六個測試案例檢查，請 AI Agent 逐層做出自己的排班 MVP，再依測試結果修正。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+
+/* Shared additions (2026-10-11 restructure): pending sections, illustration notices, sidebar notes. */
+.pending { color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; margin: 0.8rem 0; }
+.callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
+.side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">智慧雨林 AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="講義首頁"><span>首頁</span></a>
+<a href="unit01.html" title="模組 01｜從 Chatbot 到 Agentic AI"><span>01 Agentic AI</span></a>
+<a href="unit02.html" title="模組 02｜VS Code 與工作空間"><span>02 共用專案</span></a>
+<a href="unit03.html" title="模組 03｜從 Gems、GPTs 到自己的第一個 Skill"><span>03 Skill 潮流</span></a>
+<a href="unit04.html" title="模組 04｜建構 RAG 式 Smart TA"><span>04 教學助理</span></a>
+<a href="unit05.html" title="模組 05｜讓教材上線"><span>05 發布教材</span></a>
+<a href="unit06.html" title="模組 06｜AI 專題：照護場域排班小工具" aria-current="page"><span>06 排班工具</span></a>
+<a href="unit07.html" title="模組 07｜AI 專題：照護紀錄草稿填寫工具"><span>07 照護紀錄</span></a></nav><a class="side-sheet" href="unit06-practice.html" aria-current="page"><span aria-hidden="true">📝</span>模組 06 練習單</a><details><summary>本頁目錄</summary><ol><li><a href="#task"><span class="toc-num">01</span>任務與交付成果</a></li>
+<li><a href="#inputs"><span class="toc-num">02</span>輸入資料與排班規則</a></li>
+<li><a href="#practice-a"><span class="toc-num">03</span>練習 A：用範例工具完成一次排班</a></li>
+<li><a href="#practice-b"><span class="toc-num">04</span>練習 B：用六個測試案例檢查範例工具</a></li>
+<li><a href="#practice-c"><span class="toc-num">05</span>練習 C：逐層做出排班 MVP</a></li>
+<li><a href="#practice-d"><span class="toc-num">06</span>練習 D：依測試結果修正</a></li>
+<li><a href="#reflection"><span class="toc-num">07</span>離場成果與反思</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">第二天 · 模組 06 · 練習單</p>
+<h1>模組 06｜AI 專題：照護場域排班小工具 · 練習單</h1>
+<p class="lead">照練習 A～D 操作：先跑一次範例工具，再用六個測試案例檢查它，接著請 AI Agent 一層一層做出自己的排班工具，最後用同一組案例驗收與修正。你負責看懂規則、先寫預期、親自操作。</p>
+<p class="meta-back"><a href="unit06.html">← 回到模組 06 講義</a></p></section>
+<div class="callout note"><span class="label">怎麼使用這份練習單</span><p>每一節先看「題目敘述」，再照檢查清單操作。清單寫的是<strong>操作 → 應該看到什麼</strong>；請以自己畫面上實際看到的為準，AI 說「試過了」不能代替你親手操作。沒試過的寫「尚未測試」，不確定的寫「待確認」。</p></div>
+
+<h2 id="task"><span class="num">01</span>任務與交付成果</h2>
+
+<p>這一模組要帶走兩樣東西：一個雙擊就能開啟的排班工具，以及一份六個測試的紀錄，寫下每個測試怎麼操作、應該看到什麼、實際看到什麼、是否符合。</p>
+<ul class="flow"><li><b>看懂規則</b>兩份 CSV、必要限制與偏好。</li><li><b>A 操作範例</b>跑完匯入到發布、下載。</li><li><b>B 測試範例</b>六個案例找出問題。</li><li><b>C 逐層製作</b>準備＋六層，每層親自檢查。</li><li><b>D 修正</b>只修未通過項目，六個測試重做。</li></ul>
+
+<h3>開始前確認</h3>
+<ul class="checklist"><li>能用 Codex（或其他已可用的 AI Agent）開啟一個資料夾。</li><li>電腦上能用 Excel 或其他試算表開啟 CSV。</li><li>知道這裡的單位「安程照護」、人員與限制全部是虛構的教學資料。</li></ul>
+
+<h2 id="inputs"><span class="num">02</span>輸入資料與排班規則</h2>
+
+<p>先下載兩份範例 CSV。欄位說明與完整內容在<a href="unit06.html#topic2">講義第 03 節</a>。</p>
+<p><a class="download" href="examples/unit06-scheduling/samples/智慧排班_範例人員.csv" download>下載人員 CSV</a><a class="download" href="examples/unit06-scheduling/samples/智慧排班_範例班別.csv" download>下載班別 CSV</a></p>
+
+<h3>第一版範圍</h3>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">項目</th><th scope="col">第一版要做</th><th scope="col">第一版不做</th></tr></thead>
+<tbody>
+<tr><th scope="row">期間</th><td>一週七天（範例固定為 2026/10/12 週一到 10/18 週日）</td><td>月班表、跨週連續</td></tr>
+<tr><th scope="row">班別</th><td>白班 08:00–16:00、小夜 16:00–00:00、大夜 00:00–08:00</td><td>彈性班、加班</td></tr>
+<tr><th scope="row">職類</th><td>住院醫師、護理人員、照護人員、清潔人員，各 4 人</td><td>職級、專長搭配</td></tr>
+<tr><th scope="row">個人條件</th><td>不值夜班、假日不可上班、指定可上班星期</td><td>請假、換班申請</td></tr>
+<tr><th scope="row">系統</th><td>純前端、CSV 匯入、資料只留在瀏覽器、可下載 CSV</td><td>登入、資料庫、雲端同步</td></tr>
+</tbody></table></div>
+
+<h3>必要限制與偏好</h3>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">規則</th><th scope="col">種類</th><th scope="col">怎麼檢查</th></tr></thead>
+<tbody>
+<tr><th scope="row">每班各職類達到最低人數</th><td>必要</td><td>7 天 × 3 班 × 4 職類，84 格都有人</td></tr>
+<tr><th scope="row">每日最多 1 班</th><td>必要</td><td>同一天同一人只出現一次</td></tr>
+<tr><th scope="row">班間至少休息 8 小時</th><td>必要</td><td>前一班下班到下一班上班的時間，注意跨日的小夜</td></tr>
+<tr><th scope="row">不值夜班</th><td>必要</td><td>標「是」的人不在大夜</td></tr>
+<tr><th scope="row">假日不可上班</th><td>必要</td><td>標「是」的人不在週六、週日</td></tr>
+<tr><th scope="row">指定可上班星期</th><td>必要</td><td>有指定的人只在列出的日子</td></tr>
+<tr><th scope="row">平均分配班數</th><td>偏好</td><td>同職類每人班數差距不要太大</td></tr>
+</tbody></table></div>
+
+<h3>看資料時要確認</h3>
+<ul class="checklist"><li>人員檔有 16 人，四種職類各 4 人；職類文字和「住院醫師、護理人員、照護人員、清潔人員」完全一致。</li><li>不值夜班的是王雅婷、林志遠、鄭麗華、蘇玉珍；假日不可上班的是張書維、吳佩珊、蔡明德。</li><li>許美玲的「1|2|3|4|5」代表只排週一到週五。</li><li>班別檔三個班的各職類最低人數都是 1。</li><li>能說出哪些是必要限制、哪一條只是偏好。</li></ul>
+
+<div class="callout try"><span class="label">先自己算算看</span><p>護理人員有 4 位：王雅婷不值夜班，吳佩珊假日不上班。週六的白班、小夜、大夜各需要 1 位護理人員，每人每天最多 1 班。週六排得出來嗎？如果周佳穎請假呢？先自己判斷，再打開參考答案。</p></div>
+<details class="explain"><summary>參考答案｜週六排得出來嗎？</summary><div>
+<p>週六可排的是王雅婷、李欣儀、周佳穎三位（吳佩珊假日不上班），王雅婷不能排大夜，三個人剛好填滿三班。周佳穎請假時，只剩兩人要填三班，一定排不出來，週日也一樣。這種「資料本身排不出來」的情況，工具應該清楚說出缺口，而不是硬排。第 04 節的測試 2 就會用到它。</p>
+</div></details>
+
+<h2 id="practice-a"><span class="num">03</span>練習 A：用範例工具完成一次排班</h2>
+
+<h4>題目敘述 · Problem Statement</h4><p>用第 02 節下載的兩份 CSV，在範例工具中完成五個步驟，並下載一份班表。範例工具不需安裝、不需網路，資料只留在目前的瀏覽器分頁。</p>
+<p><a class="download" href="examples/unit06-scheduling/app/index.html" target="_blank" rel="noopener">開啟範例排班工具</a></p>
+
+<h3>操作與應該看到</h3>
+<ul class="checklist"><li><strong>A1 匯入</strong>｜按「選擇人員 CSV」「選擇班別 CSV」各選一份 → 人員「16 人」、班別「3 個固定班別」，兩邊都標「已匯入」。</li><li><strong>A2 看限制</strong>｜按「下一步：需求與限制」 → 列出每班最低人數與五條必要限制，並寫著「必要限制不會自動放寬」。</li><li><strong>A3 排班</strong>｜按「下一步：自動排班」，再按「▶ 開始自動排班」 → 「已產生班表，所有必要限制均已通過。」</li><li><strong>A4 看班表</strong>｜切換住院醫師、護理人員、照護人員、清潔人員 → 每一格都有人，下方顯示「✓ 限制檢查通過」。</li><li><strong>A5 下載</strong>｜按「下載班表 CSV」，用 Excel 開啟 → 日期、星期、班別、時間、職類、人員編號、姓名七欄，中文正常。</li><li><strong>A6 發布</strong>｜按「發布班表」 → 「班表已發布。」</li></ul>
+
+<h4>預期成果 · Expected Outcome</h4><p>一份下載的班表 CSV，以及畫面上已發布的一週班表。</p>
+<h4>完成檢核 · Check it</h4>
+<ul class="checklist"><li>護理人員班表中，找不到王雅婷排在大夜。</li><li>週六、週日的班表中，找不到吳佩珊。</li><li>重新整理頁面後，資料消失、回到空白；所以重要班表要先下載。</li></ul>
+
+<h3>看到錯誤訊息時</h3>
+<ul class="checklist"><li><strong>匯入失敗</strong> → 先比對欄位名稱、職類文字與 CSV 編碼，不要立刻修改排班演算法。</li><li><strong>系統回報無解</strong> → 查看是哪一天、哪個班別、哪個職類沒有合格人選，不要要求系統忽略限制。</li><li><strong>結果不平均</strong> → 先確認必要限制是否讓某些人可選時段較少；平均是次要目標，不可凌駕安全限制。</li></ul>
+
+<h3>選做：請 Codex 開啟完整範例包</h3>
+<p>下載解壓縮後，用 Codex 開啟資料夾，貼上下面這句。</p>
+<p><a class="download" href="examples/unit06-scheduling.zip" download>下載完整範例包（zip）</a></p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">請 Codex 開啟範例包（選做）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請先閱讀這個資料夾的 README.md 與 AGENTS.md，接著在本機啟動這個資料夾的網站，並開啟 http://localhost:8765。請依我的電腦選擇可用的啟動方式；如果無法啟動，就直接用瀏覽器開啟 index.html。請向我簡短說明首頁中的排班系統、講義與範例資料入口，但先不要修改任何檔案。</code></pre></figure>
+<ul class="checklist"><li>Codex 說明了排班系統、講義與範例資料三個入口，而且沒有修改任何檔案。</li></ul>
+
+<h2 id="practice-b"><span class="num">04</span>練習 B：用六個測試案例檢查範例工具</h2>
+
+<h4>題目敘述 · Problem Statement</h4><p>畫面顯示「通過」，不等於規則真的被遵守。依下面的清單逐一操作範例工具，每做完一個案例就記下實際看到什麼；全部做完再打開參考結果對照。每個案例都從<strong>重新整理頁面、重新匯入</strong>開始；沒有列出的檔案，就用原本的範例 CSV。</p>
+<p><a class="download" href="examples/unit06-tests/測試2_少了周佳穎_人員.csv" download>測試 2 人員檔</a><a class="download" href="examples/unit06-tests/測試5_白班護理2人_班別.csv" download>測試 5 班別檔</a><a class="download" href="examples/unit06-tests/測試6_職類打錯_人員.csv" download>測試 6 人員檔</a></p>
+
+<h3>六個測試：操作與預期</h3>
+<ul class="checklist"><li><strong>測試 1 可行資料</strong>｜匯入兩份範例 CSV，自動排班 → 四種職類 7 天 × 3 班都有人；「✓ 限制檢查通過」。</li><li><strong>測試 2 排不出來</strong>｜改用「測試 2 人員檔」（少了周佳穎），自動排班，再按發布 → 說明無法排班，指出哪天、哪班、哪個職類；不能發布。</li><li><strong>測試 3 違規調整</strong>｜測試 1 排好後，在「護理人員」班表把週三大夜換成王雅婷；看完警告再換回原本的人 → 出現「王雅婷不可值大夜」、不能發布；換回後警告消失。</li><li><strong>測試 4 跨日休息</strong>｜測試 1 排好後，在「護理人員」班表找週三小夜的人（預設是周佳穎），把週四大夜也換成這個人 → 小夜 00:00 下班、大夜 00:00 上班，休息 0 小時，應出現休息不足的警告。</li><li><strong>測試 5 改最低人數</strong>｜改用「測試 5 班別檔」（白班護理人員最低 2 人），自動排班 → 白班每天 2 位護理人員，或說明人數不足。</li><li><strong>測試 6 職類打錯</strong>｜改用「測試 6 人員檔」（李欣儀的職類寫成「護理師」），匯入 → 說明哪一列的職類不對。</li></ul>
+
+<p>你的測試紀錄每一個案例都要有四項：怎麼操作、預期看到、實際看到、是否符合。可以記在自己的筆記，也可以等練習 C 開好資料夾後請 AI 幫你存成檔案（見第 06 節）。</p>
+
+<details class="explain"><summary>參考結果｜範例工具的實際行為（自己做完再打開）</summary><div>
+<p class="source-note">以下是 2026-10-11 用範例包中的工具實際操作的結果。如果範例包更新，結果可能不同。</p>
+<ul>
+<li><strong>測試 1</strong>：「已產生班表，所有必要限制均已通過。」符合。</li>
+<li><strong>測試 2</strong>：上方「無法產生合格班表：週六白班：護理人員無可排人員」；下方「週六白班缺少護理人員、週日白班缺少護理人員」；發布顯示「仍有 2 項限制未通過，無法發布。」符合（上方只寫第一個原因，要看下方才知道週日也缺）。</li>
+<li><strong>測試 3</strong>：「1 項限制未通過：王雅婷不可值大夜」，無法發布；換回後恢復通過。符合。</li>
+<li><strong>測試 4</strong>：「✓ 限制檢查通過」。不符合：這一版只檢查「小夜接隔天白班」，沒檢查「小夜接隔天大夜」。</li>
+<li><strong>測試 5</strong>：白班仍只有 1 位護理人員，顯示通過。不符合：最低人數固定為 1，班別檔的數字沒有被使用。</li>
+<li><strong>測試 6</strong>：人員顯示 15 人，沒有任何說明；排班後出現週六、週日護理人員無解。不符合：打錯的那列被默默略過，看起來像人力不足。</li>
+</ul>
+<p>測試 4 到 6 說明三件事：畫面寫了，不代表程式做了；讀進來，不代表用到了；沒報錯，不代表沒錯。</p>
+</div></details>
+
+<h4>預期成果 · Expected Outcome</h4><p>一份六個案例的測試紀錄，每個案例有「怎麼操作、預期看到、實際看到、是否符合」。</p>
+<h4>完成檢核 · Check it</h4>
+<ul class="checklist"><li>六個案例都是自己操作過，而不是只看參考結果。</li><li>能指出哪三個案例不符合預期，並用一句話說明原因。</li><li>遇到無解時，知道不能叫 AI「想辦法排出來」：無解代表人力不足，要由人決定調整人力或規則。</li></ul>
+
+<h2 id="practice-c"><span class="num">05</span>練習 C：逐層做出排班 MVP</h2>
+
+<h4>題目敘述 · Problem Statement</h4><p>在新的空資料夾中，依序完成準備與六層功能。一次貼一段提示，全部貼在同一個對話；做完該層就照「應該看到」親自檢查，通過了才貼下一段。每一層的可能 AI 回覆、示範成果畫面與「改改看」在<a href="unit06.html#practice">講義第 06 節</a>；你的版本外觀與用字可以不同，只要通過同樣的檢查。</p>
+
+<h3>準備：開好資料夾，說明你的程度</h3>
+<ul class="checklist"><li>建立新資料夾，例如「我的排班工具」，把第 02 節下載的兩份範例 CSV 放進去。</li><li>用 Codex 開啟這個資料夾，貼上下面的提示。</li></ul>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">準備：說明我的程度與溝通方式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我完全沒有寫程式的經驗。請用一般用語說明，一次帶我做一小步，不要要求我讀懂或手動修改程式。
+這一步先不要建立任何檔案，回覆「了解」，等我提出需求。</code></pre></figure>
+<ul class="checklist"><li><strong>準備</strong>｜送出後 → AI 只回覆、沒有建立任何檔案；資料夾裡仍只有兩份 CSV。</li></ul>
+
+<h3>第 1 層：先做空白流程</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 1 層：先做空白流程</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請建立一個純前端智慧排班網站，不使用伺服器、資料庫或外部 API。流程分成：人員與班別、需求與限制、自動排班、檢查與調整、發布班表。初始畫面不可預載任何資料，先只完成可切換的介面。</code></pre></figure>
+<ul class="checklist"><li><strong>第 1 層</strong>｜直接開啟 index.html → 畫面停在第一步，人員與班別都是空白；五個步驟都能點選切換。</li></ul>
+
+<h3>第 2 層：加入 CSV 匯入</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 2 層：加入 CSV 匯入</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入兩個 CSV 匯入功能。人員欄位包含：人員編號、姓名、職類、不值夜班、假日不可上班、指定可上班星期。班別欄位包含：班別名稱、開始時間、結束時間，以及四種職類最低人數。資料只留在瀏覽器記憶體，不可上傳。</code></pre></figure>
+<ul class="checklist"><li><strong>第 2 層</strong>｜匯入兩份範例 CSV → 16 位人員、3 個班別，兩份都成功後才能進到第二步。</li><li><strong>第 2 層</strong>｜匯入練習 B 的「測試 6 人員檔」 → 清楚指出錯誤的列與內容，不會默默少一個人。</li></ul>
+
+<h3>第 3 層：建立必要限制檢查</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 3 層：建立必要限制檢查</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請建立排班限制檢查函式：每班各職類達到最低人數；遵守不值夜班、假日不可上班與指定可上班星期；每人每日不超過設定班數；前一班結束到下一班開始符合休息時間。回傳所有違規原因，不可自行放寬任何限制。</code></pre></figure>
+<ul class="checklist"><li><strong>第 3 層</strong>｜故意把不可值夜班的人（例如王雅婷）排進大夜 → 畫面指出姓名與違反的規則。</li><li><strong>看看 AI 替你決定了什麼</strong>｜到「需求與限制」讀 AI 寫的「夜班」「假日」定義 → 符合你的意思再繼續；不符合，就在下一段提示中寫清楚，例如「小夜也算夜班」。</li></ul>
+
+<h3>第 4 層：加入自動排班</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 4 層：加入自動排班</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入一週自動排班。逐日、逐班、逐職類找符合必要限制的人選，優先選目前累積班數最少的人。完成後必須再跑一次完整限制檢查；若無解，顯示明確原因並停止，不可產生看似完成但違規的班表。</code></pre></figure>
+<ul class="checklist"><li><strong>第 4 層</strong>｜用兩份範例 CSV 自動排班 → 產生 7 天 × 3 班 × 4 職類的完整班表，限制檢查全部通過。</li><li><strong>第 4 層</strong>｜改用練習 B 的「測試 2 人員檔」 → 說明週六、週日護理人員不足並停止，不產生班表。</li></ul>
+
+<h3>第 5 層：加入手動調整</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 5 層：加入手動調整</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請讓使用者可在班表中選擇其他同職類人員。每次手動調整後立即重新執行全部限制檢查，列出未通過項目；只要有違規就不能發布。保留保存草稿與發布狀態，但資料仍只存在前端。</code></pre></figure>
+<ul class="checklist"><li><strong>第 5 層</strong>｜把週三大夜換成王雅婷 → 顯示警告，不能發布。</li><li><strong>第 5 層</strong>｜換回原本合格的人 → 警告消失，可以發布。</li></ul>
+
+<h3>第 6 層：加入下載與離線交付</h3>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 6 層：加入下載與離線交付</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入下載班表 CSV，按鈕在發布旁邊且不需要先發布。輸出日期、星期、班別、時間、職類、人員編號與姓名，加入 UTF-8 BOM 讓 Excel 正確顯示中文。最後整理成不依賴套件與網路、雙擊 index.html 就能使用的純前端資料夾。</code></pre></figure>
+<ul class="checklist"><li><strong>第 6 層</strong>｜不發布，直接按「下載班表 CSV」 → 可以下載；用 Excel 開啟，七個欄位、中文沒有亂碼。</li><li><strong>第 6 層</strong>｜中斷網路後重新開啟 index.html → 仍可匯入、排班與下載。</li></ul>
+
+<div class="callout tip"><span class="label">改改看（選做）</span><p>每層通過檢查後，可以試講義該層的「改改看」：在提示中加一句或改一個數字，看結果怎麼變。一次只改一處；改壞了，對 AI 說「請把剛才的修改還原」。改完要確認原本的檢查仍然通過。</p></div>
+
+<h4>預期成果 · Expected Outcome</h4><p>資料夾中有一個雙擊就能開啟的 index.html：從空白開始，匯入兩份範例 CSV 後可以自動排班、手動調整、全部通過才能發布，並下載中文正常的班表 CSV。外觀可以和示範成果不同，只要操作結果一致。</p>
+<h4>完成檢核 · Check it</h4>
+<ul class="checklist"><li>六層的檢查都由你親自操作通過，不是只看 AI 說「完成了」。</li><li>用練習 B 的測試 1、2、3 測你的版本，結果和預期相同。</li><li>關閉網路後重新開啟 index.html，仍能匯入、排班與下載。</li><li>如果試了「改改看」，說得出改了哪一句、結果怎麼變，以及原本的檢查是否仍然通過。</li></ul>
+
+<h2 id="practice-d"><span class="num">06</span>練習 D：依測試結果修正</h2>
+
+<h4>題目敘述 · Problem Statement</h4><p>用練習 B 的測試 4、5、6 測你的版本。有不符合預期的，請 AI 修正；修正後六個測試全部重做一次，確認沒有把原本對的地方改壞。原始範例工具、講義的六層示範版本與你的版本是不同版本，測試結果不能混用。</p>
+
+<h4>建議 Prompt · Suggested Prompt</h4>
+<p>送出前，刪掉你的版本已經通過的項目，只留下沒通過的。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">依測試案例修正（只留下你的版本沒通過的項目）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我用下面三個測試案例檢查了目前的排班工具，發現實際行為和預期不同。請只修正這三點，不要改變其他功能與畫面：
+（1）跨日休息：同一個人排在某天小夜（16:00–00:00）與隔天大夜（00:00–08:00），休息 0 小時，應該被列為「休息不足」。請依班別檔中的開始與結束時間計算前後兩班之間的休息時數，少於 8 小時就算違規。
+（2）最低人數：班別檔中各職類的最低人數要真的用在排班與檢查上。例如白班護理人員最低人數改成 2，就要排 2 位，排不出來時回報缺口。
+（3）職類打錯：人員檔中職類不是四種職類之一時，要列出第幾列、寫了什麼，不可以默默略過。
+修正後請用兩份範例 CSV 與這三個案例各試一次，用一般用語告訴我怎麼操作、應該看到什麼。</code></pre></figure>
+
+<h4>預期成果 · Expected Outcome</h4><p>修正後，六個測試都符合預期；或對仍不符合的項目，寫下原因與下一步。</p>
+<h4>完成檢核 · Check it</h4>
+<ul class="checklist"><li><strong>測試 4</strong>｜小夜接隔天大夜 → 出現休息不足，且不能發布。</li><li><strong>測試 5</strong>｜白班護理人員最低 2 人 → 白班確實排 2 位，或清楚回報缺口；改回範例班別檔後恢復原狀。</li><li><strong>測試 6</strong>｜職類打錯 → 錯誤訊息指出哪一列、寫了什麼，人數不會默默減少。</li><li><strong>測試 1～3</strong>｜重做 → 結果和修正前相同。</li></ul>
+
+<h3>保存你的測試紀錄</h3>
+<p>把六個測試的實際結果告訴 AI，請它存成檔案，再親自打開核對。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">把我親手測試的結果存成紀錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我親手測試的結果如下：
+［逐一寫出測試 1～6 的實際結果；修正前後都測過的請分開寫；沒測的寫「尚未測試」］
+請在目前資料夾保存一份測試紀錄，每個測試列出：怎麼操作、預期看到、實際看到、是否符合。
+只根據我提供的結果整理，不要把你自己試的結果寫成我的結果，也不要把尚未測試寫成通過。這一步不要修改排班工具。</code></pre></figure>
+<ul class="checklist"><li>打開紀錄檔，六個測試都在，實際結果和你看到的一致；沒測的仍是「尚未測試」。</li><li>排班工具本身沒有因為這一步被修改。</li></ul>
+
+<details class="explain"><summary>參考｜講義第 6 層示範版本的測試結果</summary><div>
+<p>用第 6 層的示範版本做完六個測試，全部符合預期，所以那個版本不需要練習 D 的修正：第 2、3 層的提示已經寫明「最低人數」與「前一班結束到下一班開始符合休息時間」。提示寫得越具體，越少需要事後修正；你的版本不一定如此，請以自己的測試結果為準。</p>
+</div></details>
+
+<h2 id="reflection"><span class="num">07</span>離場成果與反思</h2>
+
+<h3>每一層都走同樣的循環</h3>
+<ul class="flow"><li><b>① 寫清楚規則</b>資料欄位、必要限制與偏好分開。</li><li><b>② 一次一層</b>每段提示只加一種功能。</li><li><b>③ 先寫預期</b>操作前寫好應該看到什麼。</li><li><b>④ 親自操作</b>以自己看到的結果為準。</li></ul>
+
+<h3>離開前確認</h3>
+<ul class="checklist"><li>有一個雙擊就能開啟的排班工具，用範例資料能完成匯入、排班、調整、發布與下載。</li><li>有一份六個測試的紀錄，寫下修正前後的實際結果。</li><li>能說明為什麼排不出來時，要由人決定怎麼處理，而不是讓工具放寬限制。</li></ul>
+
+<h3>結束前想一想</h3>
+<ul class="checklist"><li>「✓ 限制檢查通過」代表什麼、不代表什麼？</li><li>哪一個測試讓你發現「畫面寫了，不代表程式做了」？</li><li>AI 在哪一層替你做了決定（例如夜班的定義）？你是怎麼發現的？</li><li>回到工作現場，有哪一條規則你會想先寫清楚、再交給 AI？</li></ul>
+
+<div class="callout warn"><span class="label">練習界線</span><p>人員、班別與限制全部是虛構的教學資料，不要放入真實員工姓名、職編、請假或健康資訊。工具只檢查寫進去的規則；真實排班涉及勞動法規、機構規範與照護安全，須由主管與具資格的人員決定。使用雲端 AI 服務前，先確認機構對資料上傳的規定。</p></div>
+<p>保留排班工具與測試紀錄；進入<a href="unit07.html">模組 07</a>時，用同樣的方法處理照護紀錄草稿：先寫清楚欄位規則，缺漏標出來，再由你逐項核對。</p>
+<nav class="pager" aria-label="上下頁"><a href="unit06.html">← 模組 06：AI 專題：照護場域排班小工具</a><a href="unit07.html">模組 07：照護紀錄草稿填寫工具 →</a></nav>
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。智慧雨林 AI Agent 護理教育與長照場域應用工作坊講義；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為工作坊教材，軟體畫面與功能可能隨版本更新而調整；範例與原型僅供教學與討論。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("handouts-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("handouts-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("handouts-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>

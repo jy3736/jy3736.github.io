@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>智慧排班</title>
+<style>
+:root{--g:#1f7a55;--g2:#165c40;--gs:#e6f4ec;--ink:#183a2c;--mut:#5f7569;--line:#d4e3da;--bg:#f3f8f5;--bad:#a4410b;--badbg:#fdf0e6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.8rem 1.4rem;background:#fff;border-bottom:1px solid var(--line)}
+header b{font-size:1.2rem;color:var(--g)}
+header span{font-size:.85rem;color:var(--g);background:var(--gs);border-radius:99px;padding:.15rem .7rem}
+main{max-width:1180px;margin:0 auto;padding:1.2rem}
+nav{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+nav button{flex:1 1 9rem;display:flex;align-items:center;gap:.5rem;padding:.6rem .8rem;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+nav button i{font-style:normal;display:inline-grid;place-items:center;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--gs);color:var(--g);font-weight:700;font-size:.85rem}
+nav button[aria-current="step"]{border-color:var(--g);background:var(--g);color:#fff}
+nav button[aria-current="step"] i{background:#fff}
+nav button:disabled{opacity:.45;cursor:not-allowed}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem}
+.card h2{margin:0 0 .3rem;font-size:1.15rem}
+.card h3{margin:.2rem 0 .5rem;font-size:1rem}
+.muted{color:var(--mut);font-size:.9rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.btn{display:inline-block;border:1px solid var(--g);background:var(--g);color:#fff;border-radius:8px;padding:.5rem 1rem;font:inherit;cursor:pointer}
+.btn:hover{background:var(--g2)}
+.btn.light{background:#fff;color:var(--g)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.file input{position:absolute;opacity:0;width:1px;height:1px}
+.empty{border:1px dashed var(--line);border-radius:10px;padding:1.6rem;text-align:center;color:var(--mut);background:#fafcfb}
+.msg{border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;border:1px solid}
+.msg.ok{background:var(--gs);border-color:#b9dcc8;color:#1d5c40}
+.msg.bad{background:var(--badbg);border-color:#efcfb6;color:var(--bad)}
+.msg ul{margin:.3rem 0 0;padding-left:1.2rem}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:.45rem .6rem;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{background:#f1f7f3}
+td.cell{vertical-align:top}
+td.cell.badcell{background:var(--badbg)}
+select,input{font:inherit;padding:.3rem .4rem;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+td.cell select{display:block;width:100%;min-width:6.5rem;margin:.1rem 0}
+.tabs{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.7rem}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:.25rem .9rem;font:inherit;cursor:pointer}
+.tabs button.on{background:var(--g);border-color:var(--g);color:#fff}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.8rem 0}
+.bar .status{margin-right:auto;font-weight:700}
+.settings{display:flex;flex-wrap:wrap;gap:1rem}
+.settings label{display:flex;flex-direction:column;font-size:.9rem;color:var(--mut)}
+.rules{margin:.3rem 0 0;padding-left:1.2rem}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:end}
+footer{text-align:center;color:var(--mut);font-size:.8rem;padding:1rem}
+@media(max-width:760px){.grid{grid-template-columns:1fr}main{padding:.8rem}}
+</style>
+</head>
+<body>
+<header><b>＋ 智慧排班</b><span>純前端・資料只在這個分頁</span></header>
+<main>
+<nav id="steps" aria-label="排班步驟"></nav>
+<div id="msg"></div>
+<section id="view"></section>
+</main>
+<footer>資料不會上傳到任何伺服器；重新整理或關閉分頁後會清空。</footer>
+<script>
+const STEPS = ['人員與班別', '需求與限制', '自動排班', '檢查與調整', '發布班表'];
+const ROLES = ['住院醫師', '護理人員', '照護人員', '清潔人員'];
+const S = {
+  step: 0,
+  staff: [], shifts: [], staffFile: '', shiftFile: '', staffErr: [], shiftErr: [],
+  settings: { start: '2026-10-12', maxPerDay: 1, minRest: 8 },
+  assign: null, role: '護理人員',
+  savedAt: null, publishedAt: null,
+  msg: null
+};
+const $ = s => document.querySelector(s);
+const esc = v => String(v).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function say(type, text, list) { S.msg = { type, text, list: list || [] }; }
+
+/* ---------- CSV 匯入 ---------- */
+function parseCSV(text) {
+  text = text.replace(/^﻿/, '');
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+    else cur += c;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows.map(r => r.map(v => v.trim()));
+}
+function columns(head, need, errors) {
+  const missing = need.filter(h => !head.includes(h));
+  if (missing.length) errors.push('第 1 列（標題）缺少欄位：' + missing.join('、'));
+  return Object.fromEntries(need.map(h => [h, head.indexOf(h)]));
+}
+const blank = r => r.every(v => v === '');
+function readStaff(text) {
+  const errors = [], rows = parseCSV(text), out = [], seen = {};
+  if (text.includes('�')) return { errors: ['檔案編碼可能不是 UTF-8，請用「CSV UTF-8」格式另存後再匯入。'] };
+  if (!rows.length) return { errors: ['檔案是空的。'] };
+  const c = columns(rows[0], ['人員編號', '姓名', '職類', '不值夜班', '假日不可上班', '指定可上班星期'], errors);
+  if (errors.length) return { errors };
+  rows.slice(1).forEach((r, i) => {
+    if (blank(r)) return;
+    const line = i + 2, at = '第 ' + line + ' 列：';
+    const id = r[c['人員編號']] || '', name = r[c['姓名']] || '', role = r[c['職類']] || '';
+    const night = r[c['不值夜班']] || '', weekend = r[c['假日不可上班']] || '', days = r[c['指定可上班星期']] || '';
+    if (!id) errors.push(at + '人員編號是空白。');
+    else if (seen[id]) errors.push(at + '人員編號「' + id + '」與第 ' + seen[id] + ' 列重複。');
+    else seen[id] = line;
+    if (!name) errors.push(at + '姓名是空白。');
+    if (!ROLES.includes(role)) errors.push(at + '職類「' + role + '」不是四種職類之一（' + ROLES.join('、') + '）。');
+    if (!['是', '否'].includes(night)) errors.push(at + '「不值夜班」只能填「是」或「否」，目前是「' + night + '」。');
+    if (!['是', '否'].includes(weekend)) errors.push(at + '「假日不可上班」只能填「是」或「否」，目前是「' + weekend + '」。');
+    const list = days ? days.split('|').map(v => v.trim()) : [];
+    if (list.some(v => !/^[1-7]$/.test(v))) errors.push(at + '「指定可上班星期」只能填 1 到 7（1 是週一），用「|」分隔，目前是「' + days + '」。');
+    out.push({ id, name, role, noNight: night === '是', noWeekend: weekend === '是', days: list.length ? list.map(Number) : null });
+  });
+  if (!out.length && !errors.length) errors.push('檔案中沒有人員資料。');
+  return { errors, data: out };
+}
+function readShifts(text) {
+  const errors = [], rows = parseCSV(text), out = [], seen = {};
+  if (text.includes('�')) return { errors: ['檔案編碼可能不是 UTF-8，請用「CSV UTF-8」格式另存後再匯入。'] };
+  if (!rows.length) return { errors: ['檔案是空的。'] };
+  const need = ['班別名稱', '開始時間', '結束時間'].concat(ROLES.map(r => r + '最低人數'));
+  const c = columns(rows[0], need, errors);
+  if (errors.length) return { errors };
+  const time = /^([01]\d|2[0-3]):[0-5]\d$/;
+  rows.slice(1).forEach((r, i) => {
+    if (blank(r)) return;
+    const line = i + 2, at = '第 ' + line + ' 列：';
+    const name = r[c['班別名稱']] || '', start = r[c['開始時間']] || '', end = r[c['結束時間']] || '';
+    if (!name) errors.push(at + '班別名稱是空白。');
+    else if (seen[name]) errors.push(at + '班別「' + name + '」與第 ' + seen[name] + ' 列重複。');
+    else seen[name] = line;
+    if (!time.test(start)) errors.push(at + '開始時間「' + start + '」要寫成 HH:MM，例如 08:00。');
+    if (!time.test(end)) errors.push(at + '結束時間「' + end + '」要寫成 HH:MM，例如 16:00。');
+    if (start && start === end) errors.push(at + '開始與結束時間不能相同。');
+    const min = {};
+    ROLES.forEach(role => {
+      const v = r[c[role + '最低人數']] || '';
+      if (!/^\d+$/.test(v)) errors.push(at + '「' + role + '最低人數」要填 0 或正整數，目前是「' + v + '」。');
+      min[role] = Number(v);
+    });
+    out.push({ name, start, end, min });
+  });
+  if (!out.length && !errors.length) errors.push('檔案中沒有班別資料。');
+  return { errors, data: out };
+}
+function importFile(kind, file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const result = kind === 'staff' ? readStaff(reader.result) : readShifts(reader.result);
+    const ok = !result.errors.length;
+    if (kind === 'staff') { S.staff = ok ? result.data : []; S.staffFile = file.name; S.staffErr = result.errors; }
+    else { S.shifts = ok ? result.data : []; S.shiftFile = file.name; S.shiftErr = result.errors; }
+    S.assign = null;
+    S.savedAt = S.publishedAt = null;
+    if (ok) say('ok', '已匯入「' + file.name + '」：' + (kind === 'staff' ? S.staff.length + ' 位人員。' : S.shifts.length + ' 個班別。'));
+    else say('bad', '「' + file.name + '」沒有匯入，請修正下面的問題後重新選擇檔案：', result.errors);
+    render();
+  };
+  reader.readAsText(file, 'utf-8');
+}
+const ready = () => S.staff.length > 0 && S.shifts.length > 0;
+
+/* ---------- 日期、時間與限制檢查 ---------- */
+const WEEK = '日一二三四五六';
+function dayDate(d) { const t = new Date(S.settings.start + 'T00:00:00'); t.setDate(t.getDate() + d); return t; }
+function dayLabel(d) { const t = dayDate(d); return (t.getMonth() + 1) + '/' + t.getDate() + '（' + WEEK[t.getDay()] + '）'; }
+const isWeekend = d => [0, 6].includes(dayDate(d).getDay());
+const weekdayNo = d => dayDate(d).getDay() || 7;
+const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+function span(si, d) {
+  const sh = S.shifts[si], s = toMin(sh.start), e = toMin(sh.end);
+  const len = e > s ? e - s : e + 1440 - s;
+  return { s: d * 1440 + s, e: d * 1440 + s + len };
+}
+function isNight(si) {
+  const { s, e } = span(si, 0);
+  for (let t = s; t < e; t += 30) if (t % 1440 < 360) return true;
+  return false;
+}
+const daysText = days => days.map(n => '週' + '一二三四五六日'[n - 1]).join('、');
+function emptyAssign() {
+  return Array.from({ length: 7 }, () => S.shifts.map(sh => Object.fromEntries(ROLES.map(r => [r, Array(sh.min[r]).fill('')]))));
+}
+/* 回傳所有違規原因；不會修改或放寬任何設定。 */
+function check(a) {
+  const v = [], add = (text, cell) => v.push({ text, cell });
+  const per = {};
+  const minRest = Number(S.settings.minRest), maxPerDay = Number(S.settings.maxPerDay);
+  for (let d = 0; d < 7; d++) S.shifts.forEach((sh, si) => ROLES.forEach(role => {
+    const ids = a[d][si][role].filter(Boolean);
+    const short = sh.min[role] - ids.length;
+    if (short > 0) add(dayLabel(d) + sh.name + '：' + role + '少 ' + short + ' 人（最低 ' + sh.min[role] + ' 人）', [d, si, role]);
+    if (new Set(ids).size < ids.length) add(dayLabel(d) + sh.name + '：同一人在同一班重複排入', [d, si, role]);
+    ids.forEach(id => (per[id] = per[id] || []).push(Object.assign({ d, si, role }, span(si, d))));
+  }));
+  Object.keys(per).forEach(id => {
+    const p = S.staff.find(x => x.id === id), list = per[id].sort((x, y) => x.s - y.s);
+    const where = x => dayLabel(x.d) + S.shifts[x.si].name;
+    list.forEach(x => {
+      const cell = [x.d, x.si, x.role];
+      if (p.role !== x.role) add(p.name + '是' + p.role + '，不能排在' + where(x) + '的' + x.role, cell);
+      if (p.noNight && isNight(x.si)) add(p.name + '不值夜班，卻排在' + where(x), cell);
+      if (p.noWeekend && isWeekend(x.d)) add(p.name + '假日不可上班，卻排在' + where(x), cell);
+      if (p.days && !p.days.includes(weekdayNo(x.d))) add(p.name + '只能在' + daysText(p.days) + '上班，卻排在' + where(x), cell);
+    });
+    for (let d = 0; d < 7; d++) {
+      const n = list.filter(x => x.d === d).length;
+      if (n > maxPerDay) add(p.name + '在' + dayLabel(d) + '排了 ' + n + ' 班，超過每日上限 ' + maxPerDay + ' 班', [d, list.find(x => x.d === d).si, p.role]);
+    }
+    for (let i = 1; i < list.length; i++) {
+      const x = list[i - 1], y = list[i], gap = (y.s - x.e) / 60;
+      if (gap < minRest) add(p.name + '從' + where(x) + '下班到' + where(y) + '上班只休息 ' + gap + ' 小時，少於 ' + minRest + ' 小時', [y.d, y.si, y.role]);
+    }
+  });
+  return v;
+}
+
+/* ---------- 自動排班 ---------- */
+function staticOk(p, d, si) {
+  if (p.noNight && isNight(si)) return false;
+  if (p.noWeekend && isWeekend(d)) return false;
+  if (p.days && !p.days.includes(weekdayNo(d))) return false;
+  return true;
+}
+function precheck() {
+  const reasons = [], max = Number(S.settings.maxPerDay);
+  for (let d = 0; d < 7; d++) ROLES.forEach(role => {
+    const avail = S.staff.filter(p => p.role === role && (!p.noWeekend || !isWeekend(d)) && (!p.days || p.days.includes(weekdayNo(d))));
+    const need = S.shifts.reduce((n, sh) => n + sh.min[role], 0);
+    if (need > avail.length * max) reasons.push(dayLabel(d) + role + '：所有班別共需要 ' + need + ' 人次，但當天可上班的只有 ' + avail.length + ' 人（' + (avail.map(p => p.name).join('、') || '無') + '），每人每天最多 ' + max + ' 班。');
+    S.shifts.forEach((sh, si) => {
+      const can = S.staff.filter(p => p.role === role && staticOk(p, d, si)).length;
+      if (sh.min[role] > can) reasons.push(dayLabel(d) + sh.name + '：需要 ' + sh.min[role] + ' 位' + role + '，但符合條件的只有 ' + can + ' 人。');
+    });
+  });
+  return reasons;
+}
+function autoSchedule() {
+  const reasons = precheck();
+  if (reasons.length) { S.assign = null; say('bad', '無法產生合格班表，必要限制不會自動放寬。原因：', reasons); return render(); }
+  const order = S.shifts.map((sh, si) => si).sort((x, y) => toMin(S.shifts[x].start) - toMin(S.shifts[y].start));
+  const slots = [];
+  for (let d = 0; d < 7; d++) order.forEach(si => ROLES.forEach(role => { for (let k = 0; k < S.shifts[si].min[role]; k++) slots.push({ d, si, role, k }); }));
+  const a = emptyAssign(), count = {}, per = {}, rest = Number(S.settings.minRest) * 60, max = Number(S.settings.maxPerDay);
+  S.staff.forEach(p => { count[p.id] = 0; per[p.id] = []; });
+  let tries = 0, deepest = -1, stuck = null;
+  const fits = (p, sl) => {
+    if (p.role !== sl.role || !staticOk(p, sl.d, sl.si) || a[sl.d][sl.si][sl.role].includes(p.id)) return false;
+    if (per[p.id].filter(x => x.d === sl.d).length >= max) return false;
+    const t = span(sl.si, sl.d);
+    return per[p.id].every(x => x.e + rest <= t.s || t.e + rest <= x.s);
+  };
+  function dfs(i) {
+    if (i === slots.length) return true;
+    if (++tries > 200000) return false;
+    const sl = slots[i];
+    const cands = S.staff.filter(p => fits(p, sl)).sort((x, y) => count[x.id] - count[y.id] || x.id.localeCompare(y.id));
+    for (const p of cands) {
+      a[sl.d][sl.si][sl.role][sl.k] = p.id; count[p.id]++; per[p.id].push(Object.assign({ d: sl.d }, span(sl.si, sl.d)));
+      if (dfs(i + 1)) return true;
+      a[sl.d][sl.si][sl.role][sl.k] = ''; count[p.id]--; per[p.id].pop();
+    }
+    if (i > deepest) { deepest = i; stuck = sl; }
+    return false;
+  }
+  if (!dfs(0)) {
+    S.assign = null;
+    say('bad', '無法產生合格班表，必要限制不會自動放寬。', [tries > 200000 ? '嘗試次數過多仍未找到排法，請檢查人力是否太緊。' : '已嘗試所有排法，最先排不出來的是 ' + dayLabel(stuck.d) + S.shifts[stuck.si].name + '的' + stuck.role + '。']);
+    return render();
+  }
+  const v = check(a);
+  if (v.length) { S.assign = null; say('bad', '排班結果沒有通過完整檢查，已停止：', v.map(x => x.text)); return render(); }
+  S.assign = a; S.step = 3;
+  S.savedAt = S.publishedAt = null;
+  say('ok', '已產生一週班表，並重新跑過完整限制檢查：全部通過。');
+  render();
+}
+const nameOf = id => (S.staff.find(p => p.id === id) || {}).name || '';
+
+/* ---------- 下載 CSV ---------- */
+function downloadCSV() {
+  const rows = [['日期', '星期', '班別', '時間', '職類', '人員編號', '姓名']];
+  const pad = n => String(n).padStart(2, '0');
+  for (let d = 0; d < 7; d++) S.shifts.forEach((sh, si) => ROLES.forEach(role => S.assign[d][si][role].forEach(id => {
+    const t = dayDate(d);
+    rows.push([t.getFullYear() + '/' + pad(t.getMonth() + 1) + '/' + pad(t.getDate()), '週' + WEEK[t.getDay()], sh.name, sh.start + '–' + sh.end, role, id || '', id ? nameOf(id) : '未安排']);
+  })));
+  const body = '﻿' + rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  const name = '班表_' + S.settings.start + '起_' + (S.publishedAt ? '已發布' : '草稿') + '.csv';
+  const url = URL.createObjectURL(new Blob([body], { type: 'text/csv;charset=utf-8' }));
+  const link = document.createElement('a'); link.href = url; link.download = name; document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  say('ok', '已下載「' + name + '」。' + (S.publishedAt ? '' : '這是尚未發布的草稿版本。')); render();
+}
+
+/* ---------- 畫面 ---------- */
+function unlocked(i) {
+  return i === 0 || (i < 3 ? ready() : ready() && !!S.assign);
+}
+function go(i) { if (unlocked(i)) { S.step = i; S.msg = null; render(); } }
+const later = text => '<div class="empty">' + text + '</div>';
+const next = (i, label, on) => '<p><button class="btn" ' + (on === false ? 'disabled ' : '') + 'onclick="go(' + i + ')">' + label + ' →</button></p>';
+
+function view0() {
+  const box = (kind, title, file, data, err) => '<div><h3>' + title + '</h3>' +
+    '<label class="btn file">選擇' + title.slice(0, 2) + ' CSV<input type="file" accept=".csv,text/csv" onchange="importFile(\'' + kind + '\', this.files[0]); this.value=\'\'"></label> ' +
+    '<span class="muted">' + (file ? esc(file) : '尚未選擇檔案') + '</span>' +
+    (err.length ? '<div class="msg bad" style="margin-top:.6rem">沒有匯入：<ul>' + err.map(e => '<li>' + esc(e) + '</li>').join('') + '</ul></div>'
+      : data.length ? '<p class="muted">已匯入 ' + data.length + (kind === 'staff' ? ' 位人員' : ' 個班別') + '</p>' + preview(kind)
+      : '<p></p>' + later(kind === 'staff' ? '尚無人員' : '尚無班別')) + '</div>';
+  return '<div class="card"><h2>1. 人員與班別</h2><p class="muted">資料只會留在這個瀏覽器分頁，不會上傳。兩份都匯入成功後才能進到下一步。</p><div class="grid">' +
+    box('staff', '人員資料', S.staffFile, S.staff, S.staffErr) + box('shift', '班別與需求', S.shiftFile, S.shifts, S.shiftErr) + '</div>' +
+    next(1, '下一步：需求與限制', ready()) + '</div>';
+}
+function preview(kind) {
+  if (kind === 'staff') return '<div class="wrap"><table><tr><th>編號</th><th>姓名</th><th>職類</th><th>個人條件</th></tr>' +
+    S.staff.map(p => '<tr><td>' + esc(p.id) + '</td><td>' + esc(p.name) + '</td><td>' + p.role + '</td><td>' +
+      ([p.noNight && '不值夜班', p.noWeekend && '假日不可上班', p.days && '只排' + p.days.join('|')].filter(Boolean).join('、') || '—') + '</td></tr>').join('') + '</table></div>';
+  return '<div class="wrap"><table><tr><th>班別</th><th>時間</th>' + ROLES.map(r => '<th>' + r + '</th>').join('') + '</tr>' +
+    S.shifts.map(sh => '<tr><td>' + esc(sh.name) + '</td><td>' + sh.start + '–' + sh.end + '</td>' + ROLES.map(r => '<td>' + sh.min[r] + '</td>').join('') + '</tr>').join('') + '</table></div>';
+}
+
+function view1() {
+  const night = S.shifts.filter((sh, si) => isNight(si)).map(sh => sh.name).join('、') || '無';
+  return '<div class="card"><h2>2. 需求與限制</h2><p class="muted">必要限制一條都不會自動放寬。</p>' +
+    '<h3>每班各職類最低人數</h3>' + preview('shift') +
+    '<h3 style="margin-top:1rem">設定</h3><div class="settings">' +
+    '<label>排班起始日（共 7 天）<input type="date" value="' + S.settings.start + '" onchange="setting(\'start\', this.value)"></label>' +
+    '<label>每人每日最多班數<input type="number" min="1" max="3" value="' + S.settings.maxPerDay + '" onchange="setting(\'maxPerDay\', this.value)"></label>' +
+    '<label>班間最少休息（小時）<input type="number" min="0" max="24" value="' + S.settings.minRest + '" onchange="setting(\'minRest\', this.value)"></label></div>' +
+    '<h3 style="margin-top:1rem">必要限制</h3><ul class="rules">' +
+    '<li>每班各職類達到最低人數</li><li>每人每日最多 ' + S.settings.maxPerDay + ' 班</li>' +
+    '<li>前一班結束到下一班開始至少休息 ' + S.settings.minRest + ' 小時（依班別時間計算，含跨日）</li>' +
+    '<li>不值夜班：不排夜班（時段落在 00:00–06:00 的班別，目前是：' + esc(night) + '）</li>' +
+    '<li>假日不可上班：不排週六、週日</li><li>指定可上班星期：只排在指定的日子</li></ul>' +
+    '<p class="muted">偏好（必要限制都滿足後才考慮）：同職類每人班數盡量平均。</p>' + next(2, '下一步：自動排班') + '</div>';
+}
+function setting(key, value) {
+  if (key === 'start' && !value) return render();
+  S.settings[key] = key === 'start' ? value : Math.max(key === 'maxPerDay' ? 1 : 0, Number(value) || 0);
+  S.publishedAt = null;
+  render();
+}
+
+function view2() {
+  return '<div class="card"><h2>3. 自動排班</h2><p class="muted">逐日、逐班、逐職類找出符合全部必要限制的人，優先選目前累積班數最少的人；排完再跑一次完整檢查。找不到合格排法時會說明原因並停止，不會產生違規的班表。</p>' +
+    '<p>人員 ' + S.staff.length + ' 位 · 班別 ' + S.shifts.length + ' 個 · ' + dayLabel(0) + ' 起 7 天</p>' +
+    '<p><button class="btn" onclick="autoSchedule()">▶ 開始自動排班</button></p></div>';
+}
+
+function view3() {
+  const v = check(S.assign), bad = new Set(v.map(x => x.cell.join('|')));
+  return '<div class="card"><h2>4. 檢查與調整</h2>' +
+    '<div class="tabs">' + ROLES.map(r => '<button class="' + (r === S.role ? 'on' : '') + '" onclick="S.role=\'' + r + '\';render()">' + r + '</button>').join('') + '</div>' +
+    '<div class="wrap"><table><tr><th>班別</th>' + [0, 1, 2, 3, 4, 5, 6].map(d => '<th>' + dayLabel(d) + '</th>').join('') + '</tr>' +
+    S.shifts.map((sh, si) => '<tr><th>' + esc(sh.name) + '<br><span class="muted">' + sh.start + '–' + sh.end + '</span></th>' +
+      [0, 1, 2, 3, 4, 5, 6].map(d => '<td class="cell' + (bad.has(d + '|' + si + '|' + S.role) ? ' badcell' : '') + '">' + cell(d, si) + '</td>').join('') + '</tr>').join('') +
+    '</table></div>' +
+    (v.length ? '<div class="msg bad" style="margin-top:.8rem">' + v.length + ' 項限制未通過：<ul>' + v.map(x => '<li>' + esc(x.text) + '</li>').join('') + '</ul></div>'
+      : '<div class="msg ok" style="margin-top:.8rem">✓ 全部必要限制檢查通過</div>') +
+    actions(v) +
+    '</div>';
+}
+function cell(d, si) {
+  const people = S.staff.filter(p => p.role === S.role);
+  return S.assign[d][si][S.role].map((id, k) => '<select aria-label="' + dayLabel(d) + S.shifts[si].name + S.role + '" onchange="pick(' + d + ',' + si + ',' + k + ',this.value)">' +
+    '<option value="">未安排</option>' + people.map(p => '<option value="' + esc(p.id) + '"' + (p.id === id ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('') + '</select>').join('') || '—';
+}
+function pick(d, si, k, id) {
+  S.assign[d][si][S.role][k] = id;
+  const was = S.publishedAt; S.publishedAt = null;
+  const v = check(S.assign);
+  say(v.length ? 'bad' : 'ok', '已重新檢查全部限制：' + (v.length ? v.length + ' 項未通過，暫時不能發布。' : '全部通過。') + (was ? '班表已改回草稿，需要重新發布。' : ''));
+  render();
+}
+function actions(v) {
+  const status = S.publishedAt ? '狀態：已發布（' + S.publishedAt + '）' : S.savedAt ? '狀態：草稿（已保存 ' + S.savedAt + '）' : '狀態：草稿（尚未保存）';
+  return '<div class="bar"><span class="status">' + status + '</span>' +
+    '<button class="btn light" onclick="saveDraft()">保存草稿</button>' +
+    '<button class="btn light" onclick="downloadCSV()">下載班表 CSV</button>' +
+    '<button class="btn" ' + (v.length ? 'disabled title="仍有限制未通過"' : '') + ' onclick="publish()">發布班表</button></div>';
+}
+const now = () => new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+let draft = null;
+function saveDraft() { draft = JSON.parse(JSON.stringify(S.assign)); S.savedAt = now(); say('ok', '草稿已保存在這個分頁中（不會上傳）。'); render(); }
+function publish() {
+  const v = check(S.assign);
+  if (v.length) { say('bad', '仍有 ' + v.length + ' 項限制未通過，不能發布。'); return render(); }
+  S.publishedAt = now(); S.step = 4; say('ok', '班表已發布。'); render();
+}
+
+function view4() {
+  const v = check(S.assign), count = {};
+  S.staff.forEach(p => { count[p.id] = 0; });
+  S.assign.forEach(day => day.forEach(c => ROLES.forEach(r => c[r].forEach(id => { if (id) count[id]++; }))));
+  return '<div class="card"><h2>5. 發布班表</h2>' + actions(v) +
+    '<h3>每人班數</h3><div class="wrap"><table><tr><th>職類</th><th>人員與班數</th></tr>' +
+    ROLES.map(r => '<tr><td>' + r + '</td><td>' + S.staff.filter(p => p.role === r).map(p => esc(p.name) + ' ' + count[p.id]).join('、') + '</td></tr>').join('') +
+    '</table></div><p class="muted">發布只是標記這是確認過的版本；資料仍只存在這個分頁。</p></div>';
+}
+
+function render() {
+  $('#steps').innerHTML = STEPS.map((n, i) => '<button ' + (i === S.step ? 'aria-current="step" ' : '') + (unlocked(i) ? '' : 'disabled ') + 'onclick="go(' + i + ')"><i>' + (i + 1) + '</i>' + n + '</button>').join('');
+  $('#msg').innerHTML = S.msg ? '<div class="msg ' + S.msg.type + '">' + esc(S.msg.text) + (S.msg.list.length ? '<ul>' + S.msg.list.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '') + '</div>' : '';
+  $('#view').innerHTML = [view0, view1, view2, view3, view4][S.step]();
+}
+render();
+</script>
+</body>
+</html>

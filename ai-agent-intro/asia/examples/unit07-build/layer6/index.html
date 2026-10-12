@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>照護紀錄草稿</title>
+<style>
+:root{--g:#16645c;--gs:#e5f2f0;--ink:#193044;--mut:#607384;--line:#d9e2e8;--bg:#f3f6f8;--bad:#b52c36}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.8rem 1.4rem;background:#fff;border-bottom:1px solid var(--line)}
+header b{font-size:1.2rem;color:var(--g)}
+header span{font-size:.85rem;color:var(--g);background:var(--gs);border-radius:99px;padding:.15rem .7rem}
+main{max-width:1180px;margin:0 auto;padding:1.2rem}
+h1{font-size:1.5rem;margin:.4rem 0 .2rem}
+h2{font-size:1.1rem;margin:0 0 .8rem}
+.lead,.hint{color:var(--mut);font-size:.9rem;margin:.2rem 0 1rem}
+.hint{margin:.4rem 0 0}
+.grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:1.2rem}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1.2rem}
+label{display:block;font-size:.9rem;font-weight:600;margin:.7rem 0 .3rem}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:#fff;border:1px solid #bdcbd5;border-radius:8px;padding:.5rem .7rem}
+textarea{resize:vertical}
+.source{min-height:220px;background:#f8fafb;line-height:1.9}
+.row{border-top:1px solid var(--line);padding:.5rem 0}
+.row:first-of-type{border-top:0}
+.units{display:grid;grid-template-columns:1fr 150px;gap:.5rem}
+.units.bp{grid-template-columns:1fr 1fr 150px}
+.req{color:var(--bad);font-weight:400}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;padding:.5rem 1rem;border:1px solid var(--g);background:#fff;color:var(--g)}
+button.main{background:var(--g);color:#fff}
+.btns{display:flex;gap:.6rem;margin-top:1rem}
+.btns .main{flex:1}
+.pick{display:grid;grid-template-columns:1fr auto;gap:.5rem}
+.bar{display:flex;gap:1.2rem;align-items:flex-end;background:#fff;border:1px solid var(--line);border-radius:12px;padding:1rem 1.2rem;margin-top:1.2rem}
+.bar>div:first-child{flex:1}
+dialog{width:min(420px,calc(100% - 2rem));border:0;border-radius:14px;padding:1.4rem;box-shadow:0 24px 80px #122c3b45;color:var(--ink)}
+dialog::backdrop{background:#15293680}
+dialog .btns{justify-content:flex-end}
+.msg{display:none;padding:.7rem 1rem;border-radius:8px;margin-bottom:1rem}
+.msg.on{display:block}
+.msg.good{background:#e8f5ee;color:#216345;border:1px solid #c5e5d3}
+.msg.bad{background:#fff0f1;color:#90242c;border:1px solid #edc1c5}
+.error{border:2px solid var(--bad)!important;box-shadow:0 0 0 2px #b52c3620}
+nav{display:flex;gap:.4rem;border-bottom:1px solid var(--line);margin:1rem 0}
+nav button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;color:var(--mut);padding:.6rem 1rem}
+nav button.on{color:var(--g);border-bottom-color:var(--g)}
+.filters{display:flex;gap:.8rem;align-items:flex-end;flex-wrap:wrap}
+.filters label{min-width:200px;margin:0}
+table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:.9rem}
+th,td{text-align:left;border-bottom:1px solid var(--line);padding:.6rem}
+th{background:#edf3f4}
+.empty{text-align:center;color:var(--mut);padding:1.5rem}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.bar{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<header><b>照護紀錄草稿</b><span id="status">純前端版 · 資料只存在這個瀏覽器</span></header>
+<main>
+<h1 id="title">記錄這一次照護</h1>
+<p class="lead">貼上口語敘述，整理成欄位草稿；每一欄都要由照護人員核對。</p>
+<div id="msg" class="msg" role="status"></div>
+<nav><button type="button" class="on" data-tab="edit">新增紀錄</button><button type="button" data-tab="history">紀錄查詢與匯出</button></nav>
+<section id="edit">
+<div class="grid">
+<section class="panel">
+<h2>照護敘述</h2>
+<label for="author">照護人員</label>
+<div class="pick"><select id="author"></select><button type="button" id="addAuthor">＋ 新增</button></div>
+<label for="source">口語敘述</label>
+<textarea id="source" class="source" placeholder="例如：今天早上去看陳阿公，他說昨晚沒睡好……"></textarea>
+<p class="hint">原文會完整保留，不會被改寫。</p>
+<div class="btns"><button type="button" class="main" id="extract">擷取欄位</button><button type="button" id="sample">帶入範例</button></div>
+</section>
+<section class="panel">
+<h2>整理結果</h2>
+<div class="row"><label for="date">照護日期 <span class="req">＊必填</span></label><input id="date" type="date"></div>
+<div class="row"><label for="time">照護時間</label><input id="time" placeholder="例如：早上、08:30"></div>
+<div class="row"><label for="appetite">食慾</label><input id="appetite" placeholder="例如：不太想吃"></div>
+<div class="row"><label for="intake">進食量</label><input id="intake" placeholder="例如：稀飯大概吃半碗"></div>
+<div class="row"><label>血壓</label><div class="units bp"><input id="sys" type="number" placeholder="收縮壓" aria-label="收縮壓"><input id="dia" type="number" placeholder="舒張壓" aria-label="舒張壓"><select id="bpunit" aria-label="血壓單位"><option value="">選擇單位</option><option>mmHg</option><option>kPa</option></select></div>
+</div>
+<div class="row"><label>心跳</label><div class="units"><input id="pulse" type="number" placeholder="數值" aria-label="心跳"><select id="pulseunit" aria-label="心跳單位"><option value="">選擇單位</option><option value="bpm">bpm（次／分）</option></select></div>
+</div>
+<div class="row"><label>體溫</label><div class="units"><input id="temp" type="number" step="0.1" placeholder="數值" aria-label="體溫"><select id="tempunit" aria-label="體溫單位"><option value="">選擇單位</option><option>°C</option><option>°F</option></select></div>
+</div>
+<div class="row"><label for="notes">備註</label><textarea id="notes" rows="3" placeholder="其他照護內容"></textarea></div>
+</section>
+</div>
+<section class="bar">
+<div><label for="person">這是誰的資料？ <span class="req">＊必填</span></label><div class="pick"><select id="person"></select><button type="button" id="addPerson">＋ 新增</button></div></div>
+<button type="button" class="main" id="save">確認並儲存</button>
+</section>
+</section>
+<section id="history" class="panel" hidden>
+<h2>紀錄查詢與匯出</h2>
+<div class="filters"><label>個案<select id="filterPerson"></select></label><label>日期<input id="filterDate" type="date"></label><button type="button" id="export">匯出 CSV</button></div>
+<table><thead><tr><th>日期／時間</th><th>個案</th><th>食慾／進食量</th><th>血壓</th><th>心跳</th><th>體溫</th><th>備註</th><th>確認人員</th></tr></thead><tbody id="rows"></tbody></table>
+</section>
+</main>
+<dialog id="dlg"><form id="dlgForm" method="dialog">
+<h2 id="dlgTitle">新增</h2>
+<p class="hint">只要輸入姓名，編號會自動建立。</p>
+<label for="dlgName">姓名</label><input id="dlgName" autocomplete="off" maxlength="40">
+<div class="btns"><button type="button" id="dlgCancel">取消</button><button type="submit" class="main">確認新增</button></div>
+</form></dialog>
+<script>
+const $ = id => document.getElementById(id);
+const FIELDS = ['date', 'time', 'appetite', 'intake', 'sys', 'dia', 'bpunit', 'pulse', 'pulseunit', 'temp', 'tempunit', 'notes'];
+const SAMPLE = '今天早上去幫王阿伯量了一下，他說昨晚沒睡好，早上看起來有點沒精神。早餐本來說不太想吃，後來有吃半個饅頭，豆漿大概喝了三分之一杯。血壓量起來是145／88 mmHg，心跳每分鐘96下，體溫36.8°C。走路時說膝蓋有點痠，其他沒有特別不舒服。';
+function set(id, value) { $(id).value = value || ''; }
+function notify(text, bad) { $('msg').textContent = text; $('msg').className = 'msg on ' + (bad ? 'bad' : 'good'); }
+function today(offset) {
+  const d = new Date(Date.now() + (offset || 0) * 864e5);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+// 中文數字轉成阿拉伯數字：一百三十六 → 136、三十六點九 → 36.9；阿拉伯數字原樣保留。
+function toNumber(text) {
+  if (/^\d+(\.\d+)?$/.test(text)) return text;
+  const d = { 零: 0, 〇: 0, 一: 1, 二: 2, 兩: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+  const [whole, frac] = text.split(/[點点]/);
+  let n = 0, cur = 0;
+  if (/[十百]/.test(whole)) {
+    for (const c of whole) {
+      if (c === '百' || c === '十') { n += (cur || 1) * (c === '百' ? 100 : 10); cur = 0; }
+      else if (c in d) cur = d[c];
+      else return '';
+    }
+    n += cur;
+  } else {
+    n = Number([...whole].map(c => c in d ? d[c] : c).join(''));
+  }
+  if (!Number.isFinite(n)) return '';
+  return frac ? n + '.' + [...frac].map(c => c in d ? d[c] : c).join('') : String(n);
+}
+
+const NUM = '([0-9.一二兩三四五六七八九十百點点〇零]+)';
+const LEAD = '(?:量起來|測起來|量到|測到|是|為|[:：]|\\s)*';
+const BP = new RegExp('(?:血壓|BP)' + LEAD + NUM + '\\s*(?:[／/]|跟|和)\\s*' + NUM + '\\s*(mmHg|kPa)?', 'gi');
+const PULSE = new RegExp('(?:心跳|脈搏|心率)\\s*(?:每分鐘|一分鐘)?' + LEAD + NUM + '\\s*(下|次|bpm)?', 'gi');
+const TEMP = new RegExp('體溫' + LEAD + NUM + '\\s*(度\\s*C|度\\s*F|°\\s*C|°\\s*F|℃|℉|度)?', 'gi');
+function tempUnit(u) { return /[F℉]/i.test(u || '') ? '°F' : /[C℃]/i.test(u || '') ? '°C' : ''; }
+
+function extract() {
+  const s = $('source').value.trim();
+  if (!s) { notify('請先貼上口語敘述。', true); return; }
+  clearErrors();
+  FIELDS.forEach(id => set(id, ''));
+  if (/今天|今日/.test(s)) set('date', today());
+  else if (/昨天|昨日/.test(s)) set('date', today(-1));
+  else {
+    const m = s.match(/(\d{4})[年\/-](\d{1,2})[月\/-](\d{1,2})/);
+    if (m) set('date', m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0'));
+  }
+  const t = s.match(/(?:早上|上午|中午|下午|晚上|清晨|凌晨)(?:[0-9一二兩三四五六七八九十]{1,3}[點時](?:半)?)?|(?:[01]?\d|2[0-3]):[0-5]\d/);
+  set('time', t && t[0]);
+
+  const clauses = s.split(/[，。；,\n]/).map(x => x.trim()).filter(Boolean);
+  const used = new Set();
+  const appetite = clauses.filter(c => /食慾|胃口|不太想吃|不想吃/.test(c));
+  const intake = clauses.filter(c => /吃|喝/.test(c) && /半|分之|分滿|碗|口|杯|個|片/.test(c) && !appetite.includes(c));
+  set('appetite', appetite.join('；'));
+  set('intake', intake.join('；'));
+  appetite.concat(intake).forEach(c => used.add(c));
+
+  let m = [...s.matchAll(BP)][0];
+  if (m) { set('sys', toNumber(m[1])); set('dia', toNumber(m[2])); set('bpunit', m[3] ? (/kpa/i.test(m[3]) ? 'kPa' : 'mmHg') : ''); }
+  m = [...s.matchAll(PULSE)][0];
+  if (m) { set('pulse', toNumber(m[1])); set('pulseunit', m[2] ? 'bpm' : ''); }
+  m = [...s.matchAll(TEMP)][0];
+  if (m) { set('temp', toNumber(m[1])); set('tempunit', tempUnit(m[2])); }
+
+  const notes = clauses.filter(c => !used.has(c) && !/血壓|心跳|脈搏|心率|體溫|去看|去幫|探視/.test(c));
+  set('notes', notes.join('；'));
+  notify('欄位已整理，請逐欄核對' + (document.getElementById('person') ? '，並確認這是誰的資料。' : '。'));
+}
+const store = {
+  get: key => { try { return JSON.parse(localStorage.getItem(key)) || []; } catch (e) { return []; } },
+  put: (key, list) => localStorage.setItem(key, JSON.stringify(list))
+};
+let authors = store.get('careDraft.authors');
+let people = store.get('careDraft.people');
+const label = x => x.name + ' · ' + x.code;
+function fill(id, list, placeholder) {
+  const el = $(id), keep = el.value;
+  el.innerHTML = '<option value="">' + placeholder + '</option>' + list.map(x => '<option>' + esc(label(x)) + '</option>').join('');
+  if (list.some(x => label(x) === keep)) el.value = keep;
+}
+function refreshLists() {
+  fill('author', authors, '請選擇照護人員');
+  fill('person', people, '請選擇個案');
+  fill('filterPerson', people, '全部個案');
+}
+function esc(s) { return String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+let adding = '';
+function openAdd(kind) {
+  adding = kind;
+  $('dlgTitle').textContent = kind === 'person' ? '新增個案' : '新增照護人員';
+  $('dlgName').value = '';
+  $('dlg').showModal();
+}
+$('dlgForm').onsubmit = e => {
+  e.preventDefault();
+  const name = $('dlgName').value.trim();
+  if (!name) return;
+  const isPerson = adding === 'person', list = isPerson ? people : authors, prefix = isPerson ? 'P' : 'C';
+  let item = list.find(x => x.name === name);
+  if (!item) {
+    item = { name, code: prefix + String(list.length + 1).padStart(3, '0') };
+    list.push(item);
+    store.put(isPerson ? 'careDraft.people' : 'careDraft.authors', list);
+  }
+  refreshLists();
+  $(isPerson ? 'person' : 'author').value = label(item);
+  $('dlg').close();
+};
+$('dlgCancel').onclick = () => $('dlg').close();
+$('addAuthor').onclick = () => openAdd('author');
+$('addPerson').onclick = () => openAdd('person');
+refreshLists();
+function clearErrors() { document.querySelectorAll('.error').forEach(x => x.classList.remove('error')); }
+let records = store.get('careDraft.records');
+function save() {
+  clearErrors();
+  const missing = [];
+  if (!$('date').value) missing.push('date');
+  [['sys', 'bpunit'], ['dia', 'bpunit'], ['pulse', 'pulseunit'], ['temp', 'tempunit']].forEach(([v, u]) => {
+    if ($(v).value && !$(u).value) missing.push(u);
+  });
+  if (!$('person').value) missing.push('person');
+  if (missing.length) {
+    [...new Set(missing)].forEach(id => $(id).classList.add('error'));
+    $(missing[0]).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    notify('資料尚未完整，請補齊紅框標示的欄位。', true);
+    return;
+  }
+  const r = { saved: new Date().toISOString(), source: $('source').value.trim(), author: $('author').value, person: $('person').value };
+  FIELDS.forEach(id => r[id] = $(id).value.trim());
+  records.unshift(r);
+  store.put('careDraft.records', records);
+  FIELDS.concat('source', 'person').forEach(id => set(id, ''));
+  notify('紀錄已儲存在這台裝置的瀏覽器。');
+}
+$('save').onclick = save;
+function filtered() {
+  const p = $('filterPerson').value, d = $('filterDate').value;
+  return records.filter(r => (!p || r.person === p) && (!d || r.date === d));
+}
+function render() {
+  const list = filtered();
+  $('rows').innerHTML = list.length ? list.map(r => '<tr><td>' + esc(r.date) + ' ' + esc(r.time) + '</td><td>' + esc(r.person) + '</td><td>' + esc([r.appetite, r.intake].filter(Boolean).join('；')) +
+    '</td><td>' + esc(r.sys ? r.sys + '／' + r.dia + ' ' + r.bpunit : '') + '</td><td>' + esc(r.pulse ? r.pulse + ' ' + r.pulseunit : '') + '</td><td>' + esc(r.temp ? r.temp + ' ' + r.tempunit : '') +
+    '</td><td>' + esc(r.notes) + '</td><td>' + esc(r.author) + '</td></tr>').join('') : '<tr><td colspan="8" class="empty">目前沒有符合條件的紀錄</td></tr>';
+}
+function exportCsv() {
+  const list = filtered();
+  if (!list.length) { notify('目前沒有可匯出的紀錄。', true); return; }
+  const cols = ['date', 'time', 'person', 'appetite', 'intake', 'sys', 'dia', 'bpunit', 'pulse', 'pulseunit', 'temp', 'tempunit', 'notes', 'source', 'author'];
+  const head = '日期,時間,個案,食慾,進食量,收縮壓,舒張壓,血壓單位,心跳,心跳單位,體溫,體溫單位,備註,原文,確認人員';
+  const q = v => '"' + String(v || '').replaceAll('"', '""') + '"';
+  const text = [head].concat(list.map(r => cols.map(c => q(r[c])).join(','))).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + text], { type: 'text/csv' }));
+  a.download = '照護紀錄_' + today() + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+  const history = b.dataset.tab === 'history';
+  $('edit').hidden = history;
+  $('history').hidden = !history;
+  $('title').textContent = history ? '紀錄查詢與匯出' : '記錄這一次照護';
+  if (history) { refreshLists(); render(); }
+});
+$('filterPerson').onchange = render;
+$('filterDate').onchange = render;
+$('export').onclick = exportCsv;
+$('extract').onclick = extract;
+$('sample').onclick = () => { $('source').value = SAMPLE; extract(); };
+// WebMCP：只在 Codex 內建瀏覽器中有 document.modelContext；一般瀏覽器照常使用其他功能。
+async function connectCodex() {
+  const mc = document.modelContext;
+  if (!mc || typeof mc.registerTool !== 'function') { $('status').textContent = '純前端版 · 請用 Codex 內建瀏覽器開啟'; return; }
+  await mc.registerTool({
+    name: 'read_care_narrative',
+    description: '讀取目前畫面上尚未儲存的照護敘述原文。',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+    annotations: { readOnlyHint: true },
+    execute: async () => ({ source: $('source').value })
+  });
+  const map = { date: 'date', time: 'time', appetite: 'appetite', intake: 'intake', systolic: 'sys', diastolic: 'dia', blood_pressure_unit: 'bpunit', pulse: 'pulse', pulse_unit: 'pulseunit', temperature: 'temp', temperature_unit: 'tempunit', notes: 'notes' };
+  await mc.registerTool({
+    name: 'fill_extracted_care_fields',
+    description: '把整理結果回填到右側欄位，供照護人員核對。只填原文有依據的資料，單位不清楚時留空。不會選擇個案，也不會儲存。',
+    inputSchema: {
+      type: 'object', additionalProperties: false,
+      properties: {
+        date: { type: 'string', description: 'YYYY-MM-DD' }, time: { type: 'string' }, appetite: { type: 'string' }, intake: { type: 'string' },
+        systolic: { type: 'string' }, diastolic: { type: 'string' }, blood_pressure_unit: { type: 'string', enum: ['', 'mmHg', 'kPa'] },
+        pulse: { type: 'string' }, pulse_unit: { type: 'string', enum: ['', 'bpm'] },
+        temperature: { type: 'string' }, temperature_unit: { type: 'string', enum: ['', '°C', '°F'] }, notes: { type: 'string' }
+      }
+    },
+    execute: async input => {
+      Object.entries(map).forEach(([key, id]) => { if (key in input) set(id, String(input[key] ?? '')); });
+      clearErrors();
+      notify('Codex 已回填欄位，請人工核對並確認個案後再儲存。');
+      return { updated_fields: Object.keys(input), saved: false, requires_human_review: true };
+    }
+  });
+  await mc.registerTool({
+    name: 'list_local_care_records',
+    description: '依個案與日期查詢這個瀏覽器保存的照護紀錄（唯讀）。',
+    inputSchema: { type: 'object', additionalProperties: false, properties: { person: { type: 'string' }, date: { type: 'string', description: 'YYYY-MM-DD' } } },
+    annotations: { readOnlyHint: true },
+    execute: async input => ({ records: records.filter(r => (!input.person || r.person.includes(input.person)) && (!input.date || r.date === input.date)), storage: 'browser_localStorage' })
+  });
+  $('status').textContent = 'Codex 已連結（3 個工具）';
+}
+connectCodex().catch(() => { $('status').textContent = '純前端版 · Codex 工具連結失敗'; });
+</script>
+</body>
+</html>

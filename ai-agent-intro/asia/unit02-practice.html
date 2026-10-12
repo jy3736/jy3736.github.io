@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
+<title>模組 02｜VS Code 與工作空間 · 練習單</title>
+<meta name="description" content="同一份規格、兩個 AI 依序接手：環境確認、三項清單、第一版測試、交班紀錄、全部取消與回歸檢查。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+
+/* Shared additions (2026-10-11 restructure): pending sections, illustration notices, sidebar notes. */
+.pending { color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; margin: 0.8rem 0; }
+.callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
+.side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">智慧雨林 AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="講義首頁"><span>首頁</span></a>
+<a href="unit01.html" title="模組 01｜從 Chatbot 到 Agentic AI"><span>01 Agentic AI</span></a>
+<a href="unit02.html" title="模組 02｜VS Code 與工作空間" aria-current="page"><span>02 共用專案</span></a>
+<a href="unit03.html" title="模組 03｜從 Gems、GPTs 到自己的第一個 Skill"><span>03 Skill 潮流</span></a>
+<a href="unit04.html" title="模組 04｜建構 RAG 式 Smart TA"><span>04 教學助理</span></a>
+<a href="unit05.html" title="模組 05｜讓教材上線"><span>05 發布教材</span></a>
+<a href="unit06.html" title="模組 06｜AI 專題：照護場域排班小工具"><span>06 排班工具</span></a>
+<a href="unit07.html" title="模組 07｜AI 專題：照護紀錄草稿填寫工具"><span>07 照護紀錄</span></a></nav><a class="side-sheet" href="unit02-practice.html" aria-current="page"><span aria-hidden="true">📝</span>模組 02 練習單</a><details><summary>本頁目錄</summary><ol><li><a href="#task"><span class="toc-num">01</span>任務與交付成果</a></li>
+<li><a href="#setup"><span class="toc-num">02</span>環境準備與練習 A：確認工作位置</a></li>
+<li><a href="#inputs"><span class="toc-num">03</span>共用輸入資料與不能改的規則</a></li>
+<li><a href="#steps"><span class="toc-num">04</span>練習 B：第一位 AI 製作與親手驗收</a></li>
+<li><a href="#record"><span class="toc-num">05</span>練習 C：保存交班紀錄，第一位停止</a></li>
+<li><a href="#check"><span class="toc-num">06</span>練習 D：第二位接手，只加全部取消</a></li>
+<li><a href="#review"><span class="toc-num">07</span>練習 E：判斷是不是好的接手</a></li>
+<li><a href="#reflection"><span class="toc-num">08</span>離場成果、反思與待確認事項</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">第一天 · 模組 02 · 練習單</p>
+<h1>模組 02｜VS Code 與工作空間 · 練習單</h1>
+<p class="lead">用同一份規格、同一個資料夾，讓兩個可用的 AI 依序完成虛構「工作坊準備清單」。照練習 A～E 操作，留下你親手試過的結果和下一位能讀懂的交班紀錄。</p>
+<p class="meta-back"><a href="unit02.html">← 回到模組 02 講義</a></p></section>
+<div class="callout note"><span class="label">怎麼使用這份練習單</span><p>照各節的提示完成練習，再依檢查清單親手確認操作與結果。把實際結果告訴 AI，請它更新專案的 logs/test-record.md 與交班紀錄，再親自核對。提示中的［括號］請換成你的情況；沒試過就寫「尚未測試」，不確定就寫「待確認」。</p></div>
+
+<h2 id="task"><span class="num">01</span>任務與交付成果</h2>
+
+<p>第一位 AI 做出三項清單；你親手驗收並請它留下紀錄、停止修改。第二位 AI 先讀紀錄、復述理解，再只新增「全部取消」，最後重測舊功能。這次不用學寫程式，重點是交辦、核對與交班。</p>
+<ul class="flow"><li><b>A 確認位置</b>先只讀，不改檔。</li><li><b>B 第一版</b>建立清單與文件，親手試 B1～B7。</li><li><b>C 交班</b>保存實際結果，第一位停止修改。</li><li><b>D 第二版</b>第二位先讀再改，測 D1～D5。</li><li><b>E 判斷接手</b>找出超出規格的問題。</li></ul>
+
+<h3>開始前確認</h3>
+<ul class="checklist"><li>知道目前使用的作業系統，並能找到 workshop-prep-checklist 的完整位置。</li><li>第一位 AI 已可用；第二位使用另一種已確認可用的 Agent。</li></ul>
+
+<h2 id="setup"><span class="num">02</span>環境準備與練習 A：確認工作位置</h2>
+
+<p>安裝與登入依<a href="unit02.html#agent-setup">講義第 04 節</a>操作；還沒裝好時可選<a href="unit02.html#install-with-copilot">Copilot 安裝練習</a>。本人完成登入後才做只讀測試；安裝圖示出現不代表帳號已可用。四種入口都認識，實作選兩個真正可用的工具。</p>
+
+<h3>工具可用性確認</h3>
+<ul class="checklist"><li>分清楚 Codex、Claude Code、GitHub Copilot 與 Google Antigravity 的安裝、登入及可用狀態。</li><li>選用的兩種工具都已完成本人登入與只讀專案測試。</li><li>選做 Copilot 安裝練習時，核對安裝來源與結果；不確定的地方請講師協助。</li></ul>
+
+<h4>題目敘述 · Problem Statement</h4><p>建立自己的 workshop-prep-checklist 資料夾，在 VS Code 使用 File → Open Folder 開啟，再請 AI 只讀確認位置。不同工具若需加入資料夾作為上下文，依畫面完成；不猜存取範圍。</p><h4>建議 Prompt · Suggested Prompt</h4>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">先確認位置，不修改檔案</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我沒有寫程式經驗。請用一般用語，一次帶我做一小步，不要要求我手動修改程式。
+這次練習的專案是目前在 VS Code 開啟的 workshop-prep-checklist 資料夾。
+請先告訴我你能讀取的專案位置與目前看到的檔案；如果這個工具需要我加入資料夾或檔案作為上下文，請告訴我怎麼做。
+先不要建立、修改、刪除或移動任何檔案，也不要讀取專案外的資料。
+如果無法確認位置，請直接說明，不要猜測。</code></pre></figure>
+
+<h4>預期成果 · Expected Outcome</h4><p>AI 說出正確的專案位置與目前檔案，或清楚指出缺少的存取範圍，沒有建立或修改檔案。</p><h4>完成檢核 · Check it</h4><p>把 AI 的說法和 Explorer 的資料夾名稱、電腦上的完整位置對照。指到別的專案或整個 Documents 時，先修正再繼續。</p>
+
+<h3>練習 A 要確認</h3>
+<ul class="checklist"><li>Explorer 顯示 workshop-prep-checklist，完整位置和 AI 說的一致。</li><li>AI 描述的檔案和目前資料夾一致，這一步沒有建立或修改檔案。</li><li>讀不到資料夾時，先確認存取範圍再繼續。</li></ul>
+
+<h2 id="inputs"><span class="num">03</span>共用輸入資料與不能改的規則</h2>
+
+<h3>共用說明（兩個 AI 都要先讀）</h3>
+
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">項目</th><th scope="col">說明</th></tr></thead>
+<tbody>
+<tr><th scope="row">這是什麼</th><td>虛構的工作坊準備清單，練習用</td></tr>
+<tr><th scope="row">誰使用</th><td>你自己，在自己的筆電上</td></tr>
+<tr><th scope="row">清單內容</th><td>三個項目，依序是「讀懂題目」「整理資料」「準備驗收」；文字和順序都不改，也不多加項目</td></tr>
+<tr><th scope="row">第一版畫面</th><td>標題「工作坊準備清單」，三個可以勾選的項目，下方顯示「已完成 N／3」</td></tr>
+<tr><th scope="row">數字怎麼變</th><td>勾一項多一、取消一項少一，最少 0、最多 3；重新整理頁面後，回到全部沒勾、0／3</td></tr>
+<tr><th scope="row">第二版只改一件事</th><td>多一個「全部取消」按鈕；項目、文字、順序和原本的勾選方式都不動</td></tr>
+<tr><th scope="row">怎麼打開</th><td>在資料夾裡雙擊成果檔案，就會用瀏覽器打開；不用登入，也不用連上網路</td></tr>
+<tr><th scope="row">工作範圍</th><td>AI 只在 workshop-prep-checklist 這個資料夾裡做事，不另外安裝其他軟體</td></tr>
+<tr><th scope="row">資料界線</th><td>全部虛構；不收集個人資料、不上傳、不分享到網路；不用來做真正的照護決定</td></tr>
+<tr><th scope="row">怎樣算完成</th><td>你親手照本練習單的 B1～B7 與 D1～D5 操作試過，結果都相符才算；AI 說「完成了」不算</td></tr>
+</tbody></table></div>
+
+<h3>清單裡的三個項目</h3>
+
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">順序</th><th scope="col">項目</th><th scope="col">提醒自己的用途</th></tr></thead>
+<tbody>
+<tr><th scope="row">1</th><td>讀懂題目</td><td>先說出使用者與預期成果</td></tr>
+<tr><th scope="row">2</th><td>整理資料</td><td>只使用這份虛構練習資料</td></tr>
+<tr><th scope="row">3</th><td>準備驗收</td><td>先列出操作與應該看到的結果</td></tr>
+</tbody></table></div>
+
+<h3>資料夾裡會有哪些文件</h3>
+
+<div class="table-wrap wrap-first"><table>
+<thead><tr><th scope="col">你會看到的檔案</th><th scope="col">裡面是什麼</th><th scope="col">什麼時候打開</th></tr></thead>
+<tbody>
+<tr><th scope="row"><code>README.md</code></th><td>這個專案的簡介，以及怎麼打開成果</td><td>第一次打開專案，或忘了怎麼開的時候</td></tr>
+<tr><th scope="row"><code>docs/task-spec.md</code></th><td>上面那份共用說明</td><td>交辦給任何一個 AI 之前，先請它讀</td></tr>
+<tr><th scope="row"><code>data/items.json</code></th><td>三個清單項目的原始資料</td><td>不必自己打開；請 AI 核對它有沒有被改動</td></tr>
+<tr><th scope="row"><code>app/index.html</code></th><td>做出來的清單網頁</td><td>在電腦的資料夾裡雙擊，用瀏覽器打開，親手試用</td></tr>
+<tr><th scope="row"><code>logs/handover.md</code></th><td>交班紀錄：目前狀況、已完成、待完成、不能改的事</td><td>換另一個 AI 之前更新，讓下一位先讀</td></tr>
+<tr><th scope="row"><code>logs/test-record.md</code></th><td>試用紀錄：應該看到什麼、實際看到什麼</td><td>每次親手試完，記下結果</td></tr>
+</tbody></table></div>
+
+<p>這六份檔案是練習中請 AI 建立的成果，不是本頁已替你建立。data/items.json 的原始資料已包含在下一節提示裡；直接複製整段，不必手動改程式。其他想加的功能先記在交班紀錄「之後再考慮」。</p>
+
+<h2 id="steps"><span class="num">04</span>練習 B：第一位 AI 製作與親手驗收</h2>
+
+<h4>題目敘述 · Problem Statement</h4><p>把下方完整提示交給第一位已可用的 AI，在目前資料夾建立第一版。這一輪先不加「全部取消」，也不安裝其他軟體。</p><h4>建議 Prompt · Suggested Prompt</h4>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">第一個 AI｜做出第一版清單</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我沒有寫程式經驗，也不需要了解製作細節。請在我目前打開的 workshop-prep-checklist 資料夾裡，幫我做一張「工作坊準備清單」網頁，其餘的事情請自動完成。
+
+我想要的樣子：
+- 最上面的標題是「工作坊準備清單」。
+- 下面有三個可以勾選的項目，依序是「讀懂題目」「整理資料」「準備驗收」。
+- 最下面顯示「已完成 N／3」：一開始是 0／3，每勾一項就多 1，取消一項就少 1。
+- 重新整理頁面後，回到全部沒勾、0／3。
+- 我在資料夾裡雙擊這個網頁，就能直接用瀏覽器打開，不用登入，也不用連上網路。
+
+這次先不要做「全部取消」按鈕，之後會請另一個 AI 接手加上。
+
+除了網頁，也請在資料夾裡準備好這幾份文件，讓之後接手的 AI 看得懂：
+- 共用說明（docs/task-spec.md）：寫下上面這些要求，並註明第二版只會多一個「全部取消」按鈕。
+- 簡介（README.md）：說明這是什麼、怎麼打開。
+- 交班紀錄（logs/handover.md）：目前做到哪裡、下一步要做什麼、哪些事不能改。
+- 試用紀錄（logs/test-record.md）：列出我要試的操作和應該看到的結果；我還沒試過的請寫「尚未測試」，不要寫成通過。
+- 把下面這段清單資料原封不動存成 data/items.json（這段我看不懂也沒關係，請不要改動任何字）：
+{
+  "project": "虛構工作坊準備清單",
+  "items": [
+    {"id": "read-task", "label": "讀懂題目", "note": "先說出使用者與預期成果"},
+    {"id": "organize-data", "label": "整理資料", "note": "只使用這份虛構練習資料"},
+    {"id": "prepare-checks", "label": "準備驗收", "note": "先列出操作與應該看到的結果"}
+  ]
+}
+
+請只在這個資料夾裡做事。如果資料夾裡已經有檔案，先看過再動，不要刪掉或蓋掉原本的內容。不要加登入、上傳、雲端儲存或其他我沒提到的功能，也不要安裝其他軟體。只有遇到需要我選擇、授權或輸入密碼時，才詢問我。
+
+完成後請用一般用語簡短告訴我：做好了哪些東西、怎麼打開網頁、我要親手試哪幾個步驟。如果你能自己打開網頁試用，也請告訴我你試了什麼、結果如何。</code></pre></figure>
+
+<h4>預期成果 · Expected Outcome</h4><p>app/index.html 能在本機雙擊開啟，顯示固定三項及「已完成 0／3」；共用說明、原始資料、簡介與兩份紀錄都存在。這是預期成果，請實際找檔並開啟確認。</p><h4>完成檢核 · Check it</h4><p>依序操作 B1～B5，再核對 B6、B7。實際結果請寫出畫面文字與勾選狀態；AI 自己試過的另記，不能代替你親手試。</p>
+
+<h3>第一版 B1～B7：操作與預期結果</h3>
+<ul class="checklist"><li><strong>B1</strong>｜第一次打開網頁 → 三項都沒勾；已完成 0／3。</li><li><strong>B2</strong>｜勾「讀懂題目」和「整理資料」 → 兩項已勾；已完成 2／3。</li><li><strong>B3</strong>｜再勾「準備驗收」 → 三項都勾了；已完成 3／3。</li><li><strong>B4</strong>｜三項都勾時，取消「整理資料」 → 兩項已勾；已完成 2／3。</li><li><strong>B5</strong>｜重新整理頁面 → 三項都沒勾；已完成 0／3。</li><li><strong>B6</strong>｜對照本練習單第 03 節的三個項目 → 文字和順序完全相同；沒有多出第四項。</li><li><strong>B7</strong>｜看看畫面上還有什麼 → 沒有登入、上傳、雲端儲存，也還沒有「全部取消」。</li></ul>
+
+<p>修正後要重測受影響的步驟，並記下再次操作的結果。</p>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">把親手試的結果寫進紀錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我親手試過的結果如下：
+［逐項填 B1～B7 的操作與實際結果；沒試的寫尚未測試］
+請更新 logs/test-record.md，分開寫 AI 試用與我親手試的結果。
+若有不相符，請照 docs/task-spec.md 只修正有問題的地方，保留其他內容。改好後告訴我要重試哪些步驟；不要把尚未測試寫成通過。</code></pre></figure>
+
+<h2 id="record"><span class="num">05</span>練習 C：保存交班紀錄，第一位停止</h2>
+
+<h4>題目敘述 · Problem Statement</h4><p>先把實際測試結果存入 logs/test-record.md，再請同一位 AI 更新交班紀錄。沒有完成的測試或修正照實留下來；寫完後請第一位停止，不讓兩個 AI 同時修改。</p><h4>建議 Prompt · Suggested Prompt</h4>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">請 AI 寫交班紀錄（這一步不改網頁）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>第一版我已經親手試過了。接下來要換另一個 AI 接手，請先幫我把交班紀錄寫好，其餘的事情請自動完成。
+請先看過資料夾裡現在的文件和網頁，再更新 logs/handover.md，寫清楚：
+- 這個專案要做什麼。
+- 目前做到哪裡、已經完成什麼、還有什麼沒完成。
+- 資料夾裡有哪些文件，各自是做什麼的。
+- 我親手試過的結果：照試用紀錄寫，我沒試過的就寫「尚未測試」。
+- 下一位 AI 要做的事：只加一個「全部取消」按鈕，按下去三項都變成沒勾、顯示 0／3，其他都維持原樣。
+- 不能改的事：三個項目的文字和順序、數字怎麼變、重新整理後回到 0／3。
+這一步只寫紀錄，請不要改網頁，也不要加任何功能。請用一般人看得懂的話寫，下一位 AI 和我都要看得懂。
+寫完後請簡短告訴我：紀錄放在哪裡、我要特別核對哪幾段。</code></pre></figure>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">交班寫好後先停下來</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>交班紀錄核對完之後，請先停止修改所有檔案，等下一位 AI 接手。
+尚未完成的測試或問題留在紀錄裡，不要自動開始第二版。</code></pre></figure>
+<h4>預期成果 · Expected Outcome</h4><p>logs/handover.md 寫清楚目標、目前成果、檔案位置、實測與待辦、下一步及不能改的規則；第一位已停止修改。</p><h4>完成檢核 · Check it</h4><p>親自打開檔案讀過，確認它引用的結果和 logs/test-record.md 一致，列出的文件確實存在。未知的狀態不能寫成已完成。</p>
+
+<h3>交班前要確認</h3>
+<ul class="checklist"><li>親自打開 logs/handover.md，核對目前成果與尚待處理的問題。</li><li>紀錄中的實測結果和 logs/test-record.md 一致，沒試過的仍標示尚未測試。</li><li>不能改的規則與下一位只新增「全部取消」都寫清楚。</li><li>第一位 AI 已停止修改，再讓第二位接手。</li></ul>
+
+<h2 id="check"><span class="num">06</span>練習 D：第二位接手，只加全部取消</h2>
+
+<h4>題目敘述 · Problem Statement</h4><p>換另一種已確認可用的 Agent，仍開啟同一個 workshop-prep-checklist。先送提示 1，核對復述後，填好提示 2 的括號再交辦。第一版有待辦時，先確認處理安排。</p><h4>建議 Prompt · Suggested Prompt</h4>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 1：第二個 Agent｜先讀交接，不改檔</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>你是這個專案的第二個 Agent。我沒有寫程式經驗，請用一般用語。
+目前開啟的是 workshop-prep-checklist，前一個 Agent 已停止修改。
+請先讀 README.md、docs/task-spec.md、data/items.json、logs/handover.md、logs/test-record.md、app/index.html。
+不同工具不一定共用對話，所以請以這些檔案為依據，不猜前面的討論。
+先不要修改檔案。請用五點復述：專案目標、目前完成內容、仍待處理問題、這次只做的小改進、如何確認原有功能沒壞。
+讀不到的檔案請列出，需要我確認的地方請標示待確認。</code></pre></figure>
+
+<h3>第二位動手前要確認</h3>
+<ul class="checklist"><li>第二位讀過指定檔案，讀不到的有清楚列出。</li><li>復述的專案目標、目前成果與下一步和現有檔案一致。</li><li>第一版待辦已有確認的處理安排，再交辦小幅改進。</li></ul>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 2：第二個 Agent｜核對後只做一項改進</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我已核對你的復述，第一版待辦的處理方式是：［無待辦，或填已確認的問題與處理安排］。
+請在目前 app/index.html 新增一個「全部取消」按鈕，按下後取消三項勾選並顯示「已完成 0／3」。
+全不勾時按也保持 0／3；按後仍可以再勾選。
+保留原有三項文字、順序、勾選／取消計數與重新整理回到 0／3 的規則。
+不要重做整個專案、不新增資料或套件，不改 data/items.json，不加登入、雲端儲存或其他功能。
+只修改這個小改進需要的內容，並更新 README.md、logs/handover.md、logs/test-record.md 的進度。
+說明改了哪些檔案，哪些檢查真的做過，哪些需要我操作。沒做的測試仍寫尚未測試。</code></pre></figure>
+
+<h4>預期成果 · Expected Outcome</h4><p>同一個 app/index.html 多了「全部取消」，原有三項與計數規則不變；data/items.json 不變，簡介和紀錄更新。</p><h4>完成檢核 · Check it</h4><p>做 D1～D3 後，用同樣操作重測 B1～B6，逐項留下第二版結果。第二版 B7 改為「除了全部取消，沒有新增登入、上傳、雲端儲存等功能」；不能把預期的新按鈕當成違規。</p>
+
+<h3>第二版 D1～D5：操作與預期結果</h3>
+<ul class="checklist"><li><strong>D1</strong>｜全勾三項，按「全部取消」 → 三項都未勾；已完成 0／3。</li><li><strong>D2</strong>｜全不勾，再按「全部取消」 → 仍全未勾；已完成 0／3；沒有錯誤。</li><li><strong>D3</strong>｜全部取消後，勾「準備驗收」 → 該項已勾；已完成 1／3。</li><li><strong>D4</strong>｜再次操作 B1～B6 → 初始、勾兩項、全勾、取消、重新整理、標籤順序都保持原規格。</li><li><strong>D5</strong>｜比對修改與交接 → 同一專案、同一 app/index.html；data/items.json 不變；紀錄區分實測與尚未測試。</li></ul>
+
+<h3>第二版還要確認</h3>
+<ul class="checklist"><li>重新操作 B1～B6，對照第一版的操作與預期結果，確認舊功能仍然正確。</li><li>第二版 B7：除了「全部取消」，沒有新增登入、上傳、雲端儲存或其他功能。</li></ul>
+
+<h2 id="review"><span class="num">07</span>練習 E：判斷是不是好的接手</h2>
+
+<h4>題目敘述 · Problem Statement</h4><p>下方是刻意設計的錯誤回覆，並非已實作的成果。先自己找出至少三個問題，每個問題都要對照一條規格，再請 AI 協助核對。</p>
+
+<figure class="code"><div class="code-head"><div><span class="code-kind">刻意設計的錯誤</span><span class="code-title">有問題的接手回覆（虛構）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我重新建立了一個更完整的專案。
+清單改成五項，還加了使用者登入與雲端同步。
+完成數現在會保存，重新整理後不清空。
+我把原始 data/items.json 刪掉，因為網頁已經有資料。
+全部取消已做好，所有功能都測試通過。</code></pre></figure>
+
+<h3>自己先判斷</h3>
+<ul class="checklist"><li>指出至少三個問題，每個問題都對照共用規格。</li><li>說明哪裡超出範圍、改掉原規則、破壞來源，或缺少測試證據。</li></ul>
+
+<h4>建議 Prompt · Suggested Prompt</h4>
+
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">對照規格找出接手問題</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請把上面的接手回覆與本專案規格對照，列出超出範圍、改掉原規則、破壞來源與缺少測試證據的地方。
+每一點都引用規格或回覆原句。先不要修改任何檔案。</code></pre></figure>
+
+<h4>預期成果 · Expected Outcome</h4><p>能說出至少三個具體問題及其規格依據，而非只說「感覺不對」。</p><h4>完成檢核 · Check it</h4><p>比較你的判斷與 AI 的回覆；AI 若只說「很完整」，追問是否遵守這次只加一個按鈕的界線。</p>
+
+<details class="explain"><summary>參考答案｜有問題的接手</summary><div>
+<ul>
+<li>任務只准新增一個按鈕，重做專案與增加五項清單偏離範圍。</li>
+<li>登入與雲端同步違反不收集個資、不連外的規格。</li>
+<li>保留勾選改掉「重新整理回到 0／3」的原規則。</li>
+<li>刪除 items.json 破壞交接時可核對的原始來源。</li>
+<li>「全部測試通過」沒有列出操作、實際結果與方法，不能當成驗證證據。</li>
+</ul>
+</div></details>
+
+<h2 id="reflection"><span class="num">08</span>離場成果、反思與待確認事項</h2>
+
+<ul class="checklist"><li>我能指出專案位置，並記下兩種真正可用的 Agent。</li><li>我能找到 README.md、docs/task-spec.md、data/items.json、app/index.html、logs/handover.md、logs/test-record.md。</li><li>第一版 B1～B7、第二版 D1～D5 與 B1～B6 回歸都有實際結果；尚未完成的如實標示。</li><li>兩位 AI 依序修改，第二位先讀交班並復述；新功能與舊功能都由我親手檢查。</li><li>我知道檔案可以共用，對話不會因此自動共用；換模型、換工具與換帳號是不同的事。</li></ul>
+<p>遇到工具限制時，先停止新任務、保存檔案與交班，再查目前帳號狀態，選擇等待或其他已可用工具。沒有第二個可用工具時就記下阻礙並請講師協助，不把同一工具換模型當成已完成兩種工具的接力。</p>
+
+<h3>結束前想一想</h3>
+<ul class="checklist"><li>能用自己的話說出一次操作、實際結果與修正方式。</li><li>能指出哪一項交班資訊幫助第二位接手。</li><li>遇到登入、存取或額度限制時，知道先保存進度再處理。</li><li>清楚指出尚未測試與待確認的部分，以及帶往模組 03 的下一步。</li></ul>
+
+<div class="callout warn"><span class="label">練習界線</span><p>只用虛構資料，不填病歷、學生個資、密碼或憑證。這份清單是教學練習；專業內容與正式場域的使用方式由教師和相關專業人員確認。</p></div>
+<p>保留整個專案與紀錄；進入<a href="unit03.html">模組 03</a>時，沿用先指定資料、再檢查回答與證據的習慣。</p>
+<nav class="pager" aria-label="上下頁"><a href="unit02.html">← 模組 02：VS Code 與工作空間</a><a href="unit03.html">模組 03：Skill →</a></nav>
+
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。智慧雨林 AI Agent 護理教育與長照場域應用工作坊講義；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為工作坊教材，軟體畫面與功能可能隨版本更新而調整；範例與原型僅供教學與討論。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("handouts-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("handouts-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("handouts-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
