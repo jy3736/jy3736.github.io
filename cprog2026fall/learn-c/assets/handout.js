@@ -53,6 +53,11 @@
     });
   }
 
+  // Only one audio plays at a time (sidebar overview vs in-page task audio).
+  document.addEventListener("play", function (e) {
+    document.querySelectorAll("audio").forEach(function (a) { if (a !== e.target) a.pause(); });
+  }, true);
+
   // Podcast player in the sidebar.
   var audio = document.getElementById("podcast-audio");
   if (audio) {
