@@ -1,0 +1,110 @@
+<!doctype html><html lang="zh-Hant-TW"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>視光處方轉換器 · 改進版</title><style>
+:root{color-scheme:light;--bg:#edf7f5;--ink:#123e43;--accent:#087f8c;--line:#b8d8d2;--error:#a12b35;--result-bg:#e0f2ef}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,'PingFang TC','Microsoft JhengHei',sans-serif}
+main{max-width:1200px;margin:auto;padding:28px 24px 40px}.masthead{border-bottom:2px solid var(--accent);padding-bottom:16px;margin-bottom:24px}.eyebrow{font-size:14px;font-weight:750;color:var(--accent);letter-spacing:.05em;margin:0 0 6px}h1{font-size:34px;line-height:1.25;margin:6px 0 12px}h2{font-size:20px;margin:0 0 14px}p{margin:8px 0 14px}.lead{margin-bottom:12px}.hint,figcaption,.guide{font-size:14px}.notice{font-size:14px;margin:12px 0 0;padding:10px 14px;background:white;border-left:4px solid var(--accent)}
+.detailed-grid{display:grid;gap:24px;align-items:start}.card{padding:24px;background:white;border:1px solid var(--line);border-radius:12px;min-width:0}.entry{grid-area:entry}.result{grid-area:answer;background:var(--result-bg)}.samples{grid-area:examples}.rules{grid-area:rules}.explanation{grid-area:explain}
+.field{min-width:0;margin-bottom:18px}label{display:block;font-weight:650;margin:0 0 6px}input,select{width:100%;min-height:48px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:white;color:var(--ink);font:inherit}.field .hint{margin:6px 0 0}.units{display:grid;grid-template-columns:1fr 1fr;gap:16px}input[aria-invalid=true]{border-color:var(--error)}.error{font-size:16px;font-weight:650;color:var(--error);overflow-wrap:anywhere;margin:6px 0 0}.error:empty{display:none}
+button{min-height:48px;border:1px solid var(--accent);border-radius:6px;background:var(--accent);color:white;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer}button.secondary{color:var(--accent);background:white}button:hover{filter:brightness(.95)}:focus-visible{outline:3px solid var(--ink);outline-offset:3px}.actions{display:flex;flex-wrap:wrap;gap:12px}.result dl{margin:0;display:grid;gap:16px}.metric{border:1px solid var(--line);border-radius:8px;background:white;padding:16px;min-width:0}.metric dt{font-size:14px;font-weight:650}.metric dd{font-size:32px;font-weight:750;line-height:1.35;margin:8px 0 0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.rx{font-size:20px;font-weight:750;overflow-wrap:anywhere}.placeholder{margin:0}.output[hidden]{display:none}
+.sample-grid{display:grid;gap:16px}.sample{border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}.sample p{font-size:14px;margin:10px 0 0;overflow-wrap:anywhere}.sample button{width:100%;text-align:left}.math{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.rules ol,.rules ul,.explanation ol{padding-left:24px}li{margin:.4em 0}.explanation figure{margin:18px 0 0}img{display:block;max-width:100%;height:auto}figcaption{margin-top:10px}.guide{margin-top:24px}.guide a{color:var(--accent)}
+
+@media(min-width:900px){.detailed-grid{grid-template-columns:360px minmax(0,1fr);grid-template-areas:'entry answer' 'entry examples' 'rules explain'}.result dl{grid-template-columns:repeat(3,minmax(0,1fr))}.sample-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+@media(max-width:899px){main{padding:20px 16px}.detailed-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:'entry' 'answer' 'examples' 'rules' 'explain'}.entry{display:block!important}.units,.result dl,.sample-grid{grid-template-columns:minmax(0,1fr)!important}.field{margin-bottom:18px}h1{font-size:28px}.card{padding:24px}.sample button{text-align:center}}
+</style></head><body><main><header class="masthead"><p class="eyebrow">AI AGENT 醫事實作 · 第 3 階段：詳細指定 · 視光練習工作台</p><h1>視光處方轉換器</h1><p class="lead">先填入虛構案例，再將畫面上的結果和手算答案比較。</p><p class="notice">本工具僅供自行練習計算，數值均為虛構，不可作為臨床或處方的依據。</p></header><div class="detailed-grid" id="demo-screen"><form class="card entry" novalidate><h2>輸入處方</h2><div class="field"><label for="sph">球面度數 Sphere（D）</label><input type="text" inputmode="decimal" id="sph" autocomplete="off" aria-describedby="sph-hint sph-error"><p class="hint" id="sph-hint">-20.00 至 +20.00</p><p class="error" role="alert" id="sph-error"></p></div><div class="field"><label for="cyl">柱面度數 Cylinder（D）</label><input type="text" inputmode="decimal" id="cyl" autocomplete="off" aria-describedby="cyl-hint cyl-error"><p class="hint" id="cyl-hint">-20.00 至小於 0</p><p class="error" role="alert" id="cyl-error"></p></div><div class="field"><label for="axis">軸度 Axis（度）</label><input type="text" inputmode="decimal" id="axis" autocomplete="off" aria-describedby="axis-hint axis-error"><p class="hint" id="axis-hint">1 至 180 的整數</p><p class="error" role="alert" id="axis-error"></p></div><div id="errors" role="alert" aria-live="polite"></div><div class="actions"><button type="submit">轉換</button><button type="button" class="secondary" id="clear">清除</button></div></form><section class="card result" aria-live="polite"><h2>計算結果</h2><p id="placeholder" class="placeholder">填入數值，按「轉換」後，這裡會顯示答案。</p><div id="output" class="output" hidden></div></section><section class="card samples"><h2>載入範例，再手算核對</h2><p class="hint">按按鈕只填入數值，再按計算按鈕；各範例旁列出預期答案。</p><div id="samples" class="sample-grid"><div class="sample"><button type="button" class="secondary">範例 1</button><p>輸入：-2 / -1 / 180<br>預期：<strong>-3.00 D / +1.00 D × 90°</strong></p></div><div class="sample"><button type="button" class="secondary">範例 2</button><p>輸入：1.5 / -2.25 / 100<br>預期：<strong>-0.75 D / +2.25 D × 10°</strong></p></div><div class="sample"><button type="button" class="secondary">範例 3</button><p>輸入：-4 / -0.5 / 1<br>預期：<strong>-4.50 D / +0.50 D × 91°</strong></p></div><div class="sample"><button type="button" class="secondary">範例 4</button><p>輸入：0.25 / -0.75 / 90<br>預期：<strong>-0.50 D / +0.75 D × 180°</strong></p></div><div class="sample"><button type="button" class="secondary">範例 5</button><p>輸入：-1 / -0.5 / 91<br>預期：<strong>-1.50 D / +0.50 D × 1°</strong></p></div></div></section><section class="card rules"><h2>轉換規則</h2><ol><li>新球面度數 = 球面 + 柱面</li><li>新柱面度數 = 原柱面度數變號</li><li>新軸度 = 原軸度 + 90；只有大於 180 才減 180</li></ol><p>負柱鏡與正柱鏡是同一處方的不同表示方式，光學效果相同；正負號不代表好壞或嚴重程度。輸入範圍的限制不套用到新球面度數。</p></section><section class="card explanation"><h2>如何核對結果</h2><ol><li>新球面度數 = 球面 + 柱面</li><li>新柱面度數 = 原柱面度數變號</li><li>新軸度 = 原軸度 + 90；只有大於 180 才減 180</li></ol><p>有效軸度是 1° 至 180° 的整數。180° + 90° = 270° 是中間值，減去 180° 才得到 90°。原軸度 90° → 180°；原軸度 91° → 1°。</p><p>示意圖中的紅線表示柱鏡軸；轉換前後的光學效果相同，只是表示方式不同。</p><figure><img src="assets/視光處方轉換示意圖.png" alt="虛構處方 -2.00 D / -1.00 D × 180° 轉為 -3.00 D / +1.00 D × 90°；紅線為柱鏡軸。"><figcaption>僅供虛構課堂計算與核對。</figcaption></figure></section></div><p class="guide">雙擊 index.html 即可離線使用。用 Tab 移動、Enter 送出。<a href="prompt.md">本階段提示詞</a> · <a href="README.md">開啟與核對步驟</a></p></main><script>
+(() => {
+ 'use strict';
+ const config = {"track": "optometry", "stage": 3, "samples": [{"values": ["-2", "-1", "180"], "expect": "-3.00 D / +1.00 D × 90°"}, {"values": ["1.5", "-2.25", "100"], "expect": "-0.75 D / +2.25 D × 10°"}, {"values": ["-4", "-0.5", "1"], "expect": "-4.50 D / +0.50 D × 91°"}, {"values": ["0.25", "-0.75", "90"], "expect": "-0.50 D / +0.75 D × 180°"}, {"values": ["-1", "-0.5", "91"], "expect": "-1.50 D / +0.50 D × 1°"}]};
+ const ids = config.track === 'optometry' ? ['sph','cyl','axis'] : ['c1','c2','v2'];
+ const form = document.querySelector('form');
+ const output = document.getElementById('output');
+ const summary = document.getElementById('errors');
+ const placeholder = document.getElementById('placeholder');
+ function resetFeedback() {
+   summary.replaceChildren();
+   ids.forEach(id => { const input=document.getElementById(id); input.removeAttribute('aria-invalid'); document.getElementById(id+'-error').textContent=''; });
+   output.hidden=true; output.replaceChildren(); placeholder.hidden=false;
+ }
+ function error(id,message) {
+   document.getElementById(id).setAttribute('aria-invalid','true');
+   if(config.stage===3) document.getElementById(id+'-error').textContent=message;
+   else { const p=document.createElement('p');p.className='error';p.textContent=message;summary.append(p); }
+ }
+ function read(id) {
+   const raw=document.getElementById(id).value.trim();
+   if(raw===''){error(id,'請填寫這一格：'+document.querySelector('label[for="'+id+'"]').textContent);return null;}
+   if(!/^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(raw)){error(id,'這一格不是有效數字，請只填數字。');return null;}
+   const number=Number(raw);
+   if(!Number.isFinite(number)){error(id,'這個數字超出電腦能處理的範圍，請改用一般的課堂數值。');return null;}
+   if(number===0 && /[1-9]/.test(raw.split(/[eE]/)[0])){error(id,'這個數字太小，超出電腦可表示的精度。');return null;}
+   return number;
+ }
+ function formatted(value,digits,signed=false) {
+   const f=new Intl.NumberFormat('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits,useGrouping:false,signDisplay:signed?'always':'auto'});
+   const text=f.format(value);
+   return /^-0(?:\.0+)?$/.test(text) ? (signed?'+':'')+text.slice(1) : text;
+ }
+ function row(list,label,value,id) {
+   const dt=document.createElement('dt');dt.textContent=label;
+   const dd=document.createElement('dd');dd.id=id;dd.textContent=value;
+   const group=document.createElement('div');group.className='metric';group.append(dt,dd);list.append(group);
+ }
+ function submit(event) {
+   event.preventDefault();resetFeedback();
+   const values=ids.map(read);
+   if(values.every(v=>v!==null)) {
+     if(config.track==='optometry') {
+       const [s,c,a]=values;
+       if(s < -20 || s > 20)error('sph','球面度數範圍為 -20.00 D 到 +20.00 D。');
+       if(c===0)error('cyl','柱面度數為 0：不需要轉換，也沒有軸度可言。');
+       else if(c>0)error('cyl','柱面度數已是正值；本工具只接受負柱鏡處方。');
+       else if(c < -20)error('cyl','柱面度數必須介於 -20.00 D 到小於 0。');
+       if(!Number.isInteger(a)||a<1||a>180)error('axis','軸度必須是 1 到 180 之間的整數。');
+     } else {
+       const [c1,c2,v2]=values;
+       if(c1<=0)error('c1','原液濃度 C₁ 必須大於 0。');
+       if(c2<=0)error('c2','目標濃度 C₂ 必須大於 0。');
+       else if(c1>0 && c2>c1)error('c2','目標濃度 C₂ 不可大於原液濃度 C₁；稀釋不會增加濃度。');
+       if(v2<=0)error('v2','最終體積 V₂ 必須大於 0。');
+     }
+   }
+   let invalid=document.querySelector('[aria-invalid="true"]');
+   if(invalid){invalid.focus();return;}
+   const list=document.createElement('dl');
+   let note=document.createElement('p');note.className='hint';
+   if(config.track==='optometry') {
+     const [s,c,a]=values;
+     let newAxis=a+90;if(newAxis>180)newAxis-=180;
+     row(list,'新球面度數 Sphere',formatted(s+c,2,true)+' D','result-sph');
+     row(list,'新柱面度數 Cylinder',formatted(-c,2,true)+' D','result-cyl');
+     row(list,'新軸度 Axis',newAxis+'°','result-axis');
+     const rx=document.createElement('p');rx.id='result-prescription';rx.className='rx';rx.textContent=formatted(s+c,2,true)+' D / '+formatted(-c,2,true)+' D × '+newAxis+'°';
+     output.append(list,rx);note.textContent='度數僅在顯示時取小數點後兩位；軸度以整數表示。';
+   } else {
+     const [c1,c2,v2]=values;
+     // Divide first so finite inputs do not overflow at the intermediate product.
+     const v1=c2===c1?v2:(c2/c1)*v2;
+     const diluent=c2===c1?0:v2-v1;
+     if(!Number.isFinite(v1)||!Number.isFinite(diluent)||v1===0){error('v2','這組數字超出電腦可可靠計算的範圍或精度，請改用一般課堂數值。');document.getElementById('v2').focus();return;}
+     const unit=config.stage===1?'mL':document.getElementById('vunit').value;
+     row(list,'原液體積 V₁',formatted(v1,3)+' '+unit,'result-v1');
+     row(list,'稀釋液體積',formatted(diluent,3)+' '+unit,'result-diluent');
+     output.append(list);note.textContent='顯示值四捨五入至小數點後三位；計算時保留完整精度。'+(c2===c1?' C₂ = C₁：不需加入稀釋液。':'');
+   }
+   output.append(note);output.hidden=false;placeholder.hidden=true;
+ }
+ form.addEventListener('submit',submit);
+ ids.forEach(id => document.getElementById(id).addEventListener('input',resetFeedback));
+ if(config.track==='laboratory'&&config.stage>1) {
+   function syncUnits(){document.querySelectorAll('.cu').forEach(el=>el.textContent=document.getElementById('cunit').value);document.querySelectorAll('.vu').forEach(el=>el.textContent=document.getElementById('vunit').value);resetFeedback();}
+   document.getElementById('cunit').addEventListener('change',syncUnits);document.getElementById('vunit').addEventListener('change',syncUnits);
+ }
+ if(config.stage===3) {
+   document.getElementById('clear').addEventListener('click',()=>{ids.forEach(id=>document.getElementById(id).value='');resetFeedback();document.getElementById(ids[0]).focus();});
+   document.getElementById('samples').querySelectorAll('button').forEach((button,index)=>button.addEventListener('click',()=>{
+     resetFeedback();config.samples[index].values.forEach((value,i)=>document.getElementById(ids[i]).value=value);
+     if(config.track==='laboratory'){document.getElementById('cunit').value='mg/mL';document.getElementById('vunit').value='mL';document.querySelectorAll('.cu').forEach(el=>el.textContent='mg/mL');document.querySelectorAll('.vu').forEach(el=>el.textContent='mL');}
+     document.getElementById(ids[0]).focus();
+   }));
+ }
+})();
+</script></body></html>

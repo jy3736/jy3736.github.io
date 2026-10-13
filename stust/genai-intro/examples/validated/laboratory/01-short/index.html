@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>稀釋計算小工具</title>
+</head>
+<body>
+  <main>
+    <h1>稀釋計算小工具</h1>
+    <p>輸入原液濃度、目標濃度與配製後的總體積，算出原液與稀釋液各需要多少。</p>
+    <p><strong>兩個濃度請使用相同單位。</strong>例如原液與目標都用 mg/mL；總體積請輸入 mL。</p>
+    <form id="calculator" novalidate>
+      <p><label for="stock">原液濃度（C₁）</label><br><input id="stock" name="stock" type="number" step="any" min="0" required></p>
+      <p><label for="target">目標濃度（C₂）</label><br><input id="target" name="target" type="number" step="any" min="0" required></p>
+      <p><label for="volume">配製後的總體積（V₂，mL）</label><br><input id="volume" name="volume" type="number" step="any" min="0" required></p>
+      <p><button type="submit">計算</button> <button type="reset">清空</button></p>
+    </form>
+    <p id="error" role="alert"></p>
+    <section id="result" aria-live="polite" aria-atomic="true"></section>
+    <h2>計算方式</h2>
+    <p>C₁V₁ = C₂V₂</p>
+    <p>需要的原液體積 V₁ =（目標濃度 ÷ 原液濃度）× 總體積。</p>
+    <p>需要的稀釋液體積 = 總體積 − 原液體積。</p>
+    <p>例如：原液濃度 100、目標濃度 20、總體積 10 mL，結果是原液 2 mL，加稀釋液 8 mL。</p>
+  </main>
+  <script>
+    'use strict';
+    const form = document.getElementById('calculator');
+    const error = document.getElementById('error');
+    const result = document.getElementById('result');
+    const display = new Intl.NumberFormat('zh-TW', { maximumSignificantDigits: 10 });
+
+    function clearResult() {
+      error.textContent = '';
+      result.replaceChildren();
+    }
+
+    form.addEventListener('input', clearResult);
+    form.addEventListener('reset', clearResult);
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      clearResult();
+      const fields = ['stock', 'target', 'volume'].map(id => document.getElementById(id));
+      const names = ['原液濃度', '目標濃度', '總體積'];
+      const values = fields.map(field => field.valueAsNumber);
+      for (let i = 0; i < fields.length; i++) {
+        if (!Number.isFinite(values[i]) || values[i] <= 0) {
+          error.textContent = '請在「' + names[i] + '」輸入大於 0 的數字。';
+          fields[i].focus();
+          return;
+        }
+      }
+      const [stock, target, volume] = values;
+      if (target > stock) {
+        error.textContent = '目標濃度不能高於原液濃度；加稀釋液無法提高濃度。';
+        fields[1].focus();
+        return;
+      }
+      const stockVolume = (target / stock) * volume;
+      const diluentVolume = volume - stockVolume;
+      if (!Number.isFinite(stockVolume) || stockVolume <= 0) {
+        error.textContent = '數字範圍過大或過小，無法可靠計算。請改用較合適的相同濃度單位後再試。';
+        return;
+      }
+      const heading = document.createElement('h2');
+      heading.textContent = '計算結果';
+      const stockLine = document.createElement('p');
+      stockLine.textContent = '需要量取的原液：' + display.format(stockVolume) + ' mL';
+      const diluentLine = document.createElement('p');
+      diluentLine.textContent = '需要加入的稀釋液：' + display.format(diluentVolume) + ' mL';
+      const totalLine = document.createElement('p');
+      totalLine.textContent = '配製後的總體積：' + display.format(volume) + ' mL';
+      const note = document.createElement('p');
+      note.textContent = target === stock
+        ? '目標濃度與原液相同，不需要加入稀釋液。'
+        : '顯示的體積最多保留 10 位有效數字。計算以體積可以相加為前提。';
+      result.append(heading, stockLine, diluentLine, totalLine, note);
+    });
+  </script>
+</body>
+</html>

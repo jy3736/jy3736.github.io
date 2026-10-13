@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>稀釋與濃度換算器｜教學練習</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <p class="tag">醫學檢驗生物技術系｜AI Agent 課堂範例</p>
+    <h1>稀釋與濃度換算器</h1>
+    <p class="sub">依 C₁V₁ = C₂V₂ 計算應取母液體積與應加稀釋液體積</p>
+  </header>
+
+  <section class="panel demo">
+    <h2>內建範例｜點一下直接載入</h2>
+    <p class="hint">課堂展示時不必手動輸入，點選任一範例即自動填值、切換單位並計算。</p>
+    <div class="ex-btns" id="examples"></div>
+  </section>
+
+  <section class="panel">
+    <h2>輸入條件</h2>
+    <div class="grid">
+      <label>母液濃度 C₁
+        <input type="number" id="c1" step="any" min="0" placeholder="例：100">
+      </label>
+      <label>目標濃度 C₂
+        <input type="number" id="c2" step="any" min="0" placeholder="例：10">
+      </label>
+      <label>目標體積 V₂
+        <input type="number" id="v2" step="any" min="0" placeholder="例：50">
+      </label>
+    </div>
+    <div class="grid two">
+      <label>濃度單位
+        <select id="cUnit">
+          <option value="mg/dL">mg/dL</option>
+          <option value="mmol/L">mmol/L</option>
+          <option value="µg/mL">µg/mL</option>
+          <option value="%">%</option>
+          <option value="X">倍（X）</option>
+        </select>
+      </label>
+      <label>體積單位
+        <select id="vUnit">
+          <option value="mL">mL</option>
+          <option value="µL">µL</option>
+          <option value="L">L</option>
+        </select>
+      </label>
+    </div>
+    <p class="hint">兩個濃度必須使用同一個單位，兩個體積也必須使用同一個單位。單位不一致是這類計算最常見的錯誤來源。</p>
+    <div class="actions">
+      <button id="calc" class="primary">計算</button>
+      <button id="clear" class="ghost">清除</button>
+    </div>
+    <p id="msg" class="msg" role="status"></p>
+  </section>
+
+  <section class="panel result" id="resultBox" hidden>
+    <div class="rhead">
+      <h2>計算結果</h2>
+      <span class="badge" id="badge" hidden>✓ 與預期答案相符</span>
+    </div>
+    <div class="outs">
+      <div class="out">
+        <span class="k">應取母液 V₁</span>
+        <span class="v" id="v1"></span>
+      </div>
+      <div class="out">
+        <span class="k">應加稀釋液</span>
+        <span class="v" id="vd"></span>
+      </div>
+      <div class="out">
+        <span class="k">稀釋倍數</span>
+        <span class="v" id="fold"></span>
+      </div>
+    </div>
+    <details>
+      <summary>逐步計算過程</summary>
+      <ol id="steps"></ol>
+    </details>
+  </section>
+
+  <section class="panel">
+    <h2>驗收對照表</h2>
+    <p class="hint">上方三組內建範例的預期答案。請先自行手算，再與工具輸出比對——這是檢查 AI 產出是否正確的必要步驟。</p>
+    <table class="cmp">
+      <thead>
+        <tr><th>範例</th><th>輸入條件</th><th>應取母液</th><th>應加稀釋液</th><th>倍數</th></tr>
+      </thead>
+      <tbody id="cmpBody"></tbody>
+    </table>
+  </section>
+
+  <section class="panel formula">
+    <h2>本工具使用的公式</h2>
+    <ul>
+      <li>C₁ × V₁ = C₂ × V₂</li>
+      <li>應取母液體積 V₁ = C₂ × V₂ ÷ C₁</li>
+      <li>應加稀釋液體積 = V₂ − V₁</li>
+      <li>稀釋倍數 = C₁ ÷ C₂（表示為 1 : n）</li>
+    </ul>
+    <p class="hint">公式必須顯示在畫面上，使用者才能檢查工具「有沒有用對方法」，而不只是檢查數字。</p>
+  </section>
+
+  <footer>
+    本工具為教學練習成果，計算結果需由專業人員複核，不可作為臨床檢驗、試劑配製或報告依據。
+  </footer>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

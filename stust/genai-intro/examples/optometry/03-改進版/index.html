@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>視光處方轉換器</title>
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --ink: #1a1d23;
+    --muted: #4a5160;
+    --line: #c9d0da;
+    --accent: #1b4f9c;
+    --accent-ink: #ffffff;
+    --warn-bg: #fdecec;
+    --warn-ink: #8a1c1c;
+    --note-bg: #eef3fb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 56px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 0 0 10px; }
+  h3 { font-size: 16px; margin: 18px 0 6px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .field { margin-bottom: 18px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .unit { font-weight: 400; color: var(--muted); }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 17px;
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+  }
+  input[aria-invalid="true"] { border-color: var(--warn-ink); background: #fffafa; }
+  input:focus-visible, button:focus-visible, a:focus-visible {
+    outline: 3px solid #0a58ca;
+    outline-offset: 2px;
+  }
+  .hint { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .field-error {
+    display: none;
+    margin: 6px 0 0;
+    padding: 8px 12px;
+    background: var(--warn-bg);
+    border-left: 5px solid var(--warn-ink);
+    border-radius: 4px;
+    color: var(--warn-ink);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .field-error.show { display: block; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+  button {
+    font-size: 17px;
+    font-weight: 600;
+    padding: 12px 26px;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+  }
+  button:hover { background: #163f7d; }
+  button.secondary { background: #fff; color: var(--accent); }
+  button.secondary:hover { background: #e8eef8; }
+  .result { background: var(--note-bg); border: 1px solid #b8c9e6; border-radius: 8px; padding: 16px; margin-top: 18px; }
+  .result dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 8px 0 0; }
+  .result dt { font-weight: 600; color: var(--muted); }
+  .result dd { margin: 0; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .rx { margin-top: 14px; font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+  .samples { display: grid; gap: 10px; }
+  .sample {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fbfcfe;
+  }
+  .sample button {
+    width: 100%;
+    font-size: 16px;
+    padding: 10px 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .expect { font-size: 15px; color: var(--muted); }
+  .expect strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .flag { display: inline-block; font-size: 13px; font-weight: 700; color: #8a4b00; }
+  ol, ul { padding-left: 22px; }
+  .disclaimer {
+    background: #fff8e1;
+    border: 2px solid #b8860b;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-weight: 600;
+  }
+  figure { margin: 14px 0 0; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 6px; }
+  @media (max-width: 480px) {
+    body { font-size: 16px; }
+    .sample { grid-template-columns: 1fr; }
+    .result dl { grid-template-columns: 1fr; gap: 2px 0; }
+    .result dd { margin-bottom: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>視光處方轉換器</h1>
+  <p class="lead">把一筆負柱鏡處方換算成光學效果相同的正柱鏡處方。</p>
+
+  <p class="disclaimer">本工具僅供自行練習計算，數值均為虛構，不可作為臨床或處方的依據。</p>
+
+  <form class="card" id="form" novalidate>
+    <h2>輸入處方</h2>
+
+    <div class="field">
+      <label for="sph">球面度數 Sphere <span class="unit">（單位：D）</span></label>
+      <input type="text" inputmode="decimal" id="sph" autocomplete="off" aria-describedby="sph-hint sph-error">
+      <p class="hint" id="sph-hint">範圍 -20.00 D 至 +20.00 D，例如 -2.00</p>
+      <p class="field-error" id="sph-error" role="alert"></p>
+    </div>
+
+    <div class="field">
+      <label for="cyl">柱面度數 Cylinder <span class="unit">（單位：D）</span></label>
+      <input type="text" inputmode="decimal" id="cyl" autocomplete="off" aria-describedby="cyl-hint cyl-error">
+      <p class="hint" id="cyl-hint">必須是負值：-20.00 D 到小於 0，例如 -1.00</p>
+      <p class="field-error" id="cyl-error" role="alert"></p>
+    </div>
+
+    <div class="field">
+      <label for="axis">軸度 Axis <span class="unit">（單位：度）</span></label>
+      <input type="text" inputmode="numeric" id="axis" autocomplete="off" aria-describedby="axis-hint axis-error">
+      <p class="hint" id="axis-hint">1 到 180 之間的整數，不接受小數</p>
+      <p class="field-error" id="axis-error" role="alert"></p>
+    </div>
+
+    <div class="actions">
+      <button type="submit">轉換</button>
+      <button type="button" class="secondary" id="clear">清除</button>
+    </div>
+
+    <div id="output" role="status" aria-live="polite"></div>
+  </form>
+
+  <section class="card">
+    <h2>載入範例</h2>
+    <p class="hint" style="margin-bottom:12px">按下按鈕自動填入該組數值，再按「轉換」，把工具算出來的答案和右邊的預期答案對照。</p>
+    <div class="samples" id="samples"></div>
+  </section>
+
+  <section class="card">
+    <h2>轉換規則</h2>
+    <ol>
+      <li>新球面度數 ＝ 原球面度數 ＋ 原柱面度數</li>
+      <li>新柱面度數 ＝ 原柱面度數的相反數</li>
+      <li>新軸度 ＝ 原軸度 ＋ 90；<strong>只有在結果大於 180 時</strong>才減去 180</li>
+    </ol>
+    <p>原軸度剛好 90 度時，加 90 等於 180，並未超過 180，所以不減，答案就是 180 度。</p>
+  </section>
+
+  <section class="card">
+    <h2>負柱鏡與正柱鏡</h2>
+    <p>負柱鏡與正柱鏡只是同一張處方的兩種表示方式，光學效果完全相同。正負號只代表柱面度數採用哪一種寫法，不代表好壞，也不代表散光的嚴重程度。</p>
+  </section>
+
+  <section class="card">
+    <h2>如何核對結果</h2>
+    <p>自己先用紙筆算一次，再和工具的輸出比對。三條規則是：</p>
+    <ol>
+      <li>新球面度數 ＝ 原球面度數 ＋ 原柱面度數</li>
+      <li>新柱面度數 ＝ 原柱面度數的相反數（負值變正值）</li>
+      <li>新軸度 ＝ 原軸度 ＋ 90；結果<strong>大於</strong> 180 才減 180，等於 180 不減</li>
+    </ol>
+    <h3>核對時要特別注意</h3>
+    <ul>
+      <li>有效軸度是 <strong>1° 到 180° 的整數</strong>，不使用 0°。</li>
+      <li>計算過程中可能出現 270° 之類的數字，那只是<strong>中間值</strong>，減去 180 之後才是處方軸度，不能直接當成答案。</li>
+      <li>示意圖上的<strong>紅線代表柱鏡軸</strong>；圖上的 0° 與 180° 是方向刻度，不是處方軸度的寫法。</li>
+      <li>轉換前後的兩張處方<strong>光學效果相同</strong>，只是表示方式不同，不是兩副不一樣的眼鏡。</li>
+    </ul>
+    <figure>
+      <img src="視光處方轉換示意圖.png" alt="處方轉換圖解：虛構處方 -2.00 D / -1.00 D × 180° 轉換為 -3.00 D / +1.00 D × 90°。紅線表示柱鏡軸；270° 是計算中間值，不是有效軸度。">
+      <figcaption>虛構範例：-2.00 D / -1.00 D × 180° 轉換為 -3.00 D / +1.00 D × 90°。軸度 180 加 90 得到中間值 270，再減 180 得到有效軸度 90。</figcaption>
+    </figure>
+  </section>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById('form');
+  var output = document.getElementById('output');
+  var fields = {
+    sph:  { input: document.getElementById('sph'),  error: document.getElementById('sph-error') },
+    cyl:  { input: document.getElementById('cyl'),  error: document.getElementById('cyl-error') },
+    axis: { input: document.getElementById('axis'), error: document.getElementById('axis-error') }
+  };
+
+  // 以固定兩位小數顯示，並避免 -0.00
+  function fmt(value) {
+    var rounded = Math.round(value * 100) / 100;
+    if (Object.is(rounded, -0) || rounded === 0) rounded = 0;
+    var body = Math.abs(rounded).toFixed(2);
+    return (rounded < 0 ? '-' : '+') + body;
+  }
+
+  function readNumber(raw) {
+    var text = raw.trim();
+    if (text === '') return { empty: true };
+    if (!/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(text)) return { bad: true };
+    var n = Number(text);
+    if (!isFinite(n)) return { bad: true };
+    return { value: n };
+  }
+
+  function clearErrors() {
+    Object.keys(fields).forEach(function (key) {
+      fields[key].error.textContent = '';
+      fields[key].error.classList.remove('show');
+      fields[key].input.removeAttribute('aria-invalid');
+    });
+  }
+
+  function setError(key, message) {
+    fields[key].error.textContent = message;
+    fields[key].error.classList.add('show');
+    fields[key].input.setAttribute('aria-invalid', 'true');
+  }
+
+  function convert() {
+    clearErrors();
+    output.innerHTML = '';
+
+    var sphRaw = fields.sph.input.value;
+    var cylRaw = fields.cyl.input.value;
+    var axisRaw = fields.axis.input.value;
+    var bad = [];
+
+    var s = readNumber(sphRaw);
+    if (s.empty) { setError('sph', '這一格還沒填，請輸入 -20.00 到 +20.00 之間的數字。'); bad.push('sph'); }
+    else if (s.bad) { setError('sph', '「' + sphRaw.trim() + '」不是數字，請只填數字，例如 -2.00。'); bad.push('sph'); }
+    else if (s.value < -20 || s.value > 20) { setError('sph', s.value + ' D 超出合理範圍，請填 -20.00 到 +20.00 之間的數字。'); bad.push('sph'); }
+
+    var c = readNumber(cylRaw);
+    if (c.empty) { setError('cyl', '這一格還沒填，請輸入一個負值，例如 -1.00。'); bad.push('cyl'); }
+    else if (c.bad) { setError('cyl', '「' + cylRaw.trim() + '」不是數字，請只填數字，例如 -1.00。'); bad.push('cyl'); }
+    else if (c.value === 0) { setError('cyl', '填 0 代表沒有散光：不需要轉換，也沒有軸度可言。'); bad.push('cyl'); }
+    else if (c.value > 0) { setError('cyl', '這是正值（' + fmt(c.value) + ' D），代表處方本來就是正柱鏡了。本工具只把負柱鏡換成正柱鏡。'); bad.push('cyl'); }
+    else if (c.value < -20) { setError('cyl', c.value + ' D 超出合理範圍，請填 -20.00 到小於 0 之間的數字。'); bad.push('cyl'); }
+
+    var a = readNumber(axisRaw);
+    if (a.empty) { setError('axis', '這一格還沒填，請輸入 1 到 180 之間的整數。'); bad.push('axis'); }
+    else if (a.bad) { setError('axis', '「' + axisRaw.trim() + '」不是數字，請只填 1 到 180 之間的整數。'); bad.push('axis'); }
+    else if (!Number.isInteger(a.value)) { setError('axis', a.value + ' 度是小數，軸度只收整數，例如 4 或 90。'); bad.push('axis'); }
+    else if (a.value < 1 || a.value > 180) { setError('axis', a.value + ' 度超出範圍，處方軸度是 1 到 180 度（不使用 0 度）。'); bad.push('axis'); }
+
+    if (bad.length > 0) {
+      fields[bad[0]].input.focus();   // 把游標帶到第一個出錯的欄位
+      return;
+    }
+
+    var newSph = s.value + c.value;
+    var newCyl = -c.value;
+    var newAxis = a.value + 90;
+    if (newAxis > 180) newAxis = newAxis - 180;   // 等於 180 時不減
+
+    output.innerHTML =
+      '<div class="result">' +
+        '<h2>轉換後的正柱鏡處方</h2>' +
+        '<dl>' +
+          '<dt>球面度數 Sphere</dt><dd>' + fmt(newSph) + ' D</dd>' +
+          '<dt>柱面度數 Cylinder</dt><dd>' + fmt(newCyl) + ' D</dd>' +
+          '<dt>軸度 Axis</dt><dd>' + newAxis + '°</dd>' +
+        '</dl>' +
+        '<p class="rx">' + fmt(newSph) + ' D / ' + fmt(newCyl) + ' D × ' + newAxis + '°</p>' +
+      '</div>';
+  }
+
+  // 五組核對用範例
+  var SAMPLES = [
+    { sph: '-2.00', cyl: '-1.00', axis: '180', expect: '-3.00 D / +1.00 D × 90°',  note: '' },
+    { sph: '+1.50', cyl: '-2.25', axis: '100', expect: '-0.75 D / +2.25 D × 10°',  note: '' },
+    { sph: '-4.00', cyl: '-0.50', axis: '1',   expect: '-4.50 D / +0.50 D × 91°',  note: '' },
+    { sph: '+0.25', cyl: '-0.75', axis: '90',  expect: '-0.50 D / +0.75 D × 180°', note: '邊界：90＋90＝180，不必減' },
+    { sph: '-1.00', cyl: '-0.50', axis: '91',  expect: '-1.50 D / +0.50 D × 1°',   note: '邊界：91＋90＝181，要減成 1' }
+  ];
+
+  var box = document.getElementById('samples');
+  SAMPLES.forEach(function (sample, i) {
+    var row = document.createElement('div');
+    row.className = 'sample';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'secondary';
+    btn.textContent = '範例 ' + (i + 1) + '：' + sample.sph + ' D / ' + sample.cyl + ' D × ' + sample.axis + '°';
+    btn.addEventListener('click', function () {
+      clearErrors();
+      output.innerHTML = '';
+      fields.sph.input.value = sample.sph;
+      fields.cyl.input.value = sample.cyl;
+      fields.axis.input.value = sample.axis;
+      fields.sph.input.focus();
+    });
+
+    var expect = document.createElement('div');
+    expect.className = 'expect';
+    expect.innerHTML = '預期答案：<strong>' + sample.expect + '</strong>' +
+      (sample.note ? '<br><span class="flag">' + sample.note + '</span>' : '');
+
+    row.appendChild(btn);
+    row.appendChild(expect);
+    box.appendChild(row);
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();   // Enter 或按鈕都走同一條路
+    convert();
+  });
+
+  document.getElementById('clear').addEventListener('click', function () {
+    clearErrors();
+    output.innerHTML = '';
+    fields.sph.input.value = '';
+    fields.cyl.input.value = '';
+    fields.axis.input.value = '';
+    fields.sph.input.focus();
+  });
+})();
+</script>
+</body>
+</html>

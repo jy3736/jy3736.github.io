@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鏡片處方轉換器｜教學練習</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <p class="tag">視光系｜AI Agent 課堂範例</p>
+    <h1>鏡片處方轉換器</h1>
+    <p class="sub">正負柱鏡轉換（Transposition）與等價球面度計算</p>
+  </header>
+
+  <section class="panel demo">
+    <h2>內建範例｜點一下直接載入</h2>
+    <p class="hint">課堂展示時不必手動輸入，點選任一範例即自動填值並計算。</p>
+    <div class="ex-btns" id="examples"></div>
+  </section>
+
+  <section class="panel">
+    <h2>輸入處方</h2>
+    <div class="grid">
+      <label>球面度 S（D）
+        <input type="number" id="sph" step="0.25" placeholder="例：+2.00">
+      </label>
+      <label>柱面度 C（D）
+        <input type="number" id="cyl" step="0.25" placeholder="例：-1.00">
+      </label>
+      <label>軸度 A（度）
+        <input type="number" id="axis" step="1" min="1" max="180" placeholder="1 ~ 180">
+      </label>
+    </div>
+    <div class="actions">
+      <button id="calc" class="primary">計算</button>
+      <button id="clear" class="ghost">清除</button>
+    </div>
+    <p id="msg" class="msg" role="status"></p>
+  </section>
+
+  <section class="panel result" id="resultBox" hidden>
+    <div class="rhead">
+      <h2>轉換結果</h2>
+      <span class="badge" id="badge" hidden>✓ 與預期答案相符</span>
+    </div>
+    <div class="rx" id="rxOriginal"></div>
+    <div class="arrow">轉換為</div>
+    <div class="rx strong" id="rxConverted"></div>
+    <p class="se">等價球面度（SE）：<span id="se"></span></p>
+    <details>
+      <summary>逐步計算過程</summary>
+      <ol id="steps"></ol>
+    </details>
+  </section>
+
+  <section class="panel">
+    <h2>驗收對照表</h2>
+    <p class="hint">上方三組內建範例的預期答案。請先自行手算，再與工具輸出比對——這是檢查 AI 產出是否正確的必要步驟。</p>
+    <table class="cmp">
+      <thead>
+        <tr><th>範例</th><th>輸入處方</th><th>預期答案</th><th>預期 SE</th></tr>
+      </thead>
+      <tbody id="cmpBody"></tbody>
+    </table>
+  </section>
+
+  <section class="panel formula">
+    <h2>本工具使用的公式</h2>
+    <ul>
+      <li>新球面度 S′ = S + C</li>
+      <li>新柱面度 C′ = −C</li>
+      <li>新軸度 A′ = A + 90（當 A ≤ 90）；A′ = A − 90（當 A &gt; 90）</li>
+      <li>等價球面度 SE = S + C ÷ 2</li>
+    </ul>
+    <p class="hint">公式必須顯示在畫面上，使用者才能檢查工具「有沒有用對方法」，而不只是檢查數字。</p>
+  </section>
+
+  <footer>
+    本工具為教學練習成果，計算結果需由專業人員複核，不可作為臨床、驗光或配鏡依據。
+  </footer>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

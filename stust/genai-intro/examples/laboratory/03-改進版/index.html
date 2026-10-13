@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>醫檢稀釋換算器</title>
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --ink: #1a1d23;
+    --muted: #4a5160;
+    --line: #c9d0da;
+    --accent: #14655a;
+    --accent-ink: #ffffff;
+    --warn-bg: #fdecec;
+    --warn-ink: #8a1c1c;
+    --note-bg: #eaf4f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 56px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 0 0 10px; }
+  h3 { font-size: 16px; margin: 18px 0 6px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .field { margin-bottom: 18px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .unit { font-weight: 400; color: var(--muted); }
+  input, select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 17px;
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+  }
+  input[aria-invalid="true"] { border-color: var(--warn-ink); background: #fffafa; }
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 3px solid #0a58ca;
+    outline-offset: 2px;
+  }
+  .hint { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+  .units { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field-error {
+    display: none;
+    margin: 6px 0 0;
+    padding: 8px 12px;
+    background: var(--warn-bg);
+    border-left: 5px solid var(--warn-ink);
+    border-radius: 4px;
+    color: var(--warn-ink);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .field-error.show { display: block; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+  button {
+    font-size: 17px;
+    font-weight: 600;
+    padding: 12px 26px;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+  }
+  button:hover { background: #0e4d45; }
+  button.secondary { background: #fff; color: var(--accent); }
+  button.secondary:hover { background: #e4f0ed; }
+  .result { background: var(--note-bg); border: 1px solid #a8ccc3; border-radius: 8px; padding: 16px; margin-top: 18px; }
+  .result dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 8px 0 0; }
+  .result dt { font-weight: 600; color: var(--muted); }
+  .result dd { margin: 0; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .rounding { font-size: 14px; color: var(--muted); margin: 12px 0 0; }
+  .formulas { list-style: none; padding: 0; margin: 0; }
+  .formulas li { padding: 6px 0; font-size: 18px; font-variant-numeric: tabular-nums; }
+  .samples { display: grid; gap: 10px; }
+  .sample {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fbfcfe;
+  }
+  .sample button { width: 100%; font-size: 16px; padding: 10px 12px; font-variant-numeric: tabular-nums; }
+  .expect { font-size: 15px; color: var(--muted); }
+  .expect strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .flag { display: inline-block; font-size: 13px; font-weight: 700; color: #8a4b00; }
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+  .steps li {
+    padding: 10px 0 10px 40px;
+    position: relative;
+    border-bottom: 1px dashed var(--line);
+    font-variant-numeric: tabular-nums;
+  }
+  .steps li:last-child { border-bottom: 0; }
+  .steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute; left: 0; top: 12px;
+    width: 26px; height: 26px; line-height: 26px; text-align: center;
+    background: var(--accent); color: #fff; border-radius: 50%;
+    font-size: 14px; font-weight: 700;
+  }
+  figure { margin: 16px 0 0; }
+  figure img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+  figcaption { font-size: 14px; color: var(--muted); margin-top: 6px; }
+  .callout {
+    background: #fff8e1;
+    border-left: 6px solid #b8860b;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 14px 0 0;
+    font-size: 16px;
+  }
+  .disclaimer {
+    background: #fff8e1;
+    border: 2px solid #b8860b;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-weight: 600;
+  }
+  @media (max-width: 480px) {
+    body { font-size: 16px; }
+    .units, .sample { grid-template-columns: 1fr; }
+    .result dl { grid-template-columns: 1fr; gap: 2px 0; }
+    .result dd { margin-bottom: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>醫檢稀釋換算器</h1>
+  <p class="lead">手上有一瓶已知濃度的原液，要配出指定濃度、指定體積的稀釋液，這個工具告訴你該量取多少原液、再補多少稀釋液。</p>
+
+  <p class="disclaimer">本工具僅供自行練習計算，數值均為虛構，不可作為臨床或檢驗實務的依據。</p>
+
+  <form class="card" id="form" novalidate>
+    <h2>輸入條件</h2>
+
+    <div class="units">
+      <div class="field">
+        <label for="cunit">濃度單位</label>
+        <select id="cunit">
+          <option value="mg/mL" selected>mg/mL</option>
+          <option value="µg/mL">µg/mL</option>
+          <option value="%（w/v）">%（w/v）</option>
+        </select>
+        <p class="hint">C1 與 C2 共用</p>
+      </div>
+      <div class="field">
+        <label for="vunit">體積單位</label>
+        <select id="vunit">
+          <option value="mL" selected>mL</option>
+          <option value="µL">µL</option>
+        </select>
+        <p class="hint">V2、V1 與稀釋液共用</p>
+      </div>
+    </div>
+
+    <p class="hint" style="margin-bottom:16px">單位由你自己選，工具<strong>不會</strong>幫你自動換算：兩個濃度同單位、所有體積同單位，代入公式時單位會上下消掉。</p>
+
+    <div class="field">
+      <label for="c1">原液濃度 C1 <span class="unit">（單位：<span class="cu">mg/mL</span>）</span></label>
+      <input type="text" inputmode="decimal" id="c1" autocomplete="off" aria-describedby="c1-hint c1-error">
+      <p class="hint" id="c1-hint">必須大於 0，例如 10</p>
+      <p class="field-error" id="c1-error" role="alert"></p>
+    </div>
+
+    <div class="field">
+      <label for="c2">目標濃度 C2 <span class="unit">（單位：<span class="cu">mg/mL</span>）</span></label>
+      <input type="text" inputmode="decimal" id="c2" autocomplete="off" aria-describedby="c2-hint c2-error">
+      <p class="hint" id="c2-hint">必須大於 0，且不可大於 C1，例如 2</p>
+      <p class="field-error" id="c2-error" role="alert"></p>
+    </div>
+
+    <div class="field">
+      <label for="v2">要配出來的最終體積 V2 <span class="unit">（單位：<span class="vu">mL</span>）</span></label>
+      <input type="text" inputmode="decimal" id="v2" autocomplete="off" aria-describedby="v2-hint v2-error">
+      <p class="hint" id="v2-hint">必須大於 0，例如 25</p>
+      <p class="field-error" id="v2-error" role="alert"></p>
+    </div>
+
+    <div class="actions">
+      <button type="submit">計算</button>
+      <button type="button" class="secondary" id="clear">清除</button>
+    </div>
+
+    <div id="output" role="status" aria-live="polite"></div>
+  </form>
+
+  <section class="card">
+    <h2>載入範例</h2>
+    <p class="hint" style="margin-bottom:12px">按下按鈕自動填入該組數字（單位會一併設為 mg/mL 與 mL），再按「計算」，把工具算出來的答案和右邊的預期答案對照。</p>
+    <div class="samples" id="samples"></div>
+  </section>
+
+  <section class="card">
+    <h2>使用的公式</h2>
+    <ul class="formulas">
+      <li>C1 × V1 ＝ C2 × V2</li>
+      <li>V1 ＝（C2 × V2）÷ C1</li>
+      <li>稀釋液體積 ＝ V2 − V1</li>
+    </ul>
+    <p class="rounding">畫面上的答案顯示到小數點後三位，是<strong>四捨五入後</strong>的結果；計算過程使用完整數值，不會提早進位。例如 V1 實際為 3.3333… 時，畫面顯示 3.333。</p>
+  </section>
+
+  <section class="card">
+    <h2>計算過程（以範例 1 為例）</h2>
+    <p>題目：原液 10 mg/mL，要配出 2 mg/mL 的溶液 25 mL。</p>
+    <ol class="steps">
+      <li>寫出公式：<strong>C1 × V1 ＝ C2 × V2</strong></li>
+      <li>把已知的數字代進去：<strong>10 × V1 ＝ 2 × 25</strong></li>
+      <li>先算等號右邊：<strong>10 × V1 ＝ 50</strong></li>
+      <li>兩邊同除以 C1（也就是 10）：<strong>V1 ＝ 50 ÷ 10 ＝ 5</strong>，所以要量取原液 <strong>5 mL</strong></li>
+      <li>稀釋液體積 ＝ V2 − V1 ＝ <strong>25 − 5 ＝ 20 mL</strong></li>
+      <li>驗算：把 5 mL 原液補水到 25 mL，濃度變成 10 × 5 ÷ 25 ＝ <strong>2 mg/mL</strong>，和目標一致</li>
+    </ol>
+    <p class="rounding">兩個濃度都是 mg/mL、兩個體積都是 mL，所以單位在等號兩邊上下消掉，真正參與計算的只有數字。</p>
+
+    <p class="callout"><strong>最容易搞混的一點：</strong>V2 是<strong>混合後的目標最終體積</strong>，不是要加入的稀釋液體積。本例是先算出原液 5 mL，再用 V2 − V1 算出稀釋液 20 mL；<strong>原液 5 mL ＋ 稀釋液 20 mL 相加才是 25 mL</strong>。</p>
+
+    <figure>
+      <img src="醫檢稀釋換算邏輯圖.png" alt="稀釋換算圖解：虛構範例使用 10 mg/mL 原液，取 5 mL 原液並加入 20 mL 稀釋液，得到最終體積 25 mL、目標濃度 2 mg/mL；圖中列出 C1V1 = C2V2 與計算步驟。僅供課堂計算練習，不是實驗操作指引。">
+      <figcaption>虛構範例：10 mg/mL 的原液取 5 mL，加入 20 mL 稀釋液，配成 25 mL、2 mg/mL 的溶液。圖中三個步驟依序是：確認濃度與體積單位一致 → V1 ＝（C2 × V2）÷ C1 → 稀釋液 ＝ V2 − V1。本圖僅供課堂計算練習，不是實驗操作指引。</figcaption>
+    </figure>
+  </section>
+
+  <section class="card">
+    <h2>為什麼 C2 不能大於 C1</h2>
+    <p>稀釋只會把溶液變稀，配不出比原液更濃的溶液。C2 等於 C1 是合理的，代表這瓶不需要稀釋：此時 V1 等於 V2，稀釋液體積是 0。</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById('form');
+  var output = document.getElementById('output');
+  var cunit = document.getElementById('cunit');
+  var vunit = document.getElementById('vunit');
+  var fields = {
+    c1: { input: document.getElementById('c1'), error: document.getElementById('c1-error') },
+    c2: { input: document.getElementById('c2'), error: document.getElementById('c2-error') },
+    v2: { input: document.getElementById('v2'), error: document.getElementById('v2-error') }
+  };
+
+  // 單位只是標示，選了就同步到所有相關欄位，不做任何換算
+  function syncUnits() {
+    [].forEach.call(document.querySelectorAll('.cu'), function (el) { el.textContent = cunit.value; });
+    [].forEach.call(document.querySelectorAll('.vu'), function (el) { el.textContent = vunit.value; });
+  }
+  cunit.addEventListener('change', syncUnits);
+  vunit.addEventListener('change', syncUnits);
+  syncUnits();
+
+  // 顯示到小數點後三位，並避免 -0.000
+  function fmt(value) {
+    var rounded = Math.round(value * 1000) / 1000;
+    if (Object.is(rounded, -0) || rounded === 0) rounded = 0;
+    return rounded.toFixed(3);
+  }
+
+  function readNumber(raw) {
+    var text = raw.trim();
+    if (text === '') return { empty: true };
+    if (!/^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(text)) return { bad: true };
+    var n = Number(text);
+    if (!isFinite(n)) return { huge: true };
+    return { value: n };
+  }
+
+  function clearErrors() {
+    Object.keys(fields).forEach(function (key) {
+      fields[key].error.textContent = '';
+      fields[key].error.classList.remove('show');
+      fields[key].input.removeAttribute('aria-invalid');
+    });
+  }
+
+  function setError(key, message) {
+    fields[key].error.textContent = message;
+    fields[key].error.classList.add('show');
+    fields[key].input.setAttribute('aria-invalid', 'true');
+  }
+
+  function calc() {
+    clearErrors();
+    output.innerHTML = '';
+
+    var c1Raw = fields.c1.input.value;
+    var c2Raw = fields.c2.input.value;
+    var v2Raw = fields.v2.input.value;
+    var cu = cunit.value, vu = vunit.value;
+    var bad = [];
+
+    var c1 = readNumber(c1Raw);
+    if (c1.empty) { setError('c1', '這一格還沒填，請輸入一個大於 0 的數字。'); bad.push('c1'); }
+    else if (c1.bad) { setError('c1', '「' + c1Raw.trim() + '」不是數字，請只填數字，例如 10。'); bad.push('c1'); }
+    else if (c1.huge) { setError('c1', '這個數字大到電腦算不出來，請填小一點的數值。'); bad.push('c1'); }
+    else if (c1.value <= 0) { setError('c1', c1.value + ' ' + cu + ' 不合理，原液濃度必須大於 0。'); bad.push('c1'); }
+
+    // C1 本身就不合理時，不再拿 C2 去跟它比，避免出現第二句看不懂的提醒
+    var c1Valid = (c1.value !== undefined && c1.value > 0);
+
+    var c2 = readNumber(c2Raw);
+    if (c2.empty) { setError('c2', '這一格還沒填，請輸入一個大於 0 的數字。'); bad.push('c2'); }
+    else if (c2.bad) { setError('c2', '「' + c2Raw.trim() + '」不是數字，請只填數字，例如 2。'); bad.push('c2'); }
+    else if (c2.huge) { setError('c2', '這個數字大到電腦算不出來，請填小一點的數值。'); bad.push('c2'); }
+    else if (c2.value <= 0) { setError('c2', c2.value + ' ' + cu + ' 不合理，目標濃度必須大於 0。'); bad.push('c2'); }
+    else if (c1Valid && c2.value > c1.value) {
+      setError('c2', '目標濃度（' + c2.value + ' ' + cu + '）比原液濃度 C1（' + c1.value + ' ' + cu + '）還濃：稀釋只會把溶液變稀，配不出比原液更濃的溶液。C2 等於 C1 是可以的，代表不需要稀釋。');
+      bad.push('c2');
+    }
+
+    var v2 = readNumber(v2Raw);
+    if (v2.empty) { setError('v2', '這一格還沒填，請輸入一個大於 0 的數字。'); bad.push('v2'); }
+    else if (v2.bad) { setError('v2', '「' + v2Raw.trim() + '」不是數字，請只填數字，例如 25。'); bad.push('v2'); }
+    else if (v2.huge) { setError('v2', '這個數字大到電腦算不出來，請填小一點的數值。'); bad.push('v2'); }
+    else if (v2.value <= 0) { setError('v2', v2.value + ' ' + vu + ' 不合理，要配出來的體積必須大於 0。'); bad.push('v2'); }
+
+    if (bad.length > 0) {
+      fields[bad[0]].input.focus();   // 把游標帶到第一個出錯的欄位
+      return;
+    }
+
+    var v1 = (c2.value * v2.value) / c1.value;
+    var diluent = v2.value - v1;
+
+    if (!isFinite(v1) || !isFinite(diluent)) {
+      setError('v2', '這組數字算出來的結果超出電腦能處理的範圍，請改用小一點的數值。');
+      fields.v2.input.focus();
+      return;
+    }
+
+    output.innerHTML =
+      '<div class="result">' +
+        '<h2>計算結果</h2>' +
+        '<dl>' +
+          '<dt>要量取的原液體積 V1</dt><dd>' + fmt(v1) + ' ' + vu + '</dd>' +
+          '<dt>要加入的稀釋液體積</dt><dd>' + fmt(diluent) + ' ' + vu + '</dd>' +
+        '</dl>' +
+        '<p class="rounding">以上數字為四捨五入到小數點後三位的結果。' +
+          (diluent === 0 ? '本組 C2 等於 C1，不需要加入稀釋液。' : '') + '</p>' +
+      '</div>';
+  }
+
+  // 四組核對用範例
+  var SAMPLES = [
+    { c1: '10', c2: '2', v2: '25', expect: '原液 5.000 mL、稀釋液 20.000 mL', note: '' },
+    { c1: '8',  c2: '2', v2: '12', expect: '原液 3.000 mL、稀釋液 9.000 mL',  note: '' },
+    { c1: '5',  c2: '5', v2: '10', expect: '原液 10.000 mL、稀釋液 0.000 mL', note: '邊界：C2＝C1，不需稀釋' },
+    { c1: '3',  c2: '1', v2: '10', expect: '原液 3.333 mL、稀釋液 6.667 mL',  note: '除不盡，顯示的是四捨五入值' }
+  ];
+
+  var box = document.getElementById('samples');
+  SAMPLES.forEach(function (sample, i) {
+    var row = document.createElement('div');
+    row.className = 'sample';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'secondary';
+    btn.textContent = '範例 ' + (i + 1) + '：原液 ' + sample.c1 + '、目標 ' + sample.c2 + '、配 ' + sample.v2 + ' mL';
+    btn.addEventListener('click', function () {
+      clearErrors();
+      output.innerHTML = '';
+      cunit.value = 'mg/mL';
+      vunit.value = 'mL';
+      syncUnits();
+      fields.c1.input.value = sample.c1;
+      fields.c2.input.value = sample.c2;
+      fields.v2.input.value = sample.v2;
+      fields.c1.input.focus();
+    });
+
+    var expect = document.createElement('div');
+    expect.className = 'expect';
+    expect.innerHTML = '預期答案：<strong>' + sample.expect + '</strong>' +
+      (sample.note ? '<br><span class="flag">' + sample.note + '</span>' : '');
+
+    row.appendChild(btn);
+    row.appendChild(expect);
+    box.appendChild(row);
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();   // Enter 或按鈕都走同一條路
+    calc();
+  });
+
+  document.getElementById('clear').addEventListener('click', function () {
+    clearErrors();
+    output.innerHTML = '';
+    fields.c1.input.value = '';
+    fields.c2.input.value = '';
+    fields.v2.input.value = '';
+    fields.c1.input.focus();
+  });
+})();
+</script>
+</body>
+</html>

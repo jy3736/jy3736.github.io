@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>負柱鏡轉正柱鏡小工具</title>
+</head>
+<body>
+  <h1>負柱鏡轉正柱鏡小工具</h1>
+  <p>輸入負柱鏡處方的球面度數、柱面度數與軸度，按下「轉換處方」即可計算。</p>
+  <form id="prescription-form">
+    <p>
+      <label for="sphere">球面度數（D）</label><br>
+      <input id="sphere" name="sphere" type="number" step="any" required placeholder="例如：-2.00">
+    </p>
+    <p>
+      <label for="cylinder">柱面度數（D，請輸入負數或 0）</label><br>
+      <input id="cylinder" name="cylinder" type="number" step="any" max="0" required placeholder="例如：-1.00">
+    </p>
+    <p>
+      <label for="axis">軸度（°，1 到 180 的整數）</label><br>
+      <input id="axis" name="axis" type="number" min="1" max="180" step="1" required placeholder="例如：180">
+    </p>
+    <button type="submit">轉換處方</button>
+  </form>
+  <section aria-live="polite" aria-atomic="true">
+    <div id="result" hidden>
+      <h2>轉換後的正柱鏡處方</h2>
+      <p>新球面度數：<output id="new-sphere"></output> D</p>
+      <p>新柱面度數：<output id="new-cylinder"></output> D</p>
+      <p>新軸度：<output id="new-axis"></output>°</p>
+    </div>
+  </section>
+  <h2>計算方式</h2>
+  <ul>
+    <li>新球面度數 = 原球面度數 + 原柱面度數。</li>
+    <li>新柱面度數 = 原柱面度數變號。</li>
+    <li>新軸度 = 原軸度 + 90；超過 180 就減 180。</li>
+  </ul>
+  <p>例：球面 -2.00 D、柱面 -1.00 D、軸度 180°，轉換後為球面 -3.00 D、柱面 +1.00 D、軸度 90°。</p>
+  <p>度數顯示到小數點後兩位；計算使用你輸入的數值。</p>
+  <script>
+    const form = document.getElementById('prescription-form');
+    const sphere = document.getElementById('sphere');
+    const cylinder = document.getElementById('cylinder');
+    const axis = document.getElementById('axis');
+    const result = document.getElementById('result');
+
+    function formatPower(value) {
+      const rounded = value.toFixed(2);
+      if (Number(rounded) === 0) return '0.00';
+      return value > 0 ? '+' + rounded : rounded;
+    }
+
+    form.addEventListener('input', function () {
+      sphere.setCustomValidity('');
+      result.hidden = true;
+    });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      result.hidden = true;
+      sphere.setCustomValidity('');
+      if (!form.reportValidity()) return;
+
+      const oldSphere = sphere.valueAsNumber;
+      const oldCylinder = cylinder.valueAsNumber;
+      const oldAxis = axis.valueAsNumber;
+      const newSphere = oldSphere + oldCylinder;
+      if (!Number.isFinite(newSphere)) {
+        sphere.setCustomValidity('度數太大，請輸入較小的數值再試一次。');
+        sphere.reportValidity();
+        return;
+      }
+      let newAxis = oldAxis + 90;
+      if (newAxis > 180) newAxis -= 180;
+
+      document.getElementById('new-sphere').textContent = formatPower(newSphere);
+      document.getElementById('new-cylinder').textContent = formatPower(-oldCylinder);
+      document.getElementById('new-axis').textContent = String(newAxis);
+      result.hidden = false;
+    });
+  </script>
+</body>
+</html>
