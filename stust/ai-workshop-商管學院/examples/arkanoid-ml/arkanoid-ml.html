@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Arkanoid Learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;600;700&display=swap">
+<style>
+/* Layout: arcade cabinet screen on the left, "lab bench" instrument panel on the right; stacks on phones.
+   Single deliberate dark look (arcade CRT), so no light-theme blocks. */
+:root {
+  color-scheme: dark;
+  --ink: #0c0f24;        /* page ground */
+  --panel: #151a3a;      /* instrument panels */
+  --line: #2b3266;       /* rules, grid */
+  --fg: #e9e7f7;         /* text */
+  --muted: #9198c8;      /* secondary text */
+  --amber: #ffb547;      /* accent: paddle, primary actions */
+  --cyan: #5fe1f2;       /* model prediction */
+  --coral: #ff6b7d;      /* misses */
+  --lime: #b4f06a;
+  --violet: #a98bff;
+  --font-display: "Silkscreen", "Noto Sans TC", "Courier New", monospace;
+  --font-body: "IBM Plex Sans", "Noto Sans TC", "PingFang TC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Noto Sans TC", ui-monospace, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--ink); color: var(--fg); }
+body { font-family: var(--font-body); font-size: 15px; line-height: 1.5; padding: 24px 16px 40px; }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 5vw, 40px); letter-spacing: .02em; margin: 0; line-height: 1; text-wrap: balance; }
+h1 span { color: var(--amber); }
+.tag { color: var(--muted); margin: 0; max-width: 52ch; }
+
+.main { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .main { grid-template-columns: minmax(0, 1fr); } .screen { max-width: 480px; margin: 0 auto; width: 100%; } }
+
+.screen { position: relative; border: 2px solid var(--line); border-radius: 6px; background: var(--ink); overflow: hidden; }
+#game { display: block; width: 100%; height: auto; aspect-ratio: 480 / 600; max-width: 100%; touch-action: none; cursor: none; }
+.screen.ai #game { cursor: default; }
+
+.side { display: grid; gap: 14px; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; display: grid; gap: 12px; min-width: 0; }
+.label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+
+.modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mode { font: 600 14px var(--font-body); color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 5px; padding: 10px 8px; cursor: pointer; text-align: left; display: grid; gap: 2px; }
+.mode small { font-weight: 400; font-size: 12px; color: var(--muted); }
+.mode[aria-pressed="true"] { border-color: var(--amber); background: color-mix(in srgb, var(--amber) 14%, transparent); }
+.mode:hover { border-color: var(--muted); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { font: 600 13px var(--font-body); color: var(--ink); background: var(--amber); border: 0; border-radius: 5px; padding: 8px 12px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.btn.ghost:hover { border-color: var(--muted); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+select { font: 13px var(--font-mono); background: var(--ink); color: var(--fg); border: 1px solid var(--line); border-radius: 5px; padding: 7px 8px; }
+.check { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; }
+.stat { display: grid; gap: 0; }
+.stat b { font-family: var(--font-mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--muted); }
+.good { color: var(--cyan); } .bad { color: var(--coral); }
+.toast.err { color: var(--coral); }
+
+canvas.plot { width: 100%; max-width: 100%; display: block; }
+#errPlot { height: 200px; }
+#netPlot { height: 260px; }
+/* Panels under the game: side by side when there is room, stacked on narrow screens. */
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 14px; align-items: start; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+.card-head .label { min-width: 0; }
+.expand { flex: none; display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--font-body); color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 5px; padding: 4px 9px; cursor: pointer; }
+.expand:hover { color: var(--fg); border-color: var(--muted); }
+.expand svg { width: 13px; height: 13px; }
+.expand .ico-close { display: none; }
+.card.expanded .expand .ico-open { display: none; }
+.card.expanded .expand .ico-close { display: inline; }
+/* Expanded panel: a large overlay above the page; the game keeps running underneath. */
+.backdrop { position: fixed; inset: 0; z-index: 30; background: color-mix(in srgb, var(--ink) 82%, transparent); }
+.card.expanded { position: fixed; z-index: 40; inset: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); margin: auto; max-width: 1200px; display: flex; flex-direction: column; overflow: auto; padding: 18px 22px; box-shadow: 0 24px 60px rgba(0, 0, 0, .5); }
+.card.expanded canvas.plot { flex: 1 1 0; height: auto; min-height: 220px; }
+.card.expanded .stats { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 22px; }
+.card.expanded .stat b { font-size: clamp(26px, 4vw, 44px); }
+.card.expanded .stat span { font-size: 14px; }
+.card.expanded .legend { font-size: 13px; }
+body.has-expanded { overflow: hidden; }
+.toast:empty { display: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+
+.how { font-size: 14px; color: var(--muted); }
+.how ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.how strong { color: var(--fg); font-weight: 600; }
+.how code { font-family: var(--font-mono); font-size: 12.5px; color: var(--cyan); }
+.keys { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.head-r { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.lang { font: 600 13px var(--font-body); color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.lang:hover { border-color: var(--amber); }
+.speed { display: grid; gap: 4px; }
+.speed-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); }
+.speed-top output { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--amber); font-variant-numeric: tabular-nums; }
+#speed { width: 100%; accent-color: var(--amber); margin: 0; }
+.ticks { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.saves { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 12px; }
+.toast { font-family: var(--font-mono); font-size: 12px; color: var(--lime); min-height: 1.5em; margin: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 data-i18n-html="h1">ARKANOID <span>LEARNS</span></h1>
+    <div class="head-r">
+      <p class="tag" data-i18n="tag"></p>
+      <button class="lang" id="lang" aria-label="Switch language / 切換語言">English</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="screen" id="screen"><canvas id="game" width="480" height="600" aria-label="Arkanoid"></canvas></div>
+
+    <div class="side">
+      <section class="card" aria-labelledby="mode-h">
+        <p class="label" id="mode-h" data-i18n="modeH"></p>
+        <div class="modes">
+          <button class="mode" id="mode-manual" aria-pressed="true"><span data-i18n="manual"></span><small data-i18n="manualSub"></small></button>
+          <button class="mode" id="mode-ai" aria-pressed="false"><span data-i18n="ai"></span><small data-i18n="aiSub"></small></button>
+        </div>
+        <div class="speed">
+          <div class="speed-top"><label for="speed" data-i18n="speedL"></label><output id="speedOut" for="speed">1.00×</output></div>
+          <input type="range" id="speed" min="-2" max="6" step="0.25" value="0">
+          <div class="ticks" aria-hidden="true"><span>0.25×</span><span>1×</span><span>4×</span><span>16×</span><span>64×</span></div>
+        </div>
+        <div class="row">
+          <label class="check"><input type="checkbox" id="showPred" checked> <span data-i18n="showPred"></span></label>
+        </div>
+        <p class="keys" id="hint"></p>
+      </section>
+
+      <section class="card" id="panel-model" aria-labelledby="brain-h">
+        <div class="card-head"><p class="label" id="brain-h" data-i18n="brainH"></p><button class="expand" type="button" aria-expanded="false"><svg class="ico-open" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 2h4v4M6 14H2v-4M14 2 9 7M2 14l5-5"/></svg><svg class="ico-close" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M13 7H9V3M3 9h4v4M9 7l5-5M7 9l-5 5"/></svg><span data-i18n="expand"></span></button></div>
+        <div class="stats">
+          <div class="stat"><b id="s-throws">0</b><span data-i18n="sThrows"></span></div>
+          <div class="stat"><b id="s-samples">0</b><span data-i18n="sSamples"></span></div>
+          <div class="stat"><b id="s-steps">0</b><span data-i18n="sSteps"></span></div>
+          <div class="stat"><b id="s-err">–</b><span data-i18n="sErr"></span></div>
+          <div class="stat"><b id="s-catch">–</b><span data-i18n="sCatch"></span></div>
+          <div class="stat"><b id="s-games">0</b><span data-i18n="sGames"></span></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="pretrain" data-i18n="pretrain"></button>
+          <button class="btn ghost" id="reset" data-i18n="reset"></button>
+        </div>
+        <div class="saves">
+          <p class="label" data-i18n="saveH"></p>
+          <div class="row">
+            <button class="btn ghost" id="save" data-i18n="save"></button>
+            <button class="btn ghost" id="load" data-i18n="load"></button>
+            <button class="btn ghost" id="export" data-i18n="export"></button>
+            <button class="btn ghost" id="import" data-i18n="import"></button>
+            <input type="file" id="importFile" accept=".json,application/json" hidden>
+          </div>
+          <p class="keys" id="saveInfo"></p>
+        </div>
+        <p class="toast" id="toast" aria-live="polite"></p>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="panels">
+      <section class="card" id="panel-err" aria-labelledby="err-h">
+        <div class="card-head"><p class="label" id="err-h" data-i18n="errH"></p><button class="expand" type="button" aria-expanded="false"><svg class="ico-open" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 2h4v4M6 14H2v-4M14 2 9 7M2 14l5-5"/></svg><svg class="ico-close" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M13 7H9V3M3 9h4v4M9 7l5-5M7 9l-5 5"/></svg><span data-i18n="expand"></span></button></div>
+        <canvas class="plot" id="errPlot"></canvas>
+        <div class="legend"><span><i style="background:var(--cyan)"></i><span data-i18n="legReach"></span></span><span><i style="background:var(--coral)"></i><span data-i18n="legFar"></span></span><span data-i18n="legLine"></span></div>
+      </section>
+
+      <section class="card" id="panel-net" aria-labelledby="net-h">
+        <div class="card-head"><p class="label" id="net-h" data-i18n="netH"></p><button class="expand" type="button" aria-expanded="false"><svg class="ico-open" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 2h4v4M6 14H2v-4M14 2 9 7M2 14l5-5"/></svg><svg class="ico-close" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M13 7H9V3M3 9h4v4M9 7l5-5M7 9l-5 5"/></svg><span data-i18n="expand"></span></button></div>
+        <canvas class="plot" id="netPlot"></canvas>
+        <div class="legend"><span><i style="background:var(--amber)"></i><span data-i18n="legPos"></span></span><span><i style="background:var(--violet)"></i><span data-i18n="legNeg"></span></span><span data-i18n="legIn"></span></div>
+      </section>
+  </div>
+
+  <section class="card how" aria-labelledby="how-h">
+    <p class="label" id="how-h" data-i18n="howH"></p>
+    <ol data-i18n-html="howList"></ol>
+    <p style="margin:0" data-i18n="howNote"></p>
+  </section>
+  <div class="backdrop" id="backdrop" hidden></div>
+</div>
+
+<script>
+(() => {
+// ---------- language / 語言 ----------
+const I18N = {
+  en: {
+    h1: 'ARKANOID <span>LEARNS</span>', langBtn: '中文', expand: 'Expand', collapse: 'Close',
+    tag: 'Play it yourself, or hand the paddle to a small neural network that learns, while it plays, where the ball will land.',
+    modeH: 'Mode', manual: 'Manual', manualSub: 'Mouse, touch or ← →', ai: 'Computer (ML)', aiSub: 'Neural network plays',
+    speedL: 'Playing speed', showPred: 'Show prediction',
+    hintManual: 'Click or press Space to launch the ball. Slow the game down if it is too fast.',
+    hintAi: 'The model plays and keeps learning. Raise the speed to train faster.',
+    brainH: 'The model · MLP 4 → 20 → 20 → 1',
+    sThrows: 'throws observed', sSamples: 'training samples', sSteps: 'gradient steps',
+    sErr: 'median error, last 20', sCatch: 'AI catch rate, last 50', sGames: 'AI games played',
+    pretrain: 'Pre-train on 2,000 throws', reset: 'Reset brain',
+    errH: 'Landing prediction error per throw (px)', legReach: 'within paddle reach', legFar: 'too far off to catch',
+    legLine: 'dashed line: half the paddle width (42 px)',
+    netH: 'Network weights & live activations', legPos: 'positive weight', legNeg: 'negative weight',
+    legIn: 'inputs: ball x, y, direction dx, dy',
+    howH: 'How the computer learns',
+    howList: '<li><strong>Observe.</strong> Every few frames while the ball falls, it records the state <code>(x, y, dx, dy)</code>.</li>' +
+      '<li><strong>Label.</strong> When the ball reaches the paddle line, the true landing x becomes the label for all states from that fall. Nobody hand-labels anything: the game supplies the answer.</li>' +
+      '<li><strong>Train.</strong> 16 mini-batches of 32 samples from a replay buffer, using backpropagation and the Adam optimizer, minimizing squared error.</li>' +
+      '<li><strong>Act.</strong> While the ball falls, the paddle moves toward the predicted landing point at a capped speed, so a bad guess costs a life.</li>',
+    howNote: 'It also learns from your throws in Manual mode. Try playing a while, then switch to Computer mode.',
+    tPretraining: 'Simulating 2,000 throws and training…', tPretrained: 'Pre-trained: 2,500 gradient steps. Now switch to Computer mode.',
+    tReset: 'Brain reset. The network starts from random weights.',
+    saveH: 'Save the trained model', save: 'Save in browser', load: 'Load saved', export: 'Export file…', import: 'Import file…',
+    noSave: 'No saved model in this browser yet.', savedInfo: 'Saved in this browser: {when} · {throws} throws · {steps} steps',
+    tSaved: 'Model saved in this browser. Use “Load saved” any time later.', tLoaded: 'Loaded model from {when} ({throws} throws learned).',
+    tExported: 'Exported {file}. Keep it to load this model later or on another computer.',
+    tImported: 'Imported {file} ({throws} throws learned).', tBadFile: 'This file is not an Arkanoid model, or it does not match this network’s size.',
+    tNoSave: 'There is no saved model in this browser yet. Train one, then press “Save in browser”.',
+    tStoreFail: 'This browser blocked local storage. Use “Export file…” instead.',
+    tExportFail: 'Export is not available here. Open the game with “Play Arkanoid.command” on your Mac to export files.',
+    cScore: 'SCORE', cLv: 'LV', cAi: 'COMPUTER · ML', cManual: 'MANUAL', cOver: 'GAME OVER',
+    cRestart: 'Restarting, the model keeps what it learned…', cAgain: 'Click or press Space to play again',
+    cLaunch: 'Click or press Space to launch', cAxis: 'older ← throws → newest',
+    cEmpty: 'No throws yet. Launch the ball or pre-train.', cLand: 'land x'
+  },
+  zh: {
+    h1: '打磚塊 <span>AI 學習版</span>', langBtn: 'English', expand: '放大', collapse: '縮小',
+    tag: '自己動手玩,或把球拍交給一個小型神經網路:它會邊玩邊學,預測球會落在哪裡。',
+    modeH: '模式', manual: '手動', manualSub: '滑鼠、觸控或 ← → 鍵', ai: '電腦(機器學習)', aiSub: '由神經網路操作',
+    speedL: '遊戲速度', showPred: '顯示預測落點',
+    hintManual: '點擊畫面或按空白鍵發球。太快的話可以把速度調慢。',
+    hintAi: '模型邊玩邊學。調高速度可以加快訓練。',
+    brainH: '模型 · 多層感知器 MLP 4 → 20 → 20 → 1',
+    sThrows: '已觀察的落球次數', sSamples: '訓練樣本數', sSteps: '梯度更新次數',
+    sErr: '誤差中位數(近 20 球)', sCatch: 'AI 接球率(近 50 球)', sGames: 'AI 已玩局數',
+    pretrain: '預先訓練 2,000 球', reset: '重置模型',
+    errH: '每球的落點預測誤差(像素)', legReach: '球拍接得到', legFar: '偏差太大,接不到',
+    legLine: '虛線:球拍寬度的一半(42 px)',
+    netH: '網路權重與即時激活值', legPos: '正權重', legNeg: '負權重',
+    legIn: '輸入:球的位置 x、y 與方向 dx、dy',
+    howH: '電腦如何學習',
+    howList: '<li><strong>觀察。</strong>球往下掉時,每隔幾個畫面記錄一次狀態 <code>(x, y, dx, dy)</code>。</li>' +
+      '<li><strong>標記。</strong>球到達球拍高度時,真實的落點 x 就成為這一趟所有狀態的標籤。不需要人工標記,答案由遊戲本身提供。</li>' +
+      '<li><strong>訓練。</strong>從經驗回放緩衝區抽取 16 個小批次(每批 32 筆樣本),用反向傳播與 Adam 最佳化器把平方誤差降到最低。</li>' +
+      '<li><strong>行動。</strong>球下落時,球拍以有上限的速度移向預測落點,所以猜錯就會少一條命。</li>',
+    howNote: '在手動模式下,它也會從你打的球學習。可以先自己玩一陣子,再切換到電腦模式。',
+    tPretraining: '正在模擬 2,000 球並訓練…', tPretrained: '預先訓練完成:共 2,500 次梯度更新。現在切換到電腦模式看看。',
+    tReset: '模型已重置,網路從隨機權重重新開始。',
+    saveH: '儲存訓練好的模型', save: '儲存到瀏覽器', load: '載入已儲存', export: '匯出檔案…', import: '匯入檔案…',
+    noSave: '這個瀏覽器還沒有儲存的模型。', savedInfo: '已儲存在此瀏覽器:{when} · 學過 {throws} 球 · {steps} 次更新',
+    tSaved: '模型已儲存在此瀏覽器,之後隨時按「載入已儲存」即可使用。', tLoaded: '已載入 {when} 儲存的模型(學過 {throws} 球)。',
+    tExported: '已匯出 {file}。保留這個檔案,之後或在其他電腦上都能載入這個模型。',
+    tImported: '已匯入 {file}(學過 {throws} 球)。', tBadFile: '這個檔案不是打磚塊模型,或與目前網路的大小不符。',
+    tNoSave: '這個瀏覽器還沒有儲存的模型。請先訓練,再按「儲存到瀏覽器」。',
+    tStoreFail: '這個瀏覽器封鎖了本機儲存,請改用「匯出檔案…」。',
+    tExportFail: '這裡無法匯出檔案。請在 Mac 上用「Play Arkanoid.command」開啟遊戲再匯出。',
+    cScore: '分數', cLv: '關卡', cAi: '電腦 · 機器學習', cManual: '手動', cOver: '遊戲結束',
+    cRestart: '重新開始中,模型會保留已學到的內容…', cAgain: '點擊或按空白鍵再玩一次',
+    cLaunch: '點擊或按空白鍵發球', cAxis: '較舊 ← 落球 → 最新',
+    cEmpty: '還沒有資料。請發球或先預先訓練。', cLand: '落點 x'
+  }
+};
+let lang = 'zh';
+try { const saved = localStorage.getItem('arkanoid-lang'); if (saved in I18N) lang = saved; } catch (e) {}
+const t = k => I18N[lang][k];
+const cjk = () => lang === 'zh' ? '"Noto Sans TC", "PingFang TC", ' : '';
+const fDisplay = px => `${px}px ${lang === 'zh' ? '"Noto Sans TC", "PingFang TC", sans-serif' : 'Silkscreen, monospace'}`;
+const fBody = px => `${px}px ${cjk()}"IBM Plex Sans", sans-serif`;
+const fMono = px => `${px}px "IBM Plex Mono", ${cjk()}monospace`;
+let toastKey = '', toastVars = {}, toastErr = false;
+
+// ---------- constants ----------
+const W = 480, H = 600, PY = H - 36, PW = 84, PH = 12, R = 6;
+const COLS = 8, ROWS = 6, BTOP = 64, BH = 18, BGAP = 4, BSIDE = 14;
+const BW = (W - 2 * BSIDE - (COLS - 1) * BGAP) / COLS;
+const TOPZ = BTOP + ROWS * (BH + BGAP) + 6;        // samples only below the brick wall
+const PADDLE_MAX = 8;                               // AI paddle speed cap (px/step)
+const MAX_ANGLE = Math.PI / 3;                      // 60° from vertical
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = { ink: css('--ink'), panel: css('--panel'), line: css('--line'), fg: css('--fg'), muted: css('--muted'),
+  amber: css('--amber'), cyan: css('--cyan'), coral: css('--coral'), lime: css('--lime'), violet: css('--violet') };
+const ROW_COLORS = [C.coral, C.amber, C.lime, C.cyan, C.violet, C.fg];
+
+// ---------- neural network (MLP, tanh hidden, linear out, Adam) ----------
+class MLP {
+  constructor(sizes, lr = 0.003) { this.sizes = sizes; this.lr = lr; this.reset(); }
+  reset() {
+    const s = this.sizes; this.W = []; this.b = []; this.m = []; this.v = []; this.t = 0;
+    for (let l = 0; l < s.length - 1; l++) {
+      const n = s[l], o = s[l + 1], sc = Math.sqrt(1 / n) * 1.7;
+      const w = new Float64Array(n * o);
+      for (let i = 0; i < w.length; i++) w[i] = (Math.random() * 2 - 1) * sc;
+      this.W.push(w); this.b.push(new Float64Array(o));
+      this.m.push([new Float64Array(n * o), new Float64Array(o)]);
+      this.v.push([new Float64Array(n * o), new Float64Array(o)]);
+    }
+    this.acts = s.map(n => new Float64Array(n));
+  }
+  forward(x) {
+    const L = this.W.length, a = [Float64Array.from(x)];
+    for (let l = 0; l < L; l++) {
+      const n = this.sizes[l], o = this.sizes[l + 1], w = this.W[l], b = this.b[l], inp = a[l], out = new Float64Array(o);
+      for (let j = 0; j < o; j++) { let s = b[j]; for (let i = 0; i < n; i++) s += w[j * n + i] * inp[i]; out[j] = l < L - 1 ? Math.tanh(s) : s; }
+      a.push(out);
+    }
+    this.acts = a; return a[L][0];
+  }
+  trainBatch(batch) {
+    const L = this.W.length;
+    const gW = this.W.map(w => new Float64Array(w.length)), gb = this.b.map(b => new Float64Array(b.length));
+    let loss = 0;
+    for (const [x, y] of batch) {
+      const p = this.forward(x), a = this.acts;
+      let d = new Float64Array([p - y]); loss += (p - y) ** 2;
+      for (let l = L - 1; l >= 0; l--) {
+        const n = this.sizes[l], o = this.sizes[l + 1], w = this.W[l], inp = a[l], nd = new Float64Array(n);
+        for (let j = 0; j < o; j++) { gb[l][j] += d[j]; for (let i = 0; i < n; i++) { gW[l][j * n + i] += d[j] * inp[i]; nd[i] += w[j * n + i] * d[j]; } }
+        if (l > 0) for (let i = 0; i < n; i++) nd[i] *= 1 - inp[i] * inp[i];
+        d = nd;
+      }
+    }
+    this.t++;
+    const B = batch.length, b1 = 0.9, b2 = 0.999, c1 = 1 - b1 ** this.t, c2 = 1 - b2 ** this.t;
+    const upd = (p, g, m, v) => { for (let i = 0; i < p.length; i++) { const gi = g[i] / B; m[i] = b1 * m[i] + (1 - b1) * gi; v[i] = b2 * v[i] + (1 - b2) * gi * gi; p[i] -= this.lr * (m[i] / c1) / (Math.sqrt(v[i] / c2) + 1e-8); } };
+    for (let l = 0; l < L; l++) { upd(this.W[l], gW[l], this.m[l][0], this.v[l][0]); upd(this.b[l], gb[l], this.m[l][1], this.v[l][1]); }
+    return loss / B;
+  }
+}
+
+const net = new MLP([4, 20, 20, 1]);
+const BUF_MAX = 20000;
+let buffer = [];
+const ml = { throws: 0, steps: 0, errs: [], catches: [], games: 0 };
+const features = (x, y, vx, vy) => { const s = Math.hypot(vx, vy); return [x / W * 2 - 1, y / H * 2 - 1, vx / s, vy / s]; };
+const predictX = (b) => Math.max(R, Math.min(W - R, net.forward(features(b.x, b.y, b.vx, b.vy)) * W));
+
+function addSamples(samples) {
+  for (const s of samples) { if (buffer.length < BUF_MAX) buffer.push(s); else buffer[Math.random() * BUF_MAX | 0] = s; }
+}
+function train(iters) {
+  if (buffer.length < 32) return;
+  for (let k = 0; k < iters; k++) {
+    const batch = []; for (let i = 0; i < 32; i++) batch.push(buffer[Math.random() * buffer.length | 0]);
+    net.trainBatch(batch); ml.steps++;
+  }
+}
+
+// ---------- game state ----------
+const cv = document.getElementById('game'), g = cv.getContext('2d');
+let mode = 'manual', speedMul = 1, showPred = true;
+let game, ball, paddle, pending, descent, keys = {}, pointerX = null, aiTimer = 0, overTimer = 0, lastLanding = null;
+
+function makeBricks() {
+  const out = [];
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++)
+    out.push({ x: BSIDE + c * (BW + BGAP), y: BTOP + r * (BH + BGAP), alive: true, row: r });
+  return out;
+}
+function newGame() {
+  game = { score: 0, lives: 3, level: 1, speed: 5, over: false, bricks: makeBricks() };
+  paddle = { x: W / 2 };
+  resetBall();
+}
+function resetBall() {
+  ball = { x: paddle.x, y: PY - R - 1, vx: 0, vy: 0, stuck: true };
+  pending = []; descent = null; aiTimer = 0;
+}
+function launch() {
+  if (!ball.stuck || game.over) return;
+  const a = (Math.random() * 2 - 1) * MAX_ANGLE * 0.7;
+  ball.vx = game.speed * Math.sin(a); ball.vy = -game.speed * Math.cos(a); ball.stuck = false;
+}
+
+// ---------- one physics step ----------
+function step() {
+  if (game.over) {
+    if (mode === 'ai' && ++overTimer > 40) { overTimer = 0; ml.games++; newGame(); }
+    return;
+  }
+  // paddle control
+  let target = paddle.x;
+  if (mode === 'manual') {
+    if (pointerX !== null) target = pointerX;
+    if (keys.left) target = paddle.x - 9;
+    if (keys.right) target = paddle.x + 9;
+    paddle.x = target;
+  } else {
+    if (ball.vy > 0 && !ball.stuck) target = predictX(ball) + (descent ? descent.aim : 0);
+    else if (!ball.stuck) target = W / 2;
+    const d = target - paddle.x;
+    paddle.x += Math.max(-PADDLE_MAX, Math.min(PADDLE_MAX, d));
+  }
+  paddle.x = Math.max(PW / 2, Math.min(W - PW / 2, paddle.x));
+
+  if (ball.stuck) {
+    ball.x = paddle.x; ball.y = PY - R - 1;
+    if (mode === 'ai' && ++aiTimer > 30) launch();
+    return;
+  }
+
+  const prevY = ball.y, prevVy = ball.vy;
+  ball.x += ball.vx; ball.y += ball.vy;
+  if (ball.x < R) { ball.x = R; ball.vx = Math.abs(ball.vx); }
+  if (ball.x > W - R) { ball.x = W - R; ball.vx = -Math.abs(ball.vx); }
+  if (ball.y < R) { ball.y = R; ball.vy = Math.abs(ball.vy); }
+
+  // bricks
+  for (const b of game.bricks) {
+    if (!b.alive) continue;
+    const cx = Math.max(b.x, Math.min(ball.x, b.x + BW)), cy = Math.max(b.y, Math.min(ball.y, b.y + BH));
+    const dx = ball.x - cx, dy = ball.y - cy;
+    if (dx * dx + dy * dy <= R * R) {
+      b.alive = false; game.score += 10 * (ROWS - b.row);
+      const ox = Math.min(ball.x + R - b.x, b.x + BW - (ball.x - R));
+      const oy = Math.min(ball.y + R - b.y, b.y + BH - (ball.y - R));
+      if (ox < oy) ball.vx = -ball.vx; else ball.vy = -ball.vy;
+      pending = []; descent = null;            // trajectory changed: discard unlabeled states
+      break;
+    }
+  }
+  if (game.bricks.every(b => !b.alive)) {
+    game.level++; game.speed = Math.min(8, game.speed + 0.5); game.bricks = makeBricks(); resetBall(); return;
+  }
+
+  // a new fall begins
+  if (ball.vy > 0 && prevVy <= 0) { descent = { aim: (Math.random() * 2 - 1) * PW * 0.32, firstPred: null, k: 0 }; pending = []; }
+
+  // observe states during the fall
+  if (ball.vy > 0 && ball.y > TOPZ && ball.y < PY - R && descent) {
+    if (descent.k++ % 3 === 0) {
+      const f = features(ball.x, ball.y, ball.vx, ball.vy);
+      if (descent.firstPred === null) descent.firstPred = predictX(ball);
+      pending.push(f);
+    }
+  }
+
+  // reaching the paddle line: label + learn + bounce
+  if (ball.vy > 0 && prevY < PY - R && ball.y >= PY - R) {
+    const landX = ball.x;
+    if (pending.length) {
+      addSamples(pending.map(f => [f, landX / W]));
+      ml.throws++;
+      if (descent && descent.firstPred !== null) { ml.errs.push(Math.abs(descent.firstPred - landX)); if (ml.errs.length > 160) ml.errs.shift(); }
+      train(16);
+    }
+    lastLanding = { x: landX, t: 30 };
+    pending = []; descent = null;
+    const rel = (landX - paddle.x) / (PW / 2 + R);
+    const caught = Math.abs(rel) <= 1;
+    if (mode === 'ai') { ml.catches.push(caught ? 1 : 0); if (ml.catches.length > 50) ml.catches.shift(); }
+    if (caught) {
+      const a = Math.max(-1, Math.min(1, rel)) * MAX_ANGLE;
+      ball.vx = game.speed * Math.sin(a); ball.vy = -game.speed * Math.cos(a); ball.y = PY - R;
+    }
+  }
+
+  if (ball.y > H + R) {
+    game.lives--;
+    if (game.lives <= 0) { game.over = true; overTimer = 0; } else resetBall();
+  }
+}
+
+// ---------- rendering ----------
+function draw() {
+  g.fillStyle = C.ink; g.fillRect(0, 0, W, H);
+  // faint grid
+  g.strokeStyle = C.line; g.globalAlpha = 0.35; g.lineWidth = 1;
+  for (let x = 40; x < W; x += 40) { g.beginPath(); g.moveTo(x + .5, 0); g.lineTo(x + .5, H); g.stroke(); }
+  g.globalAlpha = 1;
+  // HUD
+  g.font = fDisplay(14); g.fillStyle = C.muted; g.textBaseline = 'top';
+  g.textAlign = 'left'; g.fillText(t('cScore') + ' ' + String(game.score).padStart(5, '0'), 14, 16);
+  g.textAlign = 'center'; g.fillText(t('cLv') + ' ' + game.level, W / 2, 16);
+  g.textAlign = 'right'; g.fillText('♥'.repeat(Math.max(0, game.lives)), W - 14, 16);
+  g.textAlign = 'left';
+  g.fillStyle = mode === 'ai' ? C.cyan : C.amber; g.font = fMono(11);
+  g.fillText(mode === 'ai' ? t('cAi') : t('cManual'), 14, 36);
+  // bricks
+  for (const b of game.bricks) {
+    if (!b.alive) continue;
+    g.fillStyle = ROW_COLORS[b.row]; g.fillRect(b.x, b.y, BW, BH);
+    g.fillStyle = 'rgba(255,255,255,.25)'; g.fillRect(b.x, b.y, BW, 3);
+    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(b.x, b.y + BH - 3, BW, 3);
+  }
+  // paddle line
+  g.strokeStyle = C.line; g.setLineDash([4, 6]); g.beginPath(); g.moveTo(0, PY - .5); g.lineTo(W, PY - .5); g.stroke(); g.setLineDash([]);
+  // prediction
+  if (showPred && !ball.stuck && ball.vy > 0 && ball.y > TOPZ - 40 && !game.over) {
+    const px = predictX(ball);
+    g.strokeStyle = C.cyan; g.globalAlpha = .45; g.setLineDash([3, 5]);
+    g.beginPath(); g.moveTo(ball.x, ball.y); g.lineTo(px, PY); g.stroke(); g.setLineDash([]); g.globalAlpha = 1;
+    g.fillStyle = C.cyan; g.beginPath(); g.moveTo(px, PY - 2); g.lineTo(px - 7, PY + 10); g.lineTo(px + 7, PY + 10); g.closePath(); g.fill();
+  }
+  if (lastLanding && lastLanding.t > 0) {
+    g.globalAlpha = lastLanding.t / 30; g.strokeStyle = C.fg; g.beginPath(); g.arc(lastLanding.x, PY, 10 + (30 - lastLanding.t) * .6, 0, Math.PI * 2); g.stroke(); g.globalAlpha = 1;
+    lastLanding.t--;
+  }
+  // paddle
+  g.fillStyle = C.amber; roundRect(paddle.x - PW / 2, PY, PW, PH, 4); g.fill();
+  g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(paddle.x - PW / 2 + 4, PY + 2, PW - 8, 2);
+  // ball
+  g.fillStyle = C.fg; g.beginPath(); g.arc(ball.x, ball.y, R, 0, Math.PI * 2); g.fill();
+  // overlays
+  g.textAlign = 'center';
+  if (game.over) {
+    g.fillStyle = 'rgba(12,15,36,.75)'; g.fillRect(0, H / 2 - 50, W, 100);
+    g.fillStyle = C.coral; g.font = fDisplay(28); g.fillText(t('cOver'), W / 2, H / 2 - 26);
+    g.fillStyle = C.muted; g.font = fBody(13);
+    g.fillText(mode === 'ai' ? t('cRestart') : t('cAgain'), W / 2, H / 2 + 12);
+  } else if (ball.stuck && mode === 'manual') {
+    g.fillStyle = C.muted; g.font = fBody(13); g.fillText(t('cLaunch'), W / 2, H / 2 + 60);
+  }
+  g.textAlign = 'left';
+}
+function roundRect(x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+
+// error chart
+// Size a chart canvas to its on-screen box at device resolution; drawing uses CSS pixels.
+function fitCanvas(cv, ctx) {
+  const dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = cv.clientHeight;
+  if (!w || !h) return false;
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); cv.cssW = w; cv.cssH = h;
+  return true;
+}
+const ep = document.getElementById('errPlot'), eg = ep.getContext('2d');
+function drawErr() {
+  if (!fitCanvas(ep, eg)) return;
+  const w = ep.cssW, h = ep.cssH, k = Math.min(1.5, Math.max(1, w / 640)), l = 40 * k, r = 10, tp = 10, b = 24 * k, maxY = 240, N = 160;
+  eg.fillStyle = C.panel; eg.fillRect(0, 0, w, h);
+  const y = v => tp + (1 - Math.min(v, maxY) / maxY) * (h - tp - b);
+  eg.font = fMono(Math.round(11 * k)); eg.fillStyle = C.muted; eg.textAlign = 'right'; eg.textBaseline = 'middle';
+  for (const v of [0, 60, 120, 180, 240]) { eg.strokeStyle = C.line; eg.beginPath(); eg.moveTo(l, y(v) + .5); eg.lineTo(w - r, y(v) + .5); eg.stroke(); eg.fillText(v === 240 ? '240+' : v, l - 6, y(v)); }
+  eg.strokeStyle = C.cyan; eg.setLineDash([5, 4]); eg.beginPath(); eg.moveTo(l, y(42)); eg.lineTo(w - r, y(42)); eg.stroke(); eg.setLineDash([]);
+  eg.textAlign = 'left'; eg.textBaseline = 'alphabetic'; eg.fillStyle = C.muted;
+  eg.fillText(t('cAxis'), l, h - 6);
+  const errs = ml.errs, step = (w - l - r) / (N - 1), off = N - errs.length;
+  if (!errs.length) { eg.textAlign = 'center'; eg.fillText(t('cEmpty'), (w + l) / 2, h / 2); return; }
+  // rolling median line
+  eg.strokeStyle = C.fg; eg.globalAlpha = .7; eg.lineWidth = 1.5; eg.beginPath();
+  errs.forEach((_, i) => { const win = errs.slice(Math.max(0, i - 9), i + 1).slice().sort((a, c) => a - c); const m = win[win.length >> 1]; const X = l + (off + i) * step; i ? eg.lineTo(X, y(m)) : eg.moveTo(X, y(m)); });
+  eg.stroke(); eg.globalAlpha = 1; eg.lineWidth = 1;
+  errs.forEach((e, i) => { eg.fillStyle = e <= 42 ? C.cyan : C.coral; eg.beginPath(); eg.arc(l + (off + i) * step, y(e), 2.6 * k, 0, Math.PI * 2); eg.fill(); });
+}
+
+// network viz
+const np = document.getElementById('netPlot'), ng = np.getContext('2d');
+function drawNet() {
+  if (!fitCanvas(np, ng)) return;
+  const w = np.cssW, h = np.cssH, sizes = net.sizes, L = sizes.length, k = Math.min(1.8, Math.max(1, h / 260));
+  ng.fillStyle = C.panel; ng.fillRect(0, 0, w, h);
+  ng.font = fMono(Math.round(11 * Math.min(k, 1.4)));
+  const right = ng.measureText(t('cLand')).width + 22 * k;   // room for the output label
+  const xs = sizes.map((_, i) => 46 + i * (w - 46 - right) / (L - 1));
+  const pos = (l, i) => [xs[l], 14 + (sizes[l] === 1 ? (h - 28) / 2 : i * (h - 28) / (sizes[l] - 1))];
+  for (let l = 0; l < L - 1; l++) {
+    const n = sizes[l], o = sizes[l + 1], Wt = net.W[l];
+    for (let j = 0; j < o; j++) for (let i = 0; i < n; i++) {
+      const v = Wt[j * n + i], [x1, y1] = pos(l, i), [x2, y2] = pos(l + 1, j);
+      ng.strokeStyle = v > 0 ? C.amber : C.violet; ng.globalAlpha = Math.min(.8, Math.abs(v) * .35);
+      ng.beginPath(); ng.moveTo(x1, y1); ng.lineTo(x2, y2); ng.stroke();
+    }
+  }
+  ng.globalAlpha = 1;
+  const names = ['x', 'y', 'dx', 'dy'];
+  ng.font = fMono(Math.round(11 * Math.min(k, 1.4))); ng.textBaseline = 'middle';
+  for (let l = 0; l < L; l++) for (let i = 0; i < sizes[l]; i++) {
+    const [x, y] = pos(l, i), a = net.acts[l] ? net.acts[l][i] : 0;
+    const rr = (l === 0 || l === L - 1 ? 6 : 4) * k;
+    ng.fillStyle = C.ink; ng.beginPath(); ng.arc(x, y, rr, 0, Math.PI * 2); ng.fill();
+    ng.fillStyle = a >= 0 ? C.amber : C.violet; ng.globalAlpha = Math.min(1, Math.abs(a)); ng.beginPath(); ng.arc(x, y, rr, 0, Math.PI * 2); ng.fill(); ng.globalAlpha = 1;
+    ng.strokeStyle = C.muted; ng.beginPath(); ng.arc(x, y, rr, 0, Math.PI * 2); ng.stroke();
+    if (l === 0) { ng.fillStyle = C.fg; ng.textAlign = 'right'; ng.fillText(names[i], x - 8 - rr, y); }
+  }
+  ng.fillStyle = C.fg; ng.textAlign = 'left'; ng.fillText(t('cLand'), xs[L - 1] + 6 + 6 * k, h / 2);
+}
+
+// stats
+const $ = id => document.getElementById(id);
+function updateStats() {
+  $('s-throws').textContent = ml.throws.toLocaleString();
+  $('s-samples').textContent = buffer.length.toLocaleString();
+  $('s-steps').textContent = ml.steps.toLocaleString();
+  const last = ml.errs.slice(-20).sort((a, b) => a - b);
+  const e = $('s-err');
+  if (last.length) { const m = last[last.length >> 1]; e.textContent = m.toFixed(0) + ' px'; e.className = m <= 42 ? 'good' : 'bad'; } else { e.textContent = '–'; e.className = ''; }
+  const c = $('s-catch');
+  if (ml.catches.length) { const r = ml.catches.reduce((a, b) => a + b, 0) / ml.catches.length; c.textContent = Math.round(r * 100) + '%'; c.className = r >= .8 ? 'good' : r < .5 ? 'bad' : ''; } else { c.textContent = '–'; c.className = ''; }
+  $('s-games').textContent = ml.games;
+}
+
+// ---------- loop ----------
+let frame = 0, stepAcc = 0;
+function loop() {
+  stepAcc += speedMul;
+  const n = Math.min(64, Math.floor(stepAcc)); stepAcc -= n;
+  for (let i = 0; i < n; i++) step();
+  draw();
+  if (frame % 6 === 0) { drawErr(); drawNet(); updateStats(); }
+  frame++;
+  requestAnimationFrame(loop);
+}
+
+// ---------- offline pre-training ----------
+function simulateThrow() {
+  let x = R + Math.random() * (W - 2 * R), y = TOPZ + Math.random() * (PY - R - TOPZ - 20);
+  const a = (Math.random() * 2 - 1) * MAX_ANGLE, s = 5;
+  let vx = s * Math.sin(a), vy = s * Math.cos(a), k = 0; const fs = [];
+  while (y < PY - R) { if (k++ % 3 === 0) fs.push(features(x, y, vx, vy)); x += vx; y += vy; if (x < R) { x = R; vx = -vx; } if (x > W - R) { x = W - R; vx = -vx; } }
+  return { fs, land: x, first: fs[0] };
+}
+$('pretrain').addEventListener('click', () => {
+  const btn = $('pretrain'); btn.disabled = true; setToast('tPretraining');
+  setTimeout(() => {
+    for (let i = 0; i < 2000; i++) { const t = simulateThrow(); addSamples(t.fs.map(f => [f, t.land / W])); }
+    ml.throws += 2000; train(2500);
+    for (let i = 0; i < 40; i++) { const t = simulateThrow(); ml.errs.push(Math.abs(net.forward(t.first) * W - t.land)); }
+    while (ml.errs.length > 160) ml.errs.shift();
+    btn.disabled = false; setToast('tPretrained');
+  }, 30);
+});
+$('reset').addEventListener('click', () => {
+  net.reset(); buffer = []; Object.assign(ml, { throws: 0, steps: 0, errs: [], catches: [], games: 0 });
+  setToast('tReset');
+});
+
+// ---------- input & mode ----------
+function setMode(m) {
+  mode = m;
+  $('mode-manual').setAttribute('aria-pressed', m === 'manual');
+  $('mode-ai').setAttribute('aria-pressed', m === 'ai');
+  $('screen').classList.toggle('ai', m === 'ai');
+  $('hint').textContent = t(m === 'ai' ? 'hintAi' : 'hintManual');
+  ml.catches = []; newGame();
+}
+$('mode-manual').addEventListener('click', () => setMode('manual'));
+$('mode-ai').addEventListener('click', () => setMode('ai'));
+// ---------- save / load the trained model ----------
+const SAVE_KEY = 'arkanoid-model';
+const fmtWhen = iso => new Date(iso).toLocaleString(lang === 'zh' ? 'zh-TW' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' });
+function serialize() {
+  return {
+    format: 'arkanoid-learns-mlp', version: 1, savedAt: new Date().toISOString(),
+    sizes: net.sizes, lr: net.lr,
+    weights: net.W.map(a => Array.from(a)), biases: net.b.map(a => Array.from(a)),
+    adam: { t: net.t, m: net.m.map(p => p.map(a => Array.from(a))), v: net.v.map(p => p.map(a => Array.from(a))) },
+    stats: { throws: ml.throws, steps: ml.steps, games: ml.games }
+  };
+}
+function deserialize(d) {
+  const ok = d && d.format === 'arkanoid-learns-mlp' && Array.isArray(d.sizes) && d.sizes.join() === net.sizes.join() &&
+    d.weights?.length === net.W.length && d.weights.every((w, l) => w.length === net.W[l].length) &&
+    d.biases?.length === net.b.length && d.biases.every((b, l) => b.length === net.b[l].length);
+  if (!ok) return false;
+  net.W = d.weights.map(a => Float64Array.from(a)); net.b = d.biases.map(a => Float64Array.from(a));
+  if (d.adam && d.adam.m && d.adam.v) {
+    net.t = d.adam.t; net.m = d.adam.m.map(p => p.map(a => Float64Array.from(a))); net.v = d.adam.v.map(p => p.map(a => Float64Array.from(a)));
+  } else { net.t = 0; net.m = net.W.map((w, l) => [new Float64Array(w.length), new Float64Array(net.b[l].length)]); net.v = net.W.map((w, l) => [new Float64Array(w.length), new Float64Array(net.b[l].length)]); }
+  const st = d.stats || {};
+  Object.assign(ml, { throws: st.throws || 0, steps: st.steps || 0, games: st.games || 0, errs: [], catches: [] });
+  buffer = [];   // replay samples are not saved; the network keeps learning from new throws
+  return true;
+}
+function readSaved() { try { const raw = localStorage.getItem(SAVE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+function showSaveInfo() {
+  const d = readSaved();
+  $('saveInfo').textContent = d ? fill('savedInfo', { when: fmtWhen(d.savedAt), throws: (d.stats?.throws || 0).toLocaleString(), steps: (d.stats?.steps || 0).toLocaleString() }) : t('noSave');
+  $('load').disabled = !d;
+}
+$('save').addEventListener('click', () => {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(serialize())); setToast('tSaved'); }
+  catch (e) { setToast('tStoreFail', {}, true); }
+  showSaveInfo();
+});
+$('load').addEventListener('click', () => {
+  const d = readSaved();
+  if (!d) { setToast('tNoSave', {}, true); return; }
+  if (deserialize(d)) setToast('tLoaded', { when: fmtWhen(d.savedAt), throws: ml.throws.toLocaleString() });
+  else setToast('tBadFile', {}, true);
+});
+// Inside the claude.ai viewer, files go through the `downloads` capability; opened locally, a normal download link.
+const framed = window.top !== window;
+let downloadsApi = null;
+if (framed && window.claude?.use) window.claude.use('downloads').then(d => { downloadsApi = d; }).catch(() => {});
+$('export').addEventListener('click', async () => {
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+  const file = `arkanoid-model-${stamp}.json`;
+  const json = JSON.stringify(serialize(), null, 1);
+  if (framed) {
+    if (!downloadsApi) { setToast('tExportFail', {}, true); return; }
+    try { await downloadsApi.save({ filename: file, data: json }); setToast('tExported', { file }); }
+    catch (e) { if (e?.code !== 'declined') setToast('tExportFail', {}, true); }
+    return;
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = file; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    setToast('tExported', { file });
+  } catch (e) { setToast('tExportFail', {}, true); }
+});
+$('import').addEventListener('click', () => $('importFile').click());
+$('importFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try { const d = JSON.parse(await f.text()); if (deserialize(d)) { setToast('tImported', { file: f.name, throws: ml.throws.toLocaleString() }); return; } } catch (err) {}
+  setToast('tBadFile', {}, true);
+});
+
+function setSpeed() {
+  const v = +$('speed').value; speedMul = 2 ** v;
+  $('speedOut').textContent = (speedMul < 10 ? speedMul.toFixed(2) : speedMul.toFixed(0)) + '×';
+}
+$('speed').addEventListener('input', setSpeed);
+setSpeed();
+
+const fill = (k, v = {}) => t(k).replace(/\{(\w+)\}/g, (_, n) => v[n] ?? '');
+function setToast(k, vars = {}, err = false) {
+  toastKey = k; toastVars = vars; toastErr = err;
+  $('toast').textContent = k ? fill(k, vars) : ''; $('toast').classList.toggle('err', err);
+}
+function applyLang() {
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hant-TW' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  $('lang').textContent = t('langBtn');
+  $('hint').textContent = t(mode === 'ai' ? 'hintAi' : 'hintManual');
+  setToast(toastKey, toastVars, toastErr);
+  showSaveInfo();
+  if (expanded) expanded.querySelector('.expand span').textContent = t('collapse');
+  drawErr(); drawNet();
+}
+$('lang').addEventListener('click', () => {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  try { localStorage.setItem('arkanoid-lang', lang); } catch (e) {}
+  applyLang();
+});
+$('showPred').addEventListener('change', e => showPred = e.target.checked);
+
+const toLogical = clientX => { const r = cv.getBoundingClientRect(); return (clientX - r.left) / r.width * W; };
+cv.addEventListener('pointermove', e => { pointerX = toLogical(e.clientX); });
+cv.addEventListener('pointerdown', e => { pointerX = toLogical(e.clientX); if (mode !== 'manual') return; if (game.over) newGame(); else launch(); });
+// ---------- expandable panels ----------
+let expanded = null;
+function setExpanded(card) {
+  if (expanded) {
+    expanded.classList.remove('expanded');
+    const b = expanded.querySelector('.expand'); b.setAttribute('aria-expanded', 'false'); b.querySelector('span').textContent = t('expand');
+  }
+  const prev = expanded; expanded = card;
+  if (card) {
+    card.classList.add('expanded');
+    const b = card.querySelector('.expand'); b.setAttribute('aria-expanded', 'true'); b.querySelector('span').textContent = t('collapse'); b.focus();
+  } else if (prev) prev.querySelector('.expand').focus();
+  $('backdrop').hidden = !card;
+  document.body.classList.toggle('has-expanded', !!card);
+  drawErr(); drawNet();
+}
+document.querySelectorAll('.expand').forEach(b => b.addEventListener('click', () => {
+  const card = b.closest('.card'); setExpanded(expanded === card ? null : card);
+}));
+$('backdrop').addEventListener('click', () => setExpanded(null));
+new ResizeObserver(() => { drawErr(); drawNet(); }).observe(ep);
+new ResizeObserver(() => drawNet()).observe(np);
+
+addEventListener('keydown', e => {
+  if (e.key === 'Escape' && expanded) { setExpanded(null); return; }
+  if (['ArrowLeft', 'a', 'A'].includes(e.key)) { keys.left = true; pointerX = null; }
+  if (['ArrowRight', 'd', 'D'].includes(e.key)) { keys.right = true; pointerX = null; }
+  if (e.code === 'Space' && mode === 'manual' && !['INPUT', 'SELECT'].includes(e.target.tagName)) { e.preventDefault(); if (game.over) newGame(); else launch(); }
+});
+addEventListener('keyup', e => {
+  if (['ArrowLeft', 'a', 'A'].includes(e.key)) keys.left = false;
+  if (['ArrowRight', 'd', 'D'].includes(e.key)) keys.right = false;
+});
+
+setMode('manual');
+applyLang();
+loop();
+})();
+</script>
+
+</html>
