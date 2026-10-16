@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
+<title>補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例 · 深度導讀 · 講稿</title>
+<meta name="description" content="適合零程式經驗參與者的深度導讀逐字稿">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+
+/* Shared additions (2026-10-11 restructure): pending sections, illustration notices, sidebar notes. */
+.pending { color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; margin: 0.8rem 0; }
+.callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
+.side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">智慧雨林 AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="講義首頁"><span>首頁</span></a>
+<a href="unit01.html" title="模組 01｜從 Chatbot 到 Agentic AI"><span>01 Agentic AI</span></a>
+<a href="unit02.html" title="模組 02｜VS Code 與工作空間"><span>02 共用專案</span></a>
+<a href="unit03.html" title="模組 03｜從 Gems、GPTs 到自己的第一個 Skill"><span>03 Skill 潮流</span></a>
+<a href="unit04.html" title="模組 04｜建構 RAG 式 Smart TA"><span>04 教學助理</span></a>
+<a href="unit05.html" title="模組 05｜讓教材上線"><span>05 發布教材</span></a>
+<a href="unit06.html" title="模組 06｜AI 專題：照護場域排班小工具"><span>06 排班工具</span></a>
+<a href="unit07.html" title="模組 07｜AI 專題：照護紀錄草稿填寫工具"><span>07 照護紀錄</span></a>
+<a href="supplement01.html" title="補充 1｜AI 寫完程式之後呢？從 ArtCraft 看人工審查、測試與維護的重要性"><span>補充 1 人工審查</span></a>
+<a href="supplement02.html" title="補充 2｜從 ArtCraft 到 REA：AI 能複製軟體，人還要負責什麼？"><span>補充 2 人的責任</span></a>
+<a href="supplement03.html" title="補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例" aria-current="page"><span>補充 3 AI 繪圖</span></a>
+<a href="supplement04.html" title="補充 4｜用 AI Agent 逐步打造前後測統計分析工具"><span>補充 4 統計工具</span></a></nav><details><summary>本頁目錄</summary><ol><li><a href="#podcast-section-0">開場白</a></li>
+<li><a href="#podcast-section-1"><span class="toc-num">01</span>第 01 節：這份紀錄怎麼讀</a></li>
+<li><a href="#podcast-section-2"><span class="toc-num">02</span>第 02 節：反相器：AI 的猜測要先確認</a></li>
+<li><a href="#podcast-section-3"><span class="toc-num">03</span>第 03 節：NAND 閘：接點圓點一個一個補齊</a></li>
+<li><a href="#podcast-section-4"><span class="toc-num">04</span>第 04 節：布林符號與繪圖風格：把滿意的做法存成規則</a></li>
+<li><a href="#podcast-section-5"><span class="toc-num">05</span>第 05 節：傳輸閘 XOR：先修功能錯誤，再修外觀</a></li>
+<li><a href="#podcast-section-6"><span class="toc-num">06</span>第 06 節：靜態 CMOS XOR：AI 自己檢查，你仍要核對</a></li>
+<li><a href="#podcast-section-7"><span class="toc-num">07</span>第 07 節：從這段紀錄帶走的修正方法</a></li>
+<li><a href="#podcast-section-8">聽後自測</a></li>
+<li><a href="#podcast-section-9">結語</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">工作坊 · 深度導讀講稿</p><h1>補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例 · 深度導讀</h1><p class="lead">台灣華語單人導讀 · 10 分 1 秒 · 對應目前講義與練習單。可邊聽邊閱讀，操作時先暫停。</p><p class="meta-back"><a href="supplement03.html">← 回到講義</a></p></section>
+<h2 id="podcast-section-0">開場白</h2>
+<p>各位學員，大家好，歡迎收聽補充三：用對話修正 A I 繪圖。很多人請 A I 畫教學用的圖，第一版常常看起來很像，細節卻是錯的。這份講義收錄一段真實的對話：從一張手繪草圖開始，前後十六個版本，畫出幾種數位電路的邏輯閘。請放心，您不需要看懂電路。我們要學的是：怎麼看出 A I 畫錯了、怎麼把錯誤說清楚，以及怎麼確認下一版真的改對。</p>
+<h2 id="podcast-section-1"><span class="num">01</span>第 01 節：這份紀錄怎麼讀</h2>
+<p>第一節先說怎麼讀。頁面上有三種區塊。綠色底、左邊有粗線的，是使用者對 A I 說的話，中文在上，下面小字是原始英文。白色框的，是 A I 的回覆，整理成中文。另外有收合起來的「圖片生成提示詞」，那是 A I 真正送給繪圖工具的英文指令，您可以展開看看，A I 怎麼把一句話擴寫成很長的繪圖規格。</p>
+<p>接著是十六個版本的縮圖一覽。每張都有標籤：有錯誤、過渡版本、局部圖、最後版本。點縮圖會跳到那一版。有問題的版本，圖下方會列出對應的修正提示；按「顯示標記」，圖上會用紅色圈出錯誤的位置。建議先自己找找看，再打開標記對答案。</p>
+<p>如果要放進教材，只用四張最後版本：第三、第九、第十二和第十六版。早期版本留著，是為了讓您看到錯誤怎麼被發現。</p>
+<p>您可能會問：我不懂電路，怎麼找錯？其實不需要懂原理。後面每一個修正，使用者都說了一條很明確的規則，例如「三條線交會才畫點」。拿著規則看圖，一個地方一個地方對照，就能判斷。換成您自己的教學圖，例如衛教流程圖或照護步驟示意圖，規則就是您專業上已經知道的慣例。</p>
+<h2 id="podcast-section-2"><span class="num">02</span>第 02 節：反相器：AI 的猜測要先確認</h2>
+<p>第二節是第一個例子。使用者丟出手繪草圖，先問 A I 這是什麼。A I 說，這是一種叫反相器的電路，又補一句：右上角的小符號「可能是二極體」。接著使用者請它重畫，第一版就真的把那個符號畫成二極體。</p>
+<p>錯誤其實在回覆裡就露出線索了。A I 說「可能」「看起來像」的地方，就是它在猜。使用者的修正很直接：「那個看起來像二極體的符號是反相器。」不是說「畫錯了」，而是說清楚「這個其實是那個」，再追加需求：加上真值表，也就是列出輸入和輸出對應的小表格。到第三版，符號和表格都對了。</p>
+<h2 id="podcast-section-3"><span class="num">03</span>第 03 節：NAND 閘：接點圓點一個一個補齊</h2>
+<p>第三節是本集的主線例子。電路圖有一條慣例：三條以上的線交會，才畫一個實心圓點；只有兩條線相接，就不畫。您可以把它想成地圖上的路口：真正的岔路才標記，單純轉彎不標。</p>
+<p>第四版的問題，打開標記就看得到：一個地方只有兩條線，卻多畫了一個圓點；另外有兩個真正的岔路，反而沒有圓點。使用者把規則寫出來：「只有三條或更多導線交會的分支接點，才要畫實心圓點。」第五版拿掉了多的那一點，但岔路的點還是沒補。</p>
+<p>這時使用者附上一張局部截圖，說：「你還漏了一個接點圓點。」截圖比文字更清楚指出位置。但 A I 只修了截圖那一小塊，產生第六版，一張局部圖，不是完整電路。第七版重畫完整的圖，A I 也回覆說「已經補上」。可是請看圖本身：還漏了兩個點。這是這一節最重要的提醒：不要只看 A I 說什麼，要看圖。</p>
+<p>使用者再要求一次。這次 A I 送出的生成提示詞寫得非常具體：只加兩個點、大概在哪個座標，其他都不要改。第八版終於三個圓點都齊了。指出位置、限定修改範圍，是小幅修圖最有效的說法。</p>
+<p>為什麼要強調「其他都不要改」？因為繪圖工具每重畫一次，都可能動到原本正確的地方。第六版就是例子：只想補一個點，結果整張圖變成一小塊局部圖。所以每修一次，除了看改的地方，也要整張再看一遍，確認原本對的地方沒有被改壞。這一節可以暫停，打開第四、第五、第七版的標記，對照圖下方的說明，自己數一數圓點。</p>
+<h2 id="podcast-section-4"><span class="num">04</span>第 04 節：布林符號與繪圖風格：把滿意的做法存成規則</h2>
+<p>第四節，圖畫對之後，使用者請 A I 換一種公式寫法，改用常見的上橫線表示法。第九版完成後，使用者說了一句關鍵的話：「請記住，以後畫這類電路圖、符號和公式時，都使用這個風格。」A I 把整套畫法存下來：黑白線條、三線交會才畫實心圓點、公式的寫法。</p>
+<p>這和模組三的技能是同一個想法：確認做對的方法，存下來，下次不用重講。您也可以替自己常畫的教學圖，整理一份繪圖規則。</p>
+<h2 id="podcast-section-5"><span class="num">05</span>第 05 節：傳輸閘 XOR：先修功能錯誤，再修外觀</h2>
+<p>第五節，使用者請 A I 畫另一種邏輯閘。第十版出現一個嚴重的錯：有一條線把兩個原本應該分開的輸出接在一起，等於短路，電路不能用。這次是 A I 自己先發現的。第十一版修好了，但留下一個小問題：幾個元件的線條畫過頭，凸出一小段。使用者截圖說：「這幾個地方的線條畫過頭了。」第十二版清乾淨，再把這條畫法也存成規則。</p>
+<p>這一節教的是錯誤分輕重。會改變意思的錯，例如接錯、短路，要先修；只影響好不好看的，之後再處理。放到您的教學圖也一樣：流程圖箭頭指錯方向，比字型不一致嚴重得多。</p>
+<h2 id="podcast-section-6"><span class="num">06</span>第 06 節：靜態 CMOS XOR：AI 自己檢查，你仍要核對</h2>
+<p>第六節是最複雜的一張圖。這一段使用者只下了一次指令，後面三次修正，都是 A I 檢查自己的圖後提出的。第十三版有一組元件接法錯了，還有幾個多餘的圓點；第十四版改正主體，但兩個小電路沒接好；第十五版接好了，卻還漏一個圓點；到第十六版才完成。</p>
+<p>A I 會自我檢查是好事，但第十五版說明：自我修正不等於正確。最後一版還是要由懂這個領域的人，一項一項核對。</p>
+<h2 id="podcast-section-7"><span class="num">07</span>第 07 節：從這段紀錄帶走的修正方法</h2>
+<p>第七節把方法整理成一張表，有五種可以借用的說法。A I 認錯東西時，直接說「這個其實是那個」。不符合專業慣例時，把規則寫出來，不要只說「修一下」。用說的講不清楚位置時，附截圖。修一處卻改壞別處時，要求只改指定的地方。做對了，就請它記住，存成規則。</p>
+<p>講義最後提醒：這些最後版本只在對話中用眼睛檢查過，沒有做電路模擬。放進正式教材之前，請熟悉的教師確認；換成健康照護主題的圖，也請相關專業人員確認內容。</p>
+<h2 id="podcast-section-8">聽後自測</h2>
+<p>接下來三個小問題。每題聽完可以先暫停想一想。</p>
+<p>第一題：第七版，A I 回覆說圓點已經補上，您會怎麼確認？請先想一想。答案是：直接看圖，對照三線交會才畫點的規則，一個一個岔路檢查。這一版其實還漏了兩個點，回覆文字不能代替看圖。</p>
+<p>第二題：第十版的短路，和第十一版的線條畫過頭，哪個要先修？請先想一想。答案是先修短路。短路讓電路不能運作，會改變圖的意思；線條凸出只影響外觀。</p>
+<p>第三題：想讓下一張圖沿用同樣的畫法，該怎麼說？請先想一想。答案是：請 A I 記住這個風格，把規則存下來，就像第四節使用者說的那一句。這和模組三把做法存成技能是同一個方法。</p>
+<h2 id="podcast-section-9">結語</h2>
+<p>最後回顧。請 A I 畫圖，不是一次就好；每一版都看圖本身，一次修一種錯，先修會改變意思的錯，把做對的畫法存成規則，最後交給懂的人核對。下一份補充講義，我們把同樣的「一次加一層、每層都核對」，用在一個前後測問卷的統計分析工具上。謝謝各位學員收聽。</p></main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。智慧雨林 AI Agent 護理教育與長照場域應用工作坊講義；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為工作坊教材，軟體畫面與功能可能隨版本更新而調整；範例與原型僅供教學與討論。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("handouts-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("handouts-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("handouts-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+</script>
+</body>
+</html>

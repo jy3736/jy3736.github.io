@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
+<title>補充 4｜用 AI Agent 逐步打造前後測統計分析工具 · 深度導讀 · 講稿</title>
+<meta name="description" content="適合零程式經驗參與者的深度導讀逐字稿">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+
+/* Shared additions (2026-10-11 restructure): pending sections, illustration notices, sidebar notes. */
+.pending { color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; margin: 0.8rem 0; }
+.callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
+.side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">智慧雨林 AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="講義首頁"><span>首頁</span></a>
+<a href="unit01.html" title="模組 01｜從 Chatbot 到 Agentic AI"><span>01 Agentic AI</span></a>
+<a href="unit02.html" title="模組 02｜VS Code 與工作空間"><span>02 共用專案</span></a>
+<a href="unit03.html" title="模組 03｜從 Gems、GPTs 到自己的第一個 Skill"><span>03 Skill 潮流</span></a>
+<a href="unit04.html" title="模組 04｜建構 RAG 式 Smart TA"><span>04 教學助理</span></a>
+<a href="unit05.html" title="模組 05｜讓教材上線"><span>05 發布教材</span></a>
+<a href="unit06.html" title="模組 06｜AI 專題：照護場域排班小工具"><span>06 排班工具</span></a>
+<a href="unit07.html" title="模組 07｜AI 專題：照護紀錄草稿填寫工具"><span>07 照護紀錄</span></a>
+<a href="supplement01.html" title="補充 1｜AI 寫完程式之後呢？從 ArtCraft 看人工審查、測試與維護的重要性"><span>補充 1 人工審查</span></a>
+<a href="supplement02.html" title="補充 2｜從 ArtCraft 到 REA：AI 能複製軟體，人還要負責什麼？"><span>補充 2 人的責任</span></a>
+<a href="supplement03.html" title="補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例"><span>補充 3 AI 繪圖</span></a>
+<a href="supplement04.html" title="補充 4｜用 AI Agent 逐步打造前後測統計分析工具" aria-current="page"><span>補充 4 統計工具</span></a></nav><details><summary>本頁目錄</summary><ol><li><a href="#podcast-section-0">開場白</a></li>
+<li><a href="#podcast-section-1"><span class="toc-num">01</span>第 01 節：學習目標與情境</a></li>
+<li><a href="#podcast-section-2"><span class="toc-num">02</span>第 02 節：情境與資料</a></li>
+<li><a href="#podcast-section-3"><span class="toc-num">03</span>第 03 節：四個動機構面</a></li>
+<li><a href="#podcast-section-4"><span class="toc-num">04</span>第 04 節：三輪提示：一次加一層功能</a></li>
+<li><a href="#podcast-section-5"><span class="toc-num">05</span>第 05 節：參考範例與成果檢核</a></li>
+<li><a href="#podcast-section-6">聽後自測</a></li>
+<li><a href="#podcast-section-7">結語</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<section class="hero"><p class="eyebrow">工作坊 · 深度導讀講稿</p><h1>補充 4｜用 AI Agent 逐步打造前後測統計分析工具 · 深度導讀</h1><p class="lead">台灣華語單人導讀 · 10 分 1 秒 · 對應目前講義與練習單。可邊聽邊閱讀，操作時先暫停。</p><p class="meta-back"><a href="supplement04.html">← 回到講義</a></p></section>
+<h2 id="podcast-section-0">開場白</h2>
+<p>各位學員，大家好，歡迎收聽補充四：用 A I Agent 逐步打造前後測統計分析工具。教學活動結束，前後測問卷收回來，接下來常常卡在整理分數、比較前後差異。這份講義示範，怎麼分三輪請 A I Agent，做出一個用瀏覽器就能開啟的分析工具。您不需要寫程式，也不需要自己推導統計公式；您負責把需求和資料規則說清楚，並用參考範例核對每一版的數字。</p>
+<h2 id="podcast-section-1"><span class="num">01</span>第 01 節：學習目標與情境</h2>
+<p>第一節先說成果。做完會有三個逐步完成的工具：第一版算出四個構面的前後平均，並畫成折線圖；第二版加上信度檢查；第三版加上配對樣本 t 檢定和盒鬚圖。這些名詞等一下會一個一個解釋。</p>
+<p>方法和模組六、模組七一樣：先寫規則，一次加一層，每一層親自測試。每一輪做完，都要試用成果、用參考值核對數字，並確認上一版的功能還在，才提出下一輪需求。</p>
+<p>講義也提醒量表的使用原則。這裡用的是一份叫 S I M S 的情境動機量表，用原題、原本的一到七分作答，不改題目，也不要請 A I 改寫題目。這份資料是虛構的，只用來練習計算。</p>
+<h2 id="podcast-section-2"><span class="num">02</span>第 02 節：情境與資料</h2>
+<p>第二節是情境。假設護理系帶學生到長照機構做服務學習，活動前後各填一次問卷，想看參與動機有沒有改變。講義提供兩組模擬資料：一組有五十三位虛構參與者，部分構面有變化；另一組有五十二位，各構面變化很小。每人前測、後測各十六題，每題一到七分，同一個人前後用同一個代碼。</p>
+<p>請在這一節下載 C S V 資料檔，也就是 Excel 能開的表格檔。接著照三個步驟：建立一個工作資料夾，用 V S Code 開啟，做法和模組二相同；把資料檔放進去；在這個資料夾開啟您使用的 A I Agent。可以先暫停，把這三步做完。</p>
+<p>資料表有三類欄位：一欄標示是哪一組情境；一欄是參與者代碼，用來配對前後測；其餘是每題的前測、後測分數。要特別記得一件事：配對只能在同一組裡面做，不能跨組配對。</p>
+<h2 id="podcast-section-3"><span class="num">03</span>第 03 節：四個動機構面</h2>
+<p>第三節解釋四個構面，也就是四種參加的原因。內在動機：覺得活動本身有趣。認同調節：知道這件事對自己有價值。外在調節：受到外在期待、獎勵或壓力影響。無動機：不太明白為什麼參加。</p>
+<p>常見的誤解是把四個分數當成由好到壞的排名。其實它們描述的是不同原因。外在調節和無動機，不能簡化成越高越好。例如，活動後認同調節變高，可以說參與者更認同活動的價值，但不能直接說每個人都更喜歡這個活動。</p>
+<h2 id="podcast-section-4"><span class="num">04</span>第 04 節：三輪提示：一次加一層功能</h2>
+<p>第四節是主要練習，共三輪。提示文字很長，不用聽寫，請使用每一輪的複製按鈕。介面長什麼樣沒有標準答案，但功能、資料規則和計算結果必須一致。</p>
+<p>第一輪，請 A I Agent 先檢查資料，再做第一版：算出每個人四個構面的前後平均，畫成摘要表和前後平均折線圖。提示裡特別要求：如果代碼重複、分數空白、或超出一到七分，要清楚列出問題，不要偷偷當成零分。做完怎麼核對？先看人數：五十三位加五十二位，一共一百零五位。再請 A I 抽一位參與者，說明某個構面的平均怎麼算，拿參考範例對照。最後確認存成第一版的檔案。</p>
+<p>為什麼只看平均不夠？兩組人的平均都可能是四分，一組大家都答四分，另一組有人答很低、有人答很高；平均看不出這種差別。</p>
+<p>第二輪，加上信度檢查。講義用的指標叫 Cronbach&#x27;s alpha，看同一個構面的四題，在這批資料裡是不是大致一致。要分清楚：信度不等於效度，效度是指題目是否真的測到想測的概念，不能只靠這個數字判斷。提示也要求工具把內容效度列為需要教師或專家審查的項目，不由程式宣稱通過。核對時，請確認第一版的功能都還能用，而且第一版、第二版兩個檔案都留著。</p>
+<p>第三輪，加上配對樣本 t 檢定和盒鬚圖。配對樣本 t 檢定在問：每個人的後測減前測，整組平均下來，是不是明顯不等於零。因為同時檢查四個構面，講義請大家看校正後的 p 值，以零點零五為門檻。小於零點零五，表示這次資料提供了平均分數有改變的證據，再看平均差是正還是負。大於或等於零點零五，只能說觀察到一些差異，但還不足以確認，不能說已經證明完全沒變。</p>
+<p>p 值不是活動有效的機率，也不代表變化有多重要。講義請大家把平均差和信賴區間一起看：平均差告訴我們變化的方向和大小，信賴區間告訴我們這個估計有多不確定。提示裡也要求工具列出效果量，幫助判斷差異大不大。</p>
+<p>這是本集的核對例子。因為資料是刻意設計的，答案可以事先知道：變化組的內在動機、認同調節和無動機應該有差異，而且無動機是下降；外在調節沒有明顯差異。穩定組四個構面都不應該顯著。如果您的工具算出穩定組有一個構面顯著，先不要急著解讀，回頭檢查是不是配對或計分出了問題。</p>
+<p>盒鬚圖補上平均看不到的分布：盒子中間的線是中位數，盒子包住中間一半的人，可以看出分數集中還是分散。它不能取代檢定，圖和表要一起看。最後確認三個版本的檔案都保留。</p>
+<h2 id="podcast-section-5"><span class="num">05</span>第 05 節：參考範例與成果檢核</h2>
+<p>第五節提供三個參考範例，對應三個版本。每完成一輪，就用同一份資料打開對應的範例，比對您的數字。畫面、配色和排版不同是正常的；要一致的是功能、資料處理規則和計算結果。</p>
+<p>如果數字對不起來，怎麼辦？不要自己去改程式。把差異具體告訴 A I Agent：哪一組、哪個構面、您的工具算出多少、參考範例是多少，請它說明計算步驟並修正。修正後，三個版本的功能都要再試一次。講義特別提醒，不要為了讓結果好看而改動計算規則。</p>
+<p>講義最後提醒使用界線：即使真實的前後測有顯著差異，也可能有其他解釋，例如參與者本身的成長，或活動以外的事件；統計顯著也不等於實務上重要。如果要分析真實學生的問卷，請先去識別化，並請熟悉研究方法的教師確認分析與解讀。</p>
+<h2 id="podcast-section-6">聽後自測</h2>
+<p>接下來三個小問題，每題聽完可以先暫停想一想。</p>
+<p>第一題：第一版做完，最先核對的數字是什麼？請先想一想。答案是人數：變化組五十三位、穩定組五十二位，共一百零五位。人數不對，後面的平均和檢定都不可信。</p>
+<p>第二題：第二版算出某個構面的 alpha 很高，可以說這份量表的效度沒問題嗎？請先想一想。答案是不行。alpha 只看題目之間是否一致，是信度；效度需要其他證據，內容效度也要由教師或專家審查。</p>
+<p>第三題：穩定組的校正後 p 值大於零點零五，可以說活動完全沒有影響嗎？請先想一想。答案是不行。只能說資料不足以確認平均分數有改變；未達顯著，不等於證明沒有變化。</p>
+<h2 id="podcast-section-7">結語</h2>
+<p>最後回顧。這份補充講義用三輪提示，一次加一層：先平均，再信度，最後檢定和盒鬚圖；每一輪都用人數、抽查和參考範例核對，並保留三個版本。統計說明是幫您提出需求和檢查工具的依據，不需要自己推導公式。A I 算出的數字，仍要由您親自核對。謝謝各位學員收聽。</p></main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。智慧雨林 AI Agent 護理教育與長照場域應用工作坊講義；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為工作坊教材，軟體畫面與功能可能隨版本更新而調整；範例與原型僅供教學與討論。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("handouts-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("handouts-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("handouts-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+</script>
+</body>
+</html>

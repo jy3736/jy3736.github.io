@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
+<title>補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例</title>
+<meta name="description" content="智慧雨林 AI Agent 工作坊補充講義：以一段真實的 AI 繪圖對話紀錄（CMOS 反相器、NAND 與 XOR 邏輯閘，共 16 個版本），練習檢查 AI 畫的圖、清楚指出錯誤，並把做對的畫法存成規則。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+
+/* Shared additions (2026-10-11 restructure): pending sections, illustration notices, sidebar notes. */
+.pending { color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; margin: 0.8rem 0; }
+.callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
+.side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">智慧雨林 AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="講義首頁"><span>首頁</span></a>
+<a href="unit01.html" title="模組 01｜從 Chatbot 到 Agentic AI"><span>01 Agentic AI</span></a>
+<a href="unit02.html" title="模組 02｜VS Code 與工作空間"><span>02 共用專案</span></a>
+<a href="unit03.html" title="模組 03｜從 Gems、GPTs 到自己的第一個 Skill"><span>03 Skill 潮流</span></a>
+<a href="unit04.html" title="模組 04｜建構 RAG 式 Smart TA"><span>04 教學助理</span></a>
+<a href="unit05.html" title="模組 05｜讓教材上線"><span>05 發布教材</span></a>
+<a href="unit06.html" title="模組 06｜AI 專題：照護場域排班小工具"><span>06 排班工具</span></a>
+<a href="unit07.html" title="模組 07｜AI 專題：照護紀錄草稿填寫工具"><span>07 照護紀錄</span></a>
+<a href="supplement01.html" title="補充 1｜AI 寫完程式之後呢？從 ArtCraft 看人工審查、測試與維護的重要性"><span>補充 1 人工審查</span></a>
+<a href="supplement02.html" title="補充 2｜從 ArtCraft 到 REA：AI 能複製軟體，人還要負責什麼？"><span>補充 2 人的責任</span></a>
+<a href="supplement03.html" title="補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例" aria-current="page"><span>補充 3 AI 繪圖</span></a>
+<a href="supplement04.html" title="補充 4｜用 AI Agent 逐步打造前後測統計分析工具"><span>補充 4 統計工具</span></a></nav><details><summary>本頁目錄</summary><ol><li><a href="#guide"><span class="toc-num">01</span>這份紀錄怎麼讀</a></li>
+<li><a href="#inverter"><span class="toc-num">02</span>反相器：AI 的猜測要先確認</a></li>
+<li><a href="#nand"><span class="toc-num">03</span>NAND 閘：接點圓點一個一個補齊</a></li>
+<li><a href="#notation"><span class="toc-num">04</span>布林符號與繪圖風格：把滿意的做法存成規則</a></li>
+<li><a href="#xor8"><span class="toc-num">05</span>傳輸閘 XOR：先修功能錯誤，再修外觀</a></li>
+<li><a href="#xor12"><span class="toc-num">06</span>靜態 CMOS XOR：AI 自己檢查，你仍要核對</a></li>
+<li><a href="#lessons"><span class="toc-num">07</span>從這段紀錄帶走的修正方法</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<style>
+/* Supplement 3: conversation transcript with drawing versions. */
+.turn { margin: 1rem 0; padding: .85rem 1.15rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.turn p { margin: .35rem 0; }
+.turn .who { margin: 0 0 .3rem; font-size: .8rem; font-weight: 700; letter-spacing: .03em; color: var(--muted); }
+.turn.user { background: var(--accent-soft); border-color: transparent; border-left: 5px solid var(--accent); }
+.turn.user .who { color: var(--accent); }
+.turn.user .say { font-size: 1.15rem; font-weight: 700; line-height: 1.55; color: var(--text); }
+.turn.user .en { font-size: .88rem; color: var(--muted); }
+.turn.user .en span { display: inline-block; margin-right: .5rem; padding: 0 .45rem; font-size: .72rem; font-weight: 700; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+.turn.ai { margin-left: clamp(0rem, 4vw, 2.5rem); }
+.attach { margin: .7rem 0 .2rem; }
+.attach img { display: block; width: auto; max-width: 100%; max-height: 260px; background: #fff; border: 1px solid var(--border); border-radius: 8px; }
+.attach figcaption { margin-top: .35rem; font-size: .85rem; color: var(--muted); }
+details.gen { margin-left: clamp(0rem, 4vw, 2.5rem); }
+.ver { border-left: 5px solid var(--vc, var(--border)); padding-left: .9rem; }
+.ver > a.fig-wrap { position: relative; display: block; width: fit-content; max-width: 100%; margin-inline: auto; }
+.ver img { display: block; width: auto; max-width: 100%; height: auto; max-height: min(520px, 70vh); margin: 0; background: #fff; }
+.marks { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.marks .mk, .marks .mk-halo { fill: none; vector-effect: non-scaling-stroke; }
+.marks .mk-halo { stroke: rgba(255,255,255,.9); stroke-width: 7; }
+.marks .mk { stroke: #d92d20; stroke-width: 3.5; }
+.marks .mk-miss { stroke-dasharray: 6 4; }
+.marks .mk-area { stroke-dasharray: 9 5; fill: rgba(217,45,32,.07); }
+.marks .mk-x { stroke-width: 3; }
+.mk-badge circle { fill: #d92d20; stroke: #fff; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.mk-badge text { fill: #fff; font: 700 2.1px/1 system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; }
+.ver.marks-off .marks { display: none; }
+.mark-legend { margin: .7rem 0 0; padding: .65rem .9rem; border: 1px solid var(--border); border-left: 4px solid #d92d20; border-radius: 8px; background: var(--surface); font-size: .9rem; }
+.mark-legend p { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .5rem; margin: 0; color: var(--text); }
+.mk-key { display: inline-block; padding: 0 .5rem; font-size: .78rem; font-weight: 700; color: #fff; background: #d92d20; border-radius: 999px; }
+.mark-toggle { margin-left: auto; font: inherit; font-size: .8rem; padding: .15rem .6rem; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; }
+.mark-legend ol { list-style: none; margin: .45rem 0 0; padding: 0; display: grid; gap: .15rem; color: var(--muted); }
+.mark-legend li { margin: 0; padding: 0; line-height: 1.6; }
+.mk-num { display: inline-block; margin-right: .35rem; color: #d92d20; font-weight: 800; }
+:root[data-theme="dark"] .mk-num { color: #ff8a80; }
+:root[data-theme="dark"] .mark-legend { border-left-color: #ff8a80; }
+@media print { .mark-toggle { display: none; } }
+.ver figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .55rem; }
+.ver-no { font-weight: 800; color: var(--text); }
+.ver-tag { display: inline-block; padding: .05rem .55rem; font-size: .78rem; font-weight: 700; border-radius: 999px; color: var(--tc); background: var(--tb); white-space: nowrap; }
+.ver-tag.bad, .ver-bad { --tc: var(--warn); --tb: var(--warn-bg); --vc: var(--warn); }
+.ver-tag.step, .ver-step { --tc: var(--note); --tb: var(--note-bg); --vc: var(--note); }
+.ver-tag.part, .ver-part { --tc: var(--muted); --tb: var(--surface-2); --vc: var(--muted); }
+.ver-tag.final, .ver-final { --tc: var(--tip); --tb: var(--tip-bg); --vc: var(--tip); }
+.legend-tags { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; font-size: .9rem; color: var(--muted); }
+.ver-grid { list-style: none; margin: .8rem 0 1.4rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .6rem; }
+.ver-grid a { display: block; height: 100%; text-decoration: none; color: var(--text); border: 1px solid var(--border); border-top: 4px solid var(--vc); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.ver-grid a:hover { box-shadow: var(--shadow); }
+.ver-grid img { display: block; width: 100%; height: 72px; object-fit: contain; background: #fff; }
+.ver-grid span { display: block; padding: .3rem .5rem; font-size: .78rem; color: var(--tc); }
+.ver-grid b { color: var(--text); margin-right: .2rem; }
+.math { font-family: Georgia, "Times New Roman", serif; font-size: 1.08em; white-space: nowrap; }
+.overbar { text-decoration: overline; }
+@media print { details.gen { display: none; } .ver-grid { display: none; } }
+</style>
+<section class="hero"><p class="eyebrow">補充 3 · AI 繪圖紀錄</p>
+<h1>補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例</h1>
+<p class="lead">請 AI 畫一張教學用的圖，第一版常常「看起來很像」，細節卻是錯的。這份講義收錄一段完整的對話：從一張手繪草圖開始，經過 16 個版本，畫出反相器、NAND 與兩種 XOR 邏輯閘。你會看到每一版錯在哪裡、使用者怎麼指出來，以及怎麼把做對的畫法存成規則。</p>
+<ul class="meta"><li>對象：想用 AI 製作教學圖的學員</li><li>重點：檢查 AI 畫的圖、清楚指出錯誤、把畫法存成規則</li></ul></section>
+
+<h2 id="guide"><span class="num">01</span>這份紀錄怎麼讀</h2>
+<p>這是一段真實的 AI 繪圖對話紀錄：使用者先請 AI 把一張手繪的電路草圖重畫成教科書風格的圖，再延伸畫 NAND 與 XOR 邏輯閘，前後一共產生 16 個版本。</p>
+<p><strong>你不需要看懂電路。</strong>請把注意力放在三件事：AI 畫錯了什麼、使用者怎麼把錯誤說清楚、下一版有沒有真的改對。同樣的方法也能用在你自己要畫的教學圖，例如衛教流程圖或照護步驟示意圖。</p>
+<div class="card-grid legend"><div class="card"><span class="tag">🧑 使用者提示</span><h4>使用者對 AI 說的話</h4><p>以中文呈現；下方小字是原始英文（原對話用英文練習寫提示詞）。</p></div><div class="card"><span class="tag">🤖 AI 回覆</span><h4>AI 的說明</h4><p>整理成中文，保留原意；重複或與繪圖無關的段落已略過。</p></div><div class="card"><span class="tag">▸ 圖片生成提示詞</span><h4>AI 實際送出的指令</h4><p>英文原文，預設收合。可以觀察 AI 怎麼把你的一句話擴寫成詳細的繪圖規格。</p></div></div>
+<h3>16 個版本一覽</h3><p class="legend-tags"><span class="ver-tag bad">有錯誤</span><span class="ver-tag step">過渡版本</span><span class="ver-tag part">局部圖</span><span class="ver-tag final">最後版本</span>　點縮圖可跳到該版本。有問題的版本，圖下列出對應的修正提示；按「顯示標記」可在圖上用<strong style="color:#d92d20">紅色標記</strong>圈出錯誤處。</p><ol class="ver-grid"><li class="ver-bad"><a href="#v01"><img src="figures/supplement03-01-inverter-initial.webp" alt="" width="1448" height="1086" loading="lazy"><span><b>01</b> 有錯誤</span></a></li><li class="ver-step"><a href="#v02"><img src="figures/supplement03-02-inverter-symbol-and-truth-table-edit.webp" alt="" width="1774" height="887" loading="lazy"><span><b>02</b> 過渡版本</span></a></li><li class="ver-final"><a href="#v03"><img src="figures/supplement03-03-inverter-symbol-and-truth-table-redraw.webp" alt="" width="1774" height="887" loading="lazy"><span><b>03</b> 最後版本</span></a></li><li class="ver-bad"><a href="#v04"><img src="figures/supplement03-04-nand-initial.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>04</b> 有錯誤</span></a></li><li class="ver-step"><a href="#v05"><img src="figures/supplement03-05-nand-series-dot-removed.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>05</b> 過渡版本</span></a></li><li class="ver-part"><a href="#v06"><img src="figures/supplement03-06-nand-output-crop-dot-added.webp" alt="" width="1800" height="874" loading="lazy"><span><b>06</b> 局部圖</span></a></li><li class="ver-step"><a href="#v07"><img src="figures/supplement03-07-nand-full-redraw.webp" alt="" width="1774" height="887" loading="lazy"><span><b>07</b> 過渡版本</span></a></li><li class="ver-step"><a href="#v08"><img src="figures/supplement03-08-nand-junction-dots-corrected.webp" alt="" width="1774" height="887" loading="lazy"><span><b>08</b> 過渡版本</span></a></li><li class="ver-final"><a href="#v09"><img src="figures/supplement03-09-nand-boolean-overbar-final.webp" alt="" width="1774" height="887" loading="lazy"><span><b>09</b> 最後版本</span></a></li><li class="ver-bad"><a href="#v10"><img src="figures/supplement03-10-xor-pass-gate-initial.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>10</b> 有錯誤</span></a></li><li class="ver-step"><a href="#v11"><img src="figures/supplement03-11-xor-pass-gate-outputs-separated.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>11</b> 過渡版本</span></a></li><li class="ver-final"><a href="#v12"><img src="figures/supplement03-12-xor-pass-gate-symbols-cleaned-final.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>12</b> 最後版本</span></a></li><li class="ver-bad"><a href="#v13"><img src="figures/supplement03-13-xor-static-initial.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>13</b> 有錯誤</span></a></li><li class="ver-step"><a href="#v14"><img src="figures/supplement03-14-xor-static-pull-up-corrected.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>14</b> 過渡版本</span></a></li><li class="ver-step"><a href="#v15"><img src="figures/supplement03-15-xor-static-inverters-corrected.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>15</b> 過渡版本</span></a></li><li class="ver-final"><a href="#v16"><img src="figures/supplement03-16-xor-static-junction-dots-final.webp" alt="" width="1536" height="1024" loading="lazy"><span><b>16</b> 最後版本</span></a></li></ol>
+<div class="callout tip"><span class="label">要用在教材時</span><p>請使用四張最後版本：<a href="#v03">反相器</a>、<a href="#v09">NAND</a>、<a href="#v12">傳輸閘 XOR</a>、<a href="#v16">靜態 CMOS XOR</a>。早期版本保留下來，是為了讓你看到錯誤是怎麼被發現和修正的。</p></div>
+
+<h2 id="inverter"><span class="num">02</span>反相器：AI 的猜測要先確認</h2>
+<p>使用者丟出一張手繪草圖，先問 AI 這是什麼，再請它重畫。第一版把右上角的小符號畫成二極體；使用者指出那其實是反相器符號，並追加真值表。</p>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">這是什麼？</p><p class="en" lang="en"><span>原始英文</span>What is this?</p><figure class="attach"><a href="figures/supplement03-attachment-01.webp" target="_blank" rel="noopener" title="開啟原尺寸附圖"><img src="figures/supplement03-attachment-01.webp" alt="手繪的 CMOS 反相器草圖，右上角有一個小符號" width="711" height="566" loading="lazy"></a><figcaption>📎 附圖：手繪的 CMOS 反相器草圖，右上角有一個小符號</figcaption></figure></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>這看起來像手繪的 <strong>CMOS 反相器</strong>：上方是接電源的 PMOS，下方是接地的 NMOS，兩個電晶體的閘極相連作為輸入；右側相連的端點則是輸出。</p><p>右上角的小符號<strong>可能是二極體</strong>，但圖中看不出它是否與反相器相連。</p></div>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請重畫這張圖。</p><p class="en" lang="en"><span>原始英文</span>Redraw the figure.</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會把它重畫成乾淨的 CMOS 反相器電路圖；那個像二極體的符號連接方式不明，會分開畫。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 01 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 01 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Create a clean, textbook-style black-and-white circuit schematic on a plain white background, landscape 4:3. Redraw the main hand-drawn circuit as a CMOS inverter: upper PMOS transistor connected from VDD at top to a shared output node at the right; lower NMOS transistor connected from that shared output node to a ground symbol at bottom; both transistor gates connected together to an input wire entering from the left. Use standard clear MOSFET schematic symbols and neat straight thin black lines. Label input &#x27;Vin&#x27;, output &#x27;Vout&#x27;, top supply &#x27;VDD&#x27;, bottom ground. In a separate small area at the top right, include an isolated diode symbol matching the extra disconnected symbol in the source sketch, with no wire connecting it to the inverter. No decorative elements, no color, no explanatory text beyond the four labels. Ensure electrical topology is clear and correct.</code></pre></figure></div></details><figure class="page-figure ver ver-bad marked marks-off" id="v01"><a class="fig-wrap" href="figures/supplement03-01-inverter-initial.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-01-inverter-initial.webp" alt="第 01 版：把右上角的小符號誤認為二極體，畫成一個不相連的二極體。" width="1448" height="1086" loading="lazy"><svg class="marks" viewBox="0 0 100 75.00" preserveAspectRatio="none" aria-hidden="true"><circle class="mk-halo" cx="85.70" cy="11.25" r="7.00"/><circle class="mk mk-area" cx="85.70" cy="11.25" r="7.00"/><g class="mk-badge"><circle cx="94.80" cy="11.25" r="1.7"/><text x="94.80" y="11.25">1</text></g></svg></a><figcaption><span class="ver-no">第 01 版</span><span class="ver-tag bad">有錯誤</span>把右上角的小符號誤認為二極體，畫成一個不相連的二極體。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：「那個看起來像二極體的符號是反相器。請重畫，並在圖中加上真值表。」<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>被誤畫成二極體：其實是反相器符號</li></ol></div></figure>
+<div class="callout note"><span class="label">錯誤從哪裡來</span><p>AI 第一次回覆就說了「可能是二極體」，接著照自己的猜測畫圖。看到「可能」「看起來像」這類字眼，就是該先確認的地方。</p></div>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">那個看起來像二極體的符號是反相器。請重畫，並在圖中加上真值表。</p><p class="en" lang="en"><span>原始英文</span>The diode-like symbol is an inverter. Redraw it and add a truth table to the figure.</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會更新圖片，同時呈現 CMOS 電晶體電路、反相器邏輯符號與真值表。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 02 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 02 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Edit the existing image into a precise, clean textbook infographic on white background. The small symbol at the upper right is NOT a diode: it is the standard logic inverter (NOT gate), drawn as a triangle pointing right with a small output bubble, with input wire on left and output wire on right. Keep the main CMOS inverter schematic on the left: PMOS above NMOS, common gates as Vin entering from left, joined drains at right labeled Vout, PMOS source to VDD and NMOS source to ground. On the right side, show the corresponding inverter logic symbol clearly, then a small truth table beneath it with headers &#x27;A&#x27; and &#x27;Y = NOT A&#x27;, rows &#x27;0 | 1&#x27; and &#x27;1 | 0&#x27;. Clear black strokes, accurate conventional symbols, balanced layout, readable labels, no extra components or decorative details.</code></pre></figure></div></details><figure class="page-figure ver ver-step" id="v02"><a class="fig-wrap" href="figures/supplement03-02-inverter-symbol-and-truth-table-edit.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-02-inverter-symbol-and-truth-table-edit.webp" alt="第 02 版：改成反相器符號並加上真值表；由修改上一張圖產生。" width="1774" height="887" loading="lazy"></a><figcaption><span class="ver-no">第 02 版</span><span class="ver-tag step">過渡版本</span>改成反相器符號並加上真值表；由修改上一張圖產生。</figcaption></figure>
+<details class="explain gen"><summary>圖片生成提示詞｜第 03 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 03 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Create a clean educational circuit figure on a white background, landscape layout. Left half: conventional CMOS inverter transistor schematic, with PMOS connected from VDD to output node, NMOS connected from output node to ground, their gates tied together and driven by input A, output labeled Y. Use standard transistor symbols and clear wiring. Right half: standard NOT logic gate symbol, a triangle pointing right with a small circle at output, input A and output Y. Beneath it place a readable truth table with columns &#x27;A&#x27; and &#x27;Y = NOT A&#x27;; rows &#x27;0 | 1&#x27; and &#x27;1 | 0&#x27;. Black lines and text, high contrast, precise electrical connections, no extra diode, no extraneous text.</code></pre></figure></div></details><figure class="page-figure ver ver-final" id="v03"><a class="fig-wrap" href="figures/supplement03-03-inverter-symbol-and-truth-table-redraw.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-03-inverter-symbol-and-truth-table-redraw.webp" alt="第 03 版：反相器最後版本：CMOS 電路、NOT 閘符號與真值表。" width="1774" height="887" loading="lazy"></a><figcaption><span class="ver-no">第 03 版</span><span class="ver-tag final">最後版本</span>反相器最後版本：CMOS 電路、NOT 閘符號與真值表。</figcaption></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>完成。新圖包含 CMOS 反相器、NOT 閘符號與真值表。</p></div>
+
+<h2 id="nand"><span class="num">03</span>NAND 閘：接點圓點一個一個補齊</h2>
+<p>電路圖有一條慣例：<strong>只有三條以上導線交會的地方才畫實心圓點</strong>，兩條線相接不畫。這一段 AI 前後修了四次，才把圓點畫對。</p>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請參考這張圖，畫一個雙輸入 NAND 邏輯閘。</p><p class="en" lang="en"><span>原始英文</span>Refer to this figure and draw a two-input NAND gate.</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會畫一張同樣風格的圖：電晶體電路、NAND 符號與真值表。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 04 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 04 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Create a clear educational figure matching the visual style and layout of the referenced CMOS inverter figure, but show a TWO-INPUT CMOS NAND gate. White background, black lines and text, landscape layout. Left: correct standard CMOS NAND transistor-level schematic. Upper pull-up network has two PMOS transistors in parallel from VDD to output Y, with gates driven separately by inputs A and B. Lower pull-down network has two NMOS transistors in series from Y to ground, with gates driven by A and B respectively. Clearly draw the intermediate node between the series NMOS devices. Right: standard 2-input NAND logic symbol: AND-gate outline with two input wires A and B and a small inversion bubble at output Y. Under it include a truth table titled &#x27;NAND&#x27; with columns A, B, Y = NOT(A AND B), and rows 0 0 1; 0 1 1; 1 0 1; 1 1 0. Accurate conventional circuit topology, readable labels, neat straight wires, no extra components.</code></pre></figure></div></details><figure class="page-figure ver ver-bad marked marks-off" id="v04"><a class="fig-wrap" href="figures/supplement03-04-nand-initial.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-04-nand-initial.webp" alt="第 04 版：初版 NAND：串聯 NMOS 的中點多畫了一個圓點，分支接點的圓點卻漏畫。" width="1536" height="1024" loading="lazy"><svg class="marks" viewBox="0 0 100 66.67" preserveAspectRatio="none" aria-hidden="true"><circle class="mk-halo" cx="32.90" cy="44.67" r="2.40"/><circle class="mk mk-extra" cx="32.90" cy="44.67" r="2.40"/><path class="mk mk-x" d="M31.41 43.18L34.39 46.15M34.39 43.18L31.41 46.15"/><g class="mk-badge"><circle cx="37.40" cy="44.67" r="1.7"/><text x="37.40" y="44.67">1</text></g><circle class="mk-halo" cx="29.10" cy="10.13" r="2.40"/><circle class="mk mk-miss" cx="29.10" cy="10.13" r="2.40"/><g class="mk-badge"><circle cx="24.60" cy="10.13" r="1.7"/><text x="24.60" y="10.13">2</text></g><circle class="mk-halo" cx="39.40" cy="28.60" r="2.40"/><circle class="mk mk-miss" cx="39.40" cy="28.60" r="2.40"/><g class="mk-badge"><circle cx="43.90" cy="28.60" r="1.7"/><text x="43.90" y="28.60">3</text></g></svg></a><figcaption><span class="ver-no">第 04 版</span><span class="ver-tag bad">有錯誤</span>初版 NAND：串聯 NMOS 的中點多畫了一個圓點，分支接點的圓點卻漏畫。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：「請修正這張圖。只有三條或更多導線交會的分支接點才要畫實心圓點。」<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>多餘圓點：這裡只有兩條線相接</li><li><span class="mk-num">②</span>漏畫圓點：VDD 分支（三條線交會）</li><li><span class="mk-num">③</span>漏畫圓點：右側 PMOS 接到輸出 Y</li></ol></div></figure>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請修正這張圖。只有三條或更多導線交會的分支接點才要畫實心圓點。</p><p class="en" lang="en"><span>原始英文</span>Fix the figure. Dots should appear only at branches where three or more wires meet.</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會移除只有兩條線相接處的圓點，保留上拉網路、輸出與下拉網路三線交會處的圓點。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 05 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 05 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Edit the referenced CMOS 2-input NAND figure, preserving the layout, typography, circuit topology, logic symbol and truth table. Fix junction dot conventions: show a filled junction dot ONLY at a branch where three or more wires meet. In particular, remove the filled black dot at the output Y connection if it is merely a two-wire connection; retain a filled dot at the central output junction where the output wire and the pull-up and pull-down network connections (three or more wire branches) meet, and at the internal NMOS series midpoint only if three or more wires actually branch there (otherwise remove it). Ensure all wire connections remain electrically correct and visually unambiguous. Preserve labels and truth-table values exactly.</code></pre></figure></div></details><figure class="page-figure ver ver-step marked marks-off" id="v05"><a class="fig-wrap" href="figures/supplement03-05-nand-series-dot-removed.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-05-nand-series-dot-removed.webp" alt="第 05 版：移除串聯中點的多餘圓點，但分支接點仍有遺漏。" width="1536" height="1024" loading="lazy"><svg class="marks" viewBox="0 0 100 66.67" preserveAspectRatio="none" aria-hidden="true"><circle class="mk-halo" cx="39.40" cy="28.60" r="2.40"/><circle class="mk mk-miss" cx="39.40" cy="28.60" r="2.40"/><g class="mk-badge"><circle cx="43.90" cy="28.60" r="1.7"/><text x="43.90" y="28.60">1</text></g><circle class="mk-halo" cx="29.10" cy="10.13" r="2.40"/><circle class="mk mk-miss" cx="29.10" cy="10.13" r="2.40"/><g class="mk-badge"><circle cx="24.60" cy="10.13" r="1.7"/><text x="24.60" y="10.13">2</text></g></svg></a><figcaption><span class="ver-no">第 05 版</span><span class="ver-tag step">過渡版本</span>移除串聯中點的多餘圓點，但分支接點仍有遺漏。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：「你還漏了一個接點圓點。」（附上局部截圖）<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>使用者截圖指出的漏點：右側 PMOS 接到輸出 Y</li><li><span class="mk-num">②</span>同樣漏畫，這次沒被指出，到第 08 版才補上：VDD 分支</li></ol></div></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>完成。輸出端三線交會處保留圓點；只有兩條線相接的 NMOS 中點已移除圓點。</p></div>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">你還漏了一個接點圓點。</p><p class="en" lang="en"><span>原始英文</span>You still missed one dot.</p><figure class="attach"><a href="figures/supplement03-attachment-02.webp" target="_blank" rel="noopener" title="開啟原尺寸附圖"><img src="figures/supplement03-attachment-02.webp" alt="截下的局部：輸出分支缺少圓點" width="206" height="100" loading="lazy"></a><figcaption>📎 附圖：截下的局部：輸出分支缺少圓點</figcaption></figure></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>你說得對，附圖顯示輸出分支沒有接點圓點。我會在垂直導線與輸出導線相接處補上圓點。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 06 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 06 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Edit the previous complete CMOS 2-input NAND diagram. Add a filled black junction dot exactly where the vertical wire from the pull-down network meets the horizontal output wire labeled Y; this is the missing dot shown in the user&#x27;s crop. Keep all other content and wiring unchanged. Respect the convention that junction dots appear only where three or more wires meet. Retain the correct NAND transistor network, symbol, and truth table.</code></pre></figure></div></details><figure class="page-figure ver ver-part" id="v06"><a class="fig-wrap" href="figures/supplement03-06-nand-output-crop-dot-added.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-06-nand-output-crop-dot-added.webp" alt="第 06 版：只修了截圖那一小塊，產生的是局部圖，不是完整電路。" width="1800" height="874" loading="lazy"></a><figcaption><span class="ver-no">第 06 版</span><span class="ver-tag part">局部圖</span>只修了截圖那一小塊，產生的是局部圖，不是完整電路。</figcaption></figure>
+<details class="explain gen"><summary>圖片生成提示詞｜第 07 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 07 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Draw a complete clean educational CMOS 2-input NAND gate infographic, white background, black line art, landscape. On left, transistor-level CMOS NAND: two PMOS transistors in parallel from VDD to output Y, with A and B driving their gates; two NMOS transistors in series from Y to ground, A driving upper NMOS and B lower. At the central output node, where the two PMOS drains, upper NMOS drain, and output wire join, show a filled black junction dot. At the midpoint between series NMOS devices, which is only a two-device series connection with no branch, show NO dot. Do not put dots at any two-wire crossings/connections. On upper right draw standard NAND gate symbol: AND shape with two inputs A, B and output inversion bubble labeled Y. Below put truth table columns A, B, Y = NOT(A AND B), rows 0 0 1; 0 1 1; 1 0 1; 1 1 0. Accurate wiring, readable text, polished technical textbook figure.</code></pre></figure></div></details><figure class="page-figure ver ver-step marked marks-off" id="v07"><a class="fig-wrap" href="figures/supplement03-07-nand-full-redraw.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-07-nand-full-redraw.webp" alt="第 07 版：完整重畫，但 VDD 分支與右側 PMOS 接到輸出的兩個圓點仍然漏畫。" width="1774" height="887" loading="lazy"><svg class="marks" viewBox="0 0 100 50.00" preserveAspectRatio="none" aria-hidden="true"><circle class="mk-halo" cx="28.00" cy="8.80" r="2.20"/><circle class="mk mk-miss" cx="28.00" cy="8.80" r="2.20"/><g class="mk-badge"><circle cx="23.70" cy="8.80" r="1.7"/><text x="23.70" y="8.80">1</text></g><circle class="mk-halo" cx="40.10" cy="22.15" r="2.20"/><circle class="mk mk-miss" cx="40.10" cy="22.15" r="2.20"/><g class="mk-badge"><circle cx="44.40" cy="22.15" r="1.7"/><text x="44.40" y="22.15">2</text></g></svg></a><figcaption><span class="ver-no">第 07 版</span><span class="ver-tag step">過渡版本</span>完整重畫，但 VDD 分支與右側 PMOS 接到輸出的兩個圓點仍然漏畫。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：「請重畫這張圖，把漏掉的接點圓點補上。」<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>漏畫圓點：VDD 分支</li><li><span class="mk-num">②</span>漏畫圓點：右側 PMOS 接到輸出 Y</li></ol></div></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>你說得對——下拉分支接到水平 Y 導線的輸出節點需要圓點，已經補上；串聯 NMOS 中點維持沒有圓點。</p></div>
+<div class="callout warn"><span class="label">不要只看 AI 說了什麼</span><p>AI 回覆「已經補上」，但第 07 版其實還漏了兩個圓點。每一版都要看圖本身，不能只看回覆文字。</p></div>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請重畫這張圖，把漏掉的接點圓點補上。</p><p class="en" lang="en"><span>原始英文</span>Redraw the figure to fix the missing dots.</p><figure class="attach"><a href="figures/supplement03-attachment-04.webp" target="_blank" rel="noopener" title="開啟原尺寸附圖"><img src="figures/supplement03-attachment-04.webp" alt="使用者附上第 07 版完整圖" width="1774" height="887" loading="lazy"></a><figcaption>📎 附圖：使用者附上第 07 版完整圖</figcaption></figure></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會在 VDD 分支與右側 PMOS 接到輸出線的地方補上圓點，保留原有的輸出接點圓點。這次電晶體電路中應該剛好有三個實心接點圓點。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 08 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 08 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Precisely edit this complete circuit figure; preserve all layout, typography, wires, transistor symbols, NAND symbol and truth table. Add exactly TWO missing solid black circular junction dots of the same size as the existing dot: (1) at the T junction where the vertical VDD supply wire meets the top horizontal wire feeding the parallel PMOS sources, approximately x497 y156 in the 1774x887 original; (2) at the T junction where the RIGHT PMOS drain vertical wire meets the horizontal Y output wire, approximately x711 y393. KEEP the existing solid dot at x540 y393 where the NMOS branch meets the horizontal output wire. Final transistor circuit must have exactly THREE filled junction dots: VDD T branch, NMOS/output T branch, right PMOS/output T branch. No filled dot at the series NMOS midpoint or at any two-wire elbow. The hollow inversion bubbles on PMOS gates and logic symbol must remain hollow. This is a minimal edit: only add the two specified filled dots, do not redraw or change anything else.</code></pre></figure></div></details><figure class="page-figure ver ver-step marked marks-off" id="v08"><a class="fig-wrap" href="figures/supplement03-08-nand-junction-dots-corrected.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-08-nand-junction-dots-corrected.webp" alt="第 08 版：三個分支接點的圓點都已補齊。" width="1774" height="887" loading="lazy"><svg class="marks" viewBox="0 0 100 50.00" preserveAspectRatio="none" aria-hidden="true"><rect class="mk-halo" x="75.40" y="29.10" width="20.60" height="4.10" rx="1.2"/><rect class="mk mk-area" x="75.40" y="29.10" width="20.60" height="4.10" rx="1.2"/><g class="mk-badge"><circle cx="96.00" cy="29.10" r="1.7"/><text x="96.00" y="29.10">1</text></g></svg></a><figcaption><span class="ver-no">第 08 版</span><span class="ver-tag step">過渡版本</span>三個分支接點的圓點都已補齊。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：「請改用另一種符號表示布林運算式。」<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>要改寫的布林式：¬(A AND B) 改成上橫線表示法</li></ol></div></figure>
+<div class="callout tip"><span class="label">越具體，越不會改壞別處</span><p>展開第 08 版的生成提示詞看看：它寫明「只加兩個點」「大約在座標 x497 y156 與 x711 y393」「其他都不要改」。指出位置、限定修改範圍，是小幅修圖最有效的說法。</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>已在 VDD 分支和右側 PMOS 輸出分支補上兩個圓點，三個導線分支都有實心圓點了。</p></div>
+
+<h2 id="notation"><span class="num">04</span>布林符號與繪圖風格：把滿意的做法存成規則</h2>
+<p>圖畫對之後，使用者換一種布林式寫法，並請 AI 把整套畫法記下來。後面的 XOR 圖都沿用這套規則。</p>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請改用另一種符號表示布林運算式。</p><p class="en" lang="en"><span>原始英文</span>Apply another symbol style to represent Boolean equations.</p><figure class="attach"><a href="figures/supplement03-attachment-05.webp" target="_blank" rel="noopener" title="開啟原尺寸附圖"><img src="figures/supplement03-attachment-05.webp" alt="使用者附上第 08 版完整圖" width="1774" height="887" loading="lazy"></a><figcaption>📎 附圖：使用者附上第 08 版完整圖</figcaption></figure></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會在真值表標題改用 <span class="math">Y = <span class="overbar">A · B</span></span>：用「·」表示 AND，上橫線表示 NOT。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 09 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 09 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Make a minimal precise edit to the supplied NAND circuit figure. Change ONLY the Boolean equation text in the third truth-table column header. Replace &#x27;Y = ¬(A AND B)&#x27; with conventional Boolean algebra notation: Y = an OVERBAR over the entire product A · B. Render Y = followed by A centered multiplication dot B, with ONE continuous horizontal overbar spanning BOTH A and B and the dot. The overbar means the complement of the entire AND product. Use clear professional math typography and center this formula within its existing header cell. Preserve every other feature exactly: all three filled junction dots (VDD branch, center output branch and right PMOS/output branch), all transistor wires, hollow inversion bubbles, NAND logic symbol, title, table borders, labels and four truth-table rows. Do not change gate style or circuit layout.</code></pre></figure></div></details><figure class="page-figure ver ver-final" id="v09"><a class="fig-wrap" href="figures/supplement03-09-nand-boolean-overbar-final.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-09-nand-boolean-overbar-final.webp" alt="第 09 版：NAND 最後版本：三個分支圓點齊全，布林式改用上橫線表示法 Y = A · B。" width="1774" height="887" loading="lazy"></a><figcaption><span class="ver-no">第 09 版</span><span class="ver-tag final">最後版本</span>NAND 最後版本：三個分支圓點齊全，布林式改用上橫線表示法 <span class="math">Y = <span class="overbar">A · B</span></span>。</figcaption></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>已更新為 <span class="math">Y = <span class="overbar">A · B</span></span>：點代表 AND，上橫線代表 NOT。</p></div>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請記住，以後畫 CMOS 電路圖、邏輯符號和布林運算式時，都使用這個風格。</p><p class="en" lang="en"><span>原始英文</span>Remember to draw CMOS schematics and logic symbols/equations in this style.</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>已保存這個偏好：黑白線條；三條以上導線交會處畫實心圓點；反相泡泡畫空心；布林式用「·」表示 AND、上橫線表示 NOT。以後的 CMOS 圖都會沿用。</p></div>
+<div class="callout note"><span class="label">和 Skill 是同一個想法</span><p>這一步就像模組 03 的 Skill：把確認做對的方法存下來，下次不必重講一遍。你也可以替自己常畫的教學圖整理一份繪圖規則。</p></div>
+
+<h2 id="xor8"><span class="num">05</span>傳輸閘 XOR：先修功能錯誤，再修外觀</h2>
+<p>有了繪圖規則，使用者改請 AI 畫 XOR 邏輯閘。這次出現兩種不同等級的錯：一種讓電路不能運作，一種只是不好看。</p>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請把 XOR 邏輯閘的電路圖、邏輯符號和真值表畫在同一張圖中。</p><p class="en" lang="en"><span>原始英文</span>Draw an XOR gate schematic, symbol, and truth table in one figure.</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會沿用剛建立的風格：左邊是 CMOS 電路，右邊是 XOR 符號與真值表。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 10 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 10 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Create an accurate educational figure for a TWO INPUT XOR GATE, clean black lines on white background, serif math lettering matching textbook CMOS figures. Landscape layout. Left: clearly drawn CMOS transmission-gate XOR schematic, implementing Y = A-bar B + A B-bar with exactly eight MOS transistors: two CMOS inverters generating A-bar and B-bar (each inverter PMOS to VDD and NMOS to ground with tied gates), and two transmission gates each containing parallel PMOS and NMOS channels. First transmission gate connects B to Y, NMOS control A-bar, PMOS control A (enabled when A=0). Second transmission gate connects B-bar to Y, NMOS control A, PMOS control A-bar (enabled when A=1). Label all four control inputs clearly. Transmission-gate branches join output Y. Include clear VDD and ground at the inverter sources. Draw transistor symbols correctly: hollow gate bubbles only on PMOS, no bubbles on NMOS. Filled junction dots at EVERY electrical wire branch with three or more segments, no dots on two-wire elbows or simple series connections. No ambiguous crossing connections. Title left schematic &#x27;CMOS XOR (8 transistors)&#x27;. Upper right: standard XOR logic symbol, OR-shaped gate with the extra curved line behind its input side, inputs A and B, output Y without an inversion bubble. Main figure title &#x27;2-Input XOR Gate&#x27;. Under symbol show Boolean equation Y = A ⊕ B = A-bar · B + A · B-bar, actual overbars above individual complemented letters. Lower right: clear truth table heading &#x27;Truth Table&#x27;, columns A B Y = A ⊕ B, rows 0 0 0; 0 1 1; 1 0 1; 1 1 0. Prioritize electrically correct readable wiring and precise symbols. No decorative elements.</code></pre></figure></div></details><figure class="page-figure ver ver-bad marked marks-off" id="v10"><a class="fig-wrap" href="figures/supplement03-10-xor-pass-gate-initial.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-10-xor-pass-gate-initial.webp" alt="第 10 版：兩個反相器的輸出被一條導線接在一起，等於短路。" width="1536" height="1024" loading="lazy"><svg class="marks" viewBox="0 0 100 66.67" preserveAspectRatio="none" aria-hidden="true"><rect class="mk-halo" x="23.40" y="23.47" width="3.50" height="29.20" rx="1.2"/><rect class="mk mk-area" x="23.40" y="23.47" width="3.50" height="29.20" rx="1.2"/><g class="mk-badge"><circle cx="26.90" cy="23.47" r="1.7"/><text x="26.90" y="23.47">1</text></g></svg></a><figcaption><span class="ver-no">第 10 版</span><span class="ver-tag bad">有錯誤</span>兩個反相器的輸出被一條導線接在一起，等於短路。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：AI 自己發現，第 11 版修正（使用者沒有另外下指令）<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>這條線把 Ā 與 B̄ 兩個輸出接在一起（短路）</li></ol></div></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>第一版把兩個反相器的輸出錯接在一起。我會修正，讓 <span class="math"><span class="overbar">A</span></span> 與 <span class="math"><span class="overbar">B</span></span> 維持兩個獨立訊號。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 11 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 11 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Precisely fix the supplied XOR figure. CRITICAL electrical error: the left A inverter output and left B inverter output are incorrectly joined by the long vertical rectangular wire. REMOVE that entire vertical connecting wire at roughly x388 from y391 to y786, and its lower horizontal segment. Each inverter must have its own separate short horizontal output stub pointing right, upper labeled A with overbar, lower labeled B with overbar. They MUST NOT connect to each other. Use those net names as implicit connections to the transmission-gate labels; do not add wires from inverters to transmission gates. Preserve all eight transistors, transistor controls (upper TG PMOS A, NMOS Abar; lower TG PMOS Abar, NMOS A), B and Bbar data inputs, output Y connection, junction dots only at 3-wire branches, XOR gate symbol, Boolean equation and truth table exactly. Minimal correction only to separate the two inverter outputs.</code></pre></figure></div></details><figure class="page-figure ver ver-step marked marks-off" id="v11"><a class="fig-wrap" href="figures/supplement03-11-xor-pass-gate-outputs-separated.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-11-xor-pass-gate-outputs-separated.webp" alt="第 11 版：反相器輸出已分開，但傳輸閘電晶體的線條仍有畫過頭的地方。" width="1536" height="1024" loading="lazy"><svg class="marks" viewBox="0 0 100 66.67" preserveAspectRatio="none" aria-hidden="true"><rect class="mk-halo" x="41.60" y="20.93" width="6.10" height="7.73" rx="1.2"/><rect class="mk mk-area" x="41.60" y="20.93" width="6.10" height="7.73" rx="1.2"/><g class="mk-badge"><circle cx="47.70" cy="20.93" r="1.7"/><text x="47.70" y="20.93">1</text></g><rect class="mk-halo" x="41.60" y="46.67" width="6.10" height="7.73" rx="1.2"/><rect class="mk mk-area" x="41.60" y="46.67" width="6.10" height="7.73" rx="1.2"/><g class="mk-badge"><circle cx="47.70" cy="46.67" r="1.7"/><text x="47.70" y="46.67">1</text></g></svg></a><figcaption><span class="ver-no">第 11 版</span><span class="ver-tag step">過渡版本</span>反相器輸出已分開，但傳輸閘電晶體的線條仍有畫過頭的地方。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：「這幾個地方的線條畫過頭了。」（附上局部截圖）<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>傳輸閘電晶體的引線超出通道線</li></ol></div></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>已完成 8 顆電晶體的 CMOS XOR 電路、邏輯符號、布林式與真值表；用相同的訊號名稱表示彼此相連。</p></div>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">這幾個地方的線條畫過頭了。</p><p class="en" lang="en"><span>原始英文</span>These areas are overdrawn.</p><figure class="attach"><a href="figures/supplement03-attachment-06.webp" target="_blank" rel="noopener" title="開啟原尺寸附圖"><img src="figures/supplement03-attachment-06.webp" alt="圈出傳輸閘電晶體線條突出的局部" width="134" height="130" loading="lazy"></a><figcaption>📎 附圖：圈出傳輸閘電晶體線條突出的局部</figcaption></figure></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會移除傳輸閘電晶體符號中超出通道線的多餘線段。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 12 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 12 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Precisely clean up the four horizontally oriented MOS transistor symbols inside the two transmission gates in this XOR figure. Their source/drain vertical lead segments currently protrude past the horizontal channel line, forming extra dangling short vertical strokes inside the blank space between the PMOS and NMOS. REMOVE these protruding excess strokes from all four horizontal transistor channel endpoints. Each source/drain lead must end exactly at its horizontal channel line, forming clean right-angle elbows with NO overshoot beyond the channel. Keep the full horizontal channel between source and drain intact; retain the separate parallel gate line and clear insulating gap. Upper PMOS channel source/drain leads must not extend downward past channel; lower NMOS channel source/drain leads must not extend upward past channel. Apply to both upper and lower transmission gates. Preserve circuit electrical topology, all wires outside these tiny symbol cleanups, all filled junction dots, hollow PMOS gate bubbles, control labels, the two separate inverter outputs, XOR symbol, Boolean formula and truth table. Minimal edit with identical layout and typography.</code></pre></figure></div></details><figure class="page-figure ver ver-final" id="v12"><a class="fig-wrap" href="figures/supplement03-12-xor-pass-gate-symbols-cleaned-final.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-12-xor-pass-gate-symbols-cleaned-final.webp" alt="第 12 版：8 顆電晶體的傳輸閘 XOR 最後版本：清除多餘線段。" width="1536" height="1024" loading="lazy"></a><figcaption><span class="ver-no">第 12 版</span><span class="ver-tag final">最後版本</span>8 顆電晶體的傳輸閘 XOR 最後版本：清除多餘線段。</figcaption></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>已移除四個傳輸閘電晶體符號中突出的線段。</p></div>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請把傳輸閘的繪圖規則加進去，供以後畫圖使用。</p><p class="en" lang="en"><span>原始英文</span>Add the pass-gate drawing rule for future drawings.</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>已存成以後畫圖的規則：傳輸閘的源極、汲極引線要剛好停在通道線上，不可突出，閘極與通道之間保留清楚間隙。</p></div>
+<div class="callout note"><span class="label">錯誤分輕重</span><p>兩個輸出接在一起（第 10 版）會讓電路無法運作；線條畫過頭（第 11 版）只影響美觀。先修會改變意思的錯，再處理外觀。</p></div>
+
+<h2 id="xor12"><span class="num">06</span>靜態 CMOS XOR：AI 自己檢查，你仍要核對</h2>
+<p>最後一張圖比較複雜，有 12 顆電晶體。這一段使用者只下了一次指令，後面三次修正都是 AI 檢查自己的圖後提出的。</p>
+<div class="turn user"><p class="who">🧑 使用者提示</p><p class="say">請再畫一個雙輸入 XOR 邏輯閘，這次不要使用傳輸閘。</p><p class="en" lang="en"><span>原始英文</span>Draw another two-input XOR gate without using pass gates.</p></div>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>我會畫 12 顆電晶體的靜態 CMOS XOR，附上邏輯符號、布林式與真值表。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 13 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 13 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Draw a technically accurate educational figure &#x27;2-Input XOR Gate — Static CMOS&#x27;, black lines on white background, serif mathematical lettering, landscape with roomy readable layout. This MUST be full complementary STATIC CMOS, NO pass gates or transmission gates. Exactly 12 MOSFETs total: 8 in main XOR network, 4 in two separate small CMOS inverters generating Abar and Bbar. MAIN SCHEMATIC on left: top pull-up network from VDD to output Y consists of TWO parallel-PMOS groups IN SERIES. First group: PMOS gate A and PMOS gate B in parallel from VDD to internal node P. Second group: PMOS gate Abar and PMOS gate Bbar in parallel from P to Y. Thus top has 4 PMOS. Bottom pull-down network from Y to GND consists of TWO SERIES-NMOS branches IN PARALLEL: left branch upper NMOS gate A then lower NMOS gate B; right branch upper NMOS gate Abar then lower NMOS gate Bbar. Thus bottom has 4 NMOS. Gates have text net labels rather than long control wires. Clearly label overbar signals using actual overbars. Adjacent to main network show two separate small conventional 2-transistor CMOS inverters, inputs A and B, outputs Abar and Bbar respectively, each PMOS connected to VDD and NMOS to ground; do NOT join the inverter outputs. Use exactly this network, no extra transistors. PMOS gate bubbles hollow, NMOS no bubbles. Filled wire junction dots at EVERY branch where 3 or more wire segments meet; no dots at simple two-wire corners or series nodes without branches. Channels and source/drain leads form clean elbows with no dangling protruding strokes; gate-channel insulating gaps remain clear. Upper right standard XOR logic symbol (OR outline with extra input curved line), inputs A B and output Y, no output bubble. Beneath it equation Y = A ⊕ B = Abar · B + A · Bbar using overbars over individual letters. Lower right truth table columns A B Y, rows 0 0 0; 0 1 1; 1 0 1; 1 1 0. Text label &#x27;12 transistors&#x27;. Prioritize correct topology and junction dots, readable transistor gate labels and conventional simplified CMOS symbols.</code></pre></figure></div></details><figure class="page-figure ver ver-bad marked marks-off" id="v13"><a class="fig-wrap" href="figures/supplement03-13-xor-static-initial.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-13-xor-static-initial.webp" alt="第 13 版：上拉網路的四顆 PMOS 被畫成全部並聯，電路功能錯誤。" width="1536" height="1024" loading="lazy"><svg class="marks" viewBox="0 0 100 66.67" preserveAspectRatio="none" aria-hidden="true"><rect class="mk-halo" x="6.80" y="10.00" width="36.40" height="17.60" rx="1.2"/><rect class="mk mk-area" x="6.80" y="10.00" width="36.40" height="17.60" rx="1.2"/><g class="mk-badge"><circle cx="43.20" cy="10.00" r="1.7"/><text x="43.20" y="10.00">1</text></g><circle class="mk-halo" cx="19.90" cy="47.13" r="2.00"/><circle class="mk mk-extra" cx="19.90" cy="47.13" r="2.00"/><path class="mk mk-x" d="M18.66 45.89L21.14 48.37M21.14 45.89L18.66 48.37"/><g class="mk-badge"><circle cx="24.00" cy="47.13" r="1.7"/><text x="24.00" y="47.13">2</text></g><circle class="mk-halo" cx="35.70" cy="47.13" r="2.00"/><circle class="mk mk-extra" cx="35.70" cy="47.13" r="2.00"/><path class="mk mk-x" d="M34.46 45.89L36.94 48.37M36.94 45.89L34.46 48.37"/><g class="mk-badge"><circle cx="39.80" cy="47.13" r="1.7"/><text x="39.80" y="47.13">2</text></g><circle class="mk-halo" cx="57.50" cy="11.07" r="2.00"/><circle class="mk mk-extra" cx="57.50" cy="11.07" r="2.00"/><path class="mk mk-x" d="M56.26 9.83L58.74 12.31M58.74 9.83L56.26 12.31"/><g class="mk-badge"><circle cx="53.40" cy="11.07" r="1.7"/><text x="53.40" y="11.07">3</text></g><circle class="mk-halo" cx="57.90" cy="38.73" r="2.00"/><circle class="mk mk-extra" cx="57.90" cy="38.73" r="2.00"/><path class="mk mk-x" d="M56.66 37.49L59.14 39.97M59.14 37.49L56.66 39.97"/><g class="mk-badge"><circle cx="53.80" cy="38.73" r="1.7"/><text x="53.80" y="38.73">3</text></g><circle class="mk-halo" cx="16.30" cy="37.33" r="2.00"/><circle class="mk mk-area" cx="16.30" cy="37.33" r="2.00"/><g class="mk-badge"><circle cx="20.40" cy="37.33" r="1.7"/><text x="20.40" y="37.33">4</text></g></svg></a><figcaption><span class="ver-no">第 13 版</span><span class="ver-tag bad">有錯誤</span>上拉網路的四顆 PMOS 被畫成全部並聯，電路功能錯誤。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：AI 自己發現，第 14 版修正（使用者沒有另外下指令）<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>四顆 PMOS 被畫成全部並聯；應該是兩組並聯再串聯</li><li><span class="mk-num">②</span>多餘圓點：NMOS 串聯點只有兩條線</li><li><span class="mk-num">③</span>多餘圓點：電源線的端點不是分支</li><li><span class="mk-num">④</span>沒有用到的線頭</li></ol></div></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>上拉網路需要修正：兩組並聯的 PMOS 必須再串聯起來。我也會移除 NMOS 串聯點上不該有的圓點。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 14 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 14 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Correct the main LEFT transistor schematic in this figure. Current PMOS network is WRONG: all four PMOS are in parallel. Replace it with TWO ROWS of PMOS pairs: top row two PMOS gates A and B in PARALLEL between VDD bus and middle internal bus P. Bottom row two PMOS gates Abar and Bbar in PARALLEL between middle bus P and lower bus Y. This creates two parallel groups IN SERIES, with four PMOS total. Explicit stack of top pair above bottom pair, not all side-by-side. Retain bottom NMOS network two parallel branches each with 2 NMOS in series (left A then B, right Abar then Bbar). Remove dots at the two NMOS intermediate series nodes (only two wires meet). Remove any dangling unused wire stubs. Filled dots ONLY at every true 3-or-more wire junction, never at supply endpoints or unbranched two-wire series nodes. Also remove filled dots at tops of the two small inverter VDD wires (endpoints), and add filled dots to each inverter input T-junction where input wire joins the two gate leads. Keep all 12 transistors, all hollow PMOS bubbles, clear separate inverter outputs, XOR symbol, equation and truth table intact. Expand left area vertically or fit the 4 PMOS in two distinct rows above the 4 NMOS. Correct electrical topology is paramount.</code></pre></figure></div></details><figure class="page-figure ver ver-step marked marks-off" id="v14"><a class="fig-wrap" href="figures/supplement03-14-xor-static-pull-up-corrected.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-14-xor-static-pull-up-corrected.webp" alt="第 14 版：主電路的 PMOS 網路已改正；輸入反相器沒接好，圓點也還不完整。" width="1536" height="1024" loading="lazy"><svg class="marks" viewBox="0 0 100 66.67" preserveAspectRatio="none" aria-hidden="true"><rect class="mk-halo" x="46.60" y="13.87" width="13.60" height="17.20" rx="1.2"/><rect class="mk mk-area" x="46.60" y="13.87" width="13.60" height="17.20" rx="1.2"/><g class="mk-badge"><circle cx="60.20" cy="13.87" r="1.7"/><text x="60.20" y="13.87">1</text></g><rect class="mk-halo" x="46.60" y="40.80" width="13.60" height="17.07" rx="1.2"/><rect class="mk mk-area" x="46.60" y="40.80" width="13.60" height="17.07" rx="1.2"/><g class="mk-badge"><circle cx="60.20" cy="40.80" r="1.7"/><text x="60.20" y="40.80">1</text></g><circle class="mk-halo" cx="24.90" cy="11.60" r="2.00"/><circle class="mk mk-miss" cx="24.90" cy="11.60" r="2.00"/><g class="mk-badge"><circle cx="20.80" cy="11.60" r="1.7"/><text x="20.80" y="11.60">2</text></g><circle class="mk-halo" cx="24.10" cy="25.13" r="2.00"/><circle class="mk mk-miss" cx="24.10" cy="25.13" r="2.00"/><g class="mk-badge"><circle cx="20.00" cy="25.13" r="1.7"/><text x="20.00" y="25.13">2</text></g><circle class="mk-halo" cx="24.40" cy="57.73" r="2.00"/><circle class="mk mk-miss" cx="24.40" cy="57.73" r="2.00"/><g class="mk-badge"><circle cx="20.30" cy="57.73" r="1.7"/><text x="20.30" y="57.73">2</text></g></svg></a><figcaption><span class="ver-no">第 14 版</span><span class="ver-tag step">過渡版本</span>主電路的 PMOS 網路已改正；輸入反相器沒接好，圓點也還不完整。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：AI 自己發現，第 15 版修正（使用者沒有另外下指令）<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>反相器沒接好：輸入只接到 PMOS，NMOS 的閘極沒有接</li><li><span class="mk-num">②</span>漏畫圓點：VDD、P 節點下方與 GND 的分支</li></ol></div></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>主電路已經正確。接下來把兩個輸入反相器接好：每個輸入都要同時接到兩顆電晶體的閘極，並修正其餘圓點。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 15 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 15 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Make these exact corrections to the supplied figure while preserving its main XOR network topology, symbols, equation and truth table. 1. Repair each small inverter in the middle: input A must connect to BOTH PMOS and NMOS gates through a vertical common gate wire left of the transistors; input B likewise. Draw input A or B wire to middle of the vertical gate wire, with a filled T-junction dot. Vertical common gate wire branches to the PMOS gate bubble at top and to NMOS gate (no bubble) below. Current isolated dot on PMOS input alone is wrong: remove it. These must be conventional functional 2-transistor CMOS inverters, not disconnected NMOS gates. Keep their output Abar and Bbar separate and correctly labeled. 2. Add missing filled dots at three specific main-network T junctions: where VDD vertical wire meets top PMOS source bus, where vertical P interconnect meets lower PMOS source bus, and where GND vertical wire meets bottom NMOS source bus. Keep existing dot at upper P junction and output Y junctions. No filled dots at wire endpoints, two-wire elbows, or series NMOS midpoints. All other elements unchanged.</code></pre></figure></div></details><figure class="page-figure ver ver-step marked marks-off" id="v15"><a class="fig-wrap" href="figures/supplement03-15-xor-static-inverters-corrected.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-15-xor-static-inverters-corrected.webp" alt="第 15 版：輸入反相器的接線已修正；P 節點下方仍漏一個圓點。" width="1536" height="1024" loading="lazy"><svg class="marks" viewBox="0 0 100 66.67" preserveAspectRatio="none" aria-hidden="true"><circle class="mk-halo" cx="24.10" cy="25.13" r="2.20"/><circle class="mk mk-miss" cx="24.10" cy="25.13" r="2.20"/><g class="mk-badge"><circle cx="19.80" cy="25.13" r="1.7"/><text x="19.80" y="25.13">1</text></g></svg></a><figcaption><span class="ver-no">第 15 版</span><span class="ver-tag step">過渡版本</span>輸入反相器的接線已修正；P 節點下方仍漏一個圓點。</figcaption><div class="mark-legend"><p><span class="mk-key">紅色標記</span>對應的修正：AI 自己發現，第 16 版修正（使用者沒有另外下指令）<button class="mark-toggle" type="button" aria-pressed="false">顯示標記</button></p><ol><li><span class="mk-num">①</span>漏畫圓點：P 節點下方的分支</li></ol></div></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>圖片已更新反相器的閘極連線，並補上電源與接地的接點圓點。</p></div>
+<details class="explain gen"><summary>圖片生成提示詞｜第 16 版（AI 實際送出的英文原文）</summary><div><figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">圖片生成提示詞</span><span class="code-title">第 16 版</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>Minimal exact one-dot edit ONLY. In the LEFT main XOR schematic add ONE filled black circular junction dot at the T junction where the vertical wire descending from internal node P meets the horizontal source bus above the LOWER PMOS pair (gates Abar and Bbar). Location approximately x370 y388 in this 1536x1024 image. There is currently already a dot just above it at x370 y350; retain it and add the missing dot at x370 y388. Match existing dot radius. Preserve literally every other line, label, transistor symbol, inverter, equation, truth table and dot. Do not redraw other elements.</code></pre></figure></div></details><figure class="page-figure ver ver-final" id="v16"><a class="fig-wrap" href="figures/supplement03-16-xor-static-junction-dots-final.webp" target="_blank" rel="noopener" title="開啟原尺寸圖片（不含標記）"><img src="figures/supplement03-16-xor-static-junction-dots-final.webp" alt="第 16 版：12 顆電晶體的靜態 CMOS XOR 最後版本：補齊 P 節點圓點。" width="1536" height="1024" loading="lazy"></a><figcaption><span class="ver-no">第 16 版</span><span class="ver-tag final">最後版本</span>12 顆電晶體的靜態 CMOS XOR 最後版本：補齊 P 節點圓點。</figcaption></figure>
+<div class="turn ai"><p class="who">🤖 AI 回覆</p><p>完成 <strong>12 顆電晶體的靜態 CMOS XOR</strong> 圖，包含邏輯符號、布林式與真值表。</p></div>
+<div class="callout warn"><span class="label">AI 會自我修正，但不等於正確</span><p>AI 這次自己抓出三個問題，但第 15 版仍漏了一個圓點，是再修一次才補上的。最後一版還是要由懂這個領域的人逐項核對。</p></div>
+
+<h2 id="lessons"><span class="num">07</span>從這段紀錄帶走的修正方法</h2>
+<p>把 16 個版本的修正整理起來，可以歸納出幾種好用的說法。換成你自己的教學圖時，也可以照著用。</p>
+<div class="table-wrap"><table><thead><tr><th>遇到的問題</th><th>這段紀錄怎麼說</th><th>可以借用的做法</th></tr></thead><tbody><tr><td>AI 誤認圖中的元素</td><td>「那個看起來像二極體的符號是反相器。」</td><td>直接說「X 其實是 Y」，不要只說「畫錯了」</td></tr><tr><td>不符合專業慣例</td><td>「只有三條或更多導線交會的分支接點才要畫實心圓點。」</td><td>把規則寫出來，而不是「修正一下」</td></tr><tr><td>用說的講不清楚位置</td><td>附上局部截圖：「你還漏了一個接點圓點。」</td><td>截圖圈出問題處，一張圖勝過一段描述</td></tr><tr><td>修一處卻改壞別處</td><td>生成提示詞寫明座標與「其他都不要改」</td><td>要求最小修改，指定只改哪裡</td></tr><tr><td>做對了，想一直沿用</td><td>「請記住，以後……都使用這個風格。」</td><td>存成規則或 Skill，下次直接套用</td></tr></tbody></table></div>
+<ul class="checklist"><li>每一版都看圖本身，不只看 AI 回覆說「已完成」。</li><li>一次只修一類問題，修完再檢查有沒有改壞別的地方。</li><li>先修會改變意思的錯（接錯、短路），再修外觀（線條、字型）。</li><li>把做對的畫法存成規則，下一張圖直接套用。</li><li>最後版本交給熟悉該領域的人核對，再放進教材。</li></ul>
+<div class="callout warn"><span class="label">使用界線</span><p>這些最後版本只在對話中以目視檢查，沒有做電路模擬。若要用於正式教材，請先由熟悉數位電路的教師確認；用在健康照護主題時，也請由相關專業人員確認圖的內容。</p></div>
+
+<nav class="pager" aria-label="上下頁"><a href="supplement02.html">← 補充 2：從 ArtCraft 到 REA</a><a href="supplement04.html">補充 4：前後測統計分析工具 →</a></nav>
+<script>document.querySelectorAll(".mark-toggle").forEach(function(b){b.addEventListener("click",function(){var f=b.closest("figure");var off=f.classList.toggle("marks-off");b.setAttribute("aria-pressed",String(!off));b.textContent=off?"顯示標記":"隱藏標記";});});</script>
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。智慧雨林 AI Agent 護理教育與長照場域應用工作坊講義；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為工作坊教材，軟體畫面與功能可能隨版本更新而調整；範例與原型僅供教學與討論。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("handouts-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("handouts-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("handouts-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+</script>
+</body>
+</html>

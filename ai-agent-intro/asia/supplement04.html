@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
+<title>補充 4｜用 AI Agent 逐步打造前後測統計分析工具</title>
+<meta name="description" content="智慧雨林 AI Agent 工作坊補充講義：以虛構的 SIMS 情境動機量表前後測資料，分三輪提示請 AI Agent 做出統計分析網頁工具（構面平均、信度、配對樣本 t 檢定與盒鬚圖），並用參考範例核對結果。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.side-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+.side-head .brand { font-size: 1.02rem; font-weight: 700; line-height: 1.45; color: var(--text); text-decoration: none; }
+.side-nav { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0 0; }
+.side-nav a { padding: 0.15rem 0.65rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+.side-nav a:hover, .side-nav a:focus-visible { color: var(--accent); border-color: var(--accent); }
+.side-nav a[aria-current="page"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); font-weight: 700; }
+.side-nav { padding-bottom: 1.1rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+/* Fill-in record tables on the practice sheets (我的紀錄). */
+.record caption { caption-side: top; text-align: left; font-weight: 700; padding: .6rem .8rem; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.record th[scope="row"] { width: 40%; font-weight: 600; white-space: normal; }
+.record td { height: 3.2rem; border-left: 1px solid var(--border); }
+.record td:first-child { border-left: 0; }
+.record thead th { text-align: center; }
+.record th, .record td { white-space: normal; }
+/* Wide record tables (one column per stage) scroll inside their box on phones instead of crushing columns. */
+.record.wide table { min-width: 40rem; }
+@media print { .record td { height: 4rem; } .record { break-inside: avoid; } }
+/* Practice-sheet link in a unit's sidebar (and on the sheet itself, marked current). */
+.side-sheet { display: flex; align-items: center; gap: 0.5rem; margin: 0 0 1rem; padding: 0.6rem 0.85rem; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-weight: 700; text-decoration: none; }
+.side-sheet:hover, .side-sheet:focus-visible { background: var(--accent); color: var(--on-accent); }
+.side-sheet[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+/* Welcome mascot (main page sidebar only): stacked card on desktop, compact row on phones. */
+.side-mascot { margin: 0; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); text-align: center; }
+.side-mascot img { display: block; width: min(100%, 11rem); height: auto; margin: 0 auto; }
+.side-mascot figcaption { margin-top: 0.6rem; font-size: 0.9rem; line-height: 1.55; color: var(--text); }
+@media (max-width: 960px) {
+  .side-mascot { display: flex; align-items: center; gap: 0.9rem; text-align: left; }
+  .side-mascot img { width: 4.5rem; margin: 0; flex: none; }
+  .side-mascot figcaption { margin-top: 0; }
+}
+/* Text-size and theme buttons: pinned to the top-right corner, always visible. */
+.page-tools { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 15; display: flex; gap: 0.4rem; }
+.page-tools button { box-shadow: var(--shadow); }
+@media (max-width: 960px) { .toc { padding-top: 3.5rem; } }
+.sidebar-hide, .sidebar-show { font: inherit; cursor: pointer; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); }
+.sidebar-hide { flex: none; width: 2rem; height: 2rem; border-radius: 8px; font-size: 1.1rem; line-height: 1; }
+.sidebar-show { display: none; position: fixed; top: 0.75rem; left: 0.75rem; z-index: 15; width: 2.4rem; height: 2.4rem; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.15rem; line-height: 1; box-shadow: var(--shadow); }
+.sidebar-hide:hover, .sidebar-show:hover { border-color: var(--accent); color: var(--accent); }
+.sidebar-hide:focus-visible, .sidebar-show:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 960px) { .sidebar-hide { display: none; } }
+/* Hidden sidebar (desktop only): the handout takes the full width, centred. */
+@media (min-width: 961px) {
+  :root[data-sidebar="hidden"] .page { grid-template-columns: minmax(0, 1fr); }
+  :root[data-sidebar="hidden"] .toc { display: none; }
+  :root[data-sidebar="hidden"] main { width: min(100%, 72rem); margin-inline: auto; padding-top: 3.5rem; }
+  :root[data-sidebar="hidden"] .sidebar-show { display: inline-flex; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc details a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc details a:hover { color: var(--text); }
+.toc li.toc-top { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.toc details a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 3.5rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1.2rem;
+  padding: 1.5rem 0 0.55rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--accent);
+  font-weight: 800;
+}
+h2 .num {
+  display: inline-block;
+  min-width: 2.4em;
+  margin-right: 0.6rem;
+  padding: 0.05em 0.5em;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.85em;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.7rem; line-height: 1.45; }
+main > h3 {
+  padding: 0.45rem 0.75rem;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+  color: var(--text);
+}
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+.unit-card.unit-3 { --wc: #b45b18; --wc-bg: #fbebdc; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+:root[data-theme="dark"] .unit-card.unit-3 { --wc: #f0ab73; --wc-bg: #392619; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.text-toggle { display: inline-flex; align-items: center; font: inherit; font-size: 0.85rem; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 0.15rem 0.75rem; cursor: pointer; }
+.text-toggle:hover, .text-toggle[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.text-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Zoom the handout content, never the slide viewer (a full-screen dialog living inside main). */
+:root[data-text="large"] main > :not(dialog) { zoom: 1.3; }
+@media (max-width: 640px) { :root[data-text="large"] main > :not(dialog) { zoom: 1.15; } }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  main { padding-top: 1.5rem; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .page-tools { display: none !important; }
+  :root[data-text="large"] main > :not(dialog) { zoom: 1; }
+  .toc, .sidebar-show, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
+:root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+
+/* Workshop additions: responsive source-document content and version comparisons. */
+.page-figure img { max-width:100%; height:auto; border-radius:12px; }
+.page-figure img { width:80%; margin-inline:auto; }
+@media(max-width:640px) { .page-figure img { width:100%; } }
+.sample-links { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.sample-links a { padding:.5rem .8rem; border:1px solid var(--border); border-radius:8px; }
+.source-note { color:var(--muted); font-size:.9rem; }
+main { overflow-wrap:anywhere; }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:640px) { .card-grid { grid-template-columns:minmax(0,1fr); } }
+
+main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+
+
+/* Shared additions (2026-10-11 restructure): pending sections, illustration notices, sidebar notes. */
+.pending { color: var(--muted); border: 1px dashed var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; margin: 0.8rem 0; }
+.callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
+.side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
+.table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<div class="page-tools"><button class="text-toggle" type="button" aria-pressed="false">放大文字</button><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div>
+<div class="page">
+<aside class="toc" id="sidebar" aria-label="講義導覽"><div class="side-head"><a class="brand" href="index.html">智慧雨林 AI Agent 實作講義</a><button class="sidebar-hide" type="button" aria-controls="sidebar" aria-expanded="true" aria-label="隱藏側欄" title="隱藏側欄，放大講義">«</button></div><nav class="side-nav" aria-label="講義"><a href="index.html" title="講義首頁"><span>首頁</span></a>
+<a href="unit01.html" title="模組 01｜從 Chatbot 到 Agentic AI"><span>01 Agentic AI</span></a>
+<a href="unit02.html" title="模組 02｜VS Code 與工作空間"><span>02 共用專案</span></a>
+<a href="unit03.html" title="模組 03｜從 Gems、GPTs 到自己的第一個 Skill"><span>03 Skill 潮流</span></a>
+<a href="unit04.html" title="模組 04｜建構 RAG 式 Smart TA"><span>04 教學助理</span></a>
+<a href="unit05.html" title="模組 05｜讓教材上線"><span>05 發布教材</span></a>
+<a href="unit06.html" title="模組 06｜AI 專題：照護場域排班小工具"><span>06 排班工具</span></a>
+<a href="unit07.html" title="模組 07｜AI 專題：照護紀錄草稿填寫工具"><span>07 照護紀錄</span></a>
+<a href="supplement01.html" title="補充 1｜AI 寫完程式之後呢？從 ArtCraft 看人工審查、測試與維護的重要性"><span>補充 1 人工審查</span></a>
+<a href="supplement02.html" title="補充 2｜從 ArtCraft 到 REA：AI 能複製軟體，人還要負責什麼？"><span>補充 2 人的責任</span></a>
+<a href="supplement03.html" title="補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例"><span>補充 3 AI 繪圖</span></a>
+<a href="supplement04.html" title="補充 4｜用 AI Agent 逐步打造前後測統計分析工具" aria-current="page"><span>補充 4 統計工具</span></a></nav><details><summary>本頁目錄</summary><ol><li><a href="#goals"><span class="toc-num">01</span>學習目標與情境</a></li>
+<li><a href="#data"><span class="toc-num">02</span>情境與資料</a></li>
+<li><a href="#dimensions"><span class="toc-num">03</span>四個動機構面</a></li>
+<li><a href="#prompts"><span class="toc-num">04</span>三輪提示：一次加一層功能</a></li>
+<li><a href="#outcomes"><span class="toc-num">05</span>參考範例與成果檢核</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
+<main id="main">
+<style>
+.sample-links { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0; }
+.sample-links a { padding: .5rem .9rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-weight: 700; text-decoration: none; }
+.code pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+</style>
+<section class="hero"><p class="eyebrow">補充 4 · AI 專題延伸</p>
+<h1>補充 4｜用 AI Agent 逐步打造前後測統計分析工具</h1>
+<p class="lead">教學活動做完前後測問卷，接下來要整理分數、比較前後差異。這份講義用一份虛構的 SIMS 情境動機量表資料，示範如何分三輪提示 AI Agent，做出一個能直接用瀏覽器開啟的分析工具。不需要會寫程式，也不需要自己推導統計公式：你負責把需求和資料規則說清楚，並用參考範例核對每一版的結果。</p>
+<ul class="meta"><li>對象：想用 AI Agent 分析活動前後測問卷的學員</li><li>成果：三個逐步完成的分析工具與一份核對紀錄</li></ul></section>
+
+<h2 id="goals"><span class="num">01</span>學習目標與情境</h2>
+
+<p>這份補充講義示範：當護理教育需要一個活動前後測的分析工具時，不會寫程式的人也能把需求、資料規則和已知的統計背景說給 AI Agent，請它先做初版，再一輪一輪增加功能。每一輪都要試用成果、用參考值核對結果、確認舊功能還在，再提出下一輪需求。這和模組 06、07 的做法相同：先寫規則、一次一層、親自測試。</p>
+<figure class="page-figure"><a href="figures/supplement04-agent-iteration.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖片"><img src="figures/supplement04-agent-iteration.webp" alt="從活動需求與 CSV 資料出發，使用者提示 AI Agent 建立網頁工具，再核對結果並逐輪增加功能；三個階段依序呈現平均圖、量測檢查與配對分析及盒鬚圖。" loading="lazy" width="1672" height="941"></a><figcaption>工作節奏：說明需求、請 AI Agent 建立工具、用參考資料核對，再逐輪擴充並保留三個版本。</figcaption></figure>
+<div class="callout tip"><span class="label">完成後你會有什麼</span><p>三個逐步完成的單檔網頁工具：第一版算出四個構面的前後平均，第二版加上信度檢查，第三版加上配對樣本 t 檢定與盒鬚圖。重點不在統計公式或程式，而在<strong>把需求說清楚、分階段交給 AI Agent、核對每一版的結果</strong>。</p></div>
+<ul class="checklist">
+<li>把一份前後測問卷的分析需求，拆成三輪可以驗收的提示。</li>
+<li>用參考人數、參考範例核對 AI Agent 做出的數字。</li>
+<li>說出平均數、Cronbach's alpha、配對 t 檢定與盒鬚圖各自能說明和不能說明什麼。</li>
+<li>每加一層功能，都確認上一版的功能仍然可用。</li>
+</ul>
+<div class="callout warn"><span class="label">量表與資料使用提醒</span><p>本練習使用 SIMS（情境動機量表）原題和七點作答尺度，不改題目，只把作答對象設定為護理系學生參加的活動，例如長照機構服務學習。SIMS 本來就是測量參與者當下對特定活動的動機，原作者也說明可用於實地或實驗活動，因此不必和原研究使用同一種活動。請勿讓 AI 改寫題目；前後測使用同一版本。這份資料是虛構的，只用於練習統計計算。（<a href="https://selfdeterminationtheory.org/SDT/documents/2000_GuayVallerandBlanchard_MO.pdf" target="_blank" rel="noopener">SIMS 原始論文</a>）</p></div>
+
+
+<h2 id="data"><span class="num">02</span>情境與資料</h2>
+
+<p class="meta">🩺 需求：把一次教學活動的前後測整理成容易檢視的分析工具</p>
+<p>護理系帶學生到長照機構進行服務學習，活動前後各填一次 SIMS 問卷，想看參與動機有沒有改變。這裡提供兩種模擬情境：一組 53 位虛構參與者，在部分構面有變化；另一組 52 位虛構參與者，各構面變化很小。每人有相同代碼的前後測資料，共 16 題、每題 1 至 7 分。這些資料是為了測試工具的讀檔、配對和分析功能而刻意生成，不代表真實活動成效。</p>
+<p class="sample-links"><a href="downloads/sims_prepost_two_scenarios.csv" download>⬇ 下載前後測模擬資料 CSV</a><a href="downloads/sims_prepost_two_scenarios.xlsx" download>⬇ 下載 Excel 活頁簿</a></p>
+<ol class="steps">
+<li><p><strong>建立工作資料夾。</strong>例如命名為 <code>sims-analysis</code>，用 VS Code 開啟（做法同模組 02）。</p></li>
+<li><p><strong>放入資料。</strong>把下載的 <code>sims_prepost_two_scenarios.csv</code> 放進這個資料夾。</p></li>
+<li><p><strong>開啟 AI Agent。</strong>在這個資料夾中開啟你使用的 AI Agent，依序貼上第 04 節的三輪提示。</p></li>
+</ol>
+<div class="table-wrap"><table><thead><tr><th>欄位群</th><th>說明</th><th>分析用途</th></tr></thead><tbody>
+<tr><td><code>cohort</code></td><td>growth_pattern（部分構面改變）或 stable_pattern（變化很小）</td><td>選擇練習情境</td></tr>
+<tr><td><code>participant_id</code></td><td>虛構參與者代碼，同一情境內前後測相同</td><td>確認配對，不可跨情境配對</td></tr>
+<tr><td><code>intrinsic1_pre</code>…<code>amotivation3_post</code></td><td>四構面、每構面四題的前後測作答；1 至 7 分</td><td>計算構面平均與前後差異</td></tr>
+</tbody></table></div>
+<p>四個構面為內在動機（intrinsic motivation）、認同調節（identified regulation）、外在調節（external regulation）及無動機（amotivation）。高分只表示該構面題目反應較高；解讀外在調節及無動機時，不要把所有分數都簡化成「越高越好」。</p>
+
+
+<h2 id="dimensions"><span class="num">03</span>四個動機構面</h2>
+
+<p>實際問卷請沿用指定的 SIMS 版本原題；以下白話解釋只是幫助理解，不是問卷題目，也不要請 AI 改寫原題。資料欄位按原量表的四個構面整理，每構面四題。</p>
+<div class="card-grid">
+<div class="card"><span class="tag">內在動機</span><h4>活動本身有趣</h4><p>「我覺得這個活動本身有趣，所以想參加。」</p></div>
+<div class="card"><span class="tag">認同調節</span><h4>認同它的價值</h4><p>「我知道這件事對我有價值，所以願意參加。」</p></div>
+<div class="card"><span class="tag">外在調節</span><h4>受外在因素推動</h4><p>「我受到外在期待、獎勵或壓力影響，所以參加。」</p></div>
+<div class="card"><span class="tag">無動機</span><h4>不清楚為什麼參加</h4><p>「我不太明白為什麼參加，也不確定這件事有什麼意義。」</p></div>
+</div>
+<div class="callout note"><span class="label">不是由好到壞的排名</span><p>這四個分數分別描述不同的參加原因。例如，活動後認同調節較高，可以解讀為參與者更認同活動的價值；不能直接說每位參與者都變得更喜歡活動。</p></div>
+
+
+<h2 id="prompts"><span class="num">04</span>三輪提示：一次加一層功能</h2>
+
+<p>以下三輪提示示範如何把需求逐步交給 AI Agent。介面排版和配色沒有唯一答案，每個人做出的工具外觀可以不同；但提示明列的功能、資料規則和統計結果必須一致。每一輪都從上一版繼續，並要求 AI Agent 保留已完成的功能。</p>
+<h3>第 1 輪：讀取資料、整理構面平均並比較前後測</h3>
+<figure class="page-figure"><a href="figures/supplement04-prompt1-means.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖片"><img src="figures/supplement04-prompt1-means.webp" alt="第一版流程示意：檢查前後測 CSV 與配對資料，交由 AI Agent 建立四構面平均摘要表和前後測趨勢圖，並保存第一版。" loading="lazy" width="1672" height="941"></a><figcaption>第 1 輪：先確保資料讀得正確，再算四個構面的平均並呈現前後趨勢。</figcaption></figure>
+<p>先讓 AI Agent 檢查 CSV，再建立第一版網頁工具。這一版只做資料檢核、構面平均、摘要表及前後平均折線圖。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 1 輪：讀取資料與構面平均</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請讀取工作資料夾中的 sims_prepost_two_scenarios.csv，先檢查欄位、空白值、participant_id、cohort、題目分數範圍及每組人數，再建立單檔 HTML 網頁工具。這是虛構教學資料；保留原始 CSV，不要改寫它。資料約有兩組各五十位參與者、SIMS 16 題的前測與後測，每個構面四題，作答 1 至 7 分。
+
+網頁要能直接用瀏覽器開啟，不需伺服器或外部服務，並可上傳同欄位 CSV。使用者可選擇 growth_pattern 或 stable_pattern 情境。以 participant_id 配對同一人的前後測；若 ID 重複、分數空白、非整數或超出 1 至 7，清楚列出問題，不要靜默當成 0，也不要錯誤配對。
+
+依照 item map 將 16 題分成內在動機、認同調節、外在調節、無動機四個構面，每構面四題，分別計算個人前測及後測構面平均，再計算各構面前測平均、後測平均及差值。呈現各構面摘要表與前後平均折線圖，標示樣本數和 1–7 分範圍。清楚說明平均數只摘要中心位置，不能呈現個人分布，也不能單獨判定活動成效。完成後告訴我如何開啟、上傳資料及核對一位參與者的構面平均。
+
+請將第一版另存為 sims_app_v1.html，不要覆蓋 CSV。介面外觀可自行安排，不必仿照範例；但資料匯入、欄位檢查、配對規則、構面計分和參考結果必須符合以上規格。</code></pre></figure>
+<h4>第一版完成檢核</h4>
+<ul class="checklist"><li>growth_pattern 有 53 位、stable_pattern 有 52 位；總計 105 位模擬參與者。</li><li>每位參與者 16 題前測及 16 題後測；每一構面四題，分數都介於 1 至 7。</li><li>抽查一位參與者，請 AI Agent 說明某構面平均，再與參考範例核對；前後測 ID 配對正確。</li><li>四構面順序、名稱、前後測平均及差值方向清楚；折線圖的資料點與摘要表一致。</li><li>第一版已另存為 sims_app_v1.html。</li></ul>
+<div class="callout note"><span class="label">為什麼算出平均還不夠？</span><p>平均數把一組分數濃縮成一個代表數字，適合快速看整體高低和前後方向，但會藏起個別差異。例如兩組分數平均都可能是 4 分，一組大家大多答 4 分，另一組有人答很低、有人答很高；只看平均看不出這種差別。問卷平均也不能單獨告訴我們題目是否真的在測同一個概念、前後變化是否大於個人自然差異，或分數分布是否偏斜。因此後面兩輪再檢查題目表現、量測品質和個人配對差值。</p></div>
+
+<h3>第 2 輪：增加信度檢查及量表限制</h3>
+<figure class="page-figure"><a href="figures/supplement04-prompt2-reliability.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖片"><img src="figures/supplement04-prompt2-reliability.webp" alt="第二版流程示意：延續既有平均分析，按構面檢視題目一致性與 Cronbach alpha，並把效度相關事項列為需審慎說明和專家檢視的證據。" loading="lazy" width="1672" height="941"></a><figcaption>第 2 輪：保留第一版功能，再增加題目一致性摘要，並說清楚哪些結論不能只靠 alpha 得出。</figcaption></figure>
+<p>第一版能正確讀檔及計分後，再增加每個構面的內部一致性摘要。少數幾題構成的構面，alpha 不能當成效度證據；這一版要把可做與不可做的推論說清楚。</p>
+<div class="callout tip"><span class="label">信度與效度怎麼看</span><p><strong>信度：</strong>Cronbach's alpha 看同一構面四題在這批資料中是否大致一致；它不等於效度。</p><p><strong>效度：</strong>SIMS 原研究已為原版量表提供效度證據。我們沿用相同題目，只把作答對象換成護理系的活動，該研究是合理的參考依據。</p><p>若收集真實資料，可再看四個構面是否如預期、參與者如何理解題目，或分數是否與相關問卷／行為呈現理論預期的關係。這些是額外證據，沒有單一「效度分數」。本練習資料是虛構的，只能練習計算，不能證明信效度；約百人的實際樣本也宜視為初步證據。（<a href="https://selfdeterminationtheory.org/SDT/documents/2000_GuayVallerandBlanchard_MO.pdf" target="_blank" rel="noopener">SIMS 原始研究</a>）</p></div>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 2 輪：增加信度與測量說明</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請在目前可用的第一版上增加測量品質區塊，保留資料匯入、錯誤提示、配對、構面計分、平均摘要表和折線圖，不要移除或改壞原功能。另存為 sims_app_v2.html，保留 sims_app_v1.html 不變。
+
+在每個 cohort、前測與後測分開計算四個構面的 Cronbach&#x27;s alpha，並呈現各題與構面總分的相關作為探索性題目檢查。顯示計算所用的有效樣本數、題數，以及缺漏或無效資料的處理規則。若樣本不足、變異為零或無法計算，顯示原因，不要輸出誤導數字。
+
+加入一段易懂說明：alpha 是樣本內部一致性的摘要，不證明單向度或效度；呈現題目－總分相關及題目是否符合四構面的理論對應，作為探索性題目檢查。將內容效度列為「需由教師／專家審查」的檢核項目，不要由程式宣稱通過。因本教學資料是模擬資料，不能宣稱本次資料提供真實量表效度證據。建構效度通常還需理論、專家審查及適當樣本的因素分析等證據；此樣本規模不適合宣稱完成因素驗證。完成後列出新增功能，並確認第一版所有分析仍可使用。
+
+介面可以和第一版或其他學員的作品不同，但第一版原有功能與本輪新增的測量摘要、文字說明和數值計算都必須符合規格。</code></pre></figure>
+<h4>第二版完成檢核</h4>
+<ul class="checklist"><li>alpha 依 cohort、時間點、構面分開計算，且使用個人題目原始分數。</li><li>題目－總分相關清楚標示為探索性檢查；內容效度列為教師／專家審查事項。</li><li>能說明 alpha 不是效度結論，且模擬資料不能支持正式量表效度宣稱。</li><li>原有 CSV 上傳、資料檢核、平均表與折線圖仍可用；v1 和 v2 兩個檔案都保留。</li></ul>
+
+<h3>第 3 輪：增加配對樣本 t 檢定及盒鬚圖</h3>
+<figure class="page-figure"><a href="figures/supplement04-prompt3-paired-t-boxplot.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖片"><img src="figures/supplement04-prompt3-paired-t-boxplot.webp" alt="第三版流程示意：依 participant ID 配對前後測並計算個人差值，輸出配對 t 檢定表和前後測盒鬚圖，同時保留前兩版功能。" loading="lazy" width="1672" height="941"></a><figcaption>第 3 輪：加入配對前後差異檢定和盒鬚圖，同時保留先前完成的分析。</figcaption></figure>
+<p>最後增加推論統計和分布圖。前後測必須由同一 participant_id 配對；同時呈現差異方向、效果大小及不確定性。</p>
+<div class="callout tip"><span class="label">配對樣本 t 檢定在問什麼？怎麼看結果？</span><p>先對每位參與者算「後測減前測」，再看整組的平均差是否明顯偏離 0。表中的<strong>平均差</strong>是正數，表示平均分數上升；是負數，表示下降。這份練習同時檢查四個構面，所以判斷時看表中的 <strong>Holm 校正 p 值</strong>，並以 .05 為門檻。</p><ul><li><strong>Holm p &lt; .05：</strong>這次資料提供了「平均分數有改變」的統計證據；再看平均差是正是負，說明上升或下降。</li><li><strong>Holm p ≥ .05：</strong>資料還不足以確認平均分數有改變。即使前後平均不同，也只能說「觀察到一些差異，但未達統計顯著」，不能說已證明完全沒變。</li></ul><p>p 值不是活動有效的機率，也不表示變化有多重要；還要一起看平均差和信賴區間。檢定說明的是這批配對資料的平均變化，不能單獨證明是活動造成。可參考<a href="https://www.itl.nist.gov/div898/handbook/prc/section3/prc311.htm" target="_blank" rel="noopener">NIST 配對觀察值分析說明</a>。</p></div>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 3 輪：配對樣本 t 檢定與盒鬚圖</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請在現有第二版上增加四構面的配對樣本 t 檢定與盒鬚圖，保留所有既有功能。另存為 sims_app_v3.html，不要覆蓋 v1 或 v2。每位參與者先以四題平均形成前測、後測構面分數，再以同一 participant_id 計算差值（後測減前測）。
+
+結果表每構面列出配對 n、前測平均與標準差、後測平均與標準差、平均差、95% 信賴區間、t 值、自由度、雙尾 p 值、配對效果量 Cohen&#x27;s dz，並提供四個 p 值的 Holm 校正結果。明確說明顯著水準及差值正負方向；遇到無效配對、差值無變異或樣本不足時，顯示不能計算的理由。提供每個構面的前後測盒鬚圖，圖上標出中位數、四分位距、鬚線規則及樣本數；不要把盒鬚圖誤說成平均數圖。
+
+加入解讀提醒：這是刻意生成的教學資料，growth_pattern 只應在指定構面呈現顯著變化，stable_pattern 四構面都應沒有顯著變化；先比較兩組結果是否符合預期，再解讀效應大小與信賴區間。配對 t 檢定結果只描述此模擬樣本的前後差異，不足以證明活動造成變化或推論所有參與者。完成後列出新增功能，並逐項確認第一、二版的資料匯入、計分、信度和折線圖仍正常。
+
+不要為了讓結果好看而改動計算規則；介面可以不同，但依同一份資料及以上規格計算時，表格數值和判讀結果應一致。</code></pre></figure>
+<h4>第三版完成檢核</h4>
+<ul class="checklist"><li>同一 ID 的後測減前測作為配對差值；不同 cohort 不混在同一次配對分析。</li><li>growth_pattern 的內在動機、認同調節及無動機呈現有差異的模式（無動機預期下降）；外在調節預期沒有明顯差異。</li><li>stable_pattern 四構面皆預期沒有統計顯著差異。未顯著不代表兩次完全相同，也不等於證明無效果。</li><li>配對 t 表列出差值、區間、p 值、效果量與 Holm 校正；盒鬚圖顯示中位數、四分位數、鬚線和樣本數。</li><li>v1、v2、v3 三個檔案都保留；重新上傳兩組資料，確認舊功能沒有遺失。</li></ul>
+<div class="callout note"><span class="label">盒鬚圖多告訴我們什麼？</span><p>盒子中間的線是中位數，代表排序後位在中央的分數；盒子上下緣是第 25 與第 75 百分位，盒子包含中間一半的人。盒鬚圖能快速看出分數集中還是分散、前後測分布是否移動、有沒有特別遠的分數。它補足平均數看不到的分布資訊，但不顯示每一位參與者如何改變，也不能取代配對 t 檢定；因此要把圖和表一起看。範例工具把鬚延伸到 1.5 倍四分位距範圍內的最遠觀察值，超出範圍的點會單獨標出。（<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm" target="_blank" rel="noopener">NIST 盒鬚圖說明</a>）</p></div>
+
+
+<h2 id="outcomes"><span class="num">05</span>參考範例與成果檢核</h2>
+
+<p>以下三個範例是逐輪完成的參考版本。每完成一輪，就打開對應的範例，用同一份資料比對你的數字。</p>
+<div class="card-grid">
+<div class="card"><span class="tag">第一版</span><h4><a href="examples/supplement04-sims/v1-means.html" target="_blank" rel="noopener">構面平均與折線圖</a></h4><p>資料檢查、四構面平均與前後趨勢圖。</p></div>
+<div class="card"><span class="tag">第二版</span><h4><a href="examples/supplement04-sims/v2-reliability.html" target="_blank" rel="noopener">加上信度檢查</a></h4><p>保留第一版，增加信度摘要與測量說明。</p></div>
+<div class="card"><span class="tag">第三版</span><h4><a href="examples/supplement04-sims/v3-paired-t-boxplot.html" target="_blank" rel="noopener">加上配對 t 檢定與盒鬚圖</a></h4><p>保留前兩版，增加推論統計與分布圖。</p></div>
+</div>
+<figure class="page-figure"><a href="figures/supplement04-same-results-different-ui.webp" target="_blank" rel="noopener" title="開啟完整尺寸圖片"><img src="figures/supplement04-same-results-different-ui.webp" alt="兩台筆電展示明亮卡片式與深色儀表板式的不同介面；相同資料分別進入後，都呈現一致的圖表和檢核結果。" loading="lazy" width="1672" height="941"></a><figcaption>每個人做出的畫面可以不同；相同資料下，必要功能、處理規則和計算結果必須一致。</figcaption></figure>
+<div class="callout note"><span class="label">檢核自己的工具</span><p>畫面、配色和排版和範例不同是正常的。要一致的是主體功能、資料處理規則、計算方式和分析結果：使用同一份資料與同一條件時，指定功能都要能操作，數值和判讀應與參考範例相符。每次增加功能後，先確認上一版的功能仍能使用。三個版本都保留下來，才看得出 AI Agent 如何依序完成初版、擴充版和完整版。</p></div>
+<div class="callout warn"><span class="label">使用界線</span><p>模擬資料刻意安排了不同結果，只供練習比較。真實的單組前後測即使有顯著差異，也要留意成熟、期待、活動以外事件等其他解釋；統計顯著不等於實務重要。若要分析真實學生的問卷，請先去識別化，並由熟悉研究方法的教師確認分析與解讀。</p></div>
+
+
+<nav class="pager" aria-label="上下頁"><a href="supplement03.html">← 補充 3：用對話修正 AI 繪圖</a><a href="index.html">講義首頁 →</a></nav>
+</main>
+</div>
+<footer class="site-footer"><p>© 2026 楊榮林（南臺科技大學電子工程系）。智慧雨林 AI Agent 護理教育與長照場域應用工作坊講義；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有。</p><p>本講義為工作坊教材，軟體畫面與功能可能隨版本更新而調整；範例與原型僅供教學與討論。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Keep the current table-of-contents item tied to one reading position.
+  var tocLinks = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var tocTargets = tocLinks.map(function (link) {
+    var id = decodeURIComponent(link.getAttribute("href").slice(1));
+    return { link: link, target: document.getElementById(id) };
+  }).filter(function (item) { return item.target; });
+
+  function updateActiveTocLink() {
+    if (!tocTargets.length) return;
+    var marker = Math.min(180, Math.max(88, window.innerHeight * 0.22));
+    var current = tocTargets[0];
+    tocTargets.forEach(function (item) {
+      if (item.target.getBoundingClientRect().top <= marker) current = item;
+    });
+
+    tocLinks.forEach(function (link) { link.classList.remove("active"); });
+    current.link.classList.add("active");
+
+  }
+
+  var tocUpdatePending = false;
+  function scheduleTocUpdate() {
+    if (tocUpdatePending) return;
+    tocUpdatePending = true;
+    window.requestAnimationFrame(function () {
+      tocUpdatePending = false;
+      updateActiveTocLink();
+    });
+  }
+  window.addEventListener("scroll", scheduleTocUpdate, { passive: true });
+  window.addEventListener("resize", scheduleTocUpdate);
+  window.addEventListener("hashchange", scheduleTocUpdate);
+  updateActiveTocLink();
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  tocLinks.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  var desktopToc = window.matchMedia("(min-width: 961px)");
+  function adaptToc() { if (tocDetails) tocDetails.open = desktopToc.matches; }
+  adaptToc();
+  desktopToc.addEventListener("change", adaptToc);
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("handouts-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text-size toggle: enlarges the handout content for projection; remembered per browser.
+  var textBtn = document.querySelector(".text-toggle");
+  function paintText() {
+    var large = root.getAttribute("data-text") === "large";
+    textBtn.textContent = large ? "一般文字" : "放大文字";
+    textBtn.setAttribute("aria-pressed", large ? "true" : "false");
+  }
+  if (textBtn) {
+    paintText();
+    textBtn.addEventListener("click", function () {
+      var large = root.getAttribute("data-text") !== "large";
+      if (large) root.setAttribute("data-text", "large"); else root.removeAttribute("data-text");
+      try { localStorage.setItem("handouts-text", large ? "large" : "normal"); } catch (e) {}
+      paintText();
+      scheduleTocUpdate();
+    });
+  }
+
+  // Sidebar hide/show (desktop): hiding widens and centres the handout; remembered per browser.
+  var hideBtn = document.querySelector(".sidebar-hide");
+  var showBtn = document.querySelector(".sidebar-show");
+  function setSidebar(hidden, focus) {
+    if (hidden) root.setAttribute("data-sidebar", "hidden"); else root.removeAttribute("data-sidebar");
+    if (hideBtn) hideBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    if (showBtn) showBtn.setAttribute("aria-expanded", hidden ? "false" : "true");
+    try { localStorage.setItem("handouts-sidebar", hidden ? "hidden" : "shown"); } catch (e) {}
+    if (focus) (hidden ? showBtn : hideBtn).focus();
+    scheduleTocUpdate();
+  }
+  if (hideBtn && showBtn) {
+    if (root.getAttribute("data-sidebar") === "hidden") {
+      hideBtn.setAttribute("aria-expanded", "false");
+      showBtn.setAttribute("aria-expanded", "false");
+    }
+    hideBtn.addEventListener("click", function () { setSidebar(true, true); });
+    showBtn.addEventListener("click", function () { setSidebar(false, true); });
+  }
+
+
+  // Return-to-top entry at the end of the sidebar table of contents.
+  document.querySelectorAll(".toc-top a").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+</script>
+</body>
+</html>
