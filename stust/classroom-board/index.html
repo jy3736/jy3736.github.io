@@ -12,15 +12,17 @@
 #imageViewport.pannable{cursor:grab}#imageViewport.panning{cursor:grabbing;user-select:none}#imageViewport.panning img{pointer-events:none}
 #deleteBoard{border-color:#fda4af;color:#fecdd3}#clearBoard{border-color:#fcd34d;color:#fde68a}#undoDeleteBoard{border-color:#5eead4}
 #imageViewport{position:relative}#imageViewport.selecting{cursor:crosshair;user-select:none}#selectionBox{position:absolute;pointer-events:none;border:2px solid #fef08a;background:rgba(250,204,21,.2);z-index:1}
-#message :is(p,h1,h2,h3,h4,h5,h6,ul,ol,pre,blockquote,hr){margin:0}#message>*+*,#message :is(blockquote,li)>*+*{margin-top:.45em}#message :is(h1,h2,h3,h4,h5,h6){line-height:1.25;letter-spacing:normal;color:#99f6e4}#message h1{font-size:1.45em}#message h2{font-size:1.25em}#message h3{font-size:1.1em}#message :is(h4,h5,h6){font-size:1em}#message :is(ul,ol){padding-left:1.3em}#message li::marker{color:#5eead4}#message strong{color:#fde68a;font-weight:900}#message em{color:#c4b5fd}#message del{opacity:.65}#message code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.85em;font-weight:500;background:#1b2c43;border:1px solid #314057;border-radius:.25em;padding:0 .2em}#message pre{font-size:.6em;white-space:inherit;background:#0f1b2d;border:1px solid #314057;border-radius:12px;padding:.6em .8em}#message pre code{font-size:1em;background:none;border:0;padding:0}#message blockquote{border-left:.15em solid #5eead4;padding-left:.6em;color:#cbd5e1}#message hr{border:0;border-top:2px solid #42516a}#message a{color:#99f6e4}
+#message :is(p,h1,h2,h3,h4,h5,h6,ul,ol,pre,blockquote,hr){margin:0}#message>*+*,#message :is(blockquote,li)>*+*{margin-top:.45em}#message :is(h1,h2,h3,h4,h5,h6){line-height:1.25;letter-spacing:normal;color:#99f6e4}#message h1{font-size:1.45em}#message h2{font-size:1.25em}#message h3{font-size:1.1em}#message :is(h4,h5,h6){font-size:1em}#message :is(ul,ol){padding-left:1.3em}#message li::marker{color:#5eead4}#message strong{color:#fde68a;font-weight:900}#message em{color:#c4b5fd}#message del{opacity:.65}#message code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.85em;font-weight:500;background:#1b2c43;border:1px solid #314057;border-radius:.25em;padding:0 .2em}#message pre{font-size:.6em;white-space:inherit;background:#0f1b2d;border:1px solid #314057;border-radius:12px;padding:.6em .8em}#message pre code{font-size:1em;background:none;border:0;padding:0}#message blockquote{border-left:.15em solid #5eead4;padding-left:.6em;color:#cbd5e1}#message hr{border:0;border-top:2px solid #42516a}#message a{color:#99f6e4}#message .table-wrap{overflow-x:auto;font-size:.5em}#message table{border-collapse:collapse;width:100%;font-weight:500}#message :is(th,td){border:1px solid #42516a;padding:.4em .6em;vertical-align:top;text-align:left;white-space:pre-wrap;overflow-wrap:break-word;min-width:4.5em}#message th{background:#142238;color:#99f6e4;font-weight:800}#message :is(th,td):first-child{white-space:nowrap;overflow-wrap:normal}#message tbody tr:nth-child(even){background:rgba(255,255,255,.03)}#message>*+:is(h1,h2,h3,h4,h5,h6){margin-top:.9em}
+#content{width:var(--view-width,90%);align-self:center}.view-width{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;white-space:nowrap}.view-width input{width:120px;accent-color:#5eead4}.view-width output{min-width:2.6em;text-align:right}@media(max-width:700px){#content{width:100%}.view-width{display:none}}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:min(calc(100vw - 32px),720px);background:#142238;border:1px solid #5eead4;border-radius:12px;padding:12px 18px;font-size:18px;color:#fff;z-index:20;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
-<header><h1>教室公告板</h1><button id="wrap" aria-pressed="true" title="切換公告文字自動換行">自動換行：開</button><button id="qrToggle" aria-pressed="false" title="切換是否為網址顯示 QR Code">QR Code：關</button><button id="smaller" aria-label="縮小公告文字">A−</button><button id="larger" aria-label="放大公告文字">A＋</button><button id="projection">全螢幕投影</button></header>
-<nav class="board-bar" aria-label="公告板切換"><div id="boardTabs" class="board-tabs" role="tablist" aria-label="公告板"></div><button id="addBoard">＋ 新增公告板</button><button id="clearBoard" title="一鍵清空目前公告板的公告與草稿，可復原">清空此板</button><button id="deleteBoard" title="刪除目前公告板，可復原">刪除此板</button><button id="undoDeleteBoard" hidden>復原刪除</button><details id="exportMenu" class="export-menu"><summary title="下載已發布的公告為獨立 HTML 檔">匯出 HTML</summary><div class="export-options"><button type="button" id="exportBoard">匯出此公告板</button><button type="button" id="exportAll">匯出全部公告板</button></div></details><label class="board-name">名稱 <input id="boardName" maxlength="40" aria-label="公告板名稱"></label></nav>
+<header><h1>教室公告板</h1><button id="wrap" aria-pressed="true" title="切換公告文字自動換行">自動換行：開</button><button id="qrToggle" aria-pressed="false" title="切換是否為網址顯示 QR Code">QR Code：關</button><label class="view-width" title="調整公告顯示區域的寬度">顯示寬度 <input id="viewWidth" type="range" min="50" max="90" step="5" value="90" aria-label="公告顯示寬度"><output id="viewWidthValue" for="viewWidth">90%</output></label><button id="smaller" aria-label="縮小公告文字">A−</button><button id="larger" aria-label="放大公告文字">A＋</button><button id="projection">全螢幕投影</button></header>
+<nav class="board-bar" aria-label="公告板切換"><div id="boardTabs" class="board-tabs" role="tablist" aria-label="公告板"></div><button id="addBoard">＋ 新增公告板</button><button id="clearBoard" title="一鍵清空目前公告板的公告與草稿，可復原">清空此板</button><button id="deleteBoard" title="刪除目前公告板，可復原">刪除此板</button><button id="undoDeleteBoard" hidden>復原刪除</button><details id="exportMenu" class="export-menu"><summary title="匯出公告為獨立 HTML 檔，或匯入先前匯出的檔案">匯入／匯出</summary><div class="export-options"><button type="button" id="exportBoard">匯出此公告板</button><button type="button" id="exportAll">匯出全部公告板</button><button type="button" id="importBoards">匯入 HTML 檔…</button><input type="file" id="importFile" accept=".html,.htm,text/html" multiple hidden></div></details><label class="board-name">名稱 <input id="boardName" maxlength="40" aria-label="公告板名稱"></label></nav>
 <div id="imageTools" class="image-tools" hidden><label for="imageSize">圖片大小 <input id="imageSize" type="range" min="10" max="300" step="5" value="100"><output id="imageSizeValue" for="imageSize">100%</output></label><button id="fitImage" aria-pressed="true">適合螢幕</button><button id="originalImage" aria-pressed="false">原始尺寸</button><button id="selectZoom" aria-pressed="false">框選放大</button><span class="hint">框選放大：拖出矩形 · Esc 取消 · 放大後可拖曳移動</span></div>
 <main id="stage" aria-label="已發布公告"><div id="welcome"><strong>讓全班看見</strong><p>在下方輸入文字、貼上網址或加入圖片<br>按「發布」，公告就會顯示在這裡。</p></div><div id="content" hidden><div id="message" hidden></div><div id="imageViewport" tabindex="0" role="region" aria-label="圖片顯示區，可用滑鼠拖曳或上下左右捲動" hidden><img id="publishedImage" alt="老師發布的圖片" draggable="false" hidden><div id="selectionBox" aria-hidden="true" hidden></div></div></div><aside id="qrPanel" hidden><div id="qrCode"></div><strong>掃描開啟連結</strong><a id="urlLink" target="_blank" rel="noopener noreferrer"></a></aside></main>
-<footer><form id="publisher"><label for="draft">編輯下一則公告</label><div class="draft-row"><textarea id="draft" placeholder="輸入文字或網址（如 example.com），也可以直接貼上圖片…"></textarea><div class="actions"><button type="submit" class="primary" id="publish">發布</button><label class="file-button">加入圖片<input type="file" id="imageFile" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp"></label></div></div><div class="meta"><img id="preview" alt="待發布圖片預覽" hidden><button type="button" id="removeImage" hidden>移除草稿圖片</button><p id="status" role="status">草稿修改後，按「發布」才會更新上方公告。</p><span class="hint">⌘ / Ctrl + Enter 發布 · 圖片可直接貼上 · 重新整理會清空</span></div></form></footer>
+<footer><form id="publisher"><label for="draft">編輯下一則公告</label><div class="draft-row"><textarea id="draft" placeholder="輸入文字或網址（如 example.com），也可以直接貼上圖片…"></textarea><div class="actions"><button type="submit" class="primary" id="publish">發布</button><label class="file-button">加入圖片<input type="file" id="imageFile" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp"></label></div></div><div class="meta"><img id="preview" alt="待發布圖片預覽" hidden><button type="button" id="removeImage" hidden>移除草稿圖片</button><p id="status" role="status">草稿修改後，按「發布」才會更新上方公告。</p><span class="hint">⌘ / Ctrl + Enter 發布 · 圖片可直接貼上 · 重新整理會清空</span></div></form></footer><div id="toast" role="status" aria-live="polite" hidden></div>
 <script>
 /*
 MIT License
@@ -2349,12 +2351,15 @@ var qrcode = function() {
 'use strict';
 const $=id=>document.getElementById(id);
 let draftImage=null, imagePending=false, imageVersion=0, scale=1, publishedText='', imageScale=100, imageMode='fit', imagePan=null, imageZoom=1, selectionMode=false, imageSelection=null;
-const status=message=>$('status').textContent=message;
+let toastTimer=0;
+// The editor (and its status line) is hidden while presenting, so mirror messages in a toast.
+const status=message=>{$('status').textContent=message;if(!document.body.classList.contains('presenting'))return;$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3000);};
 qrcode.stringToBytes=s=>Array.from(new TextEncoder().encode(s));
 function fontSize(){
 const message=$('message');
 const base=publishedText.length<45?76:publishedText.length<140?58:publishedText.length<350?42:32;
-const preferred=Math.max(22,Math.min(base,innerWidth*.065))*scale;
+// Text size follows the display area's width, so the 顯示寬度 slider rescales it.
+const preferred=Math.max(22,Math.min(base,($('content').clientWidth||innerWidth*.87)*.075))*scale;
 message.style.fontSize=`${preferred}px`;
 if(message.hidden||!message.classList.contains('no-wrap')||!message.clientWidth)return;
 // Measure the rendered longest line, preserving manual breaks and actual font metrics.
@@ -2369,14 +2374,15 @@ message.style.fontSize=`${low}px`;
 }
 function textWidth(element){
 // Block children always span the full width, so measure the rendered text runs instead.
-const left=element.getBoundingClientRect().left,range=document.createRange(),walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);let right=left;
+const left=element.getBoundingClientRect().left,range=document.createRange(),walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT,{acceptNode:node=>node.parentElement.closest('.table-wrap')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});let right=left;
 while(walker.nextNode()){range.selectNodeContents(walker.currentNode);const rect=range.getBoundingClientRect();if(rect.width)right=Math.max(right,rect.right);}
 return right-left;
 }
 // Minimal Markdown renderer: builds DOM nodes only, so typed HTML always stays literal text.
 const inlinePattern=/\\([!-\/:-@\[-`{-~])|`([^`\n]+)`|\[([^\]\n]+)\]\(([^\s()]+(?:\([^\s()]*\)[^\s()]*)?)\)|\*\*(?=\S)([\s\S]*?\S)\*\*|~~(?=\S)([\s\S]*?\S)~~|(?<![\w*\\])\*(?=[^\s*])([\s\S]*?[^\s*\\])\*(?![\w*])/g;
 const listPattern=/^(\s*)([-*+]|\d{1,9}[.)])\s+(.*)$/;
-function safeHref(raw){try{const url=new URL(/^(?:https?|mailto):/i.test(raw)?raw:'https://'+raw);return ['http:','https:','mailto:'].includes(url.protocol)?url.href:null;}catch{return null;}}
+// Relative paths (e.g. html/page.html) have nowhere to point from the board, so only absolute URLs and domains become links.
+function safeHref(raw){if(!/^(?:https?:|mailto:)/i.test(raw)&&!/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}(?::\d{1,5})?(?:[/?#]|$)/i.test(raw))return null;try{const url=new URL(/^(?:https?|mailto):/i.test(raw)?raw:'https://'+raw);return ['http:','https:','mailto:'].includes(url.protocol)?url.href:null;}catch{return null;}}
 function appendInline(parent,text){
 let last=0;
 for(const m of text.matchAll(inlinePattern)){
@@ -2384,10 +2390,18 @@ if(m.index>last)parent.append(text.slice(last,m.index));
 last=m.index+m[0].length;
 if(m[1]!==undefined)parent.append(m[1]);
 else if(m[2]!==undefined){const code=document.createElement('code');code.textContent=m[2];parent.append(code);}
-else if(m[3]!==undefined){const href=safeHref(m[4]);if(!href){parent.append(m[0]);continue;}const link=document.createElement('a');link.href=href;link.target='_blank';link.rel='noopener noreferrer';appendInline(link,m[3]);parent.append(link);}
+else if(m[3]!==undefined){const href=safeHref(m[4]);if(!href){appendInline(parent,m[3]);continue;}const link=document.createElement('a');link.href=href;link.target='_blank';link.rel='noopener noreferrer';appendInline(link,m[3]);parent.append(link);}
 else{const tag=m[5]!==undefined?'strong':m[6]!==undefined?'del':'em';const node=document.createElement(tag);appendInline(node,m[5]??m[6]??m[7]);parent.append(node);}
 }
 if(last<text.length)parent.append(text.slice(last));
+}
+const tableRulePattern=/^\s*\|?\s*:?-+:?\s*(?:\|\s*:?-+:?\s*)*\|?\s*$/;
+function tableCells(line){
+// Split on pipes outside inline code; \| keeps a literal pipe.
+let text=line.trim();if(text.startsWith('|'))text=text.slice(1);if(text.endsWith('|')&&!text.endsWith('\\|'))text=text.slice(0,-1);
+const cells=[];let cell='',code=false;
+for(let i=0;i<text.length;i++){const ch=text[i];if(ch==='\\'&&text[i+1]==='|'){cell+='\\|';i++;continue;}if(ch==='`')code=!code;if(ch==='|'&&!code){cells.push(cell.trim());cell='';continue;}cell+=ch;}
+cells.push(cell.trim());return cells;
 }
 const fencePattern=/^\s*(`{3,}|~{3,})/,headingPattern=/^\s{0,3}(#{1,6})\s+(.*)$/,rulePattern=/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/,quotePattern=/^\s{0,3}>/;
 function startsBlock(line){const list=line.match(listPattern);return fencePattern.test(line)||headingPattern.test(line)||rulePattern.test(line)||quotePattern.test(line)||Boolean(list&&(!/\d/.test(list[2])||parseInt(list[2])===1));}
@@ -2399,6 +2413,14 @@ if(!line.trim()){i++;continue;}
 if((m=line.match(fencePattern))){const fence=m[1],code=[];i++;while(i<lines.length&&!lines[i].trim().startsWith(fence))code.push(lines[i++]);i++;const pre=document.createElement('pre'),element=document.createElement('code');element.textContent=code.join('\n');pre.append(element);parent.append(pre);continue;}
 if((m=line.match(headingPattern))){const heading=document.createElement('h'+m[1].length);appendInline(heading,m[2]);parent.append(heading);i++;continue;}
 if(rulePattern.test(line)){parent.append(document.createElement('hr'));i++;continue;}
+if(line.includes('|')&&lines[i+1]?.includes('|')&&tableRulePattern.test(lines[i+1])){
+const header=tableCells(line),aligns=tableCells(lines[i+1]).map(cell=>cell.startsWith(':')&&cell.endsWith(':')?'center':cell.endsWith(':')?'right':cell.startsWith(':')?'left':'');
+const wrap=document.createElement('div'),table=document.createElement('table'),head=document.createElement('thead'),body=document.createElement('tbody');wrap.className='table-wrap';
+const addRow=(section,cells,tag)=>{const row=document.createElement('tr');header.forEach((_,column)=>{const cell=document.createElement(tag);if(aligns[column])cell.style.textAlign=aligns[column];appendInline(cell,cells[column]??'');row.append(cell);});section.append(row);};
+addRow(head,header,'th');i+=2;
+while(i<lines.length&&lines[i].trim()&&lines[i].includes('|'))addRow(body,tableCells(lines[i++]),'td');
+table.append(head);if(body.rows.length)table.append(body);wrap.append(table);parent.append(wrap);continue;
+}
 if(quotePattern.test(line)){const quote=document.createElement('blockquote'),inner=[];while(i<lines.length&&quotePattern.test(lines[i]))inner.push(lines[i++].replace(/^\s{0,3}> ?/,''));renderMarkdown(quote,inner);parent.append(quote);continue;}
 if((m=line.match(listPattern))){
 const indent=m[1].length,ordered=/\d/.test(m[2]),list=document.createElement(ordered?'ol':'ul');
@@ -2413,7 +2435,7 @@ break;
 parent.append(list);continue;
 }
 const paragraph=[line];i++;
-while(i<lines.length&&lines[i].trim()&&!startsBlock(lines[i]))paragraph.push(lines[i++]);
+while(i<lines.length&&lines[i].trim()&&!startsBlock(lines[i])&&!(lines[i].includes('|')&&lines[i+1]?.includes('|')&&tableRulePattern.test(lines[i+1])))paragraph.push(lines[i++]);
 const p=document.createElement('p');appendInline(p,paragraph.join('\n'));parent.append(p);
 }
 }
@@ -2468,13 +2490,13 @@ let boardNumber=1,activeBoard=0;
 const undoStack=[];
 function emptyBoard(){return {name:'公告板 '+(++boardNumber),draft:'',draftImage:null,text:'',image:null,scale:1,wrap:true,imageScale:100,imageMode:'fit'};}
 const boards=[{name:'公告板 1',draft:'',draftImage:null,text:'',image:null,scale:1,wrap:true,imageScale:100,imageMode:'fit'}];
-function saveBoard(){Object.assign(boards[activeBoard],{draft:$('draft').value,draftImage,text:publishedText,image:$('publishedImage').hidden?null:$('publishedImage').getAttribute('src'),scale,wrap:$('wrap').getAttribute('aria-pressed')==='true',qr:qrEnabled(),imageScale,imageMode,imageZoom,imageLeft:$('imageViewport').scrollLeft,imageTop:$('imageViewport').scrollTop,scroll:$('stage').scrollTop});}
+function saveBoard(){Object.assign(boards[activeBoard],{draft:$('draft').value,draftImage,text:publishedText,image:$('publishedImage').hidden?null:$('publishedImage').getAttribute('src'),scale,wrap:$('wrap').getAttribute('aria-pressed')==='true',qr:qrEnabled(),viewWidth,imageScale,imageMode,imageZoom,imageLeft:$('imageViewport').scrollLeft,imageTop:$('imageViewport').scrollTop,scroll:$('stage').scrollTop});}
 function renderTabs(){
 $('boardTabs').replaceChildren();
 boards.forEach((board,index)=>{const button=document.createElement('button');button.type='button';button.role='tab';button.id=`board-tab-${index}`;button.textContent=board.name;button.setAttribute('aria-selected',String(index===activeBoard));button.setAttribute('aria-controls','stage');button.tabIndex=index===activeBoard?0:-1;button.onclick=()=>switchBoard(index);button.onkeydown=event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();const next=event.key==='Home'?0:event.key==='End'?boards.length-1:(index+(event.key==='ArrowRight'?1:-1)+boards.length)%boards.length;switchBoard(next);document.getElementById(`board-tab-${activeBoard}`).focus();}};$('boardTabs').append(button);});
 $('boardName').value=boards[activeBoard].name;
 $('undoDeleteBoard').hidden=undoStack.length===0;
-$('undoDeleteBoard').textContent=(undoStack.at(-1)?.kind==='clear'?'復原清空':'復原刪除')+(undoStack.length?'（'+undoStack.length+'）':'');
+$('undoDeleteBoard').textContent=({clear:'復原清空',import:'復原匯入',paste:'復原貼上'}[undoStack.at(-1)?.kind]||'復原刪除')+(undoStack.length?'（'+undoStack.length+'）':'');
 }
 function switchBoard(index){
 if(imagePending){status('圖片載入中，請稍候再切換公告板。');return;}
@@ -2486,7 +2508,7 @@ imageVersion++;draftImage=board.draftImage;scale=board.scale;imageScale=board.im
 $('draft').value=board.draft;$('preview').hidden=!draftImage;$('removeImage').hidden=!draftImage;
 if(draftImage)$('preview').src=draftImage;else $('preview').removeAttribute('src');
 $('wrap').setAttribute('aria-pressed',String(board.wrap));$('wrap').textContent=board.wrap?'自動換行：開':'自動換行：關';$('message').classList.toggle('no-wrap',!board.wrap);setQrButton(board.qr===true);
-$('imageSize').value=imageScale;$('imageSizeValue').textContent=imageScale+'%';
+$('imageSize').value=imageScale;$('imageSizeValue').textContent=imageScale+'%';viewWidth=board.viewWidth||90;applyViewWidth();
 renderPublished(board.text,board.image);renderTabs();$('stage').scrollTop=board.scroll||0;requestAnimationFrame(()=>imageViewport.scrollTo(board.imageLeft||0,board.imageTop||0));
 status('已切換至「'+board.name+'」。各公告板的草稿與已發布內容分開保留。');
 }
@@ -2513,20 +2535,22 @@ $('undoDeleteBoard').onclick=()=>{
 if(!undoStack.length)return;
 if(imagePending){status('圖片載入中，請稍候再復原公告板。');return;}
 saveBoard();const entry=undoStack.pop(),board=entry.board;
-if(entry.kind==='clear'){Object.assign(board,entry.snapshot);showBoard(boards.indexOf(board));status('已復原「'+board.name+'」清空前的公告與草稿。');document.getElementById(`board-tab-${activeBoard}`).focus();return;}
+if(entry.kind==='import'){const current=boards[activeBoard],first=boards.indexOf(entry.boards[0]);for(const imported of entry.boards){const index=boards.indexOf(imported);if(index>=0)boards.splice(index,1);}if(!boards.length)boards.push(emptyBoard());const index=boards.indexOf(current);showBoard(index>=0?index:Math.max(0,Math.min(first,boards.length-1)));status('已移除匯入的 '+entry.boards.length+' 個公告板。');document.getElementById(`board-tab-${activeBoard}`).focus();return;}
+if(entry.kind==='clear'||entry.kind==='paste'){Object.assign(board,entry.snapshot);showBoard(boards.indexOf(board));status(entry.kind==='clear'?'已復原「'+board.name+'」清空前的公告與草稿。':'已還原「'+board.name+'」貼上前的公告。');document.getElementById(`board-tab-${activeBoard}`).focus();return;}
 const restoredIndex=Math.min(entry.index,boards.length);
 boards.splice(restoredIndex,0,board);showBoard(restoredIndex);
 status('已復原「'+board.name+'」的內容、草稿與顯示設定。');
 document.getElementById(`board-tab-${activeBoard}`).focus();
 };
 const escapeHtml=text=>text.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-const exportStyles=`:root{color-scheme:dark;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;background:#08111f;color:#fff}*{box-sizing:border-box}body{margin:0;padding:24px clamp(16px,4vw,48px) 48px}header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;border-bottom:1px solid #314057;padding-bottom:12px}header h1{font-size:18px;margin:0;letter-spacing:.1em}header time{color:#b8c6d9;font-size:14px}nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}nav a{color:#99f6e4;border:1px solid #62738c;border-radius:10px;padding:6px 12px;text-decoration:none;font-weight:700}section{padding:28px 0;border-bottom:1px solid #314057;display:flex;flex-direction:column;gap:24px}section>h2{margin:0;font-size:16px;color:#b8c6d9;letter-spacing:.05em}.message{font-weight:700;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;font-size:calc(var(--scale,1)*clamp(22px,4.5vw,58px))}.message.no-wrap{white-space:pre;overflow-wrap:normal;overflow-x:auto}.message :is(p,h1,h2,h3,h4,h5,h6,ul,ol,pre,blockquote,hr){margin:0}.message>*+*,.message :is(blockquote,li)>*+*{margin-top:.45em}.message :is(h1,h2,h3,h4,h5,h6){line-height:1.25;color:#99f6e4}.message h1{font-size:1.45em}.message h2{font-size:1.25em}.message h3{font-size:1.1em}.message :is(h4,h5,h6){font-size:1em}.message :is(ul,ol){padding-left:1.3em}.message li::marker{color:#5eead4}.message strong{color:#fde68a;font-weight:900}.message em{color:#c4b5fd}.message del{opacity:.65}.message code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.85em;font-weight:500;background:#1b2c43;border:1px solid #314057;border-radius:.25em;padding:0 .2em}.message pre{font-size:.6em;white-space:inherit;background:#0f1b2d;border:1px solid #314057;border-radius:12px;padding:.6em .8em;overflow-x:auto}.message pre code{font-size:1em;background:none;border:0;padding:0}.message blockquote{border-left:.15em solid #5eead4;padding-left:.6em;color:#cbd5e1}.message hr{border:0;border-top:2px solid #42516a}.message a{color:#99f6e4}.image{display:block;max-width:100%;height:auto;margin:0 auto}.qr{width:clamp(200px,28vw,340px);align-self:center;text-align:center}.qr div{background:white;line-height:0;border-radius:12px;overflow:hidden}.qr svg{width:100%;height:auto}.qr strong{display:block;font-size:22px;margin:14px 0 8px}.qr a{color:#99f6e4;overflow-wrap:anywhere}@media print{body{background:white;color:black}section{break-inside:avoid}}`;
+const exportStyles=`:root{color-scheme:dark;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;background:#08111f;color:#fff}*{box-sizing:border-box}body{margin:0;padding:24px clamp(16px,4vw,48px) 48px}header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;border-bottom:1px solid #314057;padding-bottom:12px}header h1{font-size:18px;margin:0;letter-spacing:.1em}header time{color:#b8c6d9;font-size:14px}nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}nav a{color:#99f6e4;border:1px solid #62738c;border-radius:10px;padding:6px 12px;text-decoration:none;font-weight:700}section{padding:28px 0;border-bottom:1px solid #314057;display:flex;flex-direction:column;gap:24px}section>h2{margin:0;font-size:16px;color:#b8c6d9;letter-spacing:.05em}.message{font-weight:700;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;font-size:calc(var(--scale,1)*clamp(22px,calc(var(--view,90)*.05vw),58px))}section>.message{width:calc(var(--view,90)*1%);align-self:center}.message.no-wrap{white-space:pre;overflow-wrap:normal;overflow-x:auto}.message :is(p,h1,h2,h3,h4,h5,h6,ul,ol,pre,blockquote,hr){margin:0}.message>*+*,.message :is(blockquote,li)>*+*{margin-top:.45em}.message :is(h1,h2,h3,h4,h5,h6){line-height:1.25;color:#99f6e4}.message h1{font-size:1.45em}.message h2{font-size:1.25em}.message h3{font-size:1.1em}.message :is(h4,h5,h6){font-size:1em}.message :is(ul,ol){padding-left:1.3em}.message li::marker{color:#5eead4}.message strong{color:#fde68a;font-weight:900}.message em{color:#c4b5fd}.message del{opacity:.65}.message code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.85em;font-weight:500;background:#1b2c43;border:1px solid #314057;border-radius:.25em;padding:0 .2em}.message pre{font-size:.6em;white-space:inherit;background:#0f1b2d;border:1px solid #314057;border-radius:12px;padding:.6em .8em;overflow-x:auto}.message pre code{font-size:1em;background:none;border:0;padding:0}.message blockquote{border-left:.15em solid #5eead4;padding-left:.6em;color:#cbd5e1}.message hr{border:0;border-top:2px solid #42516a}.message a{color:#99f6e4}.message .table-wrap{overflow-x:auto;font-size:.5em}.message table{border-collapse:collapse;width:100%;font-weight:500}.message :is(th,td){border:1px solid #42516a;padding:.4em .6em;vertical-align:top;text-align:left;white-space:pre-wrap;overflow-wrap:break-word;min-width:4.5em}.message th{background:#142238;color:#99f6e4;font-weight:800}.message :is(th,td):first-child{white-space:nowrap;overflow-wrap:normal}.message tbody tr:nth-child(even){background:rgba(255,255,255,.03)}.message>*+:is(h1,h2,h3,h4,h5,h6){margin-top:.9em}.image{display:block;max-width:calc(var(--view,90)*1%);height:auto;margin:0 auto}@media(max-width:700px){section>.message{width:100%}.image{max-width:100%}}.qr{width:clamp(200px,28vw,340px);align-self:center;text-align:center}.qr div{background:white;line-height:0;border-radius:12px;overflow:hidden}.qr svg{width:100%;height:auto}.qr strong{display:block;font-size:22px;margin:14px 0 8px}.qr a{color:#99f6e4;overflow-wrap:anywhere}@media print{body{background:white;color:black}section{break-inside:avoid}}`;
 function boardSection(board,index){
 const message=document.createElement('div');message.className='message'+(board.wrap?'':' no-wrap');message.style.setProperty('--scale',String(board.scale));
 renderMarkdown(message,board.text.split('\n'));
 const url=board.qr===true?getUrl(board.text):null;let qr='';
 try{if(url)qr=`<aside class="qr"><div role="img" aria-label="掃描開啟 ${escapeHtml(url)}">${makeQr(url)}</div><strong>掃描開啟連結</strong><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a></aside>`;}catch{}
-return `<section id="board-${index+1}"><h2>${escapeHtml(board.name)}</h2>${board.text?message.outerHTML:''}${board.image?`<img class="image" src="${board.image}" alt="老師發布的圖片">`:''}${qr}</section>`;
+const view=Number(board.viewWidth)||90,data=JSON.stringify({name:board.name,text:board.text,scale:board.scale,wrap:board.wrap,qr:board.qr===true,viewWidth:view});
+return `<section id="board-${index+1}" style="--view:${view}" data-board="${escapeHtml(data)}"><h2>${escapeHtml(board.name)}</h2>${board.text?message.outerHTML:''}${board.image?`<img class="image" src="${board.image}" alt="老師發布的圖片">`:''}${qr}</section>`;
 }
 function exportBoards(list,label){
 if(imagePending){status('圖片載入中，請稍候再匯出。');return;}
@@ -2557,6 +2581,70 @@ document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeO
 const skipped=list.length-published.length;
 status(`已匯出 ${published.length} 個公告板為 HTML 檔`+(skipped?`（略過 ${skipped} 個尚未發布的公告板）`:'')+'。草稿不會匯出。');
 }
+// Import: newer exports carry the source in data-board; older ones are converted back from the rendered HTML.
+function markdownText(text){return text.replace(/[\\`*~\[\]]/g,'\\$&');}
+function markdownInline(node){
+let out='';
+for(const child of node.childNodes){
+if(child.nodeType===Node.TEXT_NODE){out+=markdownText(child.textContent);continue;}
+if(child.nodeType!==Node.ELEMENT_NODE)continue;
+const tag=child.tagName.toLowerCase();
+if(tag==='strong'||tag==='b')out+='**'+markdownInline(child)+'**';
+else if(tag==='em'||tag==='i')out+='*'+markdownInline(child)+'*';
+else if(tag==='del'||tag==='s')out+='~~'+markdownInline(child)+'~~';
+else if(tag==='code')out+='`'+child.textContent+'`';
+else if(tag==='a')out+='['+markdownInline(child)+']('+(child.getAttribute('href')||'')+')';
+else if(tag==='br')out+='\n';
+else if(!['ul','ol'].includes(tag))out+=markdownInline(child);
+}
+return out;
+}
+function protectLines(text){return text.split('\n').map(line=>line.replace(/^(\s*)([#>+-])/,'$1\\$2').replace(/^(\s*\d+)([.)])/,'$1\\$2')).join('\n');}
+function markdownBlocks(element){
+const blocks=[];
+for(const child of element.children){
+const tag=child.tagName.toLowerCase();
+if(/^h[1-6]$/.test(tag))blocks.push('#'.repeat(Number(tag[1]))+' '+markdownInline(child));
+else if(tag==='hr')blocks.push('---');
+else if(tag==='pre')blocks.push('```\n'+child.textContent+'\n```');
+else if(tag==='blockquote')blocks.push(markdownBlocks(child).split('\n').map(line=>'> '+line).join('\n'));
+else if(tag==='ul'||tag==='ol'){const start=Number(child.getAttribute('start'))||1;blocks.push(Array.from(child.children).map((item,index)=>{const nested=Array.from(item.children).filter(node=>/^(ul|ol)$/i.test(node.tagName)).map(list=>markdownBlocks({children:[list]}).split('\n').map(line=>'  '+line).join('\n'));return (tag==='ul'?'- ':(start+index)+'. ')+markdownInline(item).trim()+(nested.length?'\n'+nested.join('\n'):'');}).join('\n'));}
+else blocks.push(protectLines(markdownInline(child)));
+}
+return blocks.join('\n\n');
+}
+const imagePattern=/^data:image\/(?:png|jpeg|webp|gif|avif|bmp);base64,[A-Za-z0-9+/=]+$/i;
+function boardsFromHtml(html){
+const doc=new DOMParser().parseFromString(html,'text/html'),found=[];
+for(const section of doc.querySelectorAll('main > section')){
+let data=null;try{data=JSON.parse(section.dataset.board||'null');}catch{}
+const message=section.querySelector(':scope > .message'),imageSrc=section.querySelector(':scope > img.image')?.getAttribute('src')||'';
+const text=typeof data?.text==='string'?data.text:message?markdownBlocks(message):'';
+const image=imagePattern.test(imageSrc)?imageSrc:null;
+if(!text.trim()&&!image)continue;
+const scale=Number(data?.scale??message?.style.getPropertyValue('--scale'));
+found.push({name:String(data?.name??section.querySelector(':scope > h2')?.textContent??'').trim().slice(0,40)||'匯入的公告板',draft:'',draftImage:null,text:text.trim(),image,scale:scale>=.5&&scale<=2?scale:1,viewWidth:Math.round(Math.min(90,Math.max(50,Number(data?.viewWidth)||90))/5)*5,wrap:typeof data?.wrap==='boolean'?data.wrap:!message?.classList.contains('no-wrap'),qr:typeof data?.qr==='boolean'?data.qr:Boolean(section.querySelector(':scope > .qr')),imageScale:100,imageMode:'fit'});
+}
+return found;
+}
+async function importBoards(files){
+if(!files.length)return;
+if(imagePending){status('圖片載入中，請稍候再匯入。');return;}
+const imported=[],failed=[];
+for(const file of files){
+if(file.size>100*1024*1024){failed.push(file.name);continue;}
+try{const found=boardsFromHtml(await file.text());if(found.length)imported.push(...found);else failed.push(file.name);}catch{failed.push(file.name);}
+}
+const failure=failed.length?'無法匯入：'+failed.join('、')+'（不是教室公告板匯出的 HTML 檔，或沒有已發布的公告）。':'';
+if(!imported.length){status(failure||'沒有可匯入的公告板。');return;}
+saveBoard();const first=boards.length;boards.push(...imported);
+undoStack.push({kind:'import',boards:imported});
+showBoard(first);
+status('已匯入 '+imported.length+' 個公告板，加在現有公告板之後。按「復原匯入」可移除。'+(failure?' '+failure:''));
+document.getElementById(`board-tab-${activeBoard}`).focus();
+}
+$('importBoards').onclick=()=>{$('exportMenu').open=false;$('importFile').click();};
+$('importFile').addEventListener('change',event=>{const files=Array.from(event.target.files);event.target.value='';importBoards(files);});
 $('exportBoard').onclick=()=>exportBoards([boards[activeBoard]],boards[activeBoard].name);
 $('exportAll').onclick=()=>exportBoards(boards,'全部公告板');
 document.addEventListener('click',event=>{if($('exportMenu').open&&!$('exportMenu').contains(event.target))$('exportMenu').open=false;});
@@ -2621,18 +2709,42 @@ imageViewport.addEventListener('dragstart',event=>event.preventDefault());
 $('publishedImage').addEventListener('load',fitImage);
 renderTabs();
 
-async function loadImage(file){if(!file)return;if(!/^image\/(png|jpeg|webp|gif|avif|bmp)$/i.test(file.type)){status('請選擇 PNG、JPG、WebP、GIF、AVIF 或 BMP 圖片。');return;}if(file.size>20*1024*1024){status('圖片超過 20 MB，請先縮小再加入。');return;}const version=++imageVersion;imagePending=true;$('publish').disabled=true;status('正在載入圖片…');try{const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});const test=new Image();test.src=data;await test.decode();if(version!==imageVersion)return;draftImage=data;$('preview').src=data;$('preview').hidden=false;$('removeImage').hidden=false;status('圖片已加入草稿，按「發布」才會顯示給全班。');}catch{if(version===imageVersion)status('無法讀取這張圖片，請換一張再試。');}finally{if(version===imageVersion){imagePending=false;$('publish').disabled=false;}}}
+function imageProblem(file){if(!/^image\/(png|jpeg|webp|gif|avif|bmp)$/i.test(file.type))return '請選擇 PNG、JPG、WebP、GIF、AVIF 或 BMP 圖片。';if(file.size>20*1024*1024)return '圖片超過 20 MB，請先縮小再加入。';return '';}
+async function readImageData(file){const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});const test=new Image();test.src=data;await test.decode();return data;}
+async function loadImage(file){if(!file)return;const problem=imageProblem(file);if(problem){status(problem);return;}const version=++imageVersion;imagePending=true;$('publish').disabled=true;status('正在載入圖片…');try{const data=await readImageData(file);if(version!==imageVersion)return;draftImage=data;$('preview').src=data;$('preview').hidden=false;$('removeImage').hidden=false;status('圖片已加入草稿，按「發布」才會顯示給全班。');}catch{if(version===imageVersion)status('無法讀取這張圖片，請換一張再試。');}finally{if(version===imageVersion){imagePending=false;$('publish').disabled=false;}}}
+// While presenting, pasted text or images replace the announcement directly; the draft is left untouched.
+function publishDirect(text,image){
+const url=getUrl(text);try{if(url&&qrEnabled())makeQr(url);}catch{status('網址太長，無法產生 QR Code。請改用較短的網址，或關閉 QR Code。');return false;}
+saveBoard();const board=boards[activeBoard];
+undoStack.push({kind:'paste',board,snapshot:{text:board.text,image:board.image,imageScale:board.imageScale,imageMode:board.imageMode,imageZoom:board.imageZoom,imageLeft:board.imageLeft,imageTop:board.imageTop,scroll:board.scroll}});
+imageScale=100;imageMode='fit';imageZoom=1;$('imageSize').value=100;
+renderPublished(text,image);$('stage').scrollTop=0;renderTabs();return true;
+}
+async function pasteImage(file){
+if(!file)return;const problem=imageProblem(file);if(problem){status(problem);return;}
+const board=boards[activeBoard];status('正在載入貼上的圖片…');
+try{const data=await readImageData(file);if(boards[activeBoard]!==board){status('已切換公告板，未發布貼上的圖片。');return;}if(publishDirect('',data))status('已直接發布貼上的圖片。按「復原貼上」可還原。');}
+catch{status('無法讀取這張圖片，請換一張再試。');}
+}
 $('publisher').addEventListener('submit',publish);
 $('draft').addEventListener('input',()=>status('草稿已修改。按「發布」才會更新上方公告。'));
 $('imageFile').addEventListener('change',event=>{loadImage(event.target.files[0]);event.target.value='';});
-document.addEventListener('paste',event=>{const item=Array.from(event.clipboardData?.items||[]).find(item=>item.type.startsWith('image/'));if(item){event.preventDefault();loadImage(item.getAsFile());}});
+document.addEventListener('paste',event=>{const item=Array.from(event.clipboardData?.items||[]).find(item=>item.type.startsWith('image/'));
+if(document.body.classList.contains('presenting')&&!(event.target instanceof Element&&event.target.closest('input,textarea'))){
+event.preventDefault();if(item){pasteImage(item.getAsFile());return;}
+const text=(event.clipboardData?.getData('text/plain')||'').trim();if(text&&publishDirect(text,null))status('已直接發布貼上的文字。按「復原貼上」可還原。');return;
+}
+if(item){event.preventDefault();loadImage(item.getAsFile());}});
 $('removeImage').addEventListener('click',()=>{imageVersion++;imagePending=false;$('publish').disabled=false;draftImage=null;$('preview').removeAttribute('src');$('preview').hidden=true;$('removeImage').hidden=true;status('已移除草稿圖片。按「發布」才會更新上方公告。');});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&selectionMode){event.preventDefault();setSelectionMode(false);status('已取消框選放大。');return;}if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();publish();}if(event.key==='Escape'&&!document.fullscreenElement){document.body.classList.remove('presenting');$('projection').textContent='全螢幕投影';}});
 $('qrToggle').onclick=()=>{const enabled=!qrEnabled();setQrButton(enabled);const shown=renderQr();fitImage();
 status(!enabled?'已關閉 QR Code。':shown?'已開啟 QR Code。':getUrl(publishedText)?'網址太長，無法產生 QR Code。':'已開啟 QR Code；公告含網址時會顯示。');};
 $('wrap').onclick=()=>{const enabled=$('wrap').getAttribute('aria-pressed')!=='true';$('wrap').setAttribute('aria-pressed',String(enabled));$('wrap').textContent=enabled?'自動換行：開':'自動換行：關';$('message').classList.toggle('no-wrap',!enabled);fontSize();fitImage();};
 $('smaller').onclick=()=>{scale=Math.max(.5,scale-.1);fontSize();fitImage();};$('larger').onclick=()=>{scale=Math.min(2,scale+.1);fontSize();fitImage();};window.addEventListener('resize',()=>{fontSize();fitImage();});
-let lastContentWidth=0;new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(width!==lastContentWidth){lastContentWidth=width;fontSize();}}).observe($('content'));
+let viewWidth=90;
+function applyViewWidth(){$('stage').style.setProperty('--view-width',viewWidth+'%');$('viewWidth').value=viewWidth;$('viewWidthValue').textContent=viewWidth+'%';}
+$('viewWidth').addEventListener('input',()=>{viewWidth=Number($('viewWidth').value);applyViewWidth();fontSize();fitImage();});
+let lastContentWidth=0;new ResizeObserver(entries=>{const width=entries[0].contentRect.width;if(width!==lastContentWidth){lastContentWidth=width;fontSize();fitImage();}}).observe($('content'));
 new ResizeObserver(()=>fitImage()).observe($('stage'));
 if(document.fonts)document.fonts.ready.then(()=>{fontSize();fitImage();});
 $('projection').onclick=async()=>{if(document.body.classList.contains('presenting')){document.body.classList.remove('presenting');$('projection').textContent='全螢幕投影';if(document.fullscreenElement)await document.exitFullscreen();}else{document.body.classList.add('presenting');$('projection').textContent='返回編輯';try{await document.documentElement.requestFullscreen();}catch{status('瀏覽器未允許全螢幕，已切換投影版面；按 Esc 或「返回編輯」即可返回。');}}};
