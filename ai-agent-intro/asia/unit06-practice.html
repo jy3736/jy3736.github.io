@@ -697,7 +697,8 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <h3>選做：請 Codex 開啟完整範例包</h3>
 <p>下載解壓縮後，用 Codex 開啟資料夾，貼上下面這句。</p>
 <p><a class="download" href="examples/unit06-scheduling.zip" download>下載完整範例包（zip）</a></p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">請 Codex 開啟範例包（選做）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請先閱讀這個資料夾的 README.md 與 AGENTS.md，接著在本機啟動這個資料夾的網站，並開啟 http://localhost:8765。請依我的電腦選擇可用的啟動方式；如果無法啟動，就直接用瀏覽器開啟 index.html。請向我簡短說明首頁中的排班系統、講義與範例資料入口，但先不要修改任何檔案。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">請 Codex 開啟範例包（選做）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>幫我先看這個資料夾的 README.md 和 AGENTS.md，再把網站開起來，讓我在 http://localhost:8765 看得到。啟動方式就選我的電腦能用的；如果開不起來，就直接用瀏覽器打開 index.html。
+簡單帶我看首頁的排班系統、講義和範例資料在哪裡，先不要改任何檔案。</code></pre></figure>
 <ul class="checklist"><li>Codex 說明了排班系統、講義與範例資料三個入口，而且沒有修改任何檔案。</li></ul>
 
 <h2 id="practice-b"><span class="num">04</span>練習 B：用六個測試案例檢查範例工具</h2>
@@ -738,27 +739,37 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <ul class="checklist"><li><strong>準備</strong>｜送出後 → AI 只回覆、沒有建立任何檔案；資料夾裡仍只有兩份 CSV。</li></ul>
 
 <h3>第 1 層：先做空白流程</h3>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 1 層：先做空白流程</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請建立一個純前端智慧排班網站，不使用伺服器、資料庫或外部 API。流程分成：人員與班別、需求與限制、自動排班、檢查與調整、發布班表。初始畫面不可預載任何資料，先只完成可切換的介面。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 1 層：先做空白流程</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我想做一個只在瀏覽器裡運作的排班網頁，不用另外啟動伺服器、不用資料庫，也不要連外部服務。
+畫面依序是「人員與班別」「需求與限制」「自動排班」「檢查與調整」「發布班表」。先讓我能在這五個步驟之間切換就好，裡面不要先放任何資料。</code></pre></figure>
 <ul class="checklist"><li><strong>第 1 層</strong>｜直接開啟 index.html → 畫面停在第一步，人員與班別都是空白；五個步驟都能點選切換。</li></ul>
 
 <h3>第 2 層：加入 CSV 匯入</h3>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 2 層：加入 CSV 匯入</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入兩個 CSV 匯入功能。人員欄位包含：人員編號、姓名、職類、不值夜班、假日不可上班、指定可上班星期。班別欄位包含：班別名稱、開始時間、結束時間，以及四種職類最低人數。資料只留在瀏覽器記憶體，不可上傳。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 2 層：加入 CSV 匯入</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>接下來幫我加入兩份 CSV 的匯入，一份是人員，一份是班別。
+人員要讀進人員編號、姓名、職類、不值夜班、假日不可上班和指定可上班星期。班別要讀進班別名稱、開始時間、結束時間，還有四種職類各自的最低人數。
+資料只暫時放在目前的瀏覽器裡，不要存到別處，也不要上傳。</code></pre></figure>
 <ul class="checklist"><li><strong>第 2 層</strong>｜匯入兩份範例 CSV → 16 位人員、3 個班別，兩份都成功後才能進到第二步。</li><li><strong>第 2 層</strong>｜匯入練習 B 的「測試 6 人員檔」 → 清楚指出錯誤的列與內容，不會默默少一個人。</li></ul>
 
 <h3>第 3 層：建立必要限制檢查</h3>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 3 層：建立必要限制檢查</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請建立排班限制檢查函式：每班各職類達到最低人數；遵守不值夜班、假日不可上班與指定可上班星期；每人每日不超過設定班數；前一班結束到下一班開始符合休息時間。回傳所有違規原因，不可自行放寬任何限制。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 3 層：建立必要限制檢查</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>幫我檢查班表有沒有照規則排。每班各種職類都要達到最低人數，也要照每個人的不值夜班、假日不可上班和可上班星期安排。
+同一個人一天不能超過設定的班數，前一班下班到下一班上班，也要有規定的休息時間。
+有問題的地方全部列給我看，不要自己放寬任何限制。</code></pre></figure>
 <ul class="checklist"><li><strong>第 3 層</strong>｜故意把不可值夜班的人（例如王雅婷）排進大夜 → 畫面指出姓名與違反的規則。</li><li><strong>看看 AI 替你決定了什麼</strong>｜到「需求與限制」讀 AI 寫的「夜班」「假日」定義 → 符合你的意思再繼續；不符合，就在下一段提示中寫清楚，例如「小夜也算夜班」。</li></ul>
 
 <h3>第 4 層：加入自動排班</h3>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 4 層：加入自動排班</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入一週自動排班。逐日、逐班、逐職類找符合必要限制的人選，優先選目前累積班數最少的人。完成後必須再跑一次完整限制檢查；若無解，顯示明確原因並停止，不可產生看似完成但違規的班表。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 4 層：加入自動排班</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>現在幫我加入一週的自動排班。照每天、每班、每種職類，依序找符合必要限制的人，先選目前累積班數最少的人。
+排好後，再把全部限制檢查一次。真的排不出來就說清楚原因並停下來，不要給我一份看起來排好了、卻違反規則的班表。</code></pre></figure>
 <ul class="checklist"><li><strong>第 4 層</strong>｜用兩份範例 CSV 自動排班 → 產生 7 天 × 3 班 × 4 職類的完整班表，限制檢查全部通過。</li><li><strong>第 4 層</strong>｜改用練習 B 的「測試 2 人員檔」 → 說明週六、週日護理人員不足並停止，不產生班表。</li></ul>
 
 <h3>第 5 層：加入手動調整</h3>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 5 層：加入手動調整</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請讓使用者可在班表中選擇其他同職類人員。每次手動調整後立即重新執行全部限制檢查，列出未通過項目；只要有違規就不能發布。保留保存草稿與發布狀態，但資料仍只存在前端。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 5 層：加入手動調整</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我也想自己調班，讓我在班表裡換成其他同職類的人。
+每換一次，就馬上把全部限制重新檢查，列出沒通過的地方。有任何違規就不能發布。
+原本保存草稿和發布狀態的功能保留，資料也還是只放在瀏覽器裡。</code></pre></figure>
 <ul class="checklist"><li><strong>第 5 層</strong>｜把週三大夜換成王雅婷 → 顯示警告，不能發布。</li><li><strong>第 5 層</strong>｜換回原本合格的人 → 警告消失，可以發布。</li></ul>
 
 <h3>第 6 層：加入下載與離線交付</h3>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 6 層：加入下載與離線交付</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請加入下載班表 CSV，按鈕在發布旁邊且不需要先發布。輸出日期、星期、班別、時間、職類、人員編號與姓名，加入 UTF-8 BOM 讓 Excel 正確顯示中文。最後整理成不依賴套件與網路、雙擊 index.html 就能使用的純前端資料夾。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第 6 層：加入下載與離線交付</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>幫我加上「下載班表 CSV」，放在發布按鈕旁邊，不用先發布也能下載。
+下載的內容要有日期、星期、班別、時間、職類、人員編號和姓名。用 Excel 開啟時，中文要正常，請保留 UTF-8 BOM。
+最後幫我整理好整個資料夾，不靠套件、不用連網路，也不用啟動服務，讓我雙擊 index.html 就能使用。</code></pre></figure>
 <ul class="checklist"><li><strong>第 6 層</strong>｜不發布，直接按「下載班表 CSV」 → 可以下載；用 Excel 開啟，七個欄位、中文沒有亂碼。</li><li><strong>第 6 層</strong>｜中斷網路後重新開啟 index.html → 仍可匯入、排班與下載。</li></ul>
 
 <div class="callout tip"><span class="label">改改看（選做）</span><p>每層通過檢查後，可以試講義該層的「改改看」：在提示中加一句或改一個數字，看結果怎麼變。一次只改一處；改壞了，對 AI 說「請把剛才的修改還原」。改完要確認原本的檢查仍然通過。</p></div>
@@ -773,11 +784,11 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 
 <h4>建議 Prompt · Suggested Prompt</h4>
 <p>送出前，刪掉你的版本已經通過的項目，只留下沒通過的。</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">依測試案例修正（只留下你的版本沒通過的項目）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我用下面三個測試案例檢查了目前的排班工具，發現實際行為和預期不同。請只修正這三點，不要改變其他功能與畫面：
-（1）跨日休息：同一個人排在某天小夜（16:00–00:00）與隔天大夜（00:00–08:00），休息 0 小時，應該被列為「休息不足」。請依班別檔中的開始與結束時間計算前後兩班之間的休息時數，少於 8 小時就算違規。
-（2）最低人數：班別檔中各職類的最低人數要真的用在排班與檢查上。例如白班護理人員最低人數改成 2，就要排 2 位，排不出來時回報缺口。
-（3）職類打錯：人員檔中職類不是四種職類之一時，要列出第幾列、寫了什麼，不可以默默略過。
-修正後請用兩份範例 CSV 與這三個案例各試一次，用一般用語告訴我怎麼操作、應該看到什麼。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">依測試案例修正（只留下你的版本沒通過的項目）</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我試了下面三個案例，看到的結果跟預期不一樣。幫我只修這三點，其他功能和畫面都保留。
+（1）同一個人今天排小夜（16:00–00:00），隔天又排大夜（00:00–08:00），中間其實休息 0 小時，應該提醒「休息不足」。請照班別檔的開始和結束時間，算出前後兩班之間休息多久，少於 8 小時就算違規。
+（2）班別檔寫的各職類最低人數，排班和檢查時都要用到。例如白班護理人員改成最低 2 人，就要排 2 位；排不出來就說明缺多少人。
+（3）人員檔的職類如果不是原本四種之一，請告訴我第幾列、寫了什麼，不要默默跳過那個人。
+改好後，用原本兩份範例 CSV 和這三個案例各試一次，再用一般說法告訴我怎麼操作、應該看到什麼。</code></pre></figure>
 
 <h4>預期成果 · Expected Outcome</h4><p>修正後，六個測試都符合預期；或對仍不符合的項目，寫下原因與下一步。</p>
 <h4>完成檢核 · Check it</h4>
@@ -785,10 +796,10 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 
 <h3>保存你的測試紀錄</h3>
 <p>把六個測試的實際結果告訴 AI，請它存成檔案，再親自打開核對。</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">把我親手測試的結果存成紀錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我親手測試的結果如下：
-［逐一寫出測試 1～6 的實際結果；修正前後都測過的請分開寫；沒測的寫「尚未測試」］
-請在目前資料夾保存一份測試紀錄，每個測試列出：怎麼操作、預期看到、實際看到、是否符合。
-只根據我提供的結果整理，不要把你自己試的結果寫成我的結果，也不要把尚未測試寫成通過。這一步不要修改排班工具。</code></pre></figure>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">把我親手測試的結果存成紀錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>這是我親手試的結果：
+［寫下測試 1～6 各自看到的結果；改之前、改之後分開寫，沒試過就寫「尚未測試」］
+幫我在目前資料夾存一份測試紀錄，每個測試都寫清楚怎麼操作、原本預期看到什麼、實際看到什麼，以及有沒有符合。
+只整理我提供的結果。你自己試的不要寫成我試的，沒試過也不要寫成通過。這次先不要改排班工具。</code></pre></figure>
 <ul class="checklist"><li>打開紀錄檔，六個測試都在，實際結果和你看到的一致；沒測的仍是「尚未測試」。</li><li>排班工具本身沒有因為這一步被修改。</li></ul>
 
 <details class="explain"><summary>參考｜講義第 6 層示範版本的測試結果</summary><div>

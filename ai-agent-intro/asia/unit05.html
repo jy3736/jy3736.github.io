@@ -5,8 +5,8 @@
 <script>(function(){var t;try{t=localStorage.getItem('handouts-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);try{if(localStorage.getItem('handouts-text')==='large')document.documentElement.setAttribute('data-text','large');if(localStorage.getItem('handouts-sidebar')==='hidden')document.documentElement.setAttribute('data-sidebar','hidden');}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B3%3C/text%3E%3C/svg%3E">
-<title>模組 05｜從來源到教案，再讓教材上線</title>
-<meta name="description" content="模組 05｜用固定來源與可複製提示產生教案，完成 Notion 與 GitHub Pages 的兩種發布流程，再以自己的資料實作。">
+<title>模組 05｜同一份教材，先 GitHub Pages，再 Notion</title>
+<meta name="description" content="沿用既有教材，先整理並發布到自己的 GitHub Pages，再連接 Notion、整理並發布同一份內容。">
 <style>
 :root {
   --bg: #fbfaf7;
@@ -600,7 +600,6 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 .callout.visual-placeholder { border: 2px dashed color-mix(in srgb, var(--note) 55%, transparent); border-left: 4px solid var(--note); border-radius: 0 var(--radius) var(--radius) 0; }
 .side-note { margin: -0.5rem 0 1rem; font-size: 0.82rem; line-height: 1.55; color: var(--muted); }
 .table-wrap.wrap-first th:first-child, .table-wrap.wrap-first td:first-child { white-space: normal; min-width: 8em; }
-
 </style>
 </head>
 <body>
@@ -620,100 +619,94 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
 <a href="supplement03.html" title="補充 3｜用對話修正 AI 繪圖：CMOS 邏輯閘案例"><span>補充 3 AI 繪圖</span></a>
 <a href="supplement04.html" title="補充 4｜用 AI Agent 逐步打造前後測統計分析工具"><span>補充 4 統計工具</span></a></div></div>
 <div class="side-nav-group"><p class="side-nav-head">練習資料</p><div class="side-nav-links"><a href="moex-downloads.html" title="國考題庫與 AI 技能包下載"><span>國考題庫下載</span></a>
-<a href="moex-prompts.html" title="國考題庫 AI 技能：範例提示"><span>國考範例提示</span></a></div></div></nav><a class="side-sheet" href="unit05-practice.html"><span aria-hidden="true">📝</span>模組 05 練習單</a><details><summary>本頁目錄</summary><ol><li><a href="#goals"><span class="toc-num">01</span>先看完整示範路線</a></li>
-<li><a href="#setup"><span class="toc-num">02</span>工具準備：把 Notion 連進 Codex</a></li>
-<li><a href="#draft"><span class="toc-num">03</span>指定 sources，產生學生教案</a></li>
-<li><a href="#notion"><span class="toc-num">04</span>把核對後的教案上傳到 Notion</a></li>
-<li><a href="#pages"><span class="toc-num">05</span>同一份教案，再發布到 GitHub Pages</a></li>
-<li><a href="#practice"><span class="toc-num">06</span>換成自己的資料，完成兩個目的地</a></li>
-<li><a href="#checks"><span class="toc-num">07</span>最後驗收：看到成果，也查得到依據</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
+<a href="moex-prompts.html" title="國考題庫 AI 技能：範例提示"><span>國考範例提示</span></a></div></div></nav><a class="side-sheet" href="unit05-practice.html"><span aria-hidden="true">📝</span>模組 05 練習單</a><details><summary>本頁目錄</summary><ol><li><a href="#material"><span class="toc-num">01</span>先選一份教材，兩個練習都用它</a></li>
+<li><a href="#pages"><span class="toc-num">02</span>練習一：先放到 GitHub Pages</a></li>
+<li><a href="#setup"><span class="toc-num">03</span>接著準備：連接自己的 Notion</a></li>
+<li><a href="#notion"><span class="toc-num">04</span>練習二：同一份教材放到 Notion</a></li>
+<li><a href="#checks"><span class="toc-num">05</span>打開兩邊成果，看看內容與閱讀方式</a></li><li class="toc-top"><a href="#">↑ 回到頂端</a></li></ol></details></aside>
 <button class="sidebar-show" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="顯示側欄" title="顯示側欄">☰</button>
 <main id="main">
-<section class="hero"><p class="eyebrow">第二天 · 模組 05</p><h1>模組 05｜從來源到教案，再讓教材上線</h1><p class="lead">跟著一組提示，把研究資料整理成學生用的簡單教案，先放進 Notion，再把同一份內容轉成網頁發布到 GitHub Pages。做過示範後，換成你自己的課程資料再做一次。</p><ul class="meta"><li>先備：已有 Notion 與 GitHub 帳號</li><li>成果：教案來源、Notion 頁面與 Pages 網址</li><li>示範素材：Grok Bot、Meta Muse、OpenAI Dots</li></ul><p class="meta-back"><a href="../../workshop2026_1017/index.html">← 工作坊計畫</a></p></section>
-<h2 id="goals"><span class="num">01</span>先看完整示範路線</h2>
-<div class="flow"><span><b>連接工具</b></span><span>→ <b>讀固定來源</b></span><span>→ <b>產生教案</b></span><span>→ <b>Notion</b></span><span>→ <b>同內容網頁</b></span><span>→ <b>GitHub Pages</b></span><span>→ <b>自己的教材</b></span></div><p>這三款工具是示範的研究題材，不必先註冊或購買它們。我們操作的是 Codex、Notion 與 GitHub；學習重點是怎麼指定來源、交辦、核對與發布。</p><div class="callout note"><span class="label">如何讀這份講義</span><p>每一步都有說明、可複製提示、摺疊的可能回覆與完成檢核。畫面有三種標示：實際插件目錄、已存在的遠端成果、本次產生的本機範例。它們不代表本頁每一個提示都已在你的帳號執行。提示裡的方括號要換成自己的資料。</p></div><p>示例假設 Agent 已可執行本題授權範圍內的檔案修改及連接器動作，不反覆要求一般操作確認；這不會取代 Notion／GitHub 登入、授權或管理員政策，也不需要關閉所有安全保護。</p>
-<h2 id="setup"><span class="num">02</span>工具準備：把 Notion 連進 Codex</h2>
-<h3>先有帳號，再有連線，最後確認目的地</h3><p>Plugin 把 Notion 的 MCP 工具帶進 Agent；學員使用現成插件即可，不需自己架伺服器。MCP 是讓 Agent 使用外部工具的連接方式，並不是 Notion 帳號本身。</p><ol class="steps"><li>在 Codex 開啟 Plugins／插件入口；若版本入口不同，請用下面提示找 Notion，或從官方插件目錄辨識同一插件。</li><li>搜尋 Notion，檢查開發者為 Notion AI，選 Install／安裝；已安裝者進入管理或連線設定。</li><li>依畫面選 Connect／連接，由本人登入既有 Notion 帳號、選工作空間及頁面，核對要求的存取範圍後完成授權。不要在對話貼密碼。</li><li>回到 Codex，確認工具可用，再提供自己的父頁連結。需要切換示範帳號時，重新連接並再次核對。</li></ol>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 1｜找到插件並確認連線</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請協助我準備 Notion 連線。我已經有 Notion 帳號，請找目前可用的官方 Notion plugin，說明如何安裝、連接及完成授權；已安裝就不要重複安裝。
-登入與授權畫面由我本人處理。完成後請確認目前連接的 Notion 使用者與工作空間，並讀取我提供的父頁，回報頁面名稱與是否可存取。
-這一步只檢查連線，不建立或發布教材。若工具不能取得帳號身分，請明列限制，不用瀏覽器帳號猜測。
-父頁面 URL：[貼上自己的 Notion 父頁連結]</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜連線確認</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>Notion 插件已可使用。已確認目前連接身分，並讀到你指定的父頁；尚未建立教材。若尚未連接，會提供安裝／連接入口，待你完成登入授權後再確認。</p></div></details>
-<figure class="page-figure"><a href="figures/unit05-notion-plugin.png" target="_blank" rel="noopener"><img src="figures/unit05-notion-plugin.png" alt="官方插件目錄中的 Notion 詳細頁與 Install plugin 按鈕" loading="lazy"></a><figcaption>實際畫面：官方網頁插件目錄，2026-10-11 擷取。這是辨識插件與安裝入口的示例；不是 Codex 桌面設定截圖，也不是連線成功證明。（點圖可放大）</figcaption></figure>
-<ul class="checklist"><li>插件存在與帳號連接分別確認；自己核對登入身分。</li><li>Agent 能讀到指定父頁，不能讀時先解決連線，勿上傳到猜測的位置。</li></ul>
-<h2 id="draft"><span class="num">03</span>指定 sources，產生學生教案</h2>
-<p>固定示範資料在 <code>handouts/docs/sources/</code>，有 README 及 raw 裡的 HTML／文字存檔。可先讀 <a href="sources/README.md">來源清單</a>；Agent 從專案根目錄使用下方確切路徑。不必讓學員重新做一次研究，先讓所有人用同一份資料比較成果。</p><p>示範教案包含：三款工具各自的簡介、比較表、臺灣使用狀況、短練習及來源。這是給學生閱讀的教案，不是本單元的操作教學本身。價格、地區與開放資格有時不一致：官方未確認就標「待確認」，推論必須明說。</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 2｜固定來源 → 教案草稿</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請從專案根目錄讀取 handouts/docs/sources/README.md 與 handouts/docs/sources/raw/ 的相關文字資料；保留來源，不修改原檔。
-請為非資訊背景的學生製作繁體中文簡單教案，主題為「Grok Bot、Meta Muse、OpenAI Dots」。內容要有：
-1. 學習目標與三個工具各自的簡介。
-2. 主要用途、操作入口、使用條件的比較表。
-3. 臺灣目前可能的使用狀況：區分官方確認、來源推論與待確認；標出資料日期，不把未列入排除地區當成每個帳號都已開通。
-4. 一個短練習、完成檢核、逐項來源連結。
-優先引用指定資料中的官方存檔；媒體只作對照。價格或地區說法衝突時列出差異，不猜數字。這次只依指定來源，不額外加入網路內容。
-請存成 output/unit05-demo/lecture-notes.md 及 sources.json，提供重點與來源對照。先不寫入 Notion 或 GitHub。</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜已產生草稿</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>已保存 Markdown 教案與來源對照。教案包含三款工具簡介、比較、臺灣狀況與檢核。Muse 與 Grok Bot 的臺灣開放資訊不足，保留待確認；Dots 的來源推論與個別帳號開通分開標示。請先對照來源再上傳。</p></div></details>
-<p><a class="download" href="examples/unit05-agent-notes/lecture-notes.md">查看本次實際整理的 Markdown 範例</a><a class="download" href="examples/unit05-agent-notes/sources.json">來源紀錄</a></p>
-<figure class="page-figure"><a href="figures/unit05-demo-notes.png" target="_blank" rel="noopener"><img src="figures/unit05-demo-notes.png" alt="三款 Agent 示範教案的本機網頁預覽" loading="lazy"></a><figcaption>本次實際成果：同一份教案的本機可讀版，含三款工具及比較表；尚未證明遠端發布。（點圖可放大）</figcaption></figure>
-<ul class="checklist"><li>三款名稱與簡介都有保留，主要說法可回到指定來源。</li><li>臺灣段落有資料日期、推論與待確認；沒有自行新增價格或開通時間。</li><li>實際找到並打開 Markdown 檔，而不是只看 AI 回覆。</li></ul>
-<h2 id="notion"><span class="num">04</span>把核對後的教案上傳到 Notion</h2>
-<p>內容核對後才上傳。短教案可以一頁；內容較長才拆入口與子頁。這一步用上一份 Markdown，不要重新生成另一份比較結果。圖示是標題旁的原生 icon，封面是頁面頂端的橫幅。</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 3｜教案 → Notion</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請使用已核對的 output/unit05-demo/lecture-notes.md，上傳為我指定 Notion 父頁底下的新子頁。
-先確認連接的帳號及父頁，再將 Markdown 轉成 Notion 原生標題、段落、列表與表格；保留內容、來源與待確認，不重新生成結論。
-從 yang-Q/usage-guide.md 與現有 PNG 選合適吉祥物，設為原生頁面圖示；選呼應教案的線上封面，優先使用 Notion 的 Unsplash 選圖，記錄來源。若圖示工具不支援，就使用可用介面或回報缺項，不插入正文冒充 icon。
-保持私人，不更動分享權限。建立後讀回核對內容、父頁與圖示封面，再開啟畫面確認，交付真實頁面連結及檢核結果。建立逾時時先檢查是否已建立，避免重複頁面。
-父頁面 URL：[貼上自己的 Notion 父頁連結]</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜Notion 上傳完成後的回報</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>已在指定父頁建立教案子頁，保留比較表與來源，設定頁面圖示及封面。以下提供實際頁面連結與完成／未完成檢查。此頁仍是私人頁面；學生能否開啟，需依下一個提示設定與實測。</p></div></details>
-<figure class="page-figure"><a href="figures/unit05-notion-existing.png" target="_blank" rel="noopener"><img src="figures/unit05-notion-existing.png" alt="既有 Notion 教材入口、吉祥物原生圖示、封面與子頁導覽" loading="lazy"></a><figcaption>真實既有成果：先前上傳的「Chat・Work・Codex｜從需求到成果」。依使用者授權擷取，用來看原生頁面、圖示與封面的完成樣貌；它不是三款 Agent 教案的新上傳結果。（點圖可放大）</figcaption></figure>
+<section class="hero"><p class="eyebrow">第二天 · 模組 05</p><h1>模組 05｜同一份教材，兩種發布方式</h1><p class="lead">同一份既有教材，先整理成學生能上網閱讀的網頁，放到自己的 GitHub Pages；接著連接 Notion，再把同一份教材放進自己的 Notion。不用重新研究，也不用另做一份教案。</p><ul class="meta"><li>起點：一份既有教材</li><li>成果：自己的 GitHub Pages 網址與 Notion 頁面</li><li>方式：老師示範，再用自己的帳號練習</li></ul></section>
+<ol class="flow"><li><b>選教材</b>沿用同一份</li><li><b>GitHub Pages</b>整理網頁、放上去</li><li><b>連接 Notion</b>本人登入與選空間</li><li><b>Notion</b>整理內容、放上去</li><li><b>看成果</b>開啟兩邊網址</li></ol>
+<div class="callout tip"><span class="label">講需求就好</span><p>用平常說話的方式告訴 Codex 你想要的結果，製作方法交給它決定。下面提示可以分次說，也可以依自己的教材與閱讀需求自由發揮。</p></div>
+<h2 id="material"><span class="num">01</span>先選一份教材，兩個練習都用它</h2>
 
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 4｜讓預定學生能讀取</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請檢查剛建立的教案與子頁目前的閱讀權限。我的目標是指定學生閱讀，不公開到網路。
-請引導我在 Notion Share／分享設定中邀請預定閱讀者或設定符合需求的閱讀權限；需要閱讀者名單時再向我取得，不自行猜測。
-完成後協助我以預定閱讀者身分驗證入口、子頁與來源連結。只記錄實際測過的結果；尚未以閱讀者身分測試就標「待測」。不要把頁面連結存在當成學生已能閱讀。</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜閱讀權限確認</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>頁面已依你的指定範圍分享；作者帳號能開啟。預定閱讀者的驗證結果另列；未實測項目保留待測，不宣稱已公開。</p></div></details>
-<ul class="checklist"><li>開啟真實 Notion 頁面核對三款工具、表格、來源與父頁。</li><li>圖示在標題旁，封面可見；畫面舊圖先重新整理再判斷。</li><li>學生可讀與私人上傳分別記錄，不把私人頁面連結當公開網站。</li></ul>
-<h2 id="pages"><span class="num">05</span>同一份教案，再發布到 GitHub Pages</h2>
-<p>現在換目的地，不換教案內容。Notion 是原生文件，GitHub Pages 是靜態網頁；把同一份 Markdown 轉成可離線閱讀的 HTML，再部署。學員已有 GitHub 帳號，仍需確認 Codex 的 GitHub 連線或終端機授權可用，以及有權操作目標儲存庫。</p><ol class="steps"><li>請 Agent 檢查 GitHub 身分與發布能力；尚未登入時由本人完成官方登入授權。</li><li>指定自己擁有的儲存庫與發布資料夾；新手可使用獨立的公開示範儲存庫。</li><li>先產生 index.html 與必要資產，開本機預覽核對。勿將研究原始網頁、私人資料或憑證一起發布。</li><li>明確要求部署後，Agent 推送並設定／使用 Pages 發布來源；等待建置成功，再開真正的網站網址核對。</li></ol>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 5｜同內容 → 網頁，先本機驗收</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請使用同一份已上傳 Notion 的 output/unit05-demo/lecture-notes.md，轉成繁體中文、自包含的靜態網頁。
-只轉換呈現，不重寫三款工具的事實、比較、臺灣狀況、日期與來源。使用清楚標題、可在手機閱讀的表格、短練習與檢核。
-請存到 output/unit05-demo/site/index.html，必要資產放在同一 site/；不要放入原始研究存檔、私人資料或憑證。
-開啟本機預覽，核對內容與 Markdown 一致、來源可開啟、手機沒有整頁橫向溢出，記錄結果。這一步不推送、不部署。</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜網頁格式已完成</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>已產生 site/index.html，並核對與 Markdown 的三款工具段落、比較與待確認一致。本機預覽結果及尚未測試的項目另列。現在只是本機檔案，尚未上線。</p></div></details>
-<figure class="page-figure"><a href="figures/unit05-demo-notes.png" target="_blank" rel="noopener"><img src="figures/unit05-demo-notes.png" alt="同一教案的 HTML 本機預覽" loading="lazy"></a><figcaption>本次實際 HTML 範例：<a href="examples/unit05-agent-notes/index.html">打開可操作的網頁範例</a>。這是 Pages 發布前的本機驗收畫面，不是線上部署證明。（點圖可放大）</figcaption></figure>
+<h4>題目敘述 · Problem Statement</h4>
+<p>先在自己的專案選定<strong>一份既有教材</strong>。可以用單元四自己整併完成的新講義，也可以從 C-basic 選一份原始講義。兩個練習都從這一份開始；不需要重新研究，也不用另外寫一份新教案。</p>
+<p>教材原本是 HTML 網頁或 Markdown 文字都可以。已是網頁就按需要整理；文字教材則由 Codex 做成網頁，呈現方式交給它處理。原本的說明、例子與來源都要保留。</p>
+<p><a class="download" href="downloads/unit04-C-basic.zip" download>需要教材？下載 C-basic 原始講義</a></p>
+<p class="source-note">下載包與單元四相同，內有 14 份原始講義。解壓後選其中一份就能開始；例如第 01 週的程式入門講義。若使用自己整併的新講義，就直接沿用，不必再下載。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<p>把下方的「教材檔名」換成你選的檔案，或直接在對話裡指出那份教材。以下提示都是口說參考，可以分次說，不必逐字照念。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">先選定同一份教材</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>這次就用「【教材檔名】」這份教材。接下來放到兩個地方，都用這份內容，不用另外找資料或重寫。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜先選定同一份教材</summary><div><p class="source-note">以下只是參考，不是已在你的帳號執行的紀錄。請用實際開啟的檔案與頁面確認結果。</p><p>我會先讀這份教材。接下來的 GitHub Pages 網頁和 Notion 頁面都沿用它的內容，只調整呈現方式。</p></div></details>
+<h4>預期成果 · Expected Outcome</h4><p>你和 Codex 指的是同一份既有教材，能說出它的檔名與主題。</p>
+<h4>完成檢核 · Check it</h4><ul class="checklist"><li>在自己的專案找得到並能開啟這份教材。</li><li>Codex 說出的檔名與主題和你選的相同；後面兩個練習都沿用它。</li></ul>
 
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">提示 6｜GitHub 身分確認與 Pages 部署</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我已經有 GitHub 帳號。請先確認目前 GitHub 身分、目標儲存庫的寫入權限，以及可用的部署方式；若尚未登入，請引導我完成官方授權，不請我貼密碼或 token。
-請把已核對的 output/unit05-demo/site/ 發布到下列我擁有的儲存庫，這份教案可以公開。只提交這個示範網站的檔案，不覆蓋其他教材，不建立付費服務。
-儲存庫：[貼上自己的 GitHub 儲存庫 URL；或指定建立的新公開示範儲存庫名稱]
-發布方式：若使用 main 的 /docs，請把網站入口放在 docs/index.html，依官方方式設定 Pages；已有設定就沿用並確認路徑。若工具不能設定 Pages，請提供本人操作 Settings → Pages 的精確步驟，完成後繼續驗證。
-推送後等待對應建置成功，開啟真正的 GitHub Pages 網址，核對標題、三款工具、比較表、臺灣待確認與來源。回報真實網址、建置與畫面檢查；未完成就明列，不以 commit 或本機預覽代替上線證明。</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜Pages 建置成功後的回報</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>已推送指定網站檔案並確認 Pages 建置成功。以下是真實網站連結與線上內容核對結果。如果只有推送成功、建置未完成，就會明列「尚未上線」，而不是提供猜測網址。</p></div></details>
-<figure class="page-figure"><a href="figures/unit05-pages-existing.png" target="_blank" rel="noopener"><img src="figures/unit05-pages-existing.png" alt="已存在的 GitHub Pages 教材網站與真實網址" loading="lazy"></a><figcaption>真實既有 Pages 成果：<a href="https://jy3736.github.io/ai2026fall/learn-codex/" target="_blank" rel="noopener">講師的 Learn-Codex 教材網站</a>。用來辨識上線後的網頁與網址；不是本次三款 Agent 教案的新部署。（點圖可放大）</figcaption></figure>
-<ul class="checklist"><li>Notion 與 HTML 使用同一核對版本；重要內容、日期與來源一致。</li><li>只發布指定網站資料夾；Pages 設定、建置成功與真正網址都有核對。</li><li>用未登入視窗檢查公開網站，而不是只看儲存庫或本機檔案。</li></ul>
-<div class="callout note"><span class="label">自己的帳號，自己的目的地</span><p>GitHub Free 的 Pages 通常使用公開儲存庫。請將本題指定為可公開的示範資料。不要照抄講師帳號、儲存庫或網站網址；即使專案有部署 Skill，也要先核對其中的目的地，不能將其他課程的固定路徑當成你的發布位置。</p></div>
-<h2 id="practice"><span class="num">06</span>換成自己的資料，完成兩個目的地</h2>
-<h4>題目敘述 · Problem Statement</h4><p>選一份有權使用的課程教材、課本節錄、參考文件或 Deep Research 結果，為你的學生做一份簡單教案，再放到自己的 Notion 與 GitHub Pages。使用課本時限於有權分享的內容，不整本公開上傳。</p><p>先選定四項：學生對象、題目、確切來源、可公開範圍。將資料放到 <code>my-sources/</code>；使用其他資料夾就更改提示中的路徑。課程個資先移除，研究結論仍要回到原始引用核對。</p><h4>建議 Prompt · Suggested Prompt</h4>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">練習 A｜自己的來源 → 自己的教案</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請讀取這個工作空間 my-sources/ 的資料，先列出可讀檔案、來源引用與擷取限制。
-學生對象：[填寫；未填時用本工作坊的非資訊背景初學者]
-教案題目：[填寫；未填時依來源主題命名]
-請只依這些資料製作繁體中文簡單教案，有學習目標、核心重點、適合主題的比較或流程、一個短練習、完成檢核與來源。
-來源沒有說明的資訊標待確認；新增教學活動標教學改編；Deep Research 引用不足處明列，不當作已查證。
-保存 output/my-lesson/lecture-notes.md 與 sources.json。保留原始資料，先不寫入外部平台，讓我核對。</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜自己的草稿</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>已依你的資料產生教案與來源清單；無法擷取的圖表及沒有根據的資訊另外列出。新增活動已標教學改編。請先看檔案再進入發布。</p></div></details>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">練習 B｜自己的教案 → Notion</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我已核對 output/my-lesson/lecture-notes.md。請確認目前 Notion 帳號，在我指定父頁下建立教案。
-保留內容、來源與待確認，使用 Notion 原生區塊；從現有 yang-Q/ 選合適 page icon，搭配有來源且可使用的線上封面。若沒有這個素材資料夾，先回報，不自行生成或冒用圖像。
-父頁面 URL：[貼上自己的 Notion 父頁連結]
-不要公開、不改分享權限。讀回核對並開啟頁面檢查，交付真實連結、來源與檢核結果。需要分享給學生時，沿用本講義提示 4，依自己的閱讀者範圍設定。</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜自己的 Notion 成果</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>已建立指定教案並提供真實連結；內容、圖示與封面檢查分別記錄。學生存取若尚未實測，就保留待測。</p></div></details>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">練習 C｜同一教案 → GitHub Pages</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請使用同一份已核對的 output/my-lesson/lecture-notes.md，產生 output/my-lesson/site/index.html，保留內容、引用與日期，只調整網頁呈現。
-先核對本機桌面與手機預覽，再確認我的 GitHub 身分及目標儲存庫。這份教案已經過我檢查，可公開發布。
-儲存庫：[貼上自己的 GitHub 儲存庫 URL]
-只發布 site/ 的必要網頁與資產，不發布 my-sources/ 或其他私人資料；不覆蓋既有網站。設定或沿用 Pages 發布來源，等待建置完成並檢查真正的線上網址。
-最後把來源清單、Notion 連結、Pages 連結及實際完成的內容／畫面／閱讀權限檢核整理成 output/my-lesson/delivery.md；未完成明列，不宣稱成功。</code></pre></figure>
-<details class="explain"><summary>可能的 AI 回覆｜自己的雙平台交付</summary><div><p class="source-note">下列是示例，措辭與順序可能不同；不是本次遠端操作紀錄。假設本題需要的讀寫動作已獲授權，仍需本人完成登入與帳號核准。</p><p>交付清單已列出來源、兩個目的地的真實連結，以及各項完成或待完成檢查。若 Notion 可讀但 Pages 尚未建置完成，兩邊狀態會分開記錄。</p></div></details>
-<h4>預期成果 · Expected Outcome</h4><p>一份本機教案、一份來源紀錄、一個 Notion 教材連結、一個 Pages 公開網址，以及能指出完成與缺項的交付清單。畫面應與前面的範例相同類型，但題目、帳號、頁面與網址屬於你自己。</p><h4>完成檢核 · Check it</h4>
-<ul class="checklist"><li>讀過自己的草稿；每個重點有來源，新增活動與待確認清楚。</li><li>自己開啟 Notion 檢查，並確認預定學生的存取狀態。</li><li>自己開啟 Pages 真正網址；比較兩邊標題、重點、日期與引用。</li><li>沒有公開原始課本、個資或未授權素材；交付記錄沒有密碼或 token。</li></ul>
+<h2 id="pages"><span class="num">02</span>練習一：先放到 GitHub Pages</h2>
+
+
+<h4>題目敘述 · Problem Statement</h4>
+<p>先把選定教材整理成適合學生上網閱讀的網頁，再放到<strong>你自己的 GitHub Pages</strong>。老師用自己的帳號示範；輪到你練習時，使用自己的帳號與網站，不能把老師的目的地當成自己的。</p>
+<p>教材如果已是 HTML，不必重做一遍，只調整需要的地方。還不是網頁時，交給 Codex 整理成 HTML。你只要說明想讓學生怎麼閱讀，不需要指定製作方法。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">練習一・先整理網頁</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請用剛剛選的這份教材，幫我整理成學生可以上網閱讀的網頁。內容和例子都保留，手機也要好讀。做好後先打開給我看。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜練習一・先整理網頁</summary><div><p class="source-note">以下只是參考，不是已在你的帳號執行的紀錄。請用實際開啟的檔案與頁面確認結果。</p><p>我會沿用這份教材整理網頁，提供可開啟的檔案讓你看。若原本已是網頁，就調整需要的地方。</p></div></details>
+<h4>可能的成果 · Possible Result</h4>
+<p>下面是用 C-basic 第 01 週原始講義整理的本機閱讀範例。它示範教材怎麼呈現，不是已替你發布的網站；使用自己的講義時，內容與外觀可以不同。</p>
+<p><a class="download" href="examples/unit05-c-basic/index.html" target="_blank" rel="noopener">開啟教材網頁範例</a><a class="download" href="examples/unit05-c-basic/lecture-notes.md" download>下載範例原始講義</a></p>
+<p>先打開自己的成果，看看標題、說明、例子與來源有沒有保留。準備放上網的內容由你選定。接著告訴 Codex 要使用哪個自己的網站；還沒有網站時，可以請它帶你選擇建立的位置。需要 GitHub 登入或授權時，由你在正式頁面親自完成，不把密碼貼到對話裡。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">練習一・放上 GitHub Pages</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請把剛剛整理好的網頁放到我的 GitHub Pages。完成後給我可以開啟的網址。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜練習一・放上 GitHub Pages</summary><div><p class="source-note">以下只是參考，不是已在你的帳號執行的紀錄。請用實際開啟的檔案與頁面確認結果。</p><p>我會使用你選定的 GitHub 帳號與網站位置。需要你登入或選擇的位置會請你操作；完成後提供實際可開啟的網址，還沒完成的會說明。</p></div></details>
+<figure class="page-figure"><a href="figures/unit05-pages-existing.png" target="_blank" rel="noopener"><img src="figures/unit05-pages-existing.png" alt="講師先前的 GitHub Pages 教材網站畫面，示範上線後的閱讀樣貌" loading="lazy"></a><figcaption>講師先前的網站畫面，只用來看上線後的閱讀樣貌；不是本次教材的新發布成果，也不是你要使用的網站位置。（點圖可放大）</figcaption></figure>
+<h4>預期成果 · Expected Outcome</h4><p>一份依選定教材整理的網頁，以及你自己的 GitHub Pages 網址；學生可以用這個網址閱讀教材。</p>
+<h4>完成檢核 · Check it</h4><ul class="checklist"><li>打開本機網頁，對照原教材：重要說明、例子與來源有保留。</li><li>打開 Codex 提供的真正網站網址，確實看到這份教材，而不是檔案清單。</li><li>用手機或較窄視窗看一次，再用未登入的視窗開啟，確認學生能讀到。</li></ul>
+
+
+<h2 id="setup"><span class="num">03</span>接著準備：連接自己的 Notion</h2>
+
+<h4>題目敘述 · Problem Statement</h4>
+<p>GitHub Pages 練習完成後，才開始準備 Notion。接下來要把<strong>同一份教材</strong>放到自己的 Notion，先請 Codex 協助安裝、連接 Notion 外掛；如果已經連好，就確認目前連到哪個帳號與空間。</p>
+<p>你可以直接口說請 Codex 幫忙連接。它可以提供可用入口並協助確認狀態；需要本人登入、選擇工作空間或允許存取時，要由你在正式頁面完成。<strong>不要把密碼貼進對話裡。</strong>畫面入口依當時版本為準，不需要背按鈕名稱。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">接著連接 Notion</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>接下來我要把同一份教材放到 Notion，請幫我連接。需要我登入或選擇放在哪裡時，再帶我做。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜接著連接 Notion</summary><div><p class="source-note">以下只是參考，不是已在你的帳號執行的紀錄。請用實際開啟的檔案與頁面確認結果。</p><p>我會先看 Notion 是否已能使用。若需要安裝或連接，會引導你前往正式頁面，讓你自己登入、選空間並完成授權；完成後再確認能否使用你選的頁面。</p></div></details>
+<h4>預期成果 · Expected Outcome</h4><p>Notion 外掛已能使用，連到自己的帳號與工作空間，並且能讀取你選定的放置頁面；這一段先完成連接。</p>
+<h4>完成檢核 · Check it</h4><ul class="checklist"><li>本人核對登入帳號與工作空間，使用自己的空間練習。</li><li>提供想放教材的頁面連結，確認 Codex 能讀到這一頁；讀不到就先處理連接。</li></ul>
+
+<h2 id="notion"><span class="num">04</span>練習二：同一份教材放到 Notion</h2>
+
+<h4>題目敘述 · Problem Statement</h4>
+<p>回到最前面選的那份教材，整理成適合 Notion 閱讀的內容，再放進剛剛連好的自己的空間。這次改的是呈現方式，教材的意思、例子與來源和 GitHub Pages 版本一致。</p>
+<p>Notion 可以用清楚的標題、段落、列表或表格呈現。你只需說想怎麼讀，格式由 Codex 安排；不用再找新資料，也不必建立另一份不同主題的教案。</p>
+<h4>建議 Prompt · Suggested Prompt</h4>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">練習二・整理同一份教材</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請把一開始選的同一份教材，整理成適合在 Notion 閱讀的內容。原本的意思、例子和來源都保留，先讓我看一下。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜練習二・整理同一份教材</summary><div><p class="source-note">以下只是參考，不是已在你的帳號執行的紀錄。請用實際開啟的檔案與頁面確認結果。</p><p>我會沿用最初選定教材的內容，整理成適合 Notion 閱讀的段落與標題，先讓你核對。</p></div></details>
+<p>看過內容後，提供你自己想放置的 Notion 頁面連結，或指出剛剛選好的頁面；不要照抄老師的頁面。短教材可以一頁讀完，較長時再依閱讀需要安排。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">練習二・放到自己的 Notion</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>請把剛剛整理好的內容放到我選的 Notion 頁面裡。完成後給我頁面連結。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜練習二・放到自己的 Notion</summary><div><p class="source-note">以下只是參考，不是已在你的帳號執行的紀錄。請用實際開啟的檔案與頁面確認結果。</p><p>我會把內容放到你指定的頁面裡，完成後提供實際連結，讓你打開核對；無法寫入或還沒完成的部分會說明。</p></div></details>
+<figure class="page-figure"><a href="figures/unit05-notion-existing.png" target="_blank" rel="noopener"><img src="figures/unit05-notion-existing.png" alt="講師先前的 Notion 教材頁面，示範標題、封面與頁面導覽的閱讀樣貌" loading="lazy"></a><figcaption>講師先前的教材頁面，只用來看 Notion 的閱讀樣貌；不是本次教材的新發布成果。你放置的帳號與頁面由自己選。（點圖可放大）</figcaption></figure>
+<p>作者自己能開啟，還要看看學生能不能讀。依你要分享的對象設定 Notion 閱讀範圍，並找預定讀者實際開啟一次；如果還沒試，就保留為待確認。</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI 的提示</span><span class="code-title">讓學生能開啟</span></div><button class="copy-btn" type="button">複製</button></div><pre><code>我想把這份 Notion 教材分享給學生閱讀，請帶我設定，並一起看看他們能不能開啟。</code></pre></figure>
+<details class="explain"><summary>可能的 AI 回覆｜讓學生能開啟</summary><div><p class="source-note">以下只是參考，不是已在你的帳號執行的紀錄。請用實際開啟的檔案與頁面確認結果。</p><p>我會先確認你希望哪些學生閱讀，再協助設定分享方式。需要你親自選擇或操作時會引導；讀者還沒實際開過的部分，會標示待確認。</p></div></details>
+<h4>預期成果 · Expected Outcome</h4><p>同一份教材在自己的 Notion 有可開啟的頁面連結，並依預定學生的閱讀需要設定分享方式。</p>
+<h4>完成檢核 · Check it</h4><ul class="checklist"><li>開啟真正的 Notion 頁面，位置在自己指定的空間裡。</li><li>內容與最初教材、GitHub Pages 版本一致；可以換排版，但沒有另編結論或漏掉例子。</li><li>請預定讀者實際開啟，確認教材與需要的子頁能讀到；尚未試過就註明待確認。</li></ul>
+
+<h2 id="checks"><span class="num">05</span>打開兩邊成果，看看內容與閱讀方式</h2>
+
+
+<p>最後把兩個網址都打開。兩邊呈現形式可以不同，但讀到的是同一份教材。老師用自己的帳號示範，學員完成後應能指出自己選的原教材、自己的網頁與自己的 Notion 頁面。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">要看什麼</th><th scope="col">看得到的成果</th></tr></thead><tbody>
+<tr><th scope="row">共同起點</th><td>最初選定的那份教材，原檔仍在。</td></tr>
+<tr><th scope="row">練習一：GitHub Pages</th><td>學生能開啟的網站網址，內容來自同一份教材。</td></tr>
+<tr><th scope="row">練習二：Notion</th><td>自己空間中的教材連結，預定讀者能開啟。</td></tr>
+<tr><th scope="row">內容一致</th><td>重要說明、例子與來源一致，只改閱讀形式。</td></tr>
+</tbody></table></div>
+<ul class="checklist"><li>能指出同一份原教材和兩個實際成果連結。</li><li>自己開過兩邊頁面，比對內容與閱讀樣貌。</li><li>需要本人登入或選擇的地方由本人完成；尚未完成或尚未測試的照實說明。</li></ul>
+<p class="source-note">本頁的可能回覆、本機範例與講師舊截圖，都不是你帳號的發布紀錄。完成與否，以自己實際開啟的教材及讀者看到的結果為準。</p>
+
 <p><a class="download" href="unit05-practice.html">打開同步練習單 →</a></p>
-<h2 id="checks"><span class="num">07</span>最後驗收：看到成果，也查得到依據</h2>
-<p>Agent 可以完成很多動作，但你負責判斷教材是否適合學生。先找檔案，再看頁面，最後用閱讀者身分走一次。不要把可能回覆當執行證據，不把舊成果截圖當成本次新發布。</p><div class="table-wrap"><table><thead><tr><th scope="col">交付項目</th><th scope="col">要留下的證據</th></tr></thead><tbody><tr><th scope="row">來源與教案</th><td>確切來源、日期、Markdown、未確認事項</td></tr><tr><th scope="row">Notion</th><td>真實頁面連結、父頁、內容讀回、圖示封面與閱讀權限</td></tr><tr><th scope="row">GitHub Pages</th><td>自己的儲存庫、發布資料夾、對應建置成功、真實網站與畫面</td></tr><tr><th scope="row">同內容</th><td>兩邊重要內容、日期與來源一致；僅呈現格式不同</td></tr></tbody></table></div>
-<h3>依據與畫面來源</h3><p class="source-note">整理與擷取日期：2026-10-11。產品教案依指定 sources 存檔；臺灣開通未以三款工具的實際帳號測試。插件目錄與既有 Notion／Pages 截圖用來辨識操作與成果；本機教案畫面為本次實際範例。這份講義的編寫沒有新建或公開三款 Agent 的遠端教案。</p><ul><li><a href="sources/README.md">本工作坊研究來源清單</a></li><li><a href="https://chatgpt.com/plugins">官方插件目錄</a>：搜尋 Notion（開發者 Notion AI）</li><li><a href="https://learn.chatgpt.com/docs/whats-new#connect-partner-tools-with-sign-in-with-chatgpt">OpenAI 官方：插件登入與存取授權分開處理</a></li><li><a href="https://www.notion.com/help/guides/page-icons-and-covers">Notion 官方：頁面圖示與封面</a></li><li><a href="https://www.notion.com/help/sharing-and-permissions">Notion 官方：分享與權限</a></li><li><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site">GitHub 官方：建立 Pages 網站與驗證發布</a></li></ul><p>接下來的模組 06 進入 AI 專題：沿用先核對來源、再交付成果的習慣，請 AI Agent 一層一層做出照護場域排班小工具。</p><nav class="pager" aria-label="上下頁"><a href="unit04.html">← 模組 04：Smart TA</a><a href="unit06.html">模組 06：AI 專題：照護場域排班小工具 →</a></nav>
+<nav class="pager" aria-label="上下頁"><a href="unit04.html">← 模組 04：Smart TA</a><a href="unit06.html">模組 06：AI 專題：照護場域排班小工具 →</a></nav>
 
 </main>
 </div>
@@ -881,6 +874,7 @@ main > pre { max-width:100%; overflow-x:auto; padding:1rem; border:1px solid var
     toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
   }
 })();
+
 </script>
 </body>
 </html>
