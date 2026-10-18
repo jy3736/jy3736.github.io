@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 4A：為什麼一定要學物件導向？｜Dart 程式設計講義</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#fbfaf7;--surface:#ffffff;--surface-2:#f3f1ec;--text:#1f2328;--muted:#5b6270;
+  --line:#e3e0d8;--accent:#0b6bcb;--accent-soft:#e6f0fb;
+  --tip:#1a7f4b;--tip-soft:#e7f5ec;--warn:#b25e00;--warn-soft:#fdf1e1;
+  --key:#6f42c1;--key-soft:#f1ebfb;--err:#c0342b;--err-soft:#fbeceb;
+  --code-bg:#f6f8fa;--code-text:#1f2328;--t-com:#6a737d;--t-str:#0a7a3e;--t-int:#b35900;
+  --t-num:#005cc5;--t-key:#c8315e;--t-type:#6f42c1;--t-fn:#0b5cad;
+  --term-bg:#1e2227;--term-text:#e6e6e6;
+  --radius:10px;--mono:ui-monospace,"SF Mono",Menlo,Consolas,"Noto Sans Mono CJK TC","Microsoft JhengHei",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#6cb2ff;--accent-soft:#1b2a3a;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;--t-int:#f2b36b;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#6cb2ff;--term-bg:#0f1113;
+}}
+:root[data-theme="dark"]{
+  --bg:#15171a;--surface:#1c1f23;--surface-2:#23272c;--text:#e6e6e6;--muted:#a3a9b3;
+  --line:#30353b;--accent:#6cb2ff;--accent-soft:#1b2a3a;
+  --tip:#5fd08f;--tip-soft:#15291e;--warn:#f0a44b;--warn-soft:#2e2313;
+  --key:#b99bf5;--key-soft:#261e38;--err:#ff7b72;--err-soft:#301a19;
+  --code-bg:#1a1d21;--code-text:#e6e6e6;--t-com:#8b949e;--t-str:#7ee2a8;--t-int:#f2b36b;
+  --t-num:#79c0ff;--t-key:#ff7aa2;--t-type:#c9a7ff;--t-fn:#6cb2ff;--term-bg:#0f1113;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:4.5rem}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:17px/1.8 -apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+a{color:var(--accent)}
+.skip{position:absolute;left:-999px}.skip:focus{left:1rem;top:.5rem;z-index:10;background:var(--surface);padding:.3rem .6rem}
+header.site{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;
+  padding:.6rem max(16px,5%);background:color-mix(in srgb,var(--bg) 92%,transparent);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;color:var(--text);text-decoration:none}
+nav.pages{display:flex;gap:.25rem;flex-wrap:wrap;flex:1}
+nav.pages a{padding:.15rem .7rem;border-radius:999px;text-decoration:none;color:var(--muted);font-size:.92rem}
+nav.pages a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+button.theme{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;
+  width:2.2rem;height:2.2rem;cursor:pointer;font-size:1rem}
+.layout{display:grid;grid-template-columns:clamp(240px,22vw,340px) minmax(0,1fr);gap:clamp(1.5rem,2.4vw,2.5rem);width:90%;margin:0 auto}
+.layout.single{grid-template-columns:minmax(0,1fr)}
+main{min-width:0;padding-block:1.5rem 4rem}
+.toc{position:sticky;top:4.5rem;align-self:start;max-height:calc(100vh - 5.5rem);overflow:auto;padding-block:1.5rem;font-size:.9rem}
+.toc-title{font-weight:700;margin:0 0 .4rem;color:var(--muted)}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc a{display:block;padding:.25rem .65rem;color:var(--muted);text-decoration:none;line-height:1.5;margin-left:-2px;border-left:2px solid transparent}
+.toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr);gap:0;width:92%}
+  header.site{padding-inline:4%}
+  .toc{position:static;max-height:none;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:1rem;margin-top:1.2rem}}
+@media (max-width:640px){body{font-size:16px}
+  .layout{width:94%}
+  header.site{padding-inline:3%}
+  main{padding-block:1rem 3rem}
+  h2{margin:2.4rem 0 .8rem;font-size:1.35rem}
+  .toc{font-size:.88rem}}
+h1{font-size:clamp(1.7rem,4.5vw,2.3rem);line-height:1.35;margin:.5rem 0 .6rem}
+h2{font-size:1.5rem;line-height:1.4;margin:3.2rem 0 1rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.18rem;margin:2rem 0 .6rem}
+p,li{max-width:none}
+.lead{font-size:1.08rem;color:var(--muted)}
+.step-badge{display:inline-block;min-width:1.8rem;padding:0 .45rem;margin-right:.4rem;border-radius:6px;background:var(--accent);color:#fff;
+  text-align:center;font-size:.95rem;line-height:1.8rem;vertical-align:.15em}
+code,kbd{font-family:var(--mono);font-size:.9em}
+:not(pre)>code{background:var(--surface-2);border:1px solid var(--line);padding:.05rem .35rem;border-radius:5px;overflow-wrap:anywhere}
+main{overflow-wrap:break-word}
+.flow span{max-width:100%;overflow-wrap:anywhere}
+kbd{background:var(--surface);border:1px solid var(--line);border-bottom-width:2px;padding:.05rem .4rem;border-radius:5px}
+figure.code{margin:1.1rem 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--code-bg)}
+figure.code figcaption{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.35rem .5rem .35rem .9rem;
+  border-bottom:1px solid var(--line);background:var(--surface-2);font-size:.85rem;color:var(--muted)}
+.file{font-family:var(--mono)}
+button.copy{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.1rem .7rem;cursor:pointer;font-size:.85rem}
+figure.code pre,.output pre,pre.term{margin:0;padding:.9rem 1rem;overflow-x:auto;font:14.5px/1.65 var(--mono);color:var(--code-text);tab-size:2}
+.t-com{color:var(--t-com);font-style:italic}.t-str{color:var(--t-str)}.t-int{color:var(--t-int);font-weight:600}
+.t-num{color:var(--t-num)}.t-key{color:var(--t-key);font-weight:600}.t-type{color:var(--t-type)}.t-fn{color:var(--t-fn)}
+.output{margin:.6rem 0 1rem;border-radius:var(--radius);overflow:hidden;background:var(--term-bg)}
+.output-label{font-size:.8rem;color:#9aa4b2;padding:.35rem 1rem 0}
+.output pre{color:var(--term-text)}
+.output.is-error pre{color:#ffb4ae}
+pre.term{background:var(--term-bg);color:var(--term-text);border-radius:var(--radius);margin:1rem 0}
+pre.term .t-com{color:#8b949e}
+details{margin:.8rem 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+details>summary{cursor:pointer;padding:.6rem 1rem;font-weight:600;list-style:none;color:var(--accent)}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▶";display:inline-block;margin-right:.5rem;font-size:.75em;transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+details>:not(summary){margin-inline:1rem}
+details[open]{padding-bottom:.4rem}
+.stdin-note{font-size:.92rem;color:var(--muted);margin:.2rem 1rem}
+.callout{border-left:4px solid var(--c);background:var(--cs);border-radius:0 var(--radius) var(--radius) 0;padding:.7rem 1rem;margin:1.2rem 0}
+.callout>.callout-title{font-weight:700;color:var(--c);margin:0 0 .2rem}
+.callout>:last-child{margin-bottom:0}.callout p{margin:.3rem 0}
+.tip{--c:var(--tip);--cs:var(--tip-soft)}.warn{--c:var(--warn);--cs:var(--warn-soft)}
+.key{--c:var(--key);--cs:var(--key-soft)}.err{--c:var(--err);--cs:var(--err-soft)}
+.try{--c:var(--accent);--cs:var(--accent-soft)}
+.table-wrap{overflow-x:auto;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.5rem .7rem;text-align:left;vertical-align:top}
+th{background:var(--surface-2)}
+.nowrap1 td:first-child,.nowrap1 th:first-child{white-space:nowrap}
+.goals{list-style:none;padding:0}
+.goals li{display:flex;gap:.6rem;align-items:flex-start;padding:.35rem 0}
+.goals input{width:1.15rem;height:1.15rem;margin-top:.35rem;accent-color:var(--accent);flex:none}
+.flow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1rem 0}
+.flow span{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.35rem .8rem;font-weight:600}
+.flow b{color:var(--muted)}
+.boxes{display:flex;flex-wrap:wrap;gap:.4rem;margin:1rem 0}
+.boxes div{border:2px solid var(--accent);border-radius:8px;min-width:4.2rem;text-align:center;background:var(--surface)}
+.boxes div small{display:block;background:var(--accent);color:#fff;font-family:var(--mono)}
+.boxes div span{display:block;padding:.2rem .4rem;font-family:var(--mono)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.2rem 0}
+a.card{display:flex;flex-direction:column;position:relative;overflow:hidden;
+  border:1px solid var(--line);border-top:5px solid var(--c);border-radius:var(--radius);
+  background:linear-gradient(180deg,var(--cs),var(--surface) 70%);padding:1rem 1.1rem;color:var(--text);text-decoration:none;
+  transition:transform .15s,box-shadow .15s,border-color .15s}
+a.card:hover,a.card:focus-visible{transform:translateY(-3px);border-color:var(--c);box-shadow:0 8px 22px color-mix(in srgb,var(--c) 22%,transparent)}
+a.card:focus-visible{outline:3px solid var(--c);outline-offset:2px}
+.card .week{display:inline-block;align-self:flex-start;margin:0 0 .5rem;padding:.05rem .7rem;border-radius:999px;
+  background:var(--c);color:var(--surface);font-weight:700;font-size:.9rem}
+.card h3{margin:0 0 .4rem;color:var(--c);line-height:1.5}
+.card p{margin:.3rem 0}
+.card .go{margin-top:auto;padding-top:.5rem;font-weight:700;color:var(--c)}
+a.card:hover .go{text-decoration:underline}
+@media (prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}}
+svg.diagram{max-width:100%;height:auto;display:block;margin:1rem auto;color:var(--text)}
+footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;padding:1.2rem 16px;text-align:center}
+@media print{header.site,.toc,button.copy,button.theme{display:none}
+  details{border:none}details>summary{display:none}details>*{display:block!important}
+  .layout{display:block}body{font-size:12pt}}
+.toc-audio{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem .75rem;margin-bottom:1.2rem}
+.toc-audio-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem}
+.toc-audio-title{font-weight:700;color:var(--text);font-size:.86rem;display:flex;align-items:center;gap:.3rem}
+.toc-audio-badge{font-size:.75rem;background:var(--accent-soft);color:var(--accent);padding:.08rem .45rem;border-radius:999px;font-family:var(--mono);font-weight:600}
+.toc-audio-controls{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem}
+.toc-audio-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;line-height:1;flex-shrink:0;transition:transform .1s,background-color .15s}
+.toc-audio-btn:hover{filter:brightness(1.1);transform:scale(1.06)}
+.toc-audio-progress-wrap{flex:1;height:7px;background:var(--line);border-radius:999px;cursor:pointer;position:relative;overflow:hidden}
+.toc-audio-progress-bar{height:100%;width:0%;background:var(--accent);border-radius:999px;transition:width .1s linear}
+.toc-audio-time-row{display:flex;justify-content:flex-end;font-size:.75rem;color:var(--muted);font-family:var(--mono);margin-bottom:.45rem}
+.toc-audio-speed{display:flex;align-items:center;justify-content:space-between;gap:.25rem;padding-top:.45rem;border-top:1px solid var(--line)}
+.toc-speed-label{font-size:.74rem;color:var(--muted);font-weight:600}
+.toc-speed-btns{display:flex;gap:.2rem;flex-wrap:wrap}
+.toc-speed-btn{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:4px;padding:.08rem .32rem;font-size:.75rem;cursor:pointer;font-family:var(--mono);line-height:1.2}
+.toc-speed-btn:hover{border-color:var(--accent);color:var(--accent)}
+.toc-speed-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.toc-qr{margin-top:1.3rem;padding-top:.9rem;border-top:1px solid var(--line);text-align:center}
+.toc-qr-title{font-size:.8rem;font-weight:700;color:var(--text);margin:0 0 .55rem}
+.toc-qr-code{display:inline-block;background:#fff;padding:.4rem;border-radius:6px;line-height:0}
+.toc-qr-code svg{display:block;width:124px;height:124px}
+.toc-qr-hint{font-size:.72rem;color:var(--muted);margin:.5rem 0 0;line-height:1.5}
+@media (max-width:960px){.toc-qr{display:none}}
+.deck{margin:1.2rem 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.deck:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.deck-stage{position:relative;aspect-ratio:16/9;overflow:hidden;background:#14213D}
+.deck-canvas{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.deck-slide{position:absolute;inset:0}
+.deck-slide>section{position:relative;width:1920px;height:1080px;overflow:hidden;line-height:1.4;font-size:32px}
+.deck-slide :is(h1,h2,h3,p,ol,ul,li,table){margin:0;padding:0;border:0;max-width:none;overflow-wrap:normal}
+.deck-slide h1{line-height:1.1}.deck-slide h2{line-height:1.15}.deck-slide h3{line-height:1.2}
+.deck-slide ol,.deck-slide ul{padding-left:1.4em}
+.deck-slide table{width:100%;border-collapse:collapse;background:transparent}
+.deck-slide th,.deck-slide td{border:1px solid #D9D3C4;padding:.35em .6em;text-align:left;background:transparent}
+.deck-bar{display:flex;align-items:center;justify-content:center;gap:.8rem;padding:.45rem .8rem;border-top:1px solid var(--line);background:var(--surface-2)}
+.deck-bar button{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.15rem .8rem;cursor:pointer;font-size:.9rem}
+.deck-bar button:hover{border-color:var(--accent);color:var(--accent)}
+.deck-count{font-family:var(--mono);font-size:.85rem;color:var(--muted);min-width:4.5rem;text-align:center}
+.deck:fullscreen{display:flex;flex-direction:column;border:0;border-radius:0;background:#000}
+.deck:fullscreen .deck-stage{flex:1;aspect-ratio:auto;background:#000}
+@media print{.deck{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header class="site">
+  <a class="brand" href="index.html">Dart 程式設計講義</a>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html">Unit 4</a><a href="unit04a.html" aria-current="page">Unit 4A</a><a href="unit05.html">Unit 5</a><a href="unit06.html">Unit 6</a></nav>
+  <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
+</header>
+<div class="layout"><nav class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">10:58</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/unit04a-podcast.mp3" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放或暫停">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 10:58</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5">1.5x</button></div></div></div><p class="toc-title">本頁目錄</p><ol><li><a href="#objects">1. 你其實從 Unit 2 就一直在用物件</a></li><li><a href="#encapsulation">2. 痛點一：資料誰都能改 → 封裝</a></li><li><a href="#polymorphism">3. 痛點二：switch 越寫越多 → 多型</a></li><li><a href="#interface">4. 痛點三：程式綁死在某個資料來源 → 介面</a></li><li><a href="#composition">5. 痛點四：畫面越來越複雜 → 組合</a></li><li><a href="#practice">6. 綜合實作：飲料店點餐</a></li><li><a href="#pillars">7. 一張表整理：每個概念解決什麼痛點</a></li><li><a href="#when">8. OOP 不是萬靈丹：什麼時候不用類別？</a></li><li><a href="#summary">9. 重點整理</a></li><li><a href="#check">10. 自我檢查</a></li><li><a href="#more">11. 延伸閱讀（dart.dev 官方文件，英文）</a></li></ol><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" width="180" height="180" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h45v45h-45z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h2m1 0h4m3 0h2m1 0h2m1 0h5m1 0h7m-37 1h1m5 0h1m5 0h3m3 0h1m1 0h3m7 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m4 0h1m3 0h7m1 0h1m2 0h2m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m1 0h6m2 0h2m3 0h1m1 0h4m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m1 0h6m1 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m1 0h1m4 0h4m1 0h5m2 0h2m3 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h3m1 0h1m2 0h1m1 0h4m1 0h1m1 0h1m1 0h1m-27 1h1m3 0h1m1 0h6m1 0h1m4 0h2m2 0h3m1 0h8m2 0h1m-37 1h1m3 0h2m2 0h7m1 0h2m1 0h2m5 0h2m3 0h3m1 0h1m-36 1h3m1 0h3m1 0h3m2 0h1m2 0h3m1 0h3m4 0h4m1 0h2m-34 1h1m1 0h1m1 0h1m2 0h1m2 0h3m1 0h1m2 0h1m3 0h1m2 0h1m1 0h5m3 0h2m-36 1h1m1 0h1m1 0h1m1 0h1m1 0h5m2 0h1m1 0h1m1 0h6m4 0h3m2 0h3m-37 1h1m2 0h3m2 0h2m1 0h1m2 0h2m1 0h2m3 0h2m3 0h1m1 0h1m2 0h2m-34 1h3m1 0h6m1 0h2m1 0h3m1 0h1m2 0h8m1 0h5m-34 1h1m1 0h3m2 0h2m3 0h1m1 0h1m3 0h3m1 0h1m6 0h3m1 0h1m-35 1h1m1 0h6m2 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h2m3 0h3m2 0h3m-36 1h1m8 0h4m1 0h1m2 0h3m2 0h1m1 0h4m1 0h1m2 0h4m-35 1h1m1 0h2m1 0h2m1 0h4m1 0h2m1 0h3m1 0h3m2 0h6m1 0h2m-35 1h2m2 0h2m2 0h1m2 0h1m1 0h5m1 0h5m3 0h1m3 0h1m2 0h2m-36 1h2m1 0h1m2 0h3m5 0h1m1 0h3m2 0h2m1 0h1m3 0h1m1 0h2m1 0h2m-34 1h3m1 0h1m2 0h3m2 0h4m1 0h1m1 0h4m2 0h2m1 0h1m1 0h2m-33 1h3m3 0h4m2 0h1m1 0h4m5 0h1m3 0h1m3 0h5m-33 1h3m1 0h2m1 0h1m3 0h1m1 0h4m2 0h1m1 0h1m3 0h1m2 0h2m1 0h2m-36 1h3m1 0h1m1 0h2m2 0h2m6 0h2m2 0h3m3 0h4m1 0h4m-37 1h1m4 0h1m3 0h2m2 0h2m1 0h2m1 0h2m3 0h1m2 0h2m3 0h2m-31 1h2m1 0h1m1 0h1m5 0h1m1 0h1m1 0h1m1 0h4m3 0h1m1 0h1m4 0h1m-33 1h1m1 0h2m3 0h4m4 0h2m2 0h4m2 0h2m1 0h2m2 0h2m-36 1h2m3 0h3m1 0h1m1 0h1m1 0h5m1 0h1m1 0h1m1 0h2m2 0h8m1 0h1m-29 1h1m1 0h1m3 0h5m1 0h1m1 0h4m1 0h2m3 0h1m2 0h1m-36 1h7m1 0h4m1 0h1m1 0h1m2 0h1m2 0h3m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m-36 1h1m5 0h1m2 0h2m4 0h2m4 0h1m5 0h2m3 0h3m-35 1h1m1 0h3m1 0h1m1 0h7m1 0h1m2 0h2m3 0h1m3 0h8m-36 1h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h2m3 0h2m2 0h2m1 0h4m1 0h2m1 0h1m2 0h1m-37 1h1m1 0h3m1 0h1m2 0h5m1 0h1m1 0h3m2 0h3m1 0h1m1 0h1m1 0h1m2 0h2m-35 1h1m5 0h1m2 0h1m1 0h2m2 0h3m1 0h6m1 0h2m2 0h1m1 0h1m1 0h2m-36 1h7m1 0h3m1 0h2m3 0h1m3 0h1m1 0h2m2 0h1m3 0h1m1 0h4"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></nav><main id="main"><h1>Unit 4A（補充）：為什麼一定要學物件導向？</h1>
+<p class="lead">Unit 4 學會了 <code>class</code>、建構式和 <code>extends</code> 的寫法。這份補充講義不教新語法，而是用一組「先看問題寫法，再看類別解法」的對照範例回答一個問題：<strong>為什麼幾乎所有現代程式語言都把物件導向（OOP）當成標準配備？</strong>看完你會知道，類別不是多寫幾行的形式，而是讓程式「守得住規則、加得了功能、測得了、組得起來」的工具。</p>
+
+<h3>這份講義你會學到（學會了就打勾，會自動記在這台電腦的瀏覽器裡）</h3>
+<ul class="goals">
+  <li><input type="checkbox" id="g1"><label for="g1">說出「Dart 裡放得進變數的東西都是物件」的意思，並舉出例子</label></li>
+  <li><input type="checkbox" id="g2"><label for="g2">用<strong>封裝</strong>把資料藏起來（<code>_</code> 開頭），只留下守規則的方法</label></li>
+  <li><input type="checkbox" id="g3"><label for="g3">用<strong>多型</strong>取代一長串 <code>switch</code>，新增款式時不必改舊程式</label></li>
+  <li><input type="checkbox" id="g4"><label for="g4">用<strong>介面</strong>（<code>implements</code>）讓程式可以換資料來源、可以用假資料測試</label></li>
+  <li><input type="checkbox" id="g5"><label for="g5">用<strong>組合</strong>把小元件拼成大畫面，看懂 Flutter 為什麼這樣設計</label></li>
+  <li><input type="checkbox" id="g6"><label for="g6">判斷什麼時候該用類別、什麼時候一個函式就夠了</label></li>
+</ul>
+
+<h3>本單元投影片</h3>
+<p>用 ◀ ▶ 按鈕或鍵盤的左右方向鍵翻頁（先點一下投影片），按「全螢幕」可以放大。投影片的內容和下面各段對應。</p>
+<figure class="deck" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide"><section id="cover" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/01-cover.png" alt="為什麼一定要學物件導向？。四組「先看問題寫法，再看類別解法」的對照範例" aria-describedby="cover-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="cover-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">Dart 程式設計 · Unit 4A 補充 為什麼一定要學物件導向？ 四組「先看問題寫法，再看類別解法」的對照範例 封裝 多型 介面 組合</span>
+</section></div><div class="deck-slide" hidden><section id="objects" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/02-objects.png" alt="你早就在用物件。資料和處理它的動作，放在一起" aria-describedby="objects-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="objects-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">1 · 開場 你從 Unit 2 就一直在用物件 var n = 42; print(n.isEven); // true var name = &#x27;flutter&#x27;; print(name.toUpperCase()); // FLUTTER var scores = [92, 54, 78]; scores.sort(); // [54, 78, 92] print(n.runtimeType); // int 放得進變數的東西， 都是物件。 每個物件都是某個類別做出來的。資料和處理它的動作，本來就放在一起。 出處：dart.dev › Language › Important concepts</span>
+</section></div><div class="deck-slide" hidden><section id="languages" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/03-languages.png" alt="學會想法，帶到不同語言。寫法不同，類別的概念可以延續" aria-describedby="languages-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="languages-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">1 · 開場 主流語言都有類別，框架也是用類別蓋的 語言 常見用途 你會在哪裡看到類別 Dart Flutter 跨平台 APP 每一個畫面元件都是類別 Kotlin Android APP 畫面、資料模型、網路請求 Swift iOS APP 畫面、資料模型 Java、C# 企業系統、Unity 遊戲 幾乎所有程式碼都寫在類別裡 Python、TypeScript 資料分析、AI、網頁 套件提供的模型、元件、資料表 寫法細節不同，想法一樣。在 Dart 學會「為什麼要這樣分」，換語言只是換語法。</span>
+</section></div><div class="deck-slide" hidden><section id="overview" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/04-overview.png" alt="四個痛點，四個解法。從程式出問題的地方，理解設計的理由" aria-describedby="overview-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="overview-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">今天的路線 四個痛點，四個解法 痛點一 資料誰都能改 → 封裝 範例：悠遊卡 痛點二 switch 越寫越多 → 多型 範例：付款方式 痛點三 綁死資料來源 → 介面 範例：穿搭建議 痛點四 畫面越來越複雜 → 組合 範例：成績卡片</span>
+</section></div><div class="deck-slide" hidden><section id="enc-pain" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/05-enc-pain.png" alt="資料誰都能改，規則就守不住。痛點一：用 Map 存悠遊卡" aria-describedby="enc-pain-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="enc-pain-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">痛點一 · 沒有類別 用 Map 存悠遊卡：誰都能改 // 規則：餘額不能變負的 pay(card, 150); // 忘了檢查餘額 card[&#x27;balance&#x27;] = 99999; // 直接改掉，繞過規則 card[&#x27;balence&#x27;] = 0; // 鍵名打錯字 執行結果 付款後餘額：-50 被直接改掉：99999 {owner: 小明, balance: 99999, balence: 0} 三個問題，零個錯誤訊息。</span>
+</section></div><div class="deck-slide" hidden><section id="enc-fix" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/06-enc-fix.png" alt="把資料藏起來，只留守規則的入口。解法一：封裝" aria-describedby="enc-fix-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="enc-fix-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">解法一 · 封裝 把餘額藏起來，只留守規則的入口 class IcCard { int _balance; // 底線：外面看不到 int get balance =&gt; _balance; bool pay(int price) { if (price &lt;= 0 || price &gt; _balance) { return false; } _balance -= price; return true; } } 底線開頭 只有這個檔案裡的程式看得到 只給 getter 外面能看餘額，不能改 pay、topUp 是唯一入口 規則寫一次，就繞不過去：付 150 元 → 失敗</span>
+</section></div><div class="deck-slide" hidden><section id="enc-scope" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/07-enc-scope.png" alt="底線保護的是 library。同一個 library 裡，仍能存取私有名稱" aria-describedby="enc-scope-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="enc-scope-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">注意 底線的保護範圍是「一個檔案」 Dart 的隱私單位是 library，每個 .dart 檔就是一個 library。 類別和 main 寫在同一個檔案，main 還是看得到 _balance。所以範例把 IcCard 放進 lib/ 的另一個檔案。 從另一個檔案執行 card._balance = 99999; 的錯誤訊息 Error: The setter &#x27;_balance&#x27; isn&#x27;t defined for the type &#x27;IcCard&#x27;.</span>
+</section></div><div class="deck-slide" hidden><section id="poly-pain" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/08-poly-pain.png" alt="每加一種付款，就到處修改。痛點二：重複的 switch" aria-describedby="poly-pain-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="poly-pain-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">痛點二 · 沒有多型 用字串分辨付款方式：switch 越寫越多 double feeOf(String method, int amount) { switch (method) { case &#x27;cash&#x27;: return 0; case &#x27;mobile&#x27;: return amount * 0.01; default: return 0; } } // labelOf 再寫一次同樣的 switch…… 打錯字：不報錯，只算錯 &#x27;Mobile&#x27; 印出「未知，手續費 0.0 元」 加一種款式：到處都要改 每個 switch 都得找出來改，漏一處就是一個 bug</span>
+</section></div><div class="deck-slide" hidden><section id="poly-fix" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/09-poly-fix.png" alt="同一個呼叫，多種行為。解法二：多型" aria-describedby="poly-fix-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="poly-fix-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">解法二 · 多型 每種款式自己算，結帳只認得父類別 checkout 只認得 PaymentMethod 抽象類別 extends Cash 現金 IcCardPayment 悠遊卡 MobilePay 行動支付 CreditCard 信用卡（後來新增） 同一行 m.receipt(amount)，遇到不同物件就做不同的事：這就是多型。</span>
+</section></div><div class="deck-slide" hidden><section id="open-closed" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/10-open-closed.png" alt="擴充新功能，保留穩定流程。對擴充開放，對修改封閉" aria-describedby="open-closed-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="open-closed-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">設計原則 對擴充開放， 對修改封閉。 加新功能時只新增程式，不修改舊程式。 舊程式沒被動到，就不會被改壞。</span>
+</section></div><div class="deck-slide" hidden><section id="interface" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/11-interface.png" alt="依賴規格，就能換來源。解法三：介面" aria-describedby="interface-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="interface-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">痛點三 → 介面 依賴規格，就能換來源、用假資料測試 abstract class WeatherSource { double? celsiusIn(String city); } // 正式版 class StationWeather implements WeatherSource { … } // 測試用：想測幾度就給幾度 class FakeWeather implements WeatherSource { … } 用 FakeWeather 測邊界值 氣溫 建議 28.0 短袖＋防曬 27.9 薄長袖 20.0 薄長袖 19.9 厚外套 null 查不到，先帶件外套 extends 接收父類別的程式碼； implements 只承諾提供同樣的方法。</span>
+</section></div><div class="deck-slide" hidden><section id="composition" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/12-composition.png" alt="小元件，組成大畫面。解法四：組合" aria-describedby="composition-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="composition-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">痛點四 → 組合 小元件組成大元件：Flutter 的畫面就是這樣來的 執行結果（節錄） 期中成績 ┌─ 小明 │ 分數：92 │ 狀態：及格 │ [ 查看詳情 ] └─ Text、Button 最小元件，各自知道怎麼畫自己 Column、Card 容器：請孩子先畫，再排列或加框 ScoreCard 自己不畫，build 只負責組合現成元件 「A 裡面有 B」用組合；「A 是一種 B」才用繼承。</span>
+</section></div><div class="deck-slide" hidden><section id="drink" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/13-drink.png" alt="一張訂單，串起三個概念。綜合實作：飲料店點餐" aria-describedby="drink-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="drink-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">綜合實作 飲料店點餐：三個概念一起上場 封裝 品項清單藏在訂單裡，只能用 add 加入；0 杯或超過 20 杯一律拒絕 多型 每種優惠自己算能折多少；訂單問同一個問題，自動挑最划算的 組合 訂單有很多品項，每個品項有一杯飲料，各自只算自己的部分 原價 210 元 全單 9 折 189 元 第二杯半價（自動選擇） 165 元</span>
+</section></div><div class="deck-slide" hidden><section id="pillars" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/14-pillars.png" alt="每個概念，解決一個痛點。用設計目的記住語法" aria-describedby="pillars-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="pillars-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">整理 每個概念解決一個痛點 概念 沒有它的痛點 Dart 寫法 封裝 資料誰都能改，規則可以被繞過 底線開頭的欄位、只給 getter 抽象 使用的人被迫知道所有細節 abstract class 只訂規格 繼承 同樣的程式碼複製貼上好幾份 extends、super 多型 到處都是 switch，加款式要改很多地方 @override、父類別型別的清單 介面 綁死一個資料來源，無法測試 implements 組合 一個大函式包辦整個畫面 欄位持有其他物件</span>
+</section></div><div class="deck-slide" hidden><section id="when-not" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/15-when-not.png" alt="先看需求，再選工具。不是每件事都需要類別" aria-describedby="when-not-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="when-not-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">OOP 不是萬靈丹 類別是骨架，不是每件事都要包成類別 情況 建議 一次性的計算 一個函式就好，例如攝氏轉華氏 資料有規則要守 用類別封裝：餘額、庫存、訂單 同一件事有很多種做法 抽象類別＋多型：付款方式、優惠 需要換掉實作或測試 依賴介面：資料來源 東西由小東西組成 用組合：畫面元件 繼承不要疊太深。先問自己：這是「是一種」，還是「裡面有」？</span>
+</section></div><div class="deck-slide" hidden><section id="self-check" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/16-self-check.png" alt="說得出原因，才是真的懂。先自己想，再回講義核對" aria-describedby="self-check-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="self-check-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">自我檢查 想得出原因，才算真的懂 IcCard 和 main 寫在同一個檔案，直接改 _balance 還會出錯嗎？為什麼？ 要新增「信用卡」，switch 版和多型版各要改哪些地方？ FakeWeather 為什麼用 implements，而不是 extends StationWeather？ 「訂單有很多品項」和「信用卡是一種付款方式」，哪個用組合、哪個用繼承？ 參考答案在講義第 10 段，先自己想再點開。</span>
+</section></div><div class="deck-slide" hidden><section id="closing" data-transition="fade" style="background:#fffaf0;padding:0">
+<img src="figures/unit04a-infographics-v1/17-closing.png" alt="類別，讓程式守得住規則。下一次寫程式前，先問：這份資料有什麼規則？" aria-describedby="closing-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="closing-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">類別不是為了多寫幾行 守得住規則 加得了功能 測得了 組得起來 下一次寫程式前，先問自己：這份資料有什麼規則要守？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count">1 / 17</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
+
+<h2 id="objects">1. 你其實從 Unit 2 就一直在用物件</h2>
+<p>官方文件對 Dart 的第一句介紹就是：Dart 是物件導向語言，<strong>每一個物件都是某個類別做出來的</strong>。數字、文字、清單也不例外，所以你才能寫 <code>name.toUpperCase()</code>、<code>scores.sort()</code>：資料和處理它的動作本來就放在一起。</p>
+
+<h3>基本範例</h3>
+<figure class="code"><figcaption><span class="file">s01_everything_object.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 在 Dart 裡，放得進變數的東西都是物件：數字、文字、清單都有自己的方法</span>
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-com">// 數字是 int 類別的物件，所以可以「問它問題」</span>
+  <span class="t-key">var</span> n = <span class="t-num">42</span>;
+  <span class="t-fn">print</span>(n.isEven);
+  <span class="t-fn">print</span>(n.<span class="t-fn">toString</span>().length);
+
+  <span class="t-com">// 文字是 String 類別的物件，處理文字的動作都跟著它走</span>
+  <span class="t-key">var</span> name = <span class="t-str">&#x27;flutter&#x27;</span>;
+  <span class="t-fn">print</span>(name.<span class="t-fn">toUpperCase</span>());
+  <span class="t-fn">print</span>(name.<span class="t-fn">contains</span>(<span class="t-str">&#x27;lut&#x27;</span>));
+
+  <span class="t-com">// 清單是 List 類別的物件，資料和動作也放在一起</span>
+  <span class="t-key">var</span> scores = [<span class="t-num">92</span>, <span class="t-num">54</span>, <span class="t-num">78</span>];
+  scores.<span class="t-fn">sort</span>();
+  <span class="t-fn">print</span>(scores);
+  <span class="t-fn">print</span>(scores.first);
+
+  <span class="t-com">// 每個物件都知道自己是哪個類別做出來的</span>
+  <span class="t-fn">print</span>(n.runtimeType);
+  <span class="t-fn">print</span>(name.runtimeType);
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>true
+2
+FLUTTER
+true
+[54, 78, 92]
+54
+int
+String</pre></div></details>
+<ul>
+  <li><code>n.isEven</code>：問數字「你是偶數嗎？」，這個能力是 <code>int</code> 類別提供的。</li>
+  <li><code>name.toUpperCase()</code>：處理文字的動作都跟著 <code>String</code> 走，不用另外找一個函式。</li>
+  <li><code>runtimeType</code>：每個物件都知道自己是哪個類別做出來的。</li>
+</ul>
+
+<h3>為什麼說它是「標準配備」？</h3>
+<p>你之後會碰到的主流語言都有類別，而且各平台的框架都是用類別蓋起來的：</p>
+<div class="table-wrap"><table class="nowrap1">
+<tr><th>語言</th><th>常見用途</th><th>你會在哪裡看到類別</th></tr>
+<tr><td>Dart</td><td>Flutter 跨平台 APP</td><td>每一個畫面元件（widget）都是類別</td></tr>
+<tr><td>Kotlin</td><td>Android APP</td><td>畫面、資料模型、網路請求</td></tr>
+<tr><td>Swift</td><td>iOS APP</td><td>畫面、資料模型</td></tr>
+<tr><td>Java、C#</td><td>企業系統、遊戲（Unity 使用 C#）</td><td>幾乎所有程式碼都寫在類別裡</td></tr>
+<tr><td>Python、TypeScript</td><td>資料分析、AI、網頁</td><td>套件提供的模型、元件、資料表</td></tr>
+</table></div>
+<p>這些語言的寫法細節不同，但背後的想法一樣。在 Dart 學會「為什麼要這樣分」，換語言時只是換一套語法。</p>
+
+<h2 id="encapsulation">2. 痛點一：資料誰都能改 → 封裝</h2>
+<p>情境：做一個悠遊卡 APP，規則很簡單：<strong>餘額不能變負的</strong>、<strong>一次儲值 1 到 10000 元</strong>。先看沒有類別的寫法。</p>
+
+<h3>沒有類別：用 Map 存資料</h3>
+<figure class="code"><figcaption><span class="file">s02_without_class.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 沒有類別的寫法：用 Map 存一張悠遊卡，誰都可以直接改裡面的資料</span>
+
+<span class="t-key">void</span> <span class="t-fn">pay</span>(<span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">Object</span>&gt; card, <span class="t-type">int</span> price) {
+  <span class="t-key">var</span> balance = card[<span class="t-str">&#x27;balance&#x27;</span>] <span class="t-key">as</span> <span class="t-type">int</span>;
+  <span class="t-com">// 忘了檢查餘額夠不夠：沒有人會提醒你</span>
+  card[<span class="t-str">&#x27;balance&#x27;</span>] = balance - price;
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">var</span> card = &lt;<span class="t-type">String</span>, <span class="t-type">Object</span>&gt;{<span class="t-str">&#x27;owner&#x27;</span>: <span class="t-str">&#x27;小明&#x27;</span>, <span class="t-str">&#x27;balance&#x27;</span>: <span class="t-num">100</span>};
+
+  <span class="t-com">// 問題 1：規則散落在各個函式，只要有一個函式忘了檢查，餘額就變負的</span>
+  <span class="t-fn">pay</span>(card, <span class="t-num">150</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;付款後餘額：${card[&#x27;</span>balance<span class="t-str">&#x27;]}&#x27;</span>);
+
+  <span class="t-com">// 問題 2：任何一行程式都能直接改資料，完全繞過規則</span>
+  card[<span class="t-str">&#x27;balance&#x27;</span>] = <span class="t-num">99999</span>;
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;被直接改掉：${card[&#x27;</span>balance<span class="t-str">&#x27;]}&#x27;</span>);
+
+  <span class="t-com">// 問題 3：鍵名打錯字，程式照樣執行，只是默默多出一個沒用的鍵</span>
+  card[<span class="t-str">&#x27;balence&#x27;</span>] = <span class="t-num">0</span>;
+  <span class="t-fn">print</span>(card);
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>付款後餘額：-50
+被直接改掉：99999
+{owner: 小明, balance: 99999, balence: 0}</pre></div></details>
+<div class="callout err"><p class="callout-title">三個問題都不會出現錯誤訊息</p>
+<p>餘額變成 -50、被直接改成 99999、鍵名打錯多出 <code>balence</code>：程式全部照常執行，錯誤要等到使用者發現才會被看見。規則寫在函式裡，但<strong>沒有任何東西強迫別人一定要走那個函式</strong>。</p></div>
+
+<h3>改用類別：資料和規則放在一起</h3>
+<p>把餘額藏起來，外面只能透過 <code>topUp()</code> 和 <code>pay()</code> 改變它。類別寫在 <code>lib/</code> 裡，主程式用 <code>import</code> 引用：</p>
+<figure class="code"><figcaption><span class="file">ic_card.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 悠遊卡類別：餘額藏起來（_balance），只能透過 topUp() 和 pay() 改變</span>
+
+<span class="t-key">class</span> <span class="t-type">IcCard</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> owner;
+
+  <span class="t-com">// 底線開頭：只有這個檔案（library）裡的程式看得到</span>
+  <span class="t-type">int</span> _balance;
+  <span class="t-key">final</span> <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; _history = [];
+
+  <span class="t-type">IcCard</span>({<span class="t-key">required</span> <span class="t-key">this</span>.owner, <span class="t-type">int</span> balance = <span class="t-num">0</span>}) : _balance = balance;
+
+  <span class="t-com">// 外面只能「看」餘額，沒有 setter，所以不能直接改</span>
+  <span class="t-type">int</span> get balance =&gt; _balance;
+
+  <span class="t-com">// 交易紀錄：交出去的是一份唯讀的副本</span>
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; get history =&gt; <span class="t-type">List</span>.<span class="t-fn">unmodifiable</span>(_history);
+
+  <span class="t-com">// 儲值：一次 1 到 10000 元，其餘一律拒絕</span>
+  <span class="t-type">bool</span> <span class="t-fn">topUp</span>(<span class="t-type">int</span> amount) {
+    <span class="t-key">if</span> (amount &lt;= <span class="t-num">0</span> || amount &gt; <span class="t-num">10000</span>) {
+      _history.<span class="t-fn">add</span>(<span class="t-str">&#x27;拒絕儲值 <span class="t-int">$amount</span>&#x27;</span>);
+      <span class="t-key">return</span> <span class="t-key">false</span>;
+    }
+    _balance += amount;
+    _history.<span class="t-fn">add</span>(<span class="t-str">&#x27;儲值 +<span class="t-int">$amount</span>&#x27;</span>);
+    <span class="t-key">return</span> <span class="t-key">true</span>;
+  }
+
+  <span class="t-com">// 付款：金額不合理或餘額不足就拒絕，餘額永遠不會變負的</span>
+  <span class="t-type">bool</span> <span class="t-fn">pay</span>(<span class="t-type">int</span> price) {
+    <span class="t-key">if</span> (price &lt;= <span class="t-num">0</span> || price &gt; _balance) {
+      _history.<span class="t-fn">add</span>(<span class="t-str">&#x27;拒絕付款 <span class="t-int">$price</span>（餘額 <span class="t-int">$_balance</span>）&#x27;</span>);
+      <span class="t-key">return</span> <span class="t-key">false</span>;
+    }
+    _balance -= price;
+    _history.<span class="t-fn">add</span>(<span class="t-str">&#x27;付款 -<span class="t-int">$price</span>&#x27;</span>);
+    <span class="t-key">return</span> <span class="t-key">true</span>;
+  }
+}</code></pre></figure>
+<figure class="code"><figcaption><span class="file">s03_encapsulation.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 封裝：資料和守護資料的規則放在同一個類別裡，外面只能照規則操作</span>
+
+<span class="t-key">import</span> <span class="t-str">&#x27;package:data_lab/unit04a/ic_card.dart&#x27;</span>;
+
+<span class="t-type">String</span> <span class="t-fn">result</span>(<span class="t-type">bool</span> ok) =&gt; ok ? <span class="t-str">&#x27;成功&#x27;</span> : <span class="t-str">&#x27;失敗&#x27;</span>;
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">var</span> card = <span class="t-type">IcCard</span>(owner: <span class="t-str">&#x27;小明&#x27;</span>, balance: <span class="t-num">100</span>);
+
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;付 150 元：<span class="t-int">${result(card.pay(150))}</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;付 35 元：<span class="t-int">${result(card.pay(35))}</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;儲值 -50 元：<span class="t-int">${result(card.topUp(-50))}</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;儲值 200 元：<span class="t-int">${result(card.topUp(200))}</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;<span class="t-int">${card.owner}</span>的餘額：<span class="t-int">${card.balance}</span>&#x27;</span>);
+
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;交易紀錄：&#x27;</span>);
+  <span class="t-key">for</span> (<span class="t-key">var</span> line <span class="t-key">in</span> card.history) {
+    <span class="t-fn">print</span>(<span class="t-str">&#x27;  <span class="t-int">$line</span>&#x27;</span>);
+  }
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>付 150 元：失敗
+付 35 元：成功
+儲值 -50 元：失敗
+儲值 200 元：成功
+小明的餘額：265
+交易紀錄：
+  拒絕付款 150（餘額 100）
+  付款 -35
+  拒絕儲值 -50
+  儲值 +200</pre></div></details>
+<ul>
+  <li><code>int _balance;</code>：名稱用<strong>底線開頭</strong>，代表「只有這個檔案裡的程式看得到」。Dart 沒有 <code>private</code> 這個關鍵字，用底線表示。</li>
+  <li><code>int get balance =&gt; _balance;</code>：只給 getter、不給 setter，外面能看不能改。</li>
+  <li><code>pay()</code> 和 <code>topUp()</code> 是改變餘額的<strong>唯一入口</strong>，規則只要寫在這裡一次，就不可能被繞過。</li>
+  <li><code>List.unmodifiable(_history)</code>：交出去的是唯讀副本，外面拿到也改不了真正的紀錄。</li>
+</ul>
+
+<div class="callout err"><p class="callout-title">試試看：從外面直接改 <code>_balance</code></p></div>
+<figure class="code"><figcaption><span class="file">e13_private_field.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-key">import</span> <span class="t-str">&#x27;package:data_lab/unit04a/ic_card.dart&#x27;</span>;
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">var</span> card = <span class="t-type">IcCard</span>(owner: <span class="t-str">&#x27;小明&#x27;</span>, balance: <span class="t-num">100</span>);
+  card._balance = <span class="t-num">99999</span>;
+  <span class="t-fn">print</span>(card.balance);
+}</code></pre></figure><div class="output is-error"><div class="output-label">錯誤訊息（實際執行結果）</div><pre>e13_private_field.dart:5:8: Error: The setter &#x27;_balance&#x27; isn&#x27;t defined for the type &#x27;IcCard&#x27;.
+ - &#x27;IcCard&#x27; is from &#x27;package:data_lab/unit04a/ic_card.dart&#x27; (&#x27;lib/unit04a/ic_card.dart&#x27;).
+Try correcting the name to the name of an existing setter, or defining a setter or field named &#x27;_balance&#x27;.
+  card._balance = 99999;
+       ^^^^^^^^</pre></div>
+<p>在別的檔案裡，<code>_balance</code> 根本「不存在」，所以分析器說找不到這個 setter。這次錯誤在<strong>還沒執行</strong>時就被抓到了。</p>
+
+<div class="callout warn"><p class="callout-title">注意：底線的保護範圍是「一個檔案」</p>
+<p>Dart 的隱私單位是 library，每一個 <code>.dart</code> 檔就是一個 library。如果把類別和 <code>main()</code> 寫在<strong>同一個檔案</strong>，<code>main()</code> 還是看得到 <code>_balance</code>。這就是為什麼這個範例要把類別放進 <code>lib/</code> 另一個檔案。在 DartPad 只有一個檔案時，可以先觀察 getter 擋住 setter 的效果。</p></div>
+
+<div class="callout key"><p class="callout-title">封裝的好處</p>
+<p>規則集中在一個地方：要改「單次儲值上限」只改一行，所有用到悠遊卡的畫面自動跟著變。之後在 Flutter 裡，畫面只負責「顯示餘額、按下付款」，不必知道規則細節。</p></div>
+
+<h2 id="polymorphism">3. 痛點二：<code>switch</code> 越寫越多 → 多型</h2>
+<p>情境：結帳時支援多種付款方式，每一種的手續費算法不同。先看用字串分辨款式的寫法。</p>
+
+<h3>沒有多型：每個函式都要 switch 一次</h3>
+<figure class="code"><figcaption><span class="file">s04_switch_payment.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 沒有多型的寫法：用字串分辨付款方式，每個函式都要再寫一次 switch</span>
+
+<span class="t-type">double</span> <span class="t-fn">feeOf</span>(<span class="t-type">String</span> method, <span class="t-type">int</span> amount) {
+  <span class="t-key">switch</span> (method) {
+    <span class="t-key">case</span> <span class="t-str">&#x27;cash&#x27;</span>:
+      <span class="t-key">return</span> <span class="t-num">0</span>;
+    <span class="t-key">case</span> <span class="t-str">&#x27;card&#x27;</span>:
+      <span class="t-key">return</span> <span class="t-num">0</span>;
+    <span class="t-key">case</span> <span class="t-str">&#x27;mobile&#x27;</span>:
+      <span class="t-key">return</span> amount * <span class="t-num">0.01</span>;
+    <span class="t-key">default</span>:
+      <span class="t-key">return</span> <span class="t-num">0</span>; <span class="t-com">// 打錯字也會默默走到這裡</span>
+  }
+}
+
+<span class="t-type">String</span> <span class="t-fn">labelOf</span>(<span class="t-type">String</span> method) {
+  <span class="t-key">switch</span> (method) {
+    <span class="t-key">case</span> <span class="t-str">&#x27;cash&#x27;</span>:
+      <span class="t-key">return</span> <span class="t-str">&#x27;現金&#x27;</span>;
+    <span class="t-key">case</span> <span class="t-str">&#x27;card&#x27;</span>:
+      <span class="t-key">return</span> <span class="t-str">&#x27;悠遊卡&#x27;</span>;
+    <span class="t-key">case</span> <span class="t-str">&#x27;mobile&#x27;</span>:
+      <span class="t-key">return</span> <span class="t-str">&#x27;行動支付&#x27;</span>;
+    <span class="t-key">default</span>:
+      <span class="t-key">return</span> <span class="t-str">&#x27;未知&#x27;</span>;
+  }
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-com">// &#x27;Mobile&#x27; 多打了一個大寫：程式不會報錯，只會算錯</span>
+  <span class="t-key">var</span> methods = [<span class="t-str">&#x27;cash&#x27;</span>, <span class="t-str">&#x27;card&#x27;</span>, <span class="t-str">&#x27;mobile&#x27;</span>, <span class="t-str">&#x27;Mobile&#x27;</span>];
+  <span class="t-key">for</span> (<span class="t-key">var</span> m <span class="t-key">in</span> methods) {
+    <span class="t-fn">print</span>(<span class="t-str">&#x27;<span class="t-int">${labelOf(m)}</span>：付 200 元，手續費 <span class="t-int">${feeOf(m, 200)}</span> 元&#x27;</span>);
+  }
+  <span class="t-com">// 想加「信用卡」？feeOf、labelOf，以及所有寫了 switch 的地方都要改</span>
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>現金：付 200 元，手續費 0.0 元
+悠遊卡：付 200 元，手續費 0.0 元
+行動支付：付 200 元，手續費 2.0 元
+未知：付 200 元，手續費 0.0 元</pre></div></details>
+<ul>
+  <li><code>'Mobile'</code> 只是多打一個大寫，程式不會報錯，只會悄悄印出「未知、手續費 0 元」。</li>
+  <li>每多一種付款方式，<code>feeOf</code>、<code>labelOf</code> 以及所有寫了 <code>switch</code> 的地方都要改。漏改一處就是一個 bug。</li>
+</ul>
+
+<h3>改用多型：每種款式自己知道怎麼算</h3>
+<figure class="code"><figcaption><span class="file">s05_polymorphism.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 多型：每種付款方式自己知道怎麼算手續費，結帳程式只認得 PaymentMethod</span>
+
+<span class="t-key">abstract</span> <span class="t-key">class</span> <span class="t-type">PaymentMethod</span> {
+  <span class="t-type">String</span> get label;
+
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount);
+
+  <span class="t-com">// 共用的收據格式：寫一次，所有款式都能用</span>
+  <span class="t-type">String</span> <span class="t-fn">receipt</span>(<span class="t-type">int</span> amount) {
+    <span class="t-key">var</span> fee = <span class="t-fn">feeFor</span>(amount);
+    <span class="t-key">var</span> total = amount + fee;
+    <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$label</span>：<span class="t-int">$amount</span> 元＋手續費 <span class="t-int">${fee.toStringAsFixed(1)}</span>&#x27;</span>
+        <span class="t-str">&#x27; ＝ <span class="t-int">${total.toStringAsFixed(1)}</span> 元&#x27;</span>;
+  }
+}
+
+<span class="t-key">class</span> <span class="t-type">Cash</span> <span class="t-key">extends</span> <span class="t-type">PaymentMethod</span> {
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;現金&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount) =&gt; <span class="t-num">0</span>;
+}
+
+<span class="t-key">class</span> <span class="t-type">IcCardPayment</span> <span class="t-key">extends</span> <span class="t-type">PaymentMethod</span> {
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;悠遊卡&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount) =&gt; <span class="t-num">0</span>;
+}
+
+<span class="t-key">class</span> <span class="t-type">MobilePay</span> <span class="t-key">extends</span> <span class="t-type">PaymentMethod</span> {
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;行動支付&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount) =&gt; amount * <span class="t-num">0.01</span>;
+}
+
+<span class="t-com">// 後來才加的新款式：只要多寫一個類別，checkout() 一行都不用改</span>
+<span class="t-key">class</span> <span class="t-type">CreditCard</span> <span class="t-key">extends</span> <span class="t-type">PaymentMethod</span> {
+  <span class="t-key">final</span> <span class="t-type">int</span> installments;
+
+  <span class="t-type">CreditCard</span>({<span class="t-key">this</span>.installments = <span class="t-num">1</span>});
+
+  @override
+  <span class="t-type">String</span> get label =&gt; installments == <span class="t-num">1</span> ? <span class="t-str">&#x27;信用卡&#x27;</span> : <span class="t-str">&#x27;信用卡分 <span class="t-int">$installments</span> 期&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount) =&gt;
+      installments == <span class="t-num">1</span> ? amount * <span class="t-num">0.02</span> : amount * <span class="t-num">0.035</span>;
+}
+
+<span class="t-com">// 結帳程式：不管清單裡是哪一種款式，都用同一行處理</span>
+<span class="t-key">void</span> <span class="t-fn">checkout</span>(<span class="t-type">int</span> amount, <span class="t-type">List</span>&lt;<span class="t-type">PaymentMethod</span>&gt; methods) {
+  <span class="t-key">for</span> (<span class="t-key">var</span> m <span class="t-key">in</span> methods) {
+    <span class="t-fn">print</span>(m.<span class="t-fn">receipt</span>(amount));
+  }
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-fn">checkout</span>(<span class="t-num">200</span>, [
+    <span class="t-type">Cash</span>(),
+    <span class="t-type">IcCardPayment</span>(),
+    <span class="t-type">MobilePay</span>(),
+    <span class="t-type">CreditCard</span>(),
+    <span class="t-type">CreditCard</span>(installments: <span class="t-num">3</span>),
+  ]);
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>現金：200 元＋手續費 0.0 ＝ 200.0 元
+悠遊卡：200 元＋手續費 0.0 ＝ 200.0 元
+行動支付：200 元＋手續費 2.0 ＝ 202.0 元
+信用卡：200 元＋手續費 4.0 ＝ 204.0 元
+信用卡分 3 期：200 元＋手續費 7.0 ＝ 207.0 元</pre></div></details>
+
+<svg class="diagram" viewBox="0 0 640 256" width="640" role="img" aria-label="示意圖：checkout 只認得抽象類別 PaymentMethod，現金、悠遊卡、行動支付、信用卡四個子類別都繼承它，信用卡是後來新增的">
+  <g fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="20" y="25" width="150" height="50" rx="10"/>
+    <rect x="260" y="20" width="220" height="60" rx="10"/>
+    <rect x="15" y="180" width="140" height="56" rx="10"/>
+    <rect x="170" y="180" width="140" height="56" rx="10"/>
+    <rect x="325" y="180" width="140" height="56" rx="10"/>
+    <rect x="480" y="180" width="145" height="56" rx="10" stroke-dasharray="6 4"/>
+    <path d="M170,50 H240"/>
+    <path d="M85,180 V140 H552 V180 M240,180 V140 M395,180 V140 M370,140 V102"/>
+  </g>
+  <path d="M250,50 L240,44.5 L240,55.5 z" fill="currentColor"/>
+  <path d="M370,88 L361,102 L379,102 z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+  <g fill="currentColor" font-size="14" text-anchor="middle" font-family="sans-serif">
+    <text x="95" y="55">checkout()</text>
+    <text x="210" y="38" font-size="13">只認得</text>
+    <text x="370" y="46">PaymentMethod</text>
+    <text x="370" y="67" font-size="12">（抽象類別）</text>
+    <text x="384" y="126" text-anchor="start" font-size="13">extends</text>
+    <text x="85" y="203">Cash</text><text x="85" y="225" font-size="13">現金</text>
+    <text x="240" y="203">IcCardPayment</text><text x="240" y="225" font-size="13">悠遊卡</text>
+    <text x="395" y="203">MobilePay</text><text x="395" y="225" font-size="13">行動支付</text>
+    <text x="552" y="203">CreditCard</text><text x="552" y="225" font-size="13">信用卡（新增）</text>
+  </g>
+</svg>
+
+<ul>
+  <li><code>checkout()</code> 的參數型別是 <code>List&lt;PaymentMethod&gt;</code>，它只知道「每個東西都有 <code>receipt()</code>」，不知道也不在乎實際是哪一種。</li>
+  <li>同一行 <code>m.receipt(amount)</code>，遇到不同物件就執行不同的 <code>feeFor()</code>：這就是<strong>多型</strong>（polymorphism，「同一個呼叫，多種行為」）。</li>
+  <li><code>CreditCard</code> 是後來才加的，只要<strong>多寫一個類別</strong>，<code>checkout()</code> 一行都不用改。圖中的虛線框就是新加的部分。</li>
+  <li>打錯字的問題也消失了：<code>Mobilepay()</code> 不是任何一個類別，分析器會直接標紅。</li>
+</ul>
+
+<div class="callout key"><p class="callout-title">「對擴充開放、對修改封閉」</p>
+<p>好的設計讓你<strong>加新功能時只新增程式、不修改舊程式</strong>。舊程式沒被動到，就不會被改壞。APP 會一直長新功能，這一點比寫得快更重要。</p></div>
+
+<div class="callout try"><p class="callout-title">小練習：新增「禮券」付款方式</p>
+<p>在 <code>s05_polymorphism.dart</code> 加上 <code>Voucher</code> 類別：建構式用具名參數 <code>faceValue</code>（面額），手續費 0 元，<code>label</code> 要顯示面額，例如「禮券（面額 500 元）」。完成後確認 <code>checkout()</code> 一個字都沒改。</p></div>
+<details class="solution"><summary>看參考解答</summary><figure class="code"><figcaption><span class="file">ex1_new_payment.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 參考解答：新增「禮券」付款方式，checkout() 完全沒有改</span>
+
+<span class="t-key">abstract</span> <span class="t-key">class</span> <span class="t-type">PaymentMethod</span> {
+  <span class="t-type">String</span> get label;
+
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount);
+
+  <span class="t-type">String</span> <span class="t-fn">receipt</span>(<span class="t-type">int</span> amount) {
+    <span class="t-key">var</span> fee = <span class="t-fn">feeFor</span>(amount);
+    <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$label</span>：<span class="t-int">$amount</span> 元＋手續費 <span class="t-int">${fee.toStringAsFixed(1)}</span>&#x27;</span>
+        <span class="t-str">&#x27; ＝ <span class="t-int">${(amount + fee).toStringAsFixed(1)}</span> 元&#x27;</span>;
+  }
+}
+
+<span class="t-key">class</span> <span class="t-type">Cash</span> <span class="t-key">extends</span> <span class="t-type">PaymentMethod</span> {
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;現金&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount) =&gt; <span class="t-num">0</span>;
+}
+
+<span class="t-key">class</span> <span class="t-type">MobilePay</span> <span class="t-key">extends</span> <span class="t-type">PaymentMethod</span> {
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;行動支付&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount) =&gt; amount * <span class="t-num">0.01</span>;
+}
+
+<span class="t-com">// 新增的款式：禮券不收手續費，但收據上要看得到面額</span>
+<span class="t-key">class</span> <span class="t-type">Voucher</span> <span class="t-key">extends</span> <span class="t-type">PaymentMethod</span> {
+  <span class="t-key">final</span> <span class="t-type">int</span> faceValue;
+
+  <span class="t-type">Voucher</span>({<span class="t-key">required</span> <span class="t-key">this</span>.faceValue});
+
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;禮券（面額 <span class="t-int">$faceValue</span> 元）&#x27;</span>;
+
+  @override
+  <span class="t-type">double</span> <span class="t-fn">feeFor</span>(<span class="t-type">int</span> amount) =&gt; <span class="t-num">0</span>;
+}
+
+<span class="t-key">void</span> <span class="t-fn">checkout</span>(<span class="t-type">int</span> amount, <span class="t-type">List</span>&lt;<span class="t-type">PaymentMethod</span>&gt; methods) {
+  <span class="t-key">for</span> (<span class="t-key">var</span> m <span class="t-key">in</span> methods) {
+    <span class="t-fn">print</span>(m.<span class="t-fn">receipt</span>(amount));
+  }
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-fn">checkout</span>(<span class="t-num">200</span>, [<span class="t-type">Cash</span>(), <span class="t-type">MobilePay</span>(), <span class="t-type">Voucher</span>(faceValue: <span class="t-num">500</span>)]);
+}</code></pre></figure><div class="output"><div class="output-label">執行結果</div><pre>現金：200 元＋手續費 0.0 ＝ 200.0 元
+行動支付：200 元＋手續費 2.0 ＝ 202.0 元
+禮券（面額 500 元）：200 元＋手續費 0.0 ＝ 200.0 元</pre></div></details>
+
+<h2 id="interface">4. 痛點三：程式綁死在某個資料來源 → 介面</h2>
+<p>情境：做一個「今天穿什麼」APP，依氣溫給建議。真正的氣溫要上網查，可是你想測「剛好 28 度」「查不到」這些邊界情況，總不能等天氣配合。解法是讓建議程式<strong>只依賴一份規格</strong>，而不是依賴某個特定的資料來源。</p>
+
+<h3>延伸練習</h3>
+<figure class="code"><figcaption><span class="file">s06_interface_fake.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 依賴介面：穿搭建議只認得 WeatherSource，換資料來源時主邏輯完全不用改</span>
+
+<span class="t-com">// 介面：只規定「查得到某個城市的氣溫」，查不到就回傳 null</span>
+<span class="t-key">abstract</span> <span class="t-key">class</span> <span class="t-type">WeatherSource</span> {
+  <span class="t-type">double</span>? <span class="t-fn">celsiusIn</span>(<span class="t-type">String</span> city);
+}
+
+<span class="t-com">// 正式版：真正的 APP 會上網查（Unit 6 才學非同步），這裡先用固定資料代替</span>
+<span class="t-key">class</span> <span class="t-type">StationWeather</span> implements <span class="t-type">WeatherSource</span> {
+  <span class="t-key">final</span> <span class="t-type">Map</span>&lt;<span class="t-type">String</span>, <span class="t-type">double</span>&gt; _latest = {<span class="t-str">&#x27;臺南&#x27;</span>: <span class="t-num">31.5</span>, <span class="t-str">&#x27;臺北&#x27;</span>: <span class="t-num">24.0</span>, <span class="t-str">&#x27;嘉義&#x27;</span>: <span class="t-num">17.2</span>};
+
+  @override
+  <span class="t-type">double</span>? <span class="t-fn">celsiusIn</span>(<span class="t-type">String</span> city) =&gt; _latest[city];
+}
+
+<span class="t-com">// 測試用的假資料來源：想測幾度就給幾度</span>
+<span class="t-key">class</span> <span class="t-type">FakeWeather</span> implements <span class="t-type">WeatherSource</span> {
+  <span class="t-key">final</span> <span class="t-type">double</span>? value;
+
+  <span class="t-type">FakeWeather</span>(<span class="t-key">this</span>.value);
+
+  @override
+  <span class="t-type">double</span>? <span class="t-fn">celsiusIn</span>(<span class="t-type">String</span> city) =&gt; value;
+}
+
+<span class="t-key">class</span> <span class="t-type">OutfitAdvisor</span> {
+  <span class="t-key">final</span> <span class="t-type">WeatherSource</span> source;
+
+  <span class="t-type">OutfitAdvisor</span>(<span class="t-key">this</span>.source);
+
+  <span class="t-type">String</span> <span class="t-fn">adviceFor</span>(<span class="t-type">String</span> city) {
+    <span class="t-key">var</span> t = source.<span class="t-fn">celsiusIn</span>(city);
+    <span class="t-key">if</span> (t == <span class="t-key">null</span>) {
+      <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$city</span>：查不到氣溫，先帶件外套&#x27;</span>;
+    }
+    <span class="t-key">if</span> (t &gt;= <span class="t-num">28</span>) {
+      <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$city</span> <span class="t-int">$t</span>°C：短袖＋防曬&#x27;</span>;
+    }
+    <span class="t-key">if</span> (t &gt;= <span class="t-num">20</span>) {
+      <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$city</span> <span class="t-int">$t</span>°C：薄長袖&#x27;</span>;
+    }
+    <span class="t-key">return</span> <span class="t-str">&#x27;<span class="t-int">$city</span> <span class="t-int">$t</span>°C：厚外套&#x27;</span>;
+  }
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">var</span> advisor = <span class="t-type">OutfitAdvisor</span>(<span class="t-type">StationWeather</span>());
+  <span class="t-key">for</span> (<span class="t-key">var</span> city <span class="t-key">in</span> [<span class="t-str">&#x27;臺南&#x27;</span>, <span class="t-str">&#x27;臺北&#x27;</span>, <span class="t-str">&#x27;嘉義&#x27;</span>, <span class="t-str">&#x27;花蓮&#x27;</span>]) {
+    <span class="t-fn">print</span>(advisor.<span class="t-fn">adviceFor</span>(city));
+  }
+
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;--- 換成假資料，專門測邊界值 ---&#x27;</span>);
+  <span class="t-key">for</span> (<span class="t-key">var</span> t <span class="t-key">in</span> [<span class="t-num">28.0</span>, <span class="t-num">27.9</span>, <span class="t-num">20.0</span>, <span class="t-num">19.9</span>, <span class="t-key">null</span>]) {
+    <span class="t-fn">print</span>(<span class="t-type">OutfitAdvisor</span>(<span class="t-type">FakeWeather</span>(t)).<span class="t-fn">adviceFor</span>(<span class="t-str">&#x27;測試&#x27;</span>));
+  }
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>臺南 31.5°C：短袖＋防曬
+臺北 24.0°C：薄長袖
+嘉義 17.2°C：厚外套
+花蓮：查不到氣溫，先帶件外套
+--- 換成假資料，專門測邊界值 ---
+測試 28.0°C：短袖＋防曬
+測試 27.9°C：薄長袖
+測試 20.0°C：薄長袖
+測試 19.9°C：厚外套
+測試：查不到氣溫，先帶件外套</pre></div></details>
+<ul>
+  <li><code>abstract class WeatherSource</code>：一份規格，只規定「給城市、回傳氣溫或 null」。</li>
+  <li><code>implements WeatherSource</code>：保證「我提供這份規格要的每一個方法」，但不繼承任何現成的程式碼。官方文件說明，每個類別都會自動定義一個同名的介面。</li>
+  <li><code>OutfitAdvisor</code> 只認得 <code>WeatherSource</code>。給它正式來源就是正式版，給它 <code>FakeWeather</code> 就能精準測 28.0、27.9、20.0、19.9 和 null 這幾個邊界值。</li>
+</ul>
+
+<div class="table-wrap"><table class="nowrap1">
+<tr><th>寫法</th><th>意思</th><th>什麼時候用</th></tr>
+<tr><td><code>extends</code></td><td>繼承：接收父類別寫好的程式碼</td><td>子類別真的「是一種」父類別，而且想共用程式碼</td></tr>
+<tr><td><code>implements</code></td><td>實作介面：只承諾提供同樣的方法</td><td>想換掉實作，例如正式版和測試用的假資料</td></tr>
+</table></div>
+
+<div class="callout key"><p class="callout-title">可以測試，才敢修改</p>
+<p>Unit 3 學過寫測試。程式依賴介面以後，測試時就能塞進假資料，不必連網路、不必等天氣。之後 Unit 6 改成真的上網查資料，<code>OutfitAdvisor</code> 也完全不用動。</p></div>
+
+<h2 id="composition">5. 痛點四：畫面越來越複雜 → 組合</h2>
+<p>一個 APP 畫面有標題、卡片、文字、按鈕，卡片裡面又有文字和按鈕。如果整個畫面寫成一個大函式，改一張卡片就要在幾百行裡找。OOP 的做法是：<strong>每個元件都是一個物件，大元件由小元件組成</strong>。</p>
+
+<h3>延伸練習</h3>
+<figure class="code"><figcaption><span class="file">s07_widget_tree.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 組合：小元件組成大元件。這是模仿 Flutter 的寫法，不是真正的 Flutter 程式</span>
+
+<span class="t-key">abstract</span> <span class="t-key">class</span> <span class="t-type">Widget</span> {
+  <span class="t-com">// 每個元件都要能把自己「畫」成幾行文字</span>
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>();
+}
+
+<span class="t-key">class</span> <span class="t-type">Text</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> data;
+
+  <span class="t-type">Text</span>(<span class="t-key">this</span>.data);
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() =&gt; [data];
+}
+
+<span class="t-key">class</span> <span class="t-type">Button</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> label;
+
+  <span class="t-type">Button</span>(<span class="t-key">this</span>.label);
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() =&gt; [<span class="t-str">&#x27;[ <span class="t-int">$label</span> ]&#x27;</span>];
+}
+
+<span class="t-com">// Column 不在乎孩子是哪一種元件，只要它們都是 Widget</span>
+<span class="t-key">class</span> <span class="t-type">Column</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">List</span>&lt;<span class="t-type">Widget</span>&gt; children;
+
+  <span class="t-type">Column</span>({<span class="t-key">required</span> <span class="t-key">this</span>.children});
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() {
+    <span class="t-key">var</span> lines = &lt;<span class="t-type">String</span>&gt;[];
+    <span class="t-key">for</span> (<span class="t-key">var</span> child <span class="t-key">in</span> children) {
+      lines.<span class="t-fn">addAll</span>(child.<span class="t-fn">render</span>());
+    }
+    <span class="t-key">return</span> lines;
+  }
+}
+
+<span class="t-com">// Card 包住一個孩子，在每一行前面加上邊框</span>
+<span class="t-key">class</span> <span class="t-type">Card</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> title;
+  <span class="t-key">final</span> <span class="t-type">Widget</span> child;
+
+  <span class="t-type">Card</span>({<span class="t-key">required</span> <span class="t-key">this</span>.title, <span class="t-key">required</span> <span class="t-key">this</span>.child});
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() {
+    <span class="t-key">var</span> lines = [<span class="t-str">&#x27;┌─ <span class="t-int">$title</span>&#x27;</span>];
+    <span class="t-key">for</span> (<span class="t-key">var</span> line <span class="t-key">in</span> child.<span class="t-fn">render</span>()) {
+      lines.<span class="t-fn">add</span>(<span class="t-str">&#x27;│ <span class="t-int">$line</span>&#x27;</span>);
+    }
+    lines.<span class="t-fn">add</span>(<span class="t-str">&#x27;└─&#x27;</span>);
+    <span class="t-key">return</span> lines;
+  }
+}
+
+<span class="t-com">// 自訂元件：自己不畫，而是把現成元件組合起來，就像 Flutter 的 build()</span>
+<span class="t-key">class</span> <span class="t-type">ScoreCard</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> name;
+  <span class="t-key">final</span> <span class="t-type">int</span> score;
+
+  <span class="t-type">ScoreCard</span>({<span class="t-key">required</span> <span class="t-key">this</span>.name, <span class="t-key">required</span> <span class="t-key">this</span>.score});
+
+  <span class="t-type">Widget</span> <span class="t-fn">build</span>() =&gt; <span class="t-type">Card</span>(
+    title: name,
+    child: <span class="t-type">Column</span>(
+      children: [
+        <span class="t-type">Text</span>(<span class="t-str">&#x27;分數：<span class="t-int">$score</span>&#x27;</span>),
+        <span class="t-type">Text</span>(score &gt;= <span class="t-num">60</span> ? <span class="t-str">&#x27;狀態：及格&#x27;</span> : <span class="t-str">&#x27;狀態：需要補考&#x27;</span>),
+        <span class="t-type">Button</span>(<span class="t-str">&#x27;查看詳情&#x27;</span>),
+      ],
+    ),
+  );
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() =&gt; <span class="t-fn">build</span>().<span class="t-fn">render</span>();
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">var</span> screen = <span class="t-type">Column</span>(
+    children: [
+      <span class="t-type">Text</span>(<span class="t-str">&#x27;期中成績&#x27;</span>),
+      <span class="t-type">ScoreCard</span>(name: <span class="t-str">&#x27;小明&#x27;</span>, score: <span class="t-num">92</span>),
+      <span class="t-type">ScoreCard</span>(name: <span class="t-str">&#x27;小美&#x27;</span>, score: <span class="t-num">54</span>),
+    ],
+  );
+
+  <span class="t-key">for</span> (<span class="t-key">var</span> line <span class="t-key">in</span> screen.<span class="t-fn">render</span>()) {
+    <span class="t-fn">print</span>(line);
+  }
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>期中成績
+┌─ 小明
+│ 分數：92
+│ 狀態：及格
+│ [ 查看詳情 ]
+└─
+┌─ 小美
+│ 分數：54
+│ 狀態：需要補考
+│ [ 查看詳情 ]
+└─</pre></div></details>
+<ul>
+  <li><code>Text</code>、<code>Button</code> 是最小的元件，各自知道怎麼畫自己。</li>
+  <li><code>Column</code> 和 <code>Card</code> 是<strong>容器</strong>：它們持有其他 <code>Widget</code>，畫的時候請孩子先畫，再排列或加框。它們不在乎孩子是哪一種，因為大家都是 <code>Widget</code>（這裡同時用到了多型）。</li>
+  <li><code>ScoreCard</code> 自己不畫任何東西，它的 <code>build()</code> 只是把現成元件<strong>組合</strong>起來。換一位學生，只要換參數。</li>
+  <li>「A 裡面有 B」（has-a）用組合；「A 是一種 B」（is-a）才用繼承。實務上組合用得比繼承多。</li>
+</ul>
+
+<div class="callout warn"><p class="callout-title">這是模仿，不是真正的 Flutter</p>
+<p>範例裡的 <code>Text</code>、<code>Column</code>、<code>Card</code> 是為了說明自己寫的，在終端機印出文字。Flutter 真正的元件名稱很像，但參數和用法不同，學到 Flutter 時以官方文件為準。</p></div>
+
+<div class="callout key"><p class="callout-title">Flutter 的畫面就是一棵物件樹</p>
+<p>Flutter 的每個元件都是類別的物件，畫面由元件一層一層組合而成。你自己寫的畫面元件也會繼承框架提供的類別，在 <code>build()</code> 裡回傳組合好的元件。看懂這個範例，之後看 Flutter 程式就不會覺得陌生。</p></div>
+
+<div class="callout try"><p class="callout-title">小練習：新增 <code>Row</code> 元件</p>
+<p>寫一個 <code>Row</code> 元件：建構式用具名參數 <code>children</code>，畫的時候取每個孩子畫出來的第一行，用 <code> | </code> 接成同一行。用它排出「<code>[ 取消 ] | [ 結帳 ]</code>」兩顆並排的按鈕。</p></div>
+<details class="solution"><summary>看參考解答</summary><figure class="code"><figcaption><span class="file">ex2_row_widget.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 參考解答：新增 Row 元件，把孩子們排在同一行，用 | 隔開</span>
+
+<span class="t-key">abstract</span> <span class="t-key">class</span> <span class="t-type">Widget</span> {
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>();
+}
+
+<span class="t-key">class</span> <span class="t-type">Text</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> data;
+
+  <span class="t-type">Text</span>(<span class="t-key">this</span>.data);
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() =&gt; [data];
+}
+
+<span class="t-key">class</span> <span class="t-type">Button</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> label;
+
+  <span class="t-type">Button</span>(<span class="t-key">this</span>.label);
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() =&gt; [<span class="t-str">&#x27;[ <span class="t-int">$label</span> ]&#x27;</span>];
+}
+
+<span class="t-key">class</span> <span class="t-type">Column</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">List</span>&lt;<span class="t-type">Widget</span>&gt; children;
+
+  <span class="t-type">Column</span>({<span class="t-key">required</span> <span class="t-key">this</span>.children});
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() {
+    <span class="t-key">var</span> lines = &lt;<span class="t-type">String</span>&gt;[];
+    <span class="t-key">for</span> (<span class="t-key">var</span> child <span class="t-key">in</span> children) {
+      lines.<span class="t-fn">addAll</span>(child.<span class="t-fn">render</span>());
+    }
+    <span class="t-key">return</span> lines;
+  }
+}
+
+<span class="t-com">// Row：每個孩子只取第一行，接成同一行</span>
+<span class="t-key">class</span> <span class="t-type">Row</span> <span class="t-key">extends</span> <span class="t-type">Widget</span> {
+  <span class="t-key">final</span> <span class="t-type">List</span>&lt;<span class="t-type">Widget</span>&gt; children;
+
+  <span class="t-type">Row</span>({<span class="t-key">required</span> <span class="t-key">this</span>.children});
+
+  @override
+  <span class="t-type">List</span>&lt;<span class="t-type">String</span>&gt; <span class="t-fn">render</span>() {
+    <span class="t-key">var</span> parts = &lt;<span class="t-type">String</span>&gt;[];
+    <span class="t-key">for</span> (<span class="t-key">var</span> child <span class="t-key">in</span> children) {
+      parts.<span class="t-fn">add</span>(child.<span class="t-fn">render</span>().first);
+    }
+    <span class="t-key">return</span> [parts.<span class="t-fn">join</span>(<span class="t-str">&#x27; | &#x27;</span>)];
+  }
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">var</span> screen = <span class="t-type">Column</span>(
+    children: [
+      <span class="t-type">Text</span>(<span class="t-str">&#x27;今日訂單&#x27;</span>),
+      <span class="t-type">Row</span>(children: [<span class="t-type">Text</span>(<span class="t-str">&#x27;珍珠奶茶 x2&#x27;</span>), <span class="t-type">Text</span>(<span class="t-str">&#x27;120 元&#x27;</span>)]),
+      <span class="t-type">Row</span>(children: [<span class="t-type">Button</span>(<span class="t-str">&#x27;取消&#x27;</span>), <span class="t-type">Button</span>(<span class="t-str">&#x27;結帳&#x27;</span>)]),
+    ],
+  );
+
+  <span class="t-key">for</span> (<span class="t-key">var</span> line <span class="t-key">in</span> screen.<span class="t-fn">render</span>()) {
+    <span class="t-fn">print</span>(line);
+  }
+}</code></pre></figure><div class="output"><div class="output-label">執行結果</div><pre>今日訂單
+珍珠奶茶 x2 | 120 元
+[ 取消 ] | [ 結帳 ]</pre></div></details>
+
+<h2 id="practice">6. 綜合實作：飲料店點餐</h2>
+<p>最後把前面的想法放進同一個小情境：訂單自己守規則（封裝）、各種優惠自己算折扣（多型）、訂單由品項組成（組合），還能自動挑出最划算的優惠。</p>
+<figure class="code"><figcaption><span class="file">s08_drink_order.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 綜合情境：飲料店點餐</span>
+<span class="t-com">// 封裝：訂單自己守規則；多型：各種優惠自己算；組合：訂單由品項組成</span>
+
+<span class="t-key">class</span> <span class="t-type">Drink</span> {
+  <span class="t-key">final</span> <span class="t-type">String</span> name;
+  <span class="t-key">final</span> <span class="t-type">int</span> price;
+
+  <span class="t-key">const</span> <span class="t-type">Drink</span>({<span class="t-key">required</span> <span class="t-key">this</span>.name, <span class="t-key">required</span> <span class="t-key">this</span>.price});
+}
+
+<span class="t-key">class</span> <span class="t-type">OrderLine</span> {
+  <span class="t-key">final</span> <span class="t-type">Drink</span> drink;
+  <span class="t-key">final</span> <span class="t-type">int</span> cups;
+
+  <span class="t-key">const</span> <span class="t-type">OrderLine</span>(<span class="t-key">this</span>.drink, <span class="t-key">this</span>.cups);
+
+  <span class="t-type">int</span> get subtotal =&gt; drink.price * cups;
+}
+
+<span class="t-key">abstract</span> <span class="t-key">class</span> <span class="t-type">Discount</span> {
+  <span class="t-type">String</span> get label;
+
+  <span class="t-com">// 這個優惠可以折抵多少錢</span>
+  <span class="t-type">int</span> <span class="t-fn">amountOff</span>(<span class="t-type">List</span>&lt;<span class="t-type">OrderLine</span>&gt; lines);
+}
+
+<span class="t-key">class</span> <span class="t-type">NoDiscount</span> <span class="t-key">extends</span> <span class="t-type">Discount</span> {
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;不使用優惠&#x27;</span>;
+
+  @override
+  <span class="t-type">int</span> <span class="t-fn">amountOff</span>(<span class="t-type">List</span>&lt;<span class="t-type">OrderLine</span>&gt; lines) =&gt; <span class="t-num">0</span>;
+}
+
+<span class="t-com">// 全單打折：zhe 是 9 就代表 9 折</span>
+<span class="t-key">class</span> <span class="t-type">WholeOrderOff</span> <span class="t-key">extends</span> <span class="t-type">Discount</span> {
+  <span class="t-key">final</span> <span class="t-type">int</span> zhe;
+
+  <span class="t-type">WholeOrderOff</span>(<span class="t-key">this</span>.zhe);
+
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;全單 <span class="t-int">$zhe</span> 折&#x27;</span>;
+
+  @override
+  <span class="t-type">int</span> <span class="t-fn">amountOff</span>(<span class="t-type">List</span>&lt;<span class="t-type">OrderLine</span>&gt; lines) {
+    <span class="t-key">var</span> sum = <span class="t-num">0</span>;
+    <span class="t-key">for</span> (<span class="t-key">var</span> line <span class="t-key">in</span> lines) {
+      sum += line.subtotal;
+    }
+    <span class="t-key">return</span> sum * (<span class="t-num">10</span> - zhe) ~/ <span class="t-num">10</span>;
+  }
+}
+
+<span class="t-com">// 同一品項第二杯半價</span>
+<span class="t-key">class</span> <span class="t-type">SecondCupHalf</span> <span class="t-key">extends</span> <span class="t-type">Discount</span> {
+  @override
+  <span class="t-type">String</span> get label =&gt; <span class="t-str">&#x27;第二杯半價&#x27;</span>;
+
+  @override
+  <span class="t-type">int</span> <span class="t-fn">amountOff</span>(<span class="t-type">List</span>&lt;<span class="t-type">OrderLine</span>&gt; lines) {
+    <span class="t-key">var</span> off = <span class="t-num">0</span>;
+    <span class="t-key">for</span> (<span class="t-key">var</span> line <span class="t-key">in</span> lines) {
+      off += (line.cups ~/ <span class="t-num">2</span>) * (line.drink.price ~/ <span class="t-num">2</span>);
+    }
+    <span class="t-key">return</span> off;
+  }
+}
+
+<span class="t-key">class</span> <span class="t-type">Order</span> {
+  <span class="t-key">final</span> <span class="t-type">List</span>&lt;<span class="t-type">OrderLine</span>&gt; _lines = [];
+
+  <span class="t-com">// 一次 1 到 20 杯，其餘拒絕</span>
+  <span class="t-type">bool</span> <span class="t-fn">add</span>(<span class="t-type">Drink</span> drink, {<span class="t-type">int</span> cups = <span class="t-num">1</span>}) {
+    <span class="t-key">if</span> (cups &lt;= <span class="t-num">0</span> || cups &gt; <span class="t-num">20</span>) {
+      <span class="t-key">return</span> <span class="t-key">false</span>;
+    }
+    _lines.<span class="t-fn">add</span>(<span class="t-type">OrderLine</span>(drink, cups));
+    <span class="t-key">return</span> <span class="t-key">true</span>;
+  }
+
+  <span class="t-type">int</span> get subtotal {
+    <span class="t-key">var</span> sum = <span class="t-num">0</span>;
+    <span class="t-key">for</span> (<span class="t-key">var</span> line <span class="t-key">in</span> _lines) {
+      sum += line.subtotal;
+    }
+    <span class="t-key">return</span> sum;
+  }
+
+  <span class="t-type">int</span> <span class="t-fn">totalWith</span>(<span class="t-type">Discount</span> d) =&gt; subtotal - d.<span class="t-fn">amountOff</span>(_lines);
+
+  <span class="t-com">// 在所有優惠裡挑出最划算的一個</span>
+  <span class="t-type">Discount</span> <span class="t-fn">bestOf</span>(<span class="t-type">List</span>&lt;<span class="t-type">Discount</span>&gt; options) {
+    <span class="t-key">var</span> best = options.first;
+    <span class="t-key">for</span> (<span class="t-key">var</span> d <span class="t-key">in</span> options) {
+      <span class="t-key">if</span> (<span class="t-fn">totalWith</span>(d) &lt; <span class="t-fn">totalWith</span>(best)) {
+        best = d;
+      }
+    }
+    <span class="t-key">return</span> best;
+  }
+}
+
+<span class="t-key">void</span> <span class="t-fn">main</span>() {
+  <span class="t-key">const</span> blackTea = <span class="t-type">Drink</span>(name: <span class="t-str">&#x27;紅茶&#x27;</span>, price: <span class="t-num">30</span>);
+  <span class="t-key">const</span> milkTea = <span class="t-type">Drink</span>(name: <span class="t-str">&#x27;珍珠奶茶&#x27;</span>, price: <span class="t-num">60</span>);
+
+  <span class="t-key">var</span> order = <span class="t-type">Order</span>();
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;加入 2 杯珍珠奶茶：<span class="t-int">${order.add(milkTea, cups: 2)}</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;加入 0 杯紅茶：<span class="t-int">${order.add(blackTea, cups: 0)}</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;加入 3 杯紅茶：<span class="t-int">${order.add(blackTea, cups: 3)}</span>&#x27;</span>);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;原價：<span class="t-int">${order.subtotal}</span> 元&#x27;</span>);
+
+  <span class="t-key">var</span> options = [<span class="t-type">NoDiscount</span>(), <span class="t-type">WholeOrderOff</span>(<span class="t-num">9</span>), <span class="t-type">SecondCupHalf</span>()];
+  <span class="t-key">for</span> (<span class="t-key">var</span> d <span class="t-key">in</span> options) {
+    <span class="t-fn">print</span>(<span class="t-str">&#x27;<span class="t-int">${d.label}</span>：<span class="t-int">${order.totalWith(d)}</span> 元&#x27;</span>);
+  }
+
+  <span class="t-key">var</span> best = order.<span class="t-fn">bestOf</span>(options);
+  <span class="t-fn">print</span>(<span class="t-str">&#x27;自動選擇「<span class="t-int">${best.label}</span>」，應付 <span class="t-int">${order.totalWith(best)}</span> 元&#x27;</span>);
+}</code></pre></figure><details class="reveal"><summary>先猜猜看會印出什麼，再點我看執行結果</summary><div class="output"><div class="output-label">執行結果</div><pre>加入 2 杯珍珠奶茶：true
+加入 0 杯紅茶：false
+加入 3 杯紅茶：true
+原價：210 元
+不使用優惠：210 元
+全單 9 折：189 元
+第二杯半價：165 元
+自動選擇「第二杯半價」，應付 165 元</pre></div></details>
+<ul>
+  <li><strong>封裝：</strong><code>_lines</code> 藏在 <code>Order</code> 裡，只能用 <code>add()</code> 加入，0 杯或超過 20 杯都會被拒絕。</li>
+  <li><strong>多型：</strong><code>bestOf()</code> 對每個優惠呼叫同一個 <code>totalWith(d)</code>，不需要知道是打折還是第二杯半價。</li>
+  <li><strong>組合：</strong><code>Order</code> 有很多 <code>OrderLine</code>，每個 <code>OrderLine</code> 有一個 <code>Drink</code>，各自只算自己的部分。</li>
+  <li>老闆明天想加「滿 200 折 30」？只要多寫一個 <code>Discount</code> 子類別，放進 <code>options</code> 清單就好。</li>
+</ul>
+
+<div class="callout try"><p class="callout-title">挑戰題</p>
+<ol>
+  <li>新增 <code>FullReduction</code> 優惠：原價滿 200 元折 30 元，未滿不折。<code>Order</code> 一行都不能改。</li>
+  <li>想一想：為什麼 <code>Order</code> 不提供一個 <code>lines</code> getter 直接交出 <code>_lines</code>？如果一定要給，應該怎麼寫？（提示：回頭看悠遊卡的 <code>history</code>）</li>
+</ol></div>
+
+<h2 id="pillars">7. 一張表整理：每個概念解決什麼痛點</h2>
+<div class="table-wrap"><table class="nowrap1">
+<tr><th>概念</th><th>沒有它的痛點</th><th>Dart 寫法</th><th>本頁範例</th></tr>
+<tr><td>封裝</td><td>資料誰都能改，規則可以被繞過</td><td><code>_</code> 開頭的欄位、只給 getter、透過方法修改</td><td>悠遊卡、訂單</td></tr>
+<tr><td>抽象</td><td>使用的人被迫知道所有細節</td><td><code>abstract class</code> 只訂規格</td><td><code>PaymentMethod</code>、<code>Discount</code></td></tr>
+<tr><td>繼承</td><td>同樣的程式碼複製貼上好幾份</td><td><code>extends</code>、<code>super</code></td><td>共用的 <code>receipt()</code></td></tr>
+<tr><td>多型</td><td>到處都是 <code>switch</code>，加一種款式要改很多地方</td><td><code>@override</code>、父類別型別的清單</td><td>付款方式、優惠</td></tr>
+<tr><td>介面</td><td>程式綁死在一個資料來源，無法測試</td><td><code>implements</code></td><td>氣溫來源與假資料</td></tr>
+<tr><td>組合</td><td>一個大函式包辦整個畫面</td><td>欄位持有其他物件</td><td>元件樹、訂單品項</td></tr>
+</table></div>
+
+<h2 id="when">8. OOP 不是萬靈丹：什麼時候不用類別？</h2>
+<p>Dart 是多範式語言：除了類別，也有獨立的函式、可以當成值傳來傳去的函式，以及 Unit 3 用過的 <code>where</code>、<code>map</code>。物件導向是<strong>組織大型程式的骨架</strong>，不是每一行都要包成類別。</p>
+<div class="table-wrap"><table class="nowrap1">
+<tr><th>情況</th><th>建議</th></tr>
+<tr><td>一次性的計算</td><td>一個函式就好，例如把攝氏轉成華氏</td></tr>
+<tr><td>資料有規則要守</td><td>用類別封裝，例如餘額、庫存、訂單</td></tr>
+<tr><td>同一件事有很多種做法</td><td>用抽象類別＋多型，例如付款方式、優惠</td></tr>
+<tr><td>需要換掉實作或測試</td><td>依賴介面，例如資料來源</td></tr>
+<tr><td>東西由小東西組成</td><td>用組合，例如畫面元件</td></tr>
+</table></div>
+<div class="callout tip"><p class="callout-title">繼承不要疊太深</p>
+<p>繼承層數一多，改父類別就可能牽動一大串子類別。先問自己「這是 is-a 還是 has-a？」，能用組合解決就先用組合。</p></div>
+
+<h2 id="summary">9. 重點整理</h2>
+<ul>
+  <li>Dart 裡放得進變數的東西都是物件，你從第一支程式起就在用 OOP。</li>
+  <li><strong>封裝</strong>：把資料藏起來，只留下守規則的入口，規則就不會被繞過。底線的保護範圍是一個檔案。</li>
+  <li><strong>多型</strong>：同一個呼叫遇到不同物件做不同的事，取代一長串 <code>switch</code>，新增款式不必改舊程式。</li>
+  <li><strong>介面</strong>：依賴規格而不是依賴實作，才能換資料來源、用假資料測試。</li>
+  <li><strong>組合</strong>：大元件由小元件組成，這正是 Flutter 畫面的組成方式。</li>
+  <li>類別是骨架，不是每件事都要包成類別。</li>
+</ul>
+
+<h2 id="check">10. 自我檢查</h2>
+<ol>
+  <li>悠遊卡範例中，如果把 <code>IcCard</code> 類別和 <code>main()</code> 寫在同一個檔案，<code>card._balance = 99999;</code> 還會出錯嗎？為什麼？</li>
+  <li><code>s04</code> 和 <code>s05</code> 都能算手續費。要新增「信用卡」時，兩種寫法各要改哪些地方？</li>
+  <li><code>FakeWeather</code> 為什麼用 <code>implements</code> 而不是 <code>extends StationWeather</code>？</li>
+  <li>「訂單有很多品項」和「信用卡是一種付款方式」，哪一個適合組合、哪一個適合繼承？</li>
+</ol>
+<details class="solution"><summary>看參考答案</summary>
+<ol>
+  <li>不會出錯。Dart 的隱私單位是 library（一個檔案），同一個檔案裡的程式都看得到底線開頭的名稱。</li>
+  <li>沒有多型的 <code>s04</code> 要改 <code>feeOf</code>、<code>labelOf</code> 以及所有其他寫了 <code>switch</code> 的地方；有多型的 <code>s05</code> 只要新增一個 <code>CreditCard</code> 類別，舊程式都不用動。</li>
+  <li>假資料不需要正式版的任何程式碼（例如那份固定的氣溫表），只需要提供同樣的 <code>celsiusIn()</code>。只要規格、不要實作時，就用 <code>implements</code>。</li>
+  <li>訂單「有」品項，用組合；信用卡「是一種」付款方式，用繼承。</li>
+</ol></details>
+
+<h2 id="more">11. 延伸閱讀（dart.dev 官方文件，英文）</h2>
+<div class="table-wrap"><table class="nowrap1">
+<tr><th>本頁段落</th><th>官方文件</th><th>相關標題</th></tr>
+<tr><td>1. 都是物件</td><td><a href="https://dart.dev/language/classes" target="_blank" rel="noopener">Classes</a>、<a href="https://dart.dev/language" target="_blank" rel="noopener">Introduction to Dart</a></td><td>開頭說明；Important concepts</td></tr>
+<tr><td>2. 封裝</td><td><a href="https://dart.dev/language/libraries" target="_blank" rel="noopener">Libraries &amp; imports</a>、<a href="https://dart.dev/language/methods" target="_blank" rel="noopener">Methods</a></td><td>開頭說明（底線與 library 隱私）；Getters and setters</td></tr>
+<tr><td>3. 多型</td><td><a href="https://dart.dev/language/extend" target="_blank" rel="noopener">Extend a class</a>、<a href="https://dart.dev/language/class-modifiers" target="_blank" rel="noopener">Class modifiers</a></td><td>Overriding members；abstract</td></tr>
+<tr><td>4. 介面</td><td><a href="https://dart.dev/language/classes#implicit-interfaces" target="_blank" rel="noopener">Classes</a></td><td>Implicit interfaces</td></tr>
+<tr><td>5～6. 組合與綜合</td><td><a href="https://dart.dev/learn/tutorial/object-oriented" target="_blank" rel="noopener">Define relationships with classes</a></td><td>官方 OOP 教學章節</td></tr>
+</table></div>
+<p>小提示：看不懂英文文件時，可以用瀏覽器的翻譯功能，或請 AI 用簡單的中文解釋其中一段。</p>
+</main></div>
+<footer class="site">範例程式皆以 Dart 3.9.2 實際執行產生結果。參考資料：dart.dev 官方文件（CC BY 4.0）。</footer>
+<script>
+(function(){
+  var root=document.documentElement,key='dart-handout-theme';
+  try{var saved=localStorage.getItem(key);if(saved)root.dataset.theme=saved;}catch(e){}
+  document.querySelector('button.theme').addEventListener('click',function(){
+    var dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme=dark?'light':'dark';
+    try{localStorage.setItem(key,root.dataset.theme);}catch(e){}
+  });
+  document.querySelectorAll('button.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var text=btn.closest('figure').querySelector('pre').innerText;
+      var done=function(){btn.textContent='已複製 ✓';setTimeout(function(){btn.textContent='複製';},1500);};
+      if(navigator.clipboard){navigator.clipboard.writeText(text).then(done,fallback);}else{fallback();}
+      function fallback(){var t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();
+        try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}
+    });
+  });
+  var page=location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('.goals input').forEach(function(box,i){
+    var id='dart-handout-'+page+'-goal-'+i;
+    try{box.checked=localStorage.getItem(id)==='1';}catch(e){}
+    box.addEventListener('change',function(){try{localStorage.setItem(id,box.checked?'1':'0');}catch(e){}});
+  });
+  var links=document.querySelectorAll('.toc a');
+  if(links.length&&'IntersectionObserver' in window){
+    var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+    var io=new IntersectionObserver(function(entries){entries.forEach(function(en){
+      if(en.isIntersecting){links.forEach(function(a){a.classList.remove('active');});
+        var a=map[en.target.id];if(a)a.classList.add('active');}
+    });},{rootMargin:'-20% 0px -70% 0px'});
+    document.querySelectorAll('main h2[id]').forEach(function(h){io.observe(h);});
+  }
+  document.querySelectorAll('.deck').forEach(function(deck){
+    var stage=deck.querySelector('.deck-stage'),canvas=deck.querySelector('.deck-canvas');
+    var slides=deck.querySelectorAll('.deck-slide'),count=deck.querySelector('.deck-count'),i=0;
+    function fit(){
+      var w=stage.clientWidth,h=stage.clientHeight,s=Math.min(w/1920,h/1080);
+      canvas.style.transform='translate('+((w-1920*s)/2)+'px,'+((h-1080*s)/2)+'px) scale('+s+')';
+    }
+    function show(n){
+      i=(n+slides.length)%slides.length;
+      slides.forEach(function(el,k){el.hidden=k!==i;});
+      count.textContent=(i+1)+' / '+slides.length;
+    }
+    deck.querySelector('.deck-prev').addEventListener('click',function(){show(i-1);});
+    deck.querySelector('.deck-next').addEventListener('click',function(){show(i+1);});
+    deck.querySelector('.deck-full').addEventListener('click',function(){
+      if(document.fullscreenElement){document.exitFullscreen();}
+      else if(deck.requestFullscreen){deck.requestFullscreen();}
+    });
+    deck.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'||e.key==='PageDown'){show(i+1);e.preventDefault();}
+      if(e.key==='ArrowLeft'||e.key==='PageUp'){show(i-1);e.preventDefault();}
+    });
+    if('ResizeObserver' in window){new ResizeObserver(fit).observe(stage);}else{window.addEventListener('resize',fit);}
+    document.addEventListener('fullscreenchange',fit);
+    fit();
+  });
+  window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=true;});});
+  var audio=document.getElementById('podcast-audio')||document.querySelector('audio');
+  if(audio){
+    var playBtn=document.getElementById('tocAudioPlay');
+    var timeDisplay=document.getElementById('tocAudioTime');
+    var progressWrap=document.getElementById('tocAudioProgressWrap');
+    var progressBar=document.getElementById('tocAudioProgressBar');
+    var allSpeedBtns=document.querySelectorAll('.speed-btn, .toc-speed-btn');
+    function fmt(s){
+      if(isNaN(s)||!isFinite(s))return '00:00';
+      var m=Math.floor(s/60),sec=Math.floor(s%60);
+      return (m<10?'0':'')+m+':'+(sec<10?'0':'')+sec;
+    }
+    function updateUI(){
+      if(timeDisplay){
+        timeDisplay.textContent=fmt(audio.currentTime)+' / '+fmt(audio.duration);
+      }
+      if(progressBar&&audio.duration){
+        progressBar.style.width=((audio.currentTime/audio.duration)*100)+'%';
+      }
+    }
+    if(playBtn){
+      playBtn.addEventListener('click',function(){
+        if(audio.paused){audio.play();}else{audio.pause();}
+      });
+    }
+    audio.addEventListener('play',function(){if(playBtn)playBtn.textContent='⏸';});
+    audio.addEventListener('pause',function(){if(playBtn)playBtn.textContent='▶';});
+    audio.addEventListener('ended',function(){if(playBtn)playBtn.textContent='▶';});
+    audio.addEventListener('timeupdate',updateUI);
+    audio.addEventListener('loadedmetadata',updateUI);
+    audio.addEventListener('durationchange',updateUI);
+    if(progressWrap){
+      progressWrap.addEventListener('click',function(e){
+        if(!audio.duration)return;
+        var r=progressWrap.getBoundingClientRect();
+        var pos=(e.clientX-r.left)/r.width;
+        audio.currentTime=Math.max(0,Math.min(1,pos))*audio.duration;
+      });
+    }
+    allSpeedBtns.forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var spd=parseFloat(btn.getAttribute('data-speed'));
+        if(!spd)return;
+        audio.playbackRate=spd;
+        allSpeedBtns.forEach(function(b){
+          var bSpd=parseFloat(b.getAttribute('data-speed'));
+          if(Math.abs(bSpd-spd)<0.01){b.classList.add('active');}else{b.classList.remove('active');}
+        });
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

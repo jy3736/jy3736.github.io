@@ -108,6 +108,7 @@ details[open]{padding-bottom:.4rem}
 table{border-collapse:collapse;width:100%;font-size:.95rem;background:var(--surface)}
 th,td{border:1px solid var(--line);padding:.5rem .7rem;text-align:left;vertical-align:top}
 th{background:var(--surface-2)}
+.nowrap1 td:first-child,.nowrap1 th:first-child{white-space:nowrap}
 .goals{list-style:none;padding:0}
 .goals li{display:flex;gap:.6rem;align-items:flex-start;padding:.35rem 0}
 .goals input{width:1.15rem;height:1.15rem;margin-top:.35rem;accent-color:var(--accent);flex:none}
@@ -159,13 +160,31 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 .toc-qr-code svg{display:block;width:124px;height:124px}
 .toc-qr-hint{font-size:.72rem;color:var(--muted);margin:.5rem 0 0;line-height:1.5}
 @media (max-width:960px){.toc-qr{display:none}}
+.deck{margin:1.2rem 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.deck:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.deck-stage{position:relative;aspect-ratio:16/9;overflow:hidden;background:#14213D}
+.deck-canvas{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.deck-slide{position:absolute;inset:0}
+.deck-slide>section{position:relative;width:1920px;height:1080px;overflow:hidden;line-height:1.4;font-size:32px}
+.deck-slide :is(h1,h2,h3,p,ol,ul,li,table){margin:0;padding:0;border:0;max-width:none;overflow-wrap:normal}
+.deck-slide h1{line-height:1.1}.deck-slide h2{line-height:1.15}.deck-slide h3{line-height:1.2}
+.deck-slide ol,.deck-slide ul{padding-left:1.4em}
+.deck-slide table{width:100%;border-collapse:collapse;background:transparent}
+.deck-slide th,.deck-slide td{border:1px solid #D9D3C4;padding:.35em .6em;text-align:left;background:transparent}
+.deck-bar{display:flex;align-items:center;justify-content:center;gap:.8rem;padding:.45rem .8rem;border-top:1px solid var(--line);background:var(--surface-2)}
+.deck-bar button{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.15rem .8rem;cursor:pointer;font-size:.9rem}
+.deck-bar button:hover{border-color:var(--accent);color:var(--accent)}
+.deck-count{font-family:var(--mono);font-size:.85rem;color:var(--muted);min-width:4.5rem;text-align:center}
+.deck:fullscreen{display:flex;flex-direction:column;border:0;border-radius:0;background:#000}
+.deck:fullscreen .deck-stage{flex:1;aspect-ratio:auto;background:#000}
+@media print{.deck{display:none}}
 </style>
 </head>
 <body>
 <a class="skip" href="#main">跳到主要內容</a>
 <header class="site">
   <a class="brand" href="index.html">Dart 程式設計講義</a>
-  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html">Unit 4</a><a href="unit05.html">Unit 5</a><a href="unit06.html" aria-current="page">Unit 6</a></nav>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html">Unit 4</a><a href="unit04a.html">Unit 4A</a><a href="unit05.html">Unit 5</a><a href="unit06.html" aria-current="page">Unit 6</a></nav>
   <button class="theme" type="button" aria-label="切換深色／淺色模式">◐</button>
 </header>
 <div class="layout"><nav class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">10:51</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/unit06-podcast.mp3" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放或暫停">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 10:51</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5">1.5x</button></div></div></div><p class="toc-title">本頁目錄</p><ol><li><a href="#review">1. 暖身：為什麼需要「等」？</a></li><li><a href="#future">2. Future 與 await：等到有結果再往下</a></li><li><a href="#json">3. JSON：網路資料的共同語言</a></li><li><a href="#model">4. 資料類別：把 JSON 變成看得懂的物件</a></li><li><a href="#fetch">5. 完整流程：等待、解析、處理失敗</a></li><li><a href="#test">6. 為資料轉換寫測試</a></li><li><a href="#practice">7. 綜合實作：教室環境看板</a></li><li><a href="#summary">8. 本單元重點整理</a></li><li><a href="#glossary">9. 名詞小辭典</a></li><li><a href="#homework">10. 本單元作業：取資料並顯示</a></li><li><a href="#more">11. 延伸閱讀（dart.dev 官方文件，英文）</a></li></ol><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg" width="180" height="180" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h45v45h-45z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h3m3 0h3m13 0h7m-37 1h1m5 0h1m1 0h1m1 0h2m2 0h2m1 0h1m3 0h2m2 0h1m4 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m3 0h2m1 0h1m4 0h2m3 0h5m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h5m4 0h1m4 0h6m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m2 0h1m4 0h1m1 0h1m2 0h1m5 0h4m1 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m2 0h2m2 0h1m1 0h1m1 0h3m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h1m1 0h2m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m1 0h3m-29 1h1m1 0h2m1 0h3m1 0h1m2 0h2m4 0h2m2 0h3m1 0h2m2 0h1m2 0h1m1 0h2m-37 1h2m2 0h1m2 0h2m4 0h3m1 0h2m1 0h3m1 0h2m9 0h1m-35 1h1m3 0h2m1 0h6m2 0h5m2 0h2m1 0h1m2 0h2m3 0h1m-35 1h3m5 0h2m2 0h1m1 0h1m1 0h1m3 0h1m4 0h2m1 0h1m1 0h2m1 0h2m-35 1h5m1 0h1m4 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h4m1 0h2m1 0h5m-35 1h1m1 0h2m2 0h2m2 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m2 0h4m1 0h2m-37 1h4m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m2 0h2m2 0h3m1 0h1m1 0h2m-32 1h2m7 0h1m1 0h2m2 0h2m3 0h1m3 0h2m1 0h2m2 0h2m-37 1h4m2 0h4m3 0h1m3 0h1m4 0h1m2 0h1m2 0h1m2 0h1m1 0h2m1 0h1m-37 1h1m1 0h1m6 0h6m2 0h3m2 0h1m1 0h7m2 0h1m1 0h2m-37 1h2m1 0h1m1 0h3m4 0h2m6 0h2m1 0h2m1 0h2m3 0h1m1 0h1m1 0h2m-37 1h1m1 0h1m1 0h1m4 0h2m2 0h5m2 0h1m3 0h1m1 0h1m1 0h1m2 0h3m1 0h1m-35 1h3m1 0h3m7 0h1m1 0h1m1 0h3m1 0h1m2 0h1m4 0h3m2 0h1m-37 1h2m2 0h2m3 0h1m1 0h1m2 0h1m1 0h4m1 0h3m5 0h1m3 0h1m-33 1h2m1 0h3m1 0h4m1 0h2m3 0h1m1 0h1m2 0h1m4 0h1m2 0h1m3 0h1m-33 1h3m4 0h1m2 0h5m5 0h3m1 0h3m2 0h3m-35 1h2m1 0h1m1 0h4m1 0h3m1 0h3m4 0h1m1 0h8m1 0h1m1 0h3m-36 1h3m3 0h4m1 0h2m8 0h2m1 0h9m1 0h2m-36 1h1m3 0h9m3 0h2m3 0h1m2 0h1m5 0h1m1 0h3m-36 1h1m3 0h1m3 0h1m2 0h2m2 0h1m3 0h3m2 0h1m2 0h1m1 0h1m1 0h1m3 0h1m-31 1h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h8m1 0h1m-29 1h1m1 0h1m3 0h2m5 0h1m1 0h1m2 0h3m3 0h1m1 0h3m-37 1h7m1 0h5m2 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m-37 1h1m5 0h1m1 0h1m2 0h1m1 0h2m2 0h2m1 0h2m6 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m3 0h1m2 0h2m5 0h1m1 0h6m1 0h2m-37 1h1m1 0h3m1 0h1m1 0h1m2 0h1m3 0h2m4 0h1m2 0h1m3 0h1m1 0h1m1 0h1m2 0h1m-36 1h1m1 0h3m1 0h1m1 0h2m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m2 0h1m1 0h1m2 0h1m-36 1h1m5 0h1m3 0h1m3 0h2m3 0h1m2 0h1m1 0h3m2 0h6m-35 1h7m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m2 0h4m5 0h1m1 0h3"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></nav><main id="main"><h1>Unit 6：非同步、套件與 JSON 資料</h1>
@@ -749,6 +768,32 @@ dart pub get</pre>
     });},{rootMargin:'-20% 0px -70% 0px'});
     document.querySelectorAll('main h2[id]').forEach(function(h){io.observe(h);});
   }
+  document.querySelectorAll('.deck').forEach(function(deck){
+    var stage=deck.querySelector('.deck-stage'),canvas=deck.querySelector('.deck-canvas');
+    var slides=deck.querySelectorAll('.deck-slide'),count=deck.querySelector('.deck-count'),i=0;
+    function fit(){
+      var w=stage.clientWidth,h=stage.clientHeight,s=Math.min(w/1920,h/1080);
+      canvas.style.transform='translate('+((w-1920*s)/2)+'px,'+((h-1080*s)/2)+'px) scale('+s+')';
+    }
+    function show(n){
+      i=(n+slides.length)%slides.length;
+      slides.forEach(function(el,k){el.hidden=k!==i;});
+      count.textContent=(i+1)+' / '+slides.length;
+    }
+    deck.querySelector('.deck-prev').addEventListener('click',function(){show(i-1);});
+    deck.querySelector('.deck-next').addEventListener('click',function(){show(i+1);});
+    deck.querySelector('.deck-full').addEventListener('click',function(){
+      if(document.fullscreenElement){document.exitFullscreen();}
+      else if(deck.requestFullscreen){deck.requestFullscreen();}
+    });
+    deck.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'||e.key==='PageDown'){show(i+1);e.preventDefault();}
+      if(e.key==='ArrowLeft'||e.key==='PageUp'){show(i-1);e.preventDefault();}
+    });
+    if('ResizeObserver' in window){new ResizeObserver(fit).observe(stage);}else{window.addEventListener('resize',fit);}
+    document.addEventListener('fullscreenchange',fit);
+    fit();
+  });
   window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=true;});});
   var audio=document.getElementById('podcast-audio')||document.querySelector('audio');
   if(audio){
