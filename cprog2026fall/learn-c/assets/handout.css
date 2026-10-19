@@ -145,9 +145,14 @@ hr{display:none}
 .slide-deck-btn:disabled{opacity:.4;cursor:default}
 .slide-deck-count{font-family:var(--mono);font-size:.85rem;color:var(--muted);min-width:4.5rem;text-align:center}
 .slide-deck-title{flex:1;min-width:0;color:var(--muted);font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.slide-deck:fullscreen{display:flex;flex-direction:column;justify-content:center;border:0;border-radius:0;background:#000}
-.slide-deck:fullscreen .slide-deck-stage{flex:1;display:flex;align-items:center;min-height:0;background:#000}
-.slide-deck:fullscreen .slide-deck-stage img{max-height:100%;width:auto;max-width:100%;margin:0 auto}
+/* Full screen (native API or fixed-overlay fallback): the slide fills the screen, letterboxed to keep 16:9. */
+.slide-deck.is-full{position:fixed;inset:0;z-index:1000;margin:0;width:100vw;height:100vh;height:100dvh;display:flex;flex-direction:column;border:0;border-radius:0;background:#000}
+.slide-deck.is-full .slide-deck-stage{position:relative;flex:1;min-height:0;background:#000}
+.slide-deck.is-full .slide-deck-stage img{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;object-fit:contain}
+.slide-deck.is-full .slide-deck-bar{position:absolute;left:0;right:0;bottom:0;border-top:0;background:rgba(0,0,0,.55);transition:opacity .3s;padding-bottom:max(.45rem,env(safe-area-inset-bottom))}
+.slide-deck.is-full .slide-deck-bar .slide-deck-count,.slide-deck.is-full .slide-deck-bar .slide-deck-title{color:#e5e7eb}
+.slide-deck.is-full.bar-idle .slide-deck-bar{opacity:0;pointer-events:none}
+.slide-deck.is-full.bar-idle{cursor:none}
 @media (max-width:640px){.slide-deck-title{display:none}}
 .pager{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--line)}
 .pager a{flex:1 1 14rem;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);text-decoration:none;transition:border-color .15s}
