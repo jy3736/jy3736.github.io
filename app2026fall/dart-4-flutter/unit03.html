@@ -166,6 +166,10 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 .toc-audio-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem}
 .toc-audio-title{font-weight:700;color:var(--text);font-size:.86rem;display:flex;align-items:center;gap:.3rem}
 .toc-audio-badge{font-size:.75rem;background:var(--accent-soft);color:var(--accent);padding:.08rem .45rem;border-radius:999px;font-family:var(--mono);font-weight:600}
+.toc-audio-tracks{display:flex;gap:.3rem;margin-bottom:.55rem}
+.toc-track-btn{flex:1 1 0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:6px;
+  padding:.2rem .3rem;font-size:.78rem;cursor:pointer;line-height:1.4}
+.toc-track-btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 .toc-audio-controls{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem}
 .toc-audio-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:2.1rem;height:2.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;line-height:1;flex-shrink:0;transition:transform .1s,background-color .15s}
 .toc-audio-btn:hover{filter:brightness(1.1);transform:scale(1.06)}
@@ -995,11 +999,25 @@ Failing tests:
         audio.currentTime=Math.max(0,Math.min(1,pos))*audio.duration;
       });
     }
+    var badge=document.querySelector('.toc-audio-badge'),trackBtns=document.querySelectorAll('.toc-track-btn');
+    trackBtns.forEach(function(btn){
+      btn.addEventListener('click',function(){
+        if(btn.getAttribute('aria-pressed')==='true')return;
+        var rate=audio.playbackRate;
+        audio.pause();audio.src=btn.dataset.src;audio.load();
+        audio.defaultPlaybackRate=rate;audio.playbackRate=rate;
+        if(badge)badge.textContent=btn.dataset.duration;
+        if(timeDisplay)timeDisplay.textContent='00:00 / '+btn.dataset.duration;
+        if(progressBar)progressBar.style.width='0%';
+        if(playBtn)playBtn.textContent='▶';
+        trackBtns.forEach(function(b){b.setAttribute('aria-pressed',String(b===btn));});
+      });
+    });
     allSpeedBtns.forEach(function(btn){
       btn.addEventListener('click',function(){
         var spd=parseFloat(btn.getAttribute('data-speed'));
         if(!spd)return;
-        audio.playbackRate=spd;
+        audio.playbackRate=spd;audio.defaultPlaybackRate=spd;
         allSpeedBtns.forEach(function(b){
           var bSpd=parseFloat(b.getAttribute('data-speed'));
           if(Math.abs(bSpd-spd)<0.01){b.classList.add('active');}else{b.classList.remove('active');}
