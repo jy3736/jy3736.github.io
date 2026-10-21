@@ -675,6 +675,87 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 
 .unit-card.unit-5 { --wc: #23629a; --wc-bg: #e2eef9; }
 :root[data-theme="dark"] .unit-card.unit-5 { --wc: #9dcbff; --wc-bg: #152c47; }
+/* Note above a sample AI reply inside a collapsed <details class="explain">. */
+.source-note { color: var(--muted); font-size: 0.9rem; }
+
+/* Shared PDF download buttons. */
+.print-tools {margin:1.5rem 0;}
+.print-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem;}
+.print-actions a {display:flex;align-items:center;justify-content:center;min-height:44px;padding:.55rem .25rem;border:1px solid var(--download-border);border-radius:8px;background:var(--download-bg);color:var(--download-text);font-size:.78rem;font-weight:700;text-align:center;text-decoration:none;line-height:1.4;white-space:nowrap;}
+.print-actions a:first-child {--download-bg:#334155;--download-text:#fff;--download-border:#64748b;--download-hover:#475569;}
+.print-actions a:last-child {--download-bg:#fbbf24;--download-text:#1c1917;--download-border:#d97706;--download-hover:#fcd34d;}
+.print-actions a:hover {background:var(--download-hover);color:var(--download-text);}
+.print-actions a:focus-visible {outline:3px solid var(--download-border);outline-offset:3px;}
+.print-actions :focus-visible {outline:3px solid var(--accent);outline-offset:3px;}
+
+.print-identification {display:none;}
+@page {size:A4 portrait;margin:15mm 14mm 16mm;}
+@media print {
+  :root, :root[data-theme="dark"], :root[data-theme="light"] {
+    --bg:#fff;--surface:#fff;--surface-2:#fff;--text:#000;--muted:#333;--border:#aaa;
+    --accent:#000;--accent-soft:#fff;--code-bg:#fff;--code-text:#000;
+    --tip:#000;--tip-bg:#fff;--note:#000;--note-bg:#fff;--warn:#000;--warn-bg:#fff;--try:#000;--try-bg:#fff;
+    --shadow:none;color-scheme:light;
+  }
+  :root.print-color {
+    --bg:#fff;--surface:#fff;--surface-2:#f3f1ec;--text:#1f2328;--muted:#5b6168;--border:#d4d0c8;
+    --accent:#0b6e69;--accent-soft:#e3f2f0;--code-bg:#f6f5f1;--code-text:#24292f;
+    --tip:#0b6e69;--tip-bg:#e8f5f3;--note:#2f5fb3;--note-bg:#eaf0fb;
+    --warn:#a4570b;--warn-bg:#fdf1e3;--try:#7a3fb0;--try-bg:#f3ecfa;
+    print-color-adjust:exact;-webkit-print-color-adjust:exact;
+  }
+  html:not(.print-color) img,html:not(.print-color) svg {filter:grayscale(1);}
+  html.print-color a {color:#075985!important;}
+  html.print-color a.download {background:var(--accent-soft)!important;}
+  html,body {margin:0!important;padding:0!important;overflow:visible!important;}
+  body {font-size:10.5pt;line-height:1.6;background:#fff!important;color:#000!important;}
+  .site-header,.toc,.print-tools,.pager,.slide-launch,.slide-open,.projector,.copy-btn,.to-top {display:none!important;}
+  .page {display:block!important;width:auto;max-width:none;margin:0;padding:0;}
+  main {padding:0;}
+  .hero {margin:0 0 5mm;}
+  h1 {font-size:22pt;} .eyebrow {font-size:10pt;} .lead {font-size:10.5pt;}
+  .print-identification {display:block;font-size:10pt;border-bottom:1px solid #888;padding-bottom:4mm;margin-bottom:5mm;}
+  h2 {break-before:auto;break-after:avoid-page;margin:7mm 0 3mm;padding-top:3mm;font-size:15pt;}
+  h3,h4,dt,summary {break-after:avoid-page;}
+  h3 {font-size:12pt;margin:5mm 0 2mm;} h4 {font-size:11pt;}
+  p,li {orphans:3;widows:3;}
+  a {color:#000!important;text-decoration:underline;overflow-wrap:anywhere;}
+  a.download {background:#fff!important;border:1px solid #888;box-shadow:none;padding:1mm 2mm;font-size:9pt;}
+  .table-wrap {overflow:visible;}
+  table {width:100%;min-width:0!important;font-size:9pt;table-layout:fixed;}
+  thead {display:table-header-group;}
+  tr {break-inside:avoid;} th,td {padding:2mm;overflow-wrap:anywhere;}
+  .card-grid {display:block;}
+  .card,.callout,.flow li {box-shadow:none;border:1px solid #aaa;border-radius:0;padding:3mm;margin:3mm 0;break-inside:avoid;}
+  .card p,.callout p {margin:2mm 0;}
+  .flow {display:block;}
+  .flow li {font-size:10pt;}
+  .code {overflow:visible;border-radius:0;break-inside:auto;margin:3mm 0;}
+  .code-head {break-after:avoid-page;font-size:9pt;}
+  .code pre,.code.prompt-block pre {white-space:pre-wrap;overflow:visible;overflow-wrap:anywhere;font-size:9.5pt;line-height:1.5;padding:3mm;}
+  .code .line {white-space:pre-wrap;}
+  .page-figure {display:none;}
+  html.print-figures .page-figure {display:block;break-inside:avoid;margin:4mm 0;}
+  .page-figure img {max-height:105mm;width:100%;object-fit:contain;border:0;border-radius:0;box-shadow:none;}
+  .page-figure figcaption {font-size:9pt;}
+  details.explain {display:none;}
+  html.print-replies details.explain {display:block;border-radius:0;}
+  details.explain > summary {font-size:10pt;padding:2mm;}
+  dl.glossary {display:block;} dl.glossary dt {white-space:normal;} dl.glossary dd {margin:0 0 3mm;}
+  .site-footer {max-width:none;margin:6mm 0 0;padding:3mm 0 0;border-top:1px solid #aaa;font-size:8pt;}
+}
+
+@media print {
+  .attach {break-inside:avoid;}
+  .attach img {max-height:70mm;max-width:100%;}
+  .turn {padding:3mm;margin:3mm 0;}
+  .turn.user .say {font-size:11pt;}
+  .turn.ai {margin-left:4mm;}
+  .mark-legend {font-size:9pt;}
+  html:not(.print-color) .mk-key {background:#333;color:#fff;}
+  html:not(.print-color) .mk-num {color:#333;}
+  html:not(.print-color) .mark-legend {border-left-color:#555;}
+}
 
 .page.no-toc { grid-template-columns: minmax(0, 1fr); }
 </style>
@@ -686,17 +767,25 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 <a href="unit02.html" data-title="零售管理練習：把零售問題做成網頁 APP"><span>零售管理</span></a>
 <a href="unit03.html" data-title="用 AI Agent 逐步打造 SIMS 統計分析工具" aria-current="page"><span>統計學（一）</span></a>
 <a href="unit04.html" data-title="排班調整練習"><span>人力資源管理</span></a>
-<a href="unit05.html" data-title="CMOS Logic Gates: Prompting and Drawing"><span>CMOS Logic Gates</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
+<a href="unit05.html" data-title="用對話修正 AI 繪圖：CMOS 邏輯閘案例"><span>AI 繪圖修正</span></a></nav><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></header>
 <div class="page">
-<aside class="toc" aria-label="本頁目錄"><details><summary>本頁目錄</summary><ol><li><a href="#ex1-problem"><span class="toc-num">01</span>Problem Statement 題目敘述</a></li>
+<aside class="toc" aria-label="本頁目錄">
+<div class="print-tools print-actions" aria-label="下載紙本講義">
+  <a href="downloads/unit03-handout-a4-bw.pdf" download>下載黑白版 PDF</a>
+  <a href="downloads/unit03-handout-a4-color.pdf" download>下載全彩版 PDF</a>
+</div>
+<details><summary>本頁目錄</summary><ol><li><a href="#ex1-problem"><span class="toc-num">01</span>Problem Statement 題目敘述</a></li>
 <li><a href="#ex1-prompt"><span class="toc-num">02</span>Suggested Prompts 建議 Prompt</a></li>
 <li><a href="#ex1-outcome"><span class="toc-num">03</span>Expected Outcomes 預期成果</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 196 196" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="196" height="196" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h49v49h-49z"/><path class="qrline" stroke="#000" d="M4 4.5h7m4 0h2m1 0h2m2 0h1m1 0h1m1 0h3m5 0h1m1 0h1m1 0h7m-41 1h1m5 0h1m4 0h5m2 0h1m1 0h1m1 0h1m4 0h1m4 0h1m1 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h4m3 0h1m5 0h3m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h3m2 0h1m2 0h1m1 0h1m1 0h3m4 0h1m1 0h1m4 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m2 0h1m1 0h1m3 0h2m1 0h1m1 0h5m1 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m1 0h1m1 0h1m2 0h1m3 0h1m2 0h2m3 0h3m1 0h2m1 0h1m1 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h2m4 0h1m5 0h2m5 0h1m2 0h3m-33 1h1m1 0h5m2 0h1m1 0h1m2 0h1m2 0h2m3 0h1m1 0h2m2 0h2m4 0h5m-39 1h4m3 0h1m3 0h2m1 0h2m1 0h7m1 0h1m3 0h1m1 0h4m1 0h1m1 0h3m-41 1h1m2 0h2m1 0h1m2 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h6m2 0h2m1 0h2m-37 1h1m2 0h3m2 0h1m1 0h1m2 0h4m1 0h1m2 0h2m3 0h1m4 0h3m1 0h3m-37 1h1m1 0h1m2 0h1m1 0h2m3 0h2m2 0h3m5 0h3m1 0h1m1 0h3m3 0h2m-38 1h3m1 0h1m1 0h1m1 0h1m1 0h2m2 0h2m3 0h1m3 0h1m1 0h3m2 0h2m1 0h4m2 0h1m-40 1h2m2 0h6m1 0h2m1 0h1m2 0h2m1 0h1m4 0h1m6 0h1m1 0h1m1 0h1m1 0h1m-40 1h1m1 0h4m2 0h2m2 0h3m4 0h4m1 0h1m1 0h1m1 0h1m5 0h2m1 0h1m-38 1h1m1 0h2m2 0h3m2 0h1m1 0h1m2 0h4m4 0h1m1 0h1m2 0h3m1 0h1m1 0h1m1 0h2m-39 1h1m4 0h1m4 0h5m1 0h2m1 0h1m1 0h1m3 0h1m1 0h3m1 0h1m2 0h4m2 0h1m-41 1h1m1 0h2m1 0h4m1 0h1m5 0h2m2 0h2m3 0h4m3 0h2m2 0h3m-39 1h1m3 0h1m6 0h3m1 0h1m1 0h2m2 0h2m2 0h1m1 0h1m8 0h1m2 0h1m-40 1h3m3 0h2m1 0h1m1 0h3m1 0h2m2 0h1m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m2 0h1m2 0h1m-37 1h1m1 0h1m3 0h3m1 0h8m1 0h2m2 0h1m2 0h7m1 0h5m-40 1h2m3 0h1m2 0h2m1 0h1m2 0h3m2 0h3m2 0h4m1 0h1m1 0h1m3 0h1m1 0h1m-39 1h3m2 0h1m1 0h1m1 0h6m1 0h1m3 0h3m9 0h1m2 0h3m2 0h1m-37 1h1m1 0h1m1 0h1m8 0h1m4 0h1m2 0h7m4 0h1m1 0h3m-39 1h3m4 0h1m1 0h2m6 0h3m1 0h1m7 0h1m1 0h1m1 0h3m2 0h1m-41 1h1m2 0h4m2 0h7m1 0h1m3 0h2m4 0h4m1 0h2m1 0h2m-35 1h3m3 0h1m1 0h2m1 0h2m3 0h5m1 0h1m3 0h1m1 0h3m1 0h1m1 0h2m2 0h1m-41 1h1m1 0h2m1 0h2m3 0h1m4 0h1m1 0h4m2 0h3m1 0h1m1 0h1m1 0h1m1 0h1m3 0h2m1 0h1m-41 1h3m1 0h1m2 0h2m1 0h3m1 0h1m3 0h1m2 0h2m4 0h1m2 0h5m1 0h1m2 0h1m-40 1h1m1 0h1m1 0h5m3 0h1m1 0h5m1 0h6m1 0h1m5 0h2m1 0h3m-39 1h1m1 0h1m2 0h1m1 0h1m1 0h4m1 0h1m1 0h1m1 0h1m2 0h3m3 0h1m3 0h7m-38 1h1m1 0h1m1 0h1m1 0h2m1 0h2m2 0h6m1 0h1m2 0h3m1 0h1m1 0h10m-31 1h1m3 0h1m2 0h2m1 0h2m2 0h3m1 0h7m3 0h2m2 0h1m-41 1h7m2 0h3m1 0h4m1 0h1m1 0h1m1 0h1m1 0h1m2 0h2m2 0h2m1 0h1m1 0h2m-38 1h1m5 0h1m1 0h2m1 0h1m1 0h1m1 0h1m8 0h1m1 0h3m1 0h1m1 0h1m3 0h2m2 0h1m-41 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h2m1 0h7m2 0h2m1 0h1m1 0h5m2 0h1m-40 1h1m1 0h3m1 0h1m1 0h1m4 0h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m-39 1h1m1 0h3m1 0h1m1 0h1m2 0h1m4 0h2m2 0h1m4 0h6m2 0h5m-38 1h1m5 0h1m2 0h1m2 0h1m8 0h1m4 0h1m5 0h3m1 0h2m1 0h1m-40 1h7m1 0h1m3 0h4m1 0h3m3 0h4m1 0h3m4 0h4"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
 <main id="main">
+
 <section class="hero">
   <p class="eyebrow">第二次・10/16（星期五）・休閒二年級・統計學（一）</p>
   <h1>用 AI Agent 逐步打造 SIMS 統計分析工具</h1>
   <p class="lead">從休閒專業需求出發，分三輪提示建立 App；用背景知識說清楚需求，再逐步檢查和擴充成果。</p>
 </section>
+<p class="print-identification">南臺科技大學商管學院 · AI Agent 實作講義 · 單元 03<br>姓名：________________　班級：________________　日期：________________</p>
+
 
 <p>本單元的重點不是教統計公式或程式設計，而是示範：當休閒專業工作需要一個前後測分析工具時，不會寫程式的人也能把需求、資料規則和已知的統計背景說給 AI Agent，請它先做初版，再逐步增加功能。每一輪都要試用成果、用提供的參考值核對結果，確認舊功能還在，再提出下一輪需求。</p>
 
@@ -730,13 +819,15 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   <figcaption>第一輪提示的任務：先確保資料讀得正確，再算四個構面的平均並呈現前後趨勢。</figcaption>
 </figure>
 <p>先讓 Agent 檢查 CSV，再建立第一版網頁工具。這一版只做資料檢核、構面平均、摘要表及前後平均折線圖。</p>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">建立第一版：讀取資料與構面平均</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請讀取專案中的 sims_prepost_two_scenarios.csv，先檢查欄位、空白值、participant_id、cohort、題目分數範圍及每組人數，再建立單檔 HTML 網頁工具。這是虛構教學資料；保留原始 CSV，不要改寫它。資料約有兩組各五十位參與者、SIMS 16 題的前測與後測，每個構面四題，作答 1 至 7 分。">請讀取專案中的 sims_prepost_two_scenarios.csv，先檢查欄位、空白值、participant_id、cohort、題目分數範圍及每組人數，再建立單檔 HTML 網頁工具。這是虛構教學資料；保留原始 CSV，不要改寫它。資料約有兩組各五十位參與者、SIMS 16 題的前測與後測，每個構面四題，作答 1 至 7 分。</span>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">建立第一版：讀取資料與構面平均</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="我把一份問卷資料 sims_prepost_two_scenarios.csv 放在資料夾裡了。這是練習用的虛構資料，大約有兩組、每組五十位參與者，填了 SIMS 量表 16 題的前測和後測，每個構面四題，每題 1 到 7 分。">我把一份問卷資料 sims_prepost_two_scenarios.csv 放在資料夾裡了。這是練習用的虛構資料，大約有兩組、每組五十位參與者，填了 SIMS 量表 16 題的前測和後測，每個構面四題，每題 1 到 7 分。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="網頁要能直接用瀏覽器開啟，不需伺服器或外部服務，並可上傳同欄位 CSV。使用者可選擇 growth_pattern 或 stable_pattern 情境。以 participant_id 配對同一人的前後測；若 ID 重複、分數空白、非整數或超出 1 至 7，清楚列出問題，不要靜默當成 0，也不要錯誤配對。">網頁要能直接用瀏覽器開啟，不需伺服器或外部服務，並可上傳同欄位 CSV。使用者可選擇 growth_pattern 或 stable_pattern 情境。以 participant_id 配對同一人的前後測；若 ID 重複、分數空白、非整數或超出 1 至 7，清楚列出問題，不要靜默當成 0，也不要錯誤配對。</span>
+<span class="line" data-text="你先幫我看一下這份資料：每一欄是什麼、有沒有空白、參與者編號和組別對不對、分數有沒有超出 1 到 7、每組各有幾個人。看完簡單跟我說一下，再開始做。原本的資料檔不要改動。">你先幫我看一下這份資料：每一欄是什麼、有沒有空白、參與者編號和組別對不對、分數有沒有超出 1 到 7、每組各有幾個人。看完簡單跟我說一下，再開始做。原本的資料檔不要改動。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="依照 item map 將 16 題分成內在動機、認同調節、外在調節、無動機四個構面，每構面四題，分別計算個人前測及後測構面平均，再計算各構面前測平均、後測平均及差值。呈現各構面摘要表與前後平均折線圖，標示樣本數和 1–7 分範圍。清楚說明平均數只摘要中心位置，不能呈現個人分布，也不能單獨判定活動成效。完成後告訴我如何開啟、上傳資料及核對一位參與者的構面平均。">依照 item map 將 16 題分成內在動機、認同調節、外在調節、無動機四個構面，每構面四題，分別計算個人前測及後測構面平均，再計算各構面前測平均、後測平均及差值。呈現各構面摘要表與前後平均折線圖，標示樣本數和 1–7 分範圍。清楚說明平均數只摘要中心位置，不能呈現個人分布，也不能單獨判定活動成效。完成後告訴我如何開啟、上傳資料及核對一位參與者的構面平均。</span>
+<span class="line" data-text="我想要一個用瀏覽器打開就能用的分析小工具，不用連網路，也不用另外安裝東西。我也要能自己上傳格式一樣的資料檔。畫面上可以選要看哪一組情境（資料裡叫 growth_pattern 和 stable_pattern）。同一個人的前測和後測，要用參與者編號對起來。如果編號重複、分數空白、不是整數或超出 1 到 7，請清楚列出來給我看，不要偷偷當成 0，也不要對錯人。">我想要一個用瀏覽器打開就能用的分析小工具，不用連網路，也不用另外安裝東西。我也要能自己上傳格式一樣的資料檔。畫面上可以選要看哪一組情境（資料裡叫 growth_pattern 和 stable_pattern）。同一個人的前測和後測，要用參與者編號對起來。如果編號重複、分數空白、不是整數或超出 1 到 7，請清楚列出來給我看，不要偷偷當成 0，也不要對錯人。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="請將第一版另存為 unit03_app_v1.html，不要覆蓋 CSV。介面外觀可自行安排，不必仿照範例；但資料匯入、欄位檢查、配對規則、構面計分和參考結果必須符合以上規格。">請將第一版另存為 unit03_app_v1.html，不要覆蓋 CSV。介面外觀可自行安排，不必仿照範例；但資料匯入、欄位檢查、配對規則、構面計分和參考結果必須符合以上規格。</span></code></pre></figure>
+<span class="line" data-text="接著照題目對照表，把 16 題分成內在動機、認同調節、外在調節、無動機四個構面，每個構面四題。先算出每個人在每個構面的前測和後測平均，再算出各構面整體的前測平均、後測平均和差多少。用一張摘要表加一張前後平均的折線圖呈現，標上人數和 1 到 7 分的範圍。也請用白話提醒我：平均數只能看出大概落在哪裡，看不出每個人的差異，也不能單靠它說活動有沒有效。">接著照題目對照表，把 16 題分成內在動機、認同調節、外在調節、無動機四個構面，每個構面四題。先算出每個人在每個構面的前測和後測平均，再算出各構面整體的前測平均、後測平均和差多少。用一張摘要表加一張前後平均的折線圖呈現，標上人數和 1 到 7 分的範圍。也請用白話提醒我：平均數只能看出大概落在哪裡，看不出每個人的差異，也不能單靠它說活動有沒有效。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="做好後，把這一版存成 unit03_app_v1.html。告訴我怎麼打開、怎麼上傳資料，還有怎麼挑一位參與者，自己核對他的構面平均。畫面長怎樣你可以自己決定，不用跟範例一樣；但上傳資料、檢查資料、前後測配對、構面計分和算出來的數字，都要照我上面說的。">做好後，把這一版存成 unit03_app_v1.html。告訴我怎麼打開、怎麼上傳資料，還有怎麼挑一位參與者，自己核對他的構面平均。畫面長怎樣你可以自己決定，不用跟範例一樣；但上傳資料、檢查資料、前後測配對、構面計分和算出來的數字，都要照我上面說的。</span></code></pre></figure>
 <h4>第一版完成檢核</h4>
 <ul class="checklist"><li>growth_pattern 有 53 位、stable_pattern 有 52 位；總計 105 位模擬參與者。</li><li>每位參與者 16 題前測及 16 題後測；每一構面四題，分數都介於 1 至 7。</li><li>抽查一位參與者，請 Agent 說明某構面平均，再與參考值核對；前後測 ID 配對正確。</li><li>四構面順序、名稱、前後測平均及差值方向清楚；平均折線圖資料點與摘要表一致。</li><li>第一版已另存為 unit03_app_v1.html。</li></ul>
 <div class="callout note"><span class="label">為什麼算出平均還不夠？</span><p>平均數把一組分數濃縮成一個代表數字，適合快速看整體高低和前後方向，但會藏起個別差異。比如兩組分數平均都可能是 4 分，一組大家大多答 4 分，另一組有人答很低、有人答很高；只看平均看不出這種差別。問卷平均也不能單獨告訴我們題目是否真的在測同一個概念、前後變化是否大於個人自然差異，或分數分布是否偏斜。因此後面再檢查題目表現、量測品質和個人配對差值。</p></div>
@@ -747,13 +838,13 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 </figure>
 <p>在第一版可正確讀檔及計分後，增加每個構面的內部一致性摘要。三題或四題構面的 alpha 不能當成效度證據，這一版要把可做與不可做的推論說清楚。</p>
 <div class="callout tip"><span class="label">信度與效度：本單元怎麼看？</span><p><strong>信度：</strong>Cronbach's alpha 看同一構面四題在這批資料中是否大致一致；它不等於效度。</p><p><strong>效度：</strong>SIMS 原研究已為原版量表提供效度證據。因我們沿用相同題目，只把作答對象換成系上戶外活動，該研究是合理的參考依據；SIMS 原本就是用來問參與者對特定活動的當下動機。</p><p>若收集真實資料，可再看四個構面是否如預期、學生如何理解題目，或分數是否與相關問卷／行為呈現理論預期的關係。這些是額外證據，沒有單一「效度分數」。本單元資料是虛構的，只能練習計算，不能證明信效度；約百人的實際樣本也宜視為初步證據，不宣稱完成全面驗證。(<a href="https://selfdeterminationtheory.org/SDT/documents/2000_GuayVallerandBlanchard_MO.pdf" target="_blank" rel="noopener">SIMS 原始研究</a>)</p></div>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">第二版：增加信度與測量說明</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請在目前可用的第一版上增加測量品質區塊，保留資料匯入、錯誤提示、配對、構面計分、平均摘要表和折線圖，不要移除或改壞原功能。另存為 unit03_app_v2.html，保留 unit03_app_v1.html 不變。">請在目前可用的第一版上增加測量品質區塊，保留資料匯入、錯誤提示、配對、構面計分、平均摘要表和折線圖，不要移除或改壞原功能。另存為 unit03_app_v2.html，保留 unit03_app_v1.html 不變。</span>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">第二版：增加信度與測量說明</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="第一版已經可以用了，現在想在上面加一個「測量品質」的區塊。原本的上傳資料、錯誤提示、前後測配對、構面計分、平均摘要表和折線圖都要留著，不要拿掉或弄壞。新的一版請另外存成 unit03_app_v2.html，第一版 unit03_app_v1.html 保持原樣。">第一版已經可以用了，現在想在上面加一個「測量品質」的區塊。原本的上傳資料、錯誤提示、前後測配對、構面計分、平均摘要表和折線圖都要留著，不要拿掉或弄壞。新的一版請另外存成 unit03_app_v2.html，第一版 unit03_app_v1.html 保持原樣。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="在每個 cohort、前測與後測分開計算四個構面的 Cronbach&#x27;s alpha，並呈現各題與構面總分的相關作為探索性題目檢查。顯示計算所用的有效樣本數、題數，以及缺漏或無效資料的處理規則。若樣本不足、變異為零或無法計算，顯示原因，不要輸出誤導數字。">在每個 cohort、前測與後測分開計算四個構面的 Cronbach&#x27;s alpha，並呈現各題與構面總分的相關作為探索性題目檢查。顯示計算所用的有效樣本數、題數，以及缺漏或無效資料的處理規則。若樣本不足、變異為零或無法計算，顯示原因，不要輸出誤導數字。</span>
+<span class="line" data-text="請依組別，前測和後測分開，算出四個構面各自的 Cronbach&#x27;s alpha，另外列出每一題和所屬構面總分的相關，當作初步的題目檢查。也請寫出每次計算用了幾個有效樣本、幾題，以及遇到缺漏或不合理的資料是怎麼處理的。如果人數太少、大家分數都一樣，或是算不出來，就直接說明原因，不要硬給一個會讓人誤會的數字。">請依組別，前測和後測分開，算出四個構面各自的 Cronbach&#x27;s alpha，另外列出每一題和所屬構面總分的相關，當作初步的題目檢查。也請寫出每次計算用了幾個有效樣本、幾題，以及遇到缺漏或不合理的資料是怎麼處理的。如果人數太少、大家分數都一樣，或是算不出來，就直接說明原因，不要硬給一個會讓人誤會的數字。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="加入一段易懂說明：alpha 是樣本內部一致性的摘要，不證明單向度或效度；呈現題目－總分相關及題目是否符合四構面的理論對應，作為探索性題目檢查。將內容效度列為「需由教師／專家審查」的檢核項目，不要由程式宣稱通過。因本教學資料是模擬資料，不能宣稱本次資料提供真實量表效度證據。建構效度通常還需理論、專家審查及適當樣本的因素分析等證據；此樣本規模不適合宣稱完成因素驗證。完成後列出新增功能，並確認第一版所有分析仍可使用。">加入一段易懂說明：alpha 是樣本內部一致性的摘要，不證明單向度或效度；呈現題目－總分相關及題目是否符合四構面的理論對應，作為探索性題目檢查。將內容效度列為「需由教師／專家審查」的檢核項目，不要由程式宣稱通過。因本教學資料是模擬資料，不能宣稱本次資料提供真實量表效度證據。建構效度通常還需理論、專家審查及適當樣本的因素分析等證據；此樣本規模不適合宣稱完成因素驗證。完成後列出新增功能，並確認第一版所有分析仍可使用。</span>
+<span class="line" data-text="另外加一段好懂的說明：alpha 只是看這批樣本的題目答得一不一致，不能證明這些題目只測同一件事，也不能證明量表有效度。題目和總分的相關、題目有沒有對到四個構面，都只是初步檢查。內容效度請列成「需要老師或專家審查」的項目，不要由工具自己說通過。因為這是模擬資料，也不能說這次結果證明量表真的有效度；建構效度通常還要有理論、專家審查，以及樣本夠大時做的因素分析，這次的人數不適合說已經驗證過。">另外加一段好懂的說明：alpha 只是看這批樣本的題目答得一不一致，不能證明這些題目只測同一件事，也不能證明量表有效度。題目和總分的相關、題目有沒有對到四個構面，都只是初步檢查。內容效度請列成「需要老師或專家審查」的項目，不要由工具自己說通過。因為這是模擬資料，也不能說這次結果證明量表真的有效度；建構效度通常還要有理論、專家審查，以及樣本夠大時做的因素分析，這次的人數不適合說已經驗證過。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="介面可以和第一版或同學的作品不同，但第一版原有功能與本輪新增的測量摘要、文字說明和數值計算都必須符合規格。">介面可以和第一版或同學的作品不同，但第一版原有功能與本輪新增的測量摘要、文字說明和數值計算都必須符合規格。</span></code></pre></figure>
+<span class="line" data-text="做好後列出這次加了哪些功能，並確認第一版的分析都還能正常使用。畫面可以跟第一版或同學做的不一樣，但第一版原有的功能，加上這次新增的測量摘要、說明文字和數字，都要照我說的來。">做好後列出這次加了哪些功能，並確認第一版的分析都還能正常使用。畫面可以跟第一版或同學做的不一樣，但第一版原有的功能，加上這次新增的測量摘要、說明文字和數字，都要照我說的來。</span></code></pre></figure>
 <h4>第二版完成檢核</h4>
 <ul class="checklist"><li>alpha 依 cohort、時間點、構面分開計算，且使用個人題目原始分數。</li><li>題目－總分相關有清楚標示為探索性檢查；內容效度列為教師／專家審查事項。</li><li>能說明 alpha 不是效度結論，且模擬題目不能支持正式量表效度宣稱。</li><li>原有 CSV 上傳、資料檢核、平均表與折線圖仍可用；v1 和 v2 兩個檔案都保留。</li></ul>
 <h3>階段三：增加配對樣本 t 檢定及盒鬚圖</h3>
@@ -763,13 +854,15 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 </figure>
 <p>最後增加推論統計和分布圖。前後測必須由同一 participant_id 配對；同時呈現差異方向、效果大小及不確定性。</p>
 <div class="callout tip"><span class="label">配對樣本 t 檢定在問什麼？怎麼看結果？</span><p>先對每位學生算「後測減前測」，再看全班平均差是否明顯偏離 0。表中的<strong>平均差</strong>是正數，表示平均分數上升；是負數，表示下降。這份練習同時檢查四個構面，所以判斷時看表中的 <strong>Holm 校正 p 值</strong>，並以 .05 為門檻。</p><ul><li><strong>Holm p &lt; .05：</strong>這次資料提供了「平均分數有改變」的統計證據；再看平均差是正是負，說明上升或下降。</li><li><strong>Holm p ≥ .05：</strong>資料還不足以確認平均分數有改變。即使前後平均不同，也只能說「觀察到一些差異，但未達統計顯著」，不能說已證明完全沒變。</li></ul><p>p 值不是活動有效的機率，也不表示變化有多重要；還要一起看平均差和信賴區間。檢定說明的是這批配對資料的平均變化，不能單獨證明是活動造成。可參考<a href="https://www.itl.nist.gov/div898/handbook/prc/section3/prc311.htm" target="_blank" rel="noopener">NIST 配對觀察值分析說明</a>。</p></div>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">第三版：配對樣本 t 檢定與盒鬚圖</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請在現有第二版上增加四構面的配對樣本 t 檢定與盒鬚圖，保留所有既有功能。另存為 unit03_app_v3.html，不要覆蓋 v1 或 v2。每位參與者先以四題平均形成前測、後測構面分數，再以同一 participant_id 計算差值（後測減前測）。">請在現有第二版上增加四構面的配對樣本 t 檢定與盒鬚圖，保留所有既有功能。另存為 unit03_app_v3.html，不要覆蓋 v1 或 v2。每位參與者先以四題平均形成前測、後測構面分數，再以同一 participant_id 計算差值（後測減前測）。</span>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">第三版：配對樣本 t 檢定與盒鬚圖</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="現在在第二版上，再幫我加上四個構面的配對樣本 t 檢定和盒鬚圖，原本有的功能都要留著。這一版另外存成 unit03_app_v3.html，不要蓋掉第一版和第二版。">現在在第二版上，再幫我加上四個構面的配對樣本 t 檢定和盒鬚圖，原本有的功能都要留著。這一版另外存成 unit03_app_v3.html，不要蓋掉第一版和第二版。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="結果表每構面列出配對 n、前測平均與標準差、後測平均與標準差、平均差、95% 信賴區間、t 值、自由度、雙尾 p 值、配對效果量 Cohen&#x27;s dz，並提供四個 p 值的 Holm 校正結果。明確說明顯著水準及差值正負方向；遇到無效配對、差值無變異或樣本不足時，顯示不能計算的理由。提供每個構面的前後測盒鬚圖，圖上標出中位數、四分位距、鬚線規則及樣本數；不要把盒鬚圖誤說成平均數圖。">結果表每構面列出配對 n、前測平均與標準差、後測平均與標準差、平均差、95% 信賴區間、t 值、自由度、雙尾 p 值、配對效果量 Cohen&#x27;s dz，並提供四個 p 值的 Holm 校正結果。明確說明顯著水準及差值正負方向；遇到無效配對、差值無變異或樣本不足時，顯示不能計算的理由。提供每個構面的前後測盒鬚圖，圖上標出中位數、四分位距、鬚線規則及樣本數；不要把盒鬚圖誤說成平均數圖。</span>
+<span class="line" data-text="計算方式是這樣：每位參與者先用四題的平均，算出自己每個構面的前測分數和後測分數，再用同一個參與者編號，算出「後測減前測」的差。">計算方式是這樣：每位參與者先用四題的平均，算出自己每個構面的前測分數和後測分數，再用同一個參與者編號，算出「後測減前測」的差。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="加入解讀提醒：這是刻意生成的教學資料，growth_pattern 只應在指定構面呈現顯著變化，stable_pattern 四構面都應沒有顯著變化；先比較兩組結果是否符合預期，再解讀效應大小與信賴區間。配對 t 檢定結果只描述此模擬樣本的前後差異，不足以證明活動造成變化或推論所有學生。完成後列出新增功能，並逐項確認第一、二版的資料匯入、計分、信度和折線圖仍正常。">加入解讀提醒：這是刻意生成的教學資料，growth_pattern 只應在指定構面呈現顯著變化，stable_pattern 四構面都應沒有顯著變化；先比較兩組結果是否符合預期，再解讀效應大小與信賴區間。配對 t 檢定結果只描述此模擬樣本的前後差異，不足以證明活動造成變化或推論所有學生。完成後列出新增功能，並逐項確認第一、二版的資料匯入、計分、信度和折線圖仍正常。</span>
+<span class="line" data-text="結果表每個構面要列出：配對人數、前測平均和標準差、後測平均和標準差、平均差、95% 信賴區間、t 值、自由度、雙尾 p 值、效果量 Cohen&#x27;s dz，還有四個 p 值做 Holm 校正後的結果。也請寫清楚用的顯著水準，以及差是正還是負代表什麼。如果遇到配不起來的資料、差全都一樣或人數不夠，就說明為什麼不能算。每個構面再畫一張前後測的盒鬚圖，標出中位數、四分位距、鬚線怎麼畫，以及人數；不要把盒鬚圖說成是平均數的圖。">結果表每個構面要列出：配對人數、前測平均和標準差、後測平均和標準差、平均差、95% 信賴區間、t 值、自由度、雙尾 p 值、效果量 Cohen&#x27;s dz，還有四個 p 值做 Holm 校正後的結果。也請寫清楚用的顯著水準，以及差是正還是負代表什麼。如果遇到配不起來的資料、差全都一樣或人數不夠，就說明為什麼不能算。每個構面再畫一張前後測的盒鬚圖，標出中位數、四分位距、鬚線怎麼畫，以及人數；不要把盒鬚圖說成是平均數的圖。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="不要為了讓結果好看而改動計算規則；介面可以不同，但依同一份資料及以上規格計算時，表格數值和判讀結果應一致。">不要為了讓結果好看而改動計算規則；介面可以不同，但依同一份資料及以上規格計算時，表格數值和判讀結果應一致。</span></code></pre></figure>
+<span class="line" data-text="最後加一段解讀提醒：這是刻意做出來的練習資料，growth_pattern 只有特定構面應該有顯著變化，stable_pattern 四個構面都應該沒有顯著變化。先看兩組結果符不符合預期，再去看效果大小和信賴區間。配對 t 檢定只能描述這批模擬樣本前後差多少，不能證明是活動造成的，也不能推到所有學生身上。做好後列出新增的功能，並一項一項確認第一、二版的上傳資料、計分、信度和折線圖都還正常。">最後加一段解讀提醒：這是刻意做出來的練習資料，growth_pattern 只有特定構面應該有顯著變化，stable_pattern 四個構面都應該沒有顯著變化。先看兩組結果符不符合預期，再去看效果大小和信賴區間。配對 t 檢定只能描述這批模擬樣本前後差多少，不能證明是活動造成的，也不能推到所有學生身上。做好後列出新增的功能，並一項一項確認第一、二版的上傳資料、計分、信度和折線圖都還正常。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="不要為了讓結果好看去改計算方式；畫面可以不一樣，但用同一份資料、照上面的方式算，表格裡的數字和判讀結果應該要一樣。">不要為了讓結果好看去改計算方式；畫面可以不一樣，但用同一份資料、照上面的方式算，表格裡的數字和判讀結果應該要一樣。</span></code></pre></figure>
 <h4>第三版完成檢核</h4>
 <ul class="checklist"><li>同一 ID 的後測減前測作為配對差值；不同 cohort 不混在同一次配對分析。</li><li>growth_pattern 內在動機、認同調節及無動機呈現有差異的教學模式（無動機方向是預期下降）；外在調節預期沒有明顯差異。</li><li>stable_pattern 四構面皆預期沒有統計顯著差異。未顯著不代表兩次完全相同，也不等於證明無效果。</li><li>配對 t 表列出差值、區間、p 值、效果量與 Holm 校正；盒鬚圖顯示中位數、四分位數、鬚線和樣本數。</li><li>v1、v2、v3 三個檔案都保留；重新上傳兩組資料，確認舊功能沒有遺失。</li></ul>
 <div class="callout note"><span class="label">盒鬚圖多告訴我們什麼？</span><p>盒子中間的線是中位數，代表排序後位在中央的分數；盒子上下緣是第 25 與第 75 百分位，盒子包含中間一半的人。盒鬚圖能快速看出分數集中還是分散、前後測分布是否移動、有沒有特別遠的分數。它補足平均數看不到的分布資訊，但不顯示每一位學生如何改變，也不能取代配對 t 檢定；因此要把圖和表一起看。此工具把鬚延伸到 1.5 倍四分位距範圍內的最遠觀察值，超出範圍的點會單獨標出。<a href="https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm" target="_blank" rel="noopener">NIST 盒鬚圖說明</a></p></div>
@@ -789,7 +882,7 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 
 </main>
 </div>
-<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<footer class="site-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</p></footer>
 <button class="to-top" type="button" hidden>回到頂端</button>
 <script>
 (function () {
