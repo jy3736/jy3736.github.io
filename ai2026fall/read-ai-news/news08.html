@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var t='dark';try{if(localStorage.getItem('news-theme')==='light')t='light';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
+<title>2026 下半年 AI 趨勢：Spark、Muse、Dots、Duet、Grok Bot 五個全天候代理比一比｜AI 時事講義</title>
+<meta name="description" content="半年內，Google、Meta、OpenAI、Anthropic 和 SpaceXAI 都推出了你關掉 App 還會繼續做事的 AI。逐一認識 Spark、Muse、Dots、Duet 與 Grok Bot，整理它們共同的基本配備和幾個關鍵差異，再用五個問題練習讀懂任何一個新代理。">
+<style>
+/* 預設深色主題；<html data-theme="light"> 時切換成淺色（由頁首按鈕切換並記在 localStorage）。 */
+:root {
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --bg: #14171a;
+  --surface: #1b1f23;
+  --surface-2: #22272c;
+  --text: #e6e8eb;
+  --muted: #a0a7af;
+  --border: #30363d;
+  --accent: #5cc8bf;
+  --accent-soft: #173432;
+  --code-bg: #0f1215;
+  --code-text: #e6e8eb;
+  --tip: #5cc8bf;
+  --tip-bg: #15302e;
+  --note: #86a8ec;
+  --note-bg: #1a2638;
+  --warn: #eaa860;
+  --warn-bg: #33261a;
+  --try: #c49bf0;
+  --try-bg: #2a2036;
+  --shadow: none;
+  --on-accent: #0e1a19;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --on-accent: #ffffff;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+/* 頁首內容與 .page 同寬，兩側留白在每個斷點都對齊 */
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;  /* 導覽列置中，站名靠左、主題鈕靠右 */
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  padding-block: 0.7rem;
+}
+.site-header .brand { justify-self: start; font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header .theme-toggle { justify-self: end; }
+.site-header nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* 滑過（或鍵盤聚焦）導覽標籤時，顯示該頁的完整標題 */
+.site-header nav a[data-hint] { position: relative; }
+.site-header nav a[data-hint]::after {
+  display: none;
+  content: attr(data-hint);
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: min(22rem, 70vw);
+  width: max-content;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease 0.05s, visibility 0.12s ease 0.05s;
+}
+.site-header nav a[data-hint]:hover::after,
+.site-header nav a[data-hint]:focus-visible::after {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+/* 最外側的標籤改為貼邊，長標題才不會撐出視窗 */
+.site-header nav a[data-hint]:first-child::after { left: 0; transform: none; }
+.site-header nav a[data-hint]:last-child::after { left: auto; right: 0; transform: none; }
+@media (hover: none) {
+  .site-header nav a[data-hint]::after { display: none; }
+}
+
+/* 版面佔父層 90% 寬，不設固定上限；目錄欄隨視窗伸縮，讓條目盡量維持單行 */
+:root { --layout-w: 90%; }
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+  /* 目錄欄在 240px 下限時，字級跟著縮一點，讓一般長度的標題維持單行 */
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+.meta a { text-decoration: none; }
+.meta a:hover { text-decoration: underline; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+:root:not([data-theme="light"]) .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root:not([data-theme="light"]) .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root:not([data-theme="light"]) .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+:root:not([data-theme="light"]) .steps > li::before { color: #0e1a19; }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root:not([data-theme="light"]) .download { color: #0e1a19; }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  min-height: 2rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar, generating-podcast contract) ---------- */
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+
+/* 側邊欄底部：本頁公開網址的 QR Code，手機掃描即可開啟；窄螢幕本來就在手機上，不顯示 */
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+@media (max-width: 960px) { .toc-qr { display: none; } }
+.toc-audio-comparison { margin: 0 0 1.2rem; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.toc-audio-comparison h2 { font-size: 0.9rem; margin: 0 0 0.5rem; padding: 0; border: 0; }
+.toc-audio-comparison p { font-size: 0.78rem; color: var(--muted); margin: 0.5rem 0; line-height: 1.6; }
+.toc-audio-comparison audio { display: block; width: 100%; min-width: 0; }
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible, .seek-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+
+/* Transcript page: section timestamps jump the player to that point. */
+.seek-btn {
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  vertical-align: 0.2em;
+  margin-right: 0.35rem;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+  cursor: pointer;
+}
+.seek-btn:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Narrow phones ---------- */
+
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  .hero { margin-bottom: 1.8rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  .lead { font-size: 1.02rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+  .site-header .inner { padding-block: 0.55rem; }
+  /* 窄螢幕放不下三欄：站名與主題鈕同一列，導覽列換到下一列置中 */
+  .site-header .inner { grid-template-columns: 1fr auto; }
+  .site-header nav { grid-row: 2; grid-column: 1 / -1; }
+  /* 手機上縮窄提示，右側兩個標籤的提示靠右對齊。 */
+  .site-header nav a[data-hint]::after { max-width: 50vw; }
+  .site-header nav a[data-hint]:nth-last-child(2)::after { left: auto; right: 0; transform: none; }
+}
+
+@media print {
+  /* 列印一律用淺色 */
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --surface-2: #f3f1ec;
+    --text: #1f2328;
+    --muted: #5b6168;
+    --border: #e2ded6;
+    --accent: #0b6e69;
+    --accent-soft: #e3f2f0;
+    --code-bg: #f6f5f1;
+    --code-text: #24292f;
+    --tip: #0b6e69;
+    --tip-bg: #e8f5f3;
+    --note: #2f5fb3;
+    --note-bg: #eaf0fb;
+    --warn: #a4570b;
+    --warn-bg: #fdf1e3;
+    --try: #7a3fb0;
+    --try-bg: #f3ecfa;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+    --on-accent: #ffffff;
+    color-scheme: light;
+  }
+  .toc, .toc-qr, .site-header nav, .theme-toggle, .seek-btn, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+blockquote {
+  margin: 1.2rem 0;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+  line-height: 1.9;
+}
+/* 表格第一欄是索引欄，保持單行不換行，過寬時整個表格可橫向捲動 */
+table th:first-child, table td:first-child { white-space: nowrap; }
+.news-card .tag { color: var(--accent); }
+.news-date { color: var(--muted); font-size: 0.9rem; margin: 0.1rem 0 0.4rem; }
+.news-audio { color: var(--muted); font-size: 0.88rem; margin: 0.3rem 0; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><nav aria-label="講義"><a href="index.html" data-hint="讀懂一則 AI 新聞，不需要會寫程式">首頁</a>
+<a href="news01.html" data-hint="AI 會不會失控？一場吵了兩週的大爭論">時事 1</a>
+<a href="news02.html" data-hint="不會講話的 AI：一個只做選擇題的新模型">時事 2</a>
+<a href="news03.html" data-hint="會替你動手的 AI：Meta Muse 與「AI 代理」這件事">時事 3</a>
+<a href="news04.html" data-hint="會持續替你工作的 AI：Grok Bot 與 OpenAI dot 比較">時事 4</a>
+<a href="news05.html" data-hint="從「AI 小助理」到「技能包」：GPTs、Gems 退場與 Agent Skills">時事 5</a>
+<a href="news06.html" data-hint="AI 寫完程式之後呢？從 ArtCraft 看人工審查、測試與維護的重要性">時事 6</a>
+<a href="news07.html" data-hint="從 ArtCraft 到 REA：AI 能複製軟體，人還要負責什麼？">時事 7</a>
+<a href="news08.html" aria-current="page" data-hint="2026 下半年 AI 趨勢：Spark、Muse、Dots、Duet、Grok Bot 五個全天候代理比一比">時事 8</a></nav><button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">10:13</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/news08-podcast.mp3?v=facf26e30341" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 10:13</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button><button type="button" class="toc-speed-btn" data-speed="2.0" aria-pressed="false">2.0x</button></div></div></div><details><summary>本頁目錄</summary><ol><li><a href="#sec1">一、關掉 App 之後，AI 還在替你做事</a></li><li><a href="#sec2">二、半年內五個代理接連登場</a></li><li><a href="#sec3">三、五個代理，一個一個認識</a></li><li><a href="#sec4">四、相同或相似的地方：五個代理的基本配備</a></li><li><a href="#sec5">五、主要差異：同一個問題，五家答案不同</a></li><li><a href="#sec6">六、容易誤讀的地方</a></li><li><a href="#sec7">七、課堂實作：替社團交辦一件事</a></li><li><a href="#sec8">八、關鍵詞</a></li><li><a href="#sec9">九、參考資料：29 個來源，含 9 篇臺灣媒體中文報導</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h1m3 0h1m1 0h1m3 0h2m2 0h3m1 0h7m-33 1h1m5 0h1m1 0h3m1 0h1m1 0h1m5 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m3 0h1m2 0h1m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h1m3 0h2m4 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m1 0h1m3 0h6m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m2 0h1m1 0h2m1 0h1m3 0h2m-25 1h1m1 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h4m1 0h1m2 0h1m1 0h2m-32 1h1m2 0h1m2 0h2m1 0h5m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-32 1h6m2 0h1m3 0h1m3 0h1m4 0h3m1 0h4m1 0h2m-33 1h2m2 0h2m2 0h2m5 0h2m2 0h2m2 0h2m2 0h1m1 0h1m-25 1h2m7 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-27 1h1m5 0h1m4 0h3m1 0h2m1 0h2m4 0h1m2 0h2m-31 1h3m1 0h4m2 0h3m5 0h3m2 0h1m1 0h3m-27 1h2m3 0h1m2 0h7m3 0h2m2 0h3m2 0h2m-31 1h2m1 0h5m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h3m1 0h3m-31 1h1m3 0h1m3 0h3m4 0h3m2 0h1m1 0h2m1 0h2m1 0h2m1 0h2m-32 1h2m3 0h1m4 0h1m1 0h4m1 0h1m3 0h1m2 0h1m1 0h2m1 0h2m-32 1h1m3 0h1m3 0h3m2 0h1m3 0h1m2 0h1m1 0h1m3 0h1m1 0h1m-29 1h3m1 0h1m1 0h2m3 0h1m2 0h4m3 0h1m3 0h1m3 0h2m-31 1h1m2 0h1m3 0h2m1 0h1m3 0h1m1 0h8m2 0h1m2 0h1m2 0h1m-30 1h1m1 0h4m1 0h4m4 0h1m1 0h5m3 0h2m1 0h2m-32 1h1m2 0h1m8 0h1m4 0h1m1 0h1m4 0h2m1 0h1m2 0h1m-32 1h1m1 0h1m3 0h3m5 0h2m1 0h3m2 0h1m1 0h5m2 0h2m-25 1h1m1 0h1m1 0h5m2 0h1m4 0h1m3 0h2m-30 1h7m1 0h1m1 0h1m3 0h1m2 0h3m1 0h4m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m1 0h1m4 0h1m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h5m1 0h1m1 0h1m1 0h2m1 0h6m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m2 0h1m1 0h1m2 0h4m3 0h1m1 0h2m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m3 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m2 0h3m5 0h3m2 0h4m1 0h2m3 0h1m-33 1h7m1 0h1m1 0h9m1 0h2m1 0h1m4 0h3"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero"><p class="eyebrow">時事 8</p><h1>2026 下半年 AI 趨勢：Spark、Muse、Dots、Duet、Grok Bot 五個全天候代理比一比</h1><p class="lead">每個月 1 號，你的手機自己去翻 Gmail 裡上個月的電子發票，找出哪個訂閱要漲價、哪個免費試用快到期，再替你草擬一封取消信。這是 Google 在臺灣介紹 Gemini Spark 時舉的例子。[INSIDE（R23）](https://www.inside.com.tw/article/41962-gemini-spark-taiwan-ai-pro-prompt-examples) 從 5 月到 10 月，Google、Meta、OpenAI、Anthropic 和 SpaceXAI 五家公司，接連推出這種「你關掉 App，它還在做事」的 AI。這份講義先認識五個產品，再整理它們哪裡一樣、哪裡不一樣，最後練習用同一組問題比較任何一個新代理。資料查證到 2026 年 10 月 24 日，臺灣時間。</p><ul class="meta"><li>事件時間：2026 年 5–10 月（10 月 24 日查證）</li><li>可獨立閱讀</li><li>不需程式基礎</li><li>🎧 語音導讀：10 分 13 秒</li></ul></section><div class="callout note"><span class="label">先注意一件事</span><p>本文寫的是各公司的公告、說明文件和媒體報導，我們沒有登入任何一個產品實際試用。「官方這樣說」不等於「每次都做得到」。</p></div>
+<h2 id="sec1">一、關掉 App 之後，AI 還在替你做事</h2>
+<p>先分清楚兩種 AI。一般的<strong>聊天 AI</strong> 是你問一句、它答一句，你關掉視窗，事情就停在那裡。<strong>AI 代理</strong>（AI agent）則是你給它一個目標，它自己拆步驟、開網頁、讀信、填表，把事情往前推。</p>
+<p>這五個產品又多走了一步：它們在<strong>雲端電腦</strong>上工作。雲端電腦是放在公司機房、專門給 AI 用的電腦，不是你眼前的筆電。所以你闔上筆電、鎖上手機，它還能繼續做，有進度或需要你決定時，再回來找你。報導常把這類產品叫做「全天候」或「常駐」代理。<a href="https://blog.google/innovation-and-ai/products/gemini-app/next-evolution-gemini-app/" target="_blank" rel="noopener">R01</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a></p>
+<p>想像你是社團幹部，要辦一場期末交流會。聊天 AI 可以幫你寫一封邀請信。全天候代理則可能每天早上檢查報名表、對照場地行事曆、發現人數超過座位時來問你要不要加開場次。後面我們會一直用這個社團例子。</p>
+<div class="callout tip"><span class="label">對你的意義</span><p>交給聊天 AI 的是「一個問題」，交給全天候代理的是「一份持續的工作」。工作交出去之前，你要先想清楚它能碰到什麼、哪些事一定要先問你。</p></div>
+<h2 id="sec2">二、半年內五個代理接連登場</h2>
+<div class="table-wrap"><table><thead><tr><th>時間</th><th>發生了什麼</th><th>閱讀時要注意</th></tr></thead><tbody><tr><td>5 月 19 日</td><td>Google 發表 Gemini Spark，先給美國的 Ultra 訂閱者測試。<a href="https://blog.google/innovation-and-ai/products/gemini-app/next-evolution-gemini-app/" target="_blank" rel="noopener">R01</a> <a href="https://engadget.com/2176556/googles-gemini-spark-is-an-agentic-ai-assistant" target="_blank" rel="noopener">R20</a></td><td>發表不等於人人能用。</td></tr><tr><td>7 月 29 至 30 日</td><td>Google 臺灣宣布 Spark 將在數週內開放給臺灣的 AI Pro 用戶；隔天又擴大到另外 160 多國。<a href="https://www.bnext.com.tw/article/91668/gemini-spark-taiwan-launch-guide--google-gemini-spark-ai-agent-tutorial" target="_blank" rel="noopener">R21</a> <a href="https://blog.google/innovation-and-ai/products/gemini-app/gemini-spark-updates-july-2026/" target="_blank" rel="noopener">R03</a> <a href="https://www.ithome.com.tw/news/177798" target="_blank" rel="noopener">iThome（R22）</a></td><td>「數週內分批」表示要看你自己的帳號。</td></tr><tr><td>8 月 11 日</td><td>SpaceXAI 推出 Grok Bot 測試版。<a href="https://www.youtube.com/watch?v=F1_0Lkp16Rc" target="_blank" rel="noopener">R19</a> <a href="https://www.bnext.com.tw/article/91832/spacexai-grok-bot-ai-agent-team" target="_blank" rel="noopener">數位時代（R28）</a></td><td>當時開放的方案和現在不同。</td></tr><tr><td>9 月 8 日</td><td>Meta 推出 Muse，先在美國上線；9 月 18 日進入加拿大。<a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/" target="_blank" rel="noopener">R09</a> <a href="https://iphoneincanada.ca/2026/10/21/claude-duet-proactive-ai-agent-app" target="_blank" rel="noopener">R08</a> <a href="https://www.inside.com.tw/article/42342-meta-muse-personal-ai-agent-launch-2026" target="_blank" rel="noopener">INSIDE（R29）</a></td><td>臺灣還沒開放。</td></tr><tr><td>9 月 29 日</td><td>OpenAI 發表 dots，分批開放給付費方案。<a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a> <a href="https://www.ithome.com.tw/news/179303" target="_blank" rel="noopener">iThome（R26）</a></td><td>英文複數寫成 dots，一個叫 dot。</td></tr><tr><td>10 月 12 日</td><td>報導發現 Gemini App 裡的 Spark 改名為「任務」（Task）。<a href="https://9to5google.com/2026/10/12/gemini-spark-task-redesign/" target="_blank" rel="noopener">R04</a> <a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a></td><td>改名不等於停止服務。</td></tr><tr><td>10 月 21 日</td><td>Anthropic 推出 Claude Duet 研究預覽，只開放美國用戶候補。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://macrumors.com/2026/10/21/anthropic-claude-duet/" target="_blank" rel="noopener">R06</a> <a href="https://www.ksl.com/article/51639342/anthropic-unveils-claude-duet-ai-agent-app" target="_blank" rel="noopener">R07</a> <a href="https://www.ithome.com.tw/news/179897" target="_blank" rel="noopener">iThome（R24）</a></td><td>有報導寫週二，Reuters 已更正為週三 10 月 21 日。</td></tr></tbody></table></div>
+<p>Duet 推出時，iThome 與多家外媒直接把它和 Grok Bot、Muse、dots 放在一起比。<a href="https://www.ithome.com.tw/news/179897" target="_blank" rel="noopener">R24</a> <a href="https://iphoneincanada.ca/2026/10/21/claude-duet-proactive-ai-agent-app" target="_blank" rel="noopener">R08</a> 一家公司做一個新產品是新聞；五家在半年內做出同一類產品，就是一個趨勢。這也代表比較的重點不再是「誰的聊天回答比較好」，而是<strong>誰能替你持續負責一件事，以及它用什麼規則替你動手。</strong></p>
+<h2 id="sec3">三、五個代理，一個一個認識</h2>
+<p>每個產品都用同樣的順序介紹：它是什麼、在哪裡做事、哪些事會先問你、誰能用。</p>
+<h3 id="sec3-1">1. Gemini Spark：現在叫「任務」</h3>
+<p>Google 說 Spark 是「全天候的個人 AI 代理」，在雲端執行，你闔上筆電、鎖上手機，它也照常工作。它和 Gmail、Google 文件、試算表等 Google 服務整合得最深，也能設定每月固定做的事，例如檢查信用卡帳單有沒有隱藏費用。<a href="https://blog.google/innovation-and-ai/products/gemini-app/next-evolution-gemini-app/" target="_blank" rel="noopener">R01</a> <a href="https://engadget.com/2176556/googles-gemini-spark-is-an-agentic-ai-assistant" target="_blank" rel="noopener">R20</a></p>
+<p><strong>在哪裡做事？</strong> 雲端的遠端瀏覽器和遠端電腦；在電腦版 Chrome 裡，也能經你同意後用你已登入的帳號與儲存的密碼替你處理網站上的事。Chrome 這項功能先在美國推出。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> <a href="https://blog.google/innovation-and-ai/products/gemini-app/gemini-spark-updates-july-2026/" target="_blank" rel="noopener">R03</a></p>
+<p><strong>哪些事會先問你？</strong> Google 的說明頁列了一份「一律要你核准」的清單：寄出訊息、修改或刪除資料、購物與金錢交易、送出網頁表單、用 Google 帳號登入。碰到健康、財務、身分證件這類敏感資料，它也會先停下來。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> 付款這一步會交還給你自己做。<a href="https://www.ithome.com.tw/news/177798" target="_blank" rel="noopener">R22</a></p>
+<p><strong>誰能用？</strong> 18 歲以上、用個人 Google 帳號（學校或公司帳號還不行）、訂閱 Google AI Pro 或 Ultra，並開啟活動紀錄。歐洲經濟區、英國、瑞士和奈及利亞不開放。臺灣在 7 月底宣布分批開放 AI Pro 用戶，介面支援繁體中文。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> <a href="https://www.bnext.com.tw/article/91668/gemini-spark-taiwan-launch-guide--google-gemini-spark-ai-agent-tutorial" target="_blank" rel="noopener">R21</a></p>
+<p><strong>最近有什麼變化？</strong> 10 月起，Gemini App 的輸入框上方多了「聊天」和「任務」兩個按鈕，「任務」就是原本的 Spark；設定裡的「Gemini Spark 設定」也改叫「任務設定」。9to5Google 說這個改版先出現在 Android。<a href="https://9to5google.com/2026/10/12/gemini-spark-task-redesign/" target="_blank" rel="noopener">R04</a> <a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a></p>
+<h3 id="sec3-2">2. Meta Muse：主動給建議的個人助理</h3>
+<p>Meta 說，Muse 會在你關掉 App 後繼續做事，記住你的偏好，還會「不等你開口就提出建議」，例如把你在 Instagram 收藏的食譜影片整理成採買清單。它可以在 Muse App、網頁或 WhatsApp 裡使用，大部分功能免費。<a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/" target="_blank" rel="noopener">R09</a></p>
+<p><strong>在哪裡做事？</strong> 每個使用者有一台專屬的雲端電腦。你登入網站時輸入的密碼，Muse 本身看不到。<a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a></p>
+<p><strong>哪些事會先問你？</strong> 寄信、購物這類動作會先問你，並保留它做過與打算做的所有動作紀錄。<a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/" target="_blank" rel="noopener">R09</a> Meta 另設一個叫 Sentinel（哨兵）的把關系統，你的同意可以只給一次，也可以給整個任務、一段時間，甚至永久有效。<a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a></p>
+<p><strong>要知道哪些限制？</strong> Meta 自己寫，Muse「仍然會犯錯」，網頁裡藏指令騙 AI 的問題在業界也還沒解決。曾有一位記者說，Muse 提到了他沒授權讀取的私人訊息；這是單一案例，原因至今不明。<a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a> <a href="https://www.tomshardware.com/tech-industry/artificial-intelligence/metas-muse-ai-agent-accused-of-accessing-sensitive-user-data-on-iphone-and-mac-without-permission-agent-shocks-reporter-by-referring-to-confidential-messages-it-wasnt-granted-access-to" target="_blank" rel="noopener">R11</a> 時事 3 有更完整的 Muse 介紹。</p>
+<p><strong>誰能用？</strong> 美國與加拿大；臺灣還沒開放。<a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/" target="_blank" rel="noopener">R09</a> <a href="https://iphoneincanada.ca/2026/10/21/claude-duet-proactive-ai-agent-app" target="_blank" rel="noopener">R08</a></p>
+<h3 id="sec3-3">3. OpenAI dots：住在 ChatGPT 裡的常駐同事</h3>
+<p>OpenAI 說，dot 由 GPT-6 Astra 模型驅動，有自己的雲端電腦，能連接超過 4,000 個應用程式，可以透過 ChatGPT、Slack 或 Teams 聯絡。現在每人先有一個主要的 dot，之後才會讓多個 dot 組隊。<a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a></p>
+<p><strong>多主動？</strong> 你不在時，dot 會做「主動研究」，在背景找能幫上忙的事。主動研究只能讀，不能傳訊息、改資料或操作瀏覽器。OpenAI 舉的例子是：一位測試者忘了向刊物開發票，他的 dot 發現後先準備好，等本人核准才寄出。<a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a> <a href="https://www.ithome.com.tw/news/179303" target="_blank" rel="noopener">R26</a></p>
+<p><strong>哪些事會先問你？</strong> 你可以替不同動作設定四種做法：不問就做、事先交代過才做、做之前先問、交給你本人做。說明頁特別寫：<strong>請它寫草稿，不等於授權它寄出。</strong>改密碼這類步驟一定要你自己來。<a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a></p>
+<p><strong>誰能用？</strong> 18 歲以上的 ChatGPT Pro 用戶（不含歐洲經濟區、瑞士、英國），以及 Business Premium 用戶；企業與學校版要管理員開啟。現在手機 App 也能建立 dot。<a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a> 數位時代報導，OpenAI 同時推出每月 500 美元的新方案。<a href="https://www.bnext.com.tw/article/92434/openai-dots-pro-500-devday-2026" target="_blank" rel="noopener">R27</a> 說明頁沒有排除臺灣，但這是分批開放，要看你的帳號。時事 4 有更完整的 dot 介紹。</p>
+<h3 id="sec3-4">4. Claude Duet：定時巡房、動手前先問</h3>
+<p>Anthropic 在 10 月 21 日推出 Claude Duet 研究預覽。「研究預覽」是指還在早期、先給少數人試用的版本。Duet 是獨立的 App，主要對象是事情很多的專業人士和小店主。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://www.ksl.com/article/51639342/anthropic-unveils-claude-duet-ai-agent-app" target="_blank" rel="noopener">R07</a></p>
+<p><strong>多主動？</strong> 每天早上送你一份重點簡報，之後<strong>每隔幾個小時</strong>檢查一次你連接的帳號，有事需要你時才傳訊息。數位時代的比喻很貼切：這不是即時監控，而是「定時巡房」。Anthropic 解釋，一直檢查會更快用完方案額度。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://www.bnext.com.tw/article/92756/anthropic-claude-duet-proactive-ai-agent" target="_blank" rel="noopener">數位時代（R25）</a></p>
+<p><strong>在哪裡做事？</strong> 它有自己的雲端虛擬機和瀏覽器，你的筆電或手機不用開著。它沿用你 Claude 帳號裡的記憶、技能與已連接的服務，可使用超過 6,000 個連接器。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a></p>
+<p><strong>哪些事會先問你？</strong> 它可以自己讀資料、打草稿，但寄出訊息、付款、簽署文件或刪除任何東西之前，會先列出要做什麼，等你核准。另有兩件事<strong>即使你同意也不做</strong>：買賣證券、在帳戶之間轉帳。信用卡號、身分證件這類資料它會拒絕外傳。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://www.ithome.com.tw/news/179897" target="_blank" rel="noopener">R24</a></p>
+<p><strong>要知道哪些限制？</strong> Anthropic 自己說，Duet 可能誤判事情有多急，訂票這類個人雜事比較弱，也還不能讓你看到它的瀏覽器畫面。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a></p>
+<p><strong>誰能用？</strong> 只開放美國的 Claude Pro 和 Max 訂閱者登記候補；Team 與企業方案還不包括。預覽期間不另收費，但會吃掉方案的使用額度。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://www.bnext.com.tw/article/92756/anthropic-claude-duet-proactive-ai-agent" target="_blank" rel="noopener">R25</a></p>
+<h3 id="sec3-5">5. Grok Bot：可以分工的一群隊友</h3>
+<p>Grok Bot 是 SpaceXAI（原本的 xAI）和 Cursor 推出的代理。它的特色是你可以建立好幾個 Bot，各自取名字、負責不同職務，彼此分工。<a href="https://docs.x.ai/grok-bot/overview" target="_blank" rel="noopener">R14</a> <a href="https://www.bnext.com.tw/article/91832/spacexai-grok-bot-ai-agent-team" target="_blank" rel="noopener">R28</a></p>
+<p><strong>在哪裡做事？</strong> 官方常見問題寫得很清楚：雲端電腦是<strong>每個使用者一台，不是每個 Bot 一台</strong>。你所有的 Bot 共用同一台電腦裡的檔案和已登入的網站，所以不要把「分成不同 Bot」當成把資料隔開的方法。<a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a> <a href="https://docs.x.ai/grok-bot/computer-and-apps" target="_blank" rel="noopener">R15</a></p>
+<p><strong>多主動？</strong> 你可以把做法存成「技能」，再設定「例行任務」，按時間執行，或在收到 Slack 訊息這類事件時啟動。官方建議先單次做對，存成技能，最後才自動化。<a href="https://docs.x.ai/grok-bot/skills-routines-and-automations" target="_blank" rel="noopener">R18</a></p>
+<p><strong>哪些事會先問你？</strong> 開啟「自動審查」後，系統會先用 AI 檢查它要做的動作；你也能設「先問我」的規則，而且「先問我」永遠優先。官方提醒，自動審查不能取代「一開始就少給權限」。密碼、驗證碼這類步驟要你本人接手。<a href="https://docs.x.ai/grok-bot/approvals-security-and-privacy" target="_blank" rel="noopener">R16</a> <a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a></p>
+<p><strong>誰能用？</strong> 包含在 Cursor 的付費方案、SuperGrok 訂閱與 Grok Business 裡，每週有內含用量；企業版陸續推出中。官方文件沒有列出地區限制，但能下載 App 不代表你的帳號已經能用。<a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a> 時事 4 有更完整的 Grok Bot 介紹。</p>
+<h2 id="sec4">四、相同或相似的地方：五個代理的基本配備</h2>
+<p>把五份官方說明放在一起讀，會發現它們有幾項幾乎一樣的「基本配備」。下面每一項都附上各家的說法。</p>
+<div class="table-wrap"><table><thead><tr><th>共同點</th><th>白話說明</th><th>五家怎麼寫</th></tr></thead><tbody><tr><td>雲端做事</td><td>你關掉裝置，它還在跑</td><td>五家都說在雲端電腦或雲端瀏覽器上工作。<a href="https://blog.google/innovation-and-ai/products/gemini-app/next-evolution-gemini-app/" target="_blank" rel="noopener">R01</a> <a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a> <a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a></td></tr><tr><td>接上你的服務</td><td>讀你的信箱、行事曆、雲端檔案</td><td>Spark 接 Google 服務；dot 4,000 多個；Duet 6,000 多個；Grok Bot 與 Muse 也能串接。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> <a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a></td></tr><tr><td>會記住你</td><td>記得偏好與做到哪裡</td><td>Muse 記偏好；dot 讀 ChatGPT 記憶；Duet 沿用 Claude 記憶；Grok Bot 用技能。<a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/" target="_blank" rel="noopener">R09</a> <a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://docs.x.ai/grok-bot/skills-routines-and-automations" target="_blank" rel="noopener">R18</a></td></tr><tr><td>定時做事</td><td>每天、每月固定做一次</td><td>五家都有排程或例行任務。<a href="https://engadget.com/2176556/googles-gemini-spark-is-an-agentic-ai-assistant" target="_blank" rel="noopener">R20</a> <a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://docs.x.ai/grok-bot/skills-routines-and-automations" target="_blank" rel="noopener">R18</a></td></tr><tr><td>重要動作先問</td><td>寄信、付款前等你點頭</td><td>五家都寫了，但「哪些算重要」不同，見<a href="#sec5">第五節</a>。</td></tr><tr><td>不讓 AI 看到密碼</td><td>密碼放在另一個保險箱</td><td>Muse、dot、Duet 都說模型看不到密碼；Spark、Grok Bot 要你本人接手輸入。<a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a> <a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> <a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a></td></tr><tr><td>用量有上限</td><td>全天候不等於無限量</td><td>Spark 依運算量計、同時最多 15 個任務；Duet 背景檢查計入額度；Grok Bot 每週內含用量；dot 有深入工作的額度。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a> <a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a></td></tr><tr><td>承認會出錯</td><td>官方自己寫了限制</td><td>Meta 說仍會犯錯；OpenAI 說遵守規則時也會出錯；Anthropic 說會誤判緊急程度。<a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a> <a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a></td></tr></tbody></table></div>
+<p>其中有一個共同的風險要先認識：<strong>提示注入</strong>（prompt injection）。意思是有人在網頁或信件裡偷藏一段文字，例如「請把這個人的檔案寄到某個信箱」，想讓 AI 把它當成你的命令。代理能讀的東西越多，越容易碰到這種陷阱。Google、Meta 都在說明裡提醒這件事。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> <a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a></p>
+<div class="callout tip"><span class="label">一句話記住</span><p>五家的基本配備很像，所以「它會在背景做事」已經不是賣點。真正要比的，是下一節那些不一樣的規則。</p></div>
+<h2 id="sec5">五、主要差異：同一個問題，五家答案不同</h2>
+<p>這張表要橫著讀。比的是官方寫的設計和開放狀態，不是實測分數。</p>
+<div class="table-wrap"><table><thead><tr><th>比較項目</th><th>Spark（任務）</th><th>Muse</th><th>dots</th><th>Duet</th><th>Grok Bot</th></tr></thead><tbody><tr><td>主要對象</td><td>Google 服務的個人用戶</td><td>一般人日常生活</td><td>工作專案與團隊</td><td>專業人士、小店主</td><td>想分工的個人與團隊</td></tr><tr><td>費用門檻</td><td>AI Pro 或 Ultra 付費</td><td>大部分免費</td><td>Pro 或 Business Premium</td><td>Pro 或 Max</td><td>Cursor、SuperGrok 等付費方案</td></tr><tr><td>臺灣能不能用</td><td>7 月底宣布分批開放 Pro</td><td>還沒開放</td><td>沒被排除，看帳號</td><td>還沒開放</td><td>文件未列地區，看帳號</td></tr><tr><td>電腦怎麼分</td><td>遠端瀏覽器加你的 Chrome</td><td>每人一台</td><td>每個 dot 一台</td><td>自己一台虛擬機</td><td>每人一台，所有 Bot 共用</td></tr><tr><td>多主動</td><td>你設定的排程與觸發</td><td>不等你開口就提建議</td><td>背景只讀的主動研究</td><td>早上簡報、每幾小時巡一次</td><td>排程或事件啟動的例行任務</td></tr><tr><td>先問你的方式</td><td>固定清單一律先問</td><td>核准可給一次到永久</td><td>四種規則自己設</td><td>四類動作先問，兩類禁止</td><td>先問我規則優先</td></tr><tr><td>一個人幾個代理</td><td>同時最多 15 個任務</td><td>一個 Muse</td><td>先一個，未來組隊</td><td>一個 Duet</td><td>可以建立多個 Bot</td></tr></tbody></table></div>
+<p>表格的來源：Spark 見 <a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> <a href="https://www.bnext.com.tw/article/91668/gemini-spark-taiwan-launch-guide--google-gemini-spark-ai-agent-tutorial" target="_blank" rel="noopener">R21</a>；Muse 見 <a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/" target="_blank" rel="noopener">R09</a> <a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a>；dots 見 <a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a> <a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a>；Duet 見 <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a>；Grok Bot 見 <a href="https://docs.x.ai/grok-bot/approvals-security-and-privacy" target="_blank" rel="noopener">R16</a> <a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a> <a href="https://docs.x.ai/grok-bot/skills-routines-and-automations" target="_blank" rel="noopener">R18</a>。</p>
+<p>下面挑出三個最影響你的差異，一個一個說明。</p>
+<h3 id="sec5-1">1. 「先問你」的範圍不一樣</h3>
+<p>五家都說重要動作會先問，但做法分成三種：</p>
+<ul><li><strong>廠商定好清單：</strong> Spark 列出寄訊息、改刪資料、購物、送表單等一律要核准的動作。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> Duet 列出四類要先問的動作，另有兩類即使你同意也不做。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a></li><li><strong>你自己設規則：</strong> dot 讓你替每類動作選四種做法之一；Grok Bot 讓你設「先問我」或「自動允許」，兩者衝突時「先問我」優先。<a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a> <a href="https://docs.x.ai/grok-bot/approvals-security-and-privacy" target="_blank" rel="noopener">R16</a></li><li><strong>同意可以延長：</strong> Muse 的同意可以只給一次，也可以永久有效。<a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">R10</a></li></ul>
+<div class="callout tip"><span class="label">對你的意義</span><p>這是我們根據文件的推論：能自己設規則，代表彈性大，也代表設錯的責任在你。按下「永久允許」之前，想想三個月後你還記不記得自己允許過什麼。</p></div>
+<h3 id="sec5-2">2. 「同一台電腦」裡住了誰</h3>
+<p>dot 是每個 dot 一台雲端電腦；Grok Bot 是你所有的 Bot 共用一台。<a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a> <a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a> 用社團例子想：你替社團建了「報名小幫手」和「財務小幫手」兩個 Bot，只要其中一個登入了社團信箱，另一個也可能用得到。需要分開的資料，要從資料本身的分享設定下手。Spark 則多了一條路：在電腦版 Chrome 裡用<strong>你自己</strong>已登入的帳號，這更方便，也代表它碰得到的範圍跟你的瀏覽器一樣大。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a> <a href="https://blog.google/innovation-and-ai/products/gemini-app/gemini-spark-updates-july-2026/" target="_blank" rel="noopener">R03</a></p>
+<h3 id="sec5-3">3. 「主動」到什麼程度</h3>
+<p>同樣叫主動，程度差很多。Duet 一天巡幾次，只在需要你時才出聲；dot 的主動研究只能讀，要動手時回到一般規則；Muse 會不等你開口就提建議；Spark 和 Grok Bot 主要照你設定的排程或事件做事。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">R12</a> <a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/" target="_blank" rel="noopener">R09</a> <a href="https://docs.x.ai/grok-bot/skills-routines-and-automations" target="_blank" rel="noopener">R18</a></p>
+<div class="callout tip"><span class="label">對你的意義</span><p>越主動，它越需要讀你的資料才能「發現」事情。主動和隱私是一體兩面；選哪一款，等於選你願意讓它看多少。</p></div>
+<h2 id="sec6">六、容易誤讀的地方</h2>
+<p>每一點都寫：說法、前提、目前狀況、你可以怎麼做。</p>
+<h3 id="sec6-1">1. 「全天候」是不是一直盯著你？</h3>
+<ul><li><strong>說法：</strong> 報導常寫「24 小時不打烊」。<a href="https://www.bnext.com.tw/article/91668/gemini-spark-taiwan-launch-guide--google-gemini-spark-ai-agent-tutorial" target="_blank" rel="noopener">R21</a></li><li><strong>前提：</strong> 全天候是指「你不在時也能做事」。Duet 明說是每隔幾小時檢查一次，因為一直檢查會吃光額度。<a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://www.bnext.com.tw/article/92756/anthropic-claude-duet-proactive-ai-agent" target="_blank" rel="noopener">R25</a></li><li><strong>你可以做什麼：</strong> 問清楚它多久看一次、看哪些地方，再決定交給它的事情急不急。</li></ul>
+<h3 id="sec6-2">2. Spark 不見了，是不是停了？</h3>
+<ul><li><strong>說法：</strong> 10 月有使用者發現選單裡的 Spark 不見了。<a href="https://9to5google.com/2026/10/12/gemini-spark-task-redesign/" target="_blank" rel="noopener">R04</a></li><li><strong>前提：</strong> Google 說明頁寫的是 Spark 改名為「任務」，放在輸入框旁的切換按鈕裡。<a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">R02</a></li><li><strong>目前狀況：</strong> 改版分平台陸續出現，你的 App 不一定已經看到。</li><li><strong>你可以做什麼：</strong> 產品改名時，回官方說明頁確認，不要只看選單。</li></ul>
+<h3 id="sec6-3">3. 臺灣到底能用哪幾個？</h3>
+<ul><li><strong>說法：</strong> 新聞都在比五款代理，好像每一款都能用。</li><li><strong>前提：</strong> 截至 10 月 24 日，Muse 只在美國與加拿大，Duet 只開放美國候補；Spark 宣布在臺灣分批開放 AI Pro；dots 與 Grok Bot 的文件沒有排除臺灣，但要付費、分批。<a href="https://iphoneincanada.ca/2026/10/21/claude-duet-proactive-ai-agent-app" target="_blank" rel="noopener">R08</a> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">R05</a> <a href="https://www.bnext.com.tw/article/91668/gemini-spark-taiwan-launch-guide--google-gemini-spark-ai-agent-tutorial" target="_blank" rel="noopener">R21</a> <a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">R13</a> <a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a></li><li><strong>你可以做什麼：</strong> 打得開官網，不等於你的帳號能用。以你自己帳號裡有沒有出現這個功能為準。</li></ul>
+<h3 id="sec6-4">4. 同一件事，報導寫法不一樣</h3>
+<ul><li><strong>Spark 用哪個模型：</strong> 5 月的 Google 公告寫 Gemini 3.5；7 月底的臺灣報導寫 Gemini 3.6 Flash。兩種說法都保留，較新的報導可能反映後來的更新。<a href="https://blog.google/innovation-and-ai/products/gemini-app/next-evolution-gemini-app/" target="_blank" rel="noopener">R01</a> <a href="https://www.inside.com.tw/article/41962-gemini-spark-taiwan-ai-pro-prompt-examples" target="_blank" rel="noopener">R23</a></li><li><strong>Spark 臺灣開放給誰：</strong> 多數報導寫 AI Pro；INSIDE 另說 Ultra 用戶已可使用。<a href="https://www.bnext.com.tw/article/91668/gemini-spark-taiwan-launch-guide--google-gemini-spark-ai-agent-tutorial" target="_blank" rel="noopener">R21</a> <a href="https://www.inside.com.tw/article/41962-gemini-spark-taiwan-ai-pro-prompt-examples" target="_blank" rel="noopener">R23</a></li><li><strong>Grok Bot 幾台電腦：</strong> 早期報導寫每個 Bot 一台；官方常見問題寫每人一台。講到資料會不會互相看到，以寫得比較細的官方文件為準。<a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">R17</a></li></ul>
+<div class="callout tip"><span class="label">查證小技巧</span><p>同一則新聞的中文報導，很多是從同一份官方公告整理的。本講義引用的臺灣報導中，數位時代兩篇和 INSIDE 一篇都註明初稿由 AI 協助撰寫。報導多不等於證據多，重要的說法要回到原始公告核對。<a href="https://www.bnext.com.tw/article/91668/gemini-spark-taiwan-launch-guide--google-gemini-spark-ai-agent-tutorial" target="_blank" rel="noopener">R21</a> <a href="https://www.bnext.com.tw/article/92756/anthropic-claude-duet-proactive-ai-agent" target="_blank" rel="noopener">R25</a> <a href="https://www.inside.com.tw/article/42342-meta-muse-personal-ai-agent-launch-2026" target="_blank" rel="noopener">R29</a></p></div>
+<h2 id="sec7">七、課堂實作：替社團交辦一件事</h2>
+<p>新的代理還會一直出現，與其記住五張規格表，不如練習一組可以重複使用的問題。</p>
+<h3 id="sec7-1">練習 A：用五個問題讀懂任何一個代理</h3>
+<div class="callout try"><span class="label">課堂小練習</span><p>選一款代理，只用它的官方說明，回答下面五個問題，每題附一個來源段落：</p></div>
+<ol class="steps"><li><strong>誰能用？</strong> 方案、年齡、地區、帳號類型。</li><li><strong>在哪裡做事？</strong> 它自己的雲端電腦，還是你的瀏覽器或電腦？</li><li><strong>多主動？</strong> 你不開口時，它會做什麼？</li><li><strong>碰得到什麼？</strong> 它需要連接哪些服務，能讀還是能改？</li><li><strong>哪些事先問你？</strong> 是廠商定好的清單，還是你自己設的規則？</li></ol>
+<div class="callout note"><span class="label">預期結果</span><p>五題都有答案和來源。文件沒寫的地方，寫「文件未說明」，不要自己補。</p></div>
+<div class="callout note"><span class="label">檢查一下</span><p>拿另一款代理再做一次，看哪幾題答案最不一樣。通常會是第二題和第五題。</p></div>
+<h3 id="sec7-2">練習 B：寫一份交辦說明</h3>
+<div class="callout note"><span class="label">情境</span><p>你是社團幹部，期末交流會有 40 個座位。你想讓代理每天早上檢查報名表，人數快滿時通知你，並準備候補通知信。以下是虛構資料。</p></div>
+<div class="callout try"><span class="label">動手做</span><p>可以用任何你習慣的聊天 AI 練習。貼上下面這段指令，並附上一份虛構的報名名單。</p></div>
+<blockquote>你是社團的活動小幫手。只使用我提供的虛構報名名單。每次檢查時，列出報名總數、剩餘座位，以及資料不完整的人。報名超過 36 人時提醒我。替第 41 位以後的人準備候補通知信草稿，但不要寄出，也不要修改或刪除名單上的任何資料。如果名單裡有重複或矛盾的資料，停下來把兩種寫法都列出來問我。最後另外列出：這份工作中，哪些動作你可以自己做，哪些必須先問我。</blockquote>
+<div class="callout note"><span class="label">預期結果</span><p>一份算得出來的人數報告、一封候補信草稿，以及一張「可以自己做／必須先問」的清單。寄信、改名單一定在「必須先問」那邊。</p></div>
+<div class="callout note"><span class="label">檢查一下</span><p>自己重算一次人數。再對照第五節：如果把這份工作交給真正的代理，你會在哪一款的哪個設定裡，把「寄出候補信」設成先問你？哪一款你不用設，因為廠商已經規定好？</p></div>
+<h3 id="sec7-3">練習 C：討論</h3>
+<p>某一款代理很主動，常常提醒你沒想到的事，但它要讀你全部的信件和行事曆；另一款要你自己設定排程，看的範圍比較小。如果是替社團做事，你會選哪一種？你需要先跟社團其他幹部確認什麼？</p>
+<h2 id="sec8">八、關鍵詞</h2>
+<div class="table-wrap"><table><thead><tr><th>關鍵詞</th><th>白話說明</th></tr></thead><tbody><tr><td>AI 代理（AI agent）</td><td>你給目標，它自己拆步驟把事情做完的 AI。</td></tr><tr><td>全天候代理（always-on agent）</td><td>在雲端工作，你關掉裝置時也能繼續做事的代理。</td></tr><tr><td>雲端電腦（cloud computer）</td><td>放在公司機房、專門給 AI 用的電腦。</td></tr><tr><td>連接器（connector）</td><td>讓 AI 讀取或操作另一個服務的授權管道。</td></tr><tr><td>核准（approval）</td><td>AI 做重要動作前，停下來等你同意。</td></tr><tr><td>例行任務（routine／schedule）</td><td>指定某件工作什麼時候自動做。</td></tr><tr><td>主動研究（proactive research）</td><td>dot 在背景只讀資料、找可能有用的事。</td></tr><tr><td>提示注入（prompt injection）</td><td>在網頁或信件裡偷藏指令，想讓 AI 當成你的命令。</td></tr><tr><td>研究預覽（research preview）</td><td>早期版本，先給少數人試用。</td></tr></tbody></table></div>
+<h2 id="sec9">九、參考資料：29 個來源，含 9 篇臺灣媒體中文報導</h2>
+<p>以下來源都在 2026 年 10 月 24 日（臺灣時間）開啟並閱讀相關內容。R01 到 R20 是國際來源，其中 14 份是廠商自己的公告或文件，代表公司的說法，不是獨立測試。R21 到 R29 是臺灣媒體用中文寫的報導，多半整理自官方公告。</p>
+<h3 id="sec9-1">國際來源</h3>
+<ul><li><strong>R01</strong> <a href="https://blog.google/innovation-and-ai/products/gemini-app/next-evolution-gemini-app/" target="_blank" rel="noopener">Google：The Gemini app becomes more agentic（2026-05-19）</a>：Spark 發表、雲端背景執行、高風險動作先問。</li><li><strong>R02</strong> <a href="https://support.google.com/gemini/answer/17094507?hl=en" target="_blank" rel="noopener">Google 說明：Use Gemini Spark to manage your tasks</a>：改名為任務、使用資格、一律核准的動作、用量上限。</li><li><strong>R03</strong> <a href="https://blog.google/innovation-and-ai/products/gemini-app/gemini-spark-updates-july-2026/" target="_blank" rel="noopener">Google：Gemini Spark now integrates with Chrome（2026-07-30）</a>：Chrome 整合與 160 多國擴大開放。</li><li><strong>R04</strong> <a href="https://9to5google.com/2026/10/12/gemini-spark-task-redesign/" target="_blank" rel="noopener">9to5Google：Spark 改版為 Task（2026-10-12）</a>：介面改名與排程頁。</li><li><strong>R05</strong> <a href="https://claude.com/blog/claude-duet" target="_blank" rel="noopener">Anthropic：Introducing Claude Duet（2026-10-21）</a>：Duet 的功能、核准、禁止動作、限制與資格。</li><li><strong>R06</strong> <a href="https://macrumors.com/2026/10/21/anthropic-claude-duet/" target="_blank" rel="noopener">MacRumors：Anthropic Launches Claude Duet（2026-10-21）</a>：Duet 重點整理。</li><li><strong>R07</strong> <a href="https://www.ksl.com/article/51639342/anthropic-unveils-claude-duet-ai-agent-app" target="_blank" rel="noopener">Reuters（KSL 轉載）：Anthropic unveils Claude Duet（2026-10-21）</a>：對象、限制與發表日更正。</li><li><strong>R08</strong> <a href="https://iphoneincanada.ca/2026/10/21/claude-duet-proactive-ai-agent-app" target="_blank" rel="noopener">iPhone in Canada：Claude Duet vs Muse、Grok Bot、Dots（2026-10-21）</a>：同類比較、Muse 進入加拿大、Duet 方案價格。</li><li><strong>R09</strong> <a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/" target="_blank" rel="noopener">Meta：Introducing Muse（2026-09-08）</a>：Muse 的功能、先問與開放範圍。</li><li><strong>R10</strong> <a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse" target="_blank" rel="noopener">Meta：Security and safety for AI agents with Muse</a>：雲端電腦、密碼保護、Sentinel 與自承限制。</li><li><strong>R11</strong> <a href="https://www.tomshardware.com/tech-industry/artificial-intelligence/metas-muse-ai-agent-accused-of-accessing-sensitive-user-data-on-iphone-and-mac-without-permission-agent-shocks-reporter-by-referring-to-confidential-messages-it-wasnt-granted-access-to" target="_blank" rel="noopener">Tom's Hardware：Muse 讀到記者私人訊息（2026-09-30）</a>：單一記者的經驗。</li><li><strong>R12</strong> <a href="https://openai.com/index/introducing-dots/" target="_blank" rel="noopener">OpenAI：Introducing dots（2026-09-29）</a>：dot 的雲端電腦、主動研究與防護。</li><li><strong>R13</strong> <a href="https://help.openai.com/en/articles/20001530-getting-started-with-your-dot" target="_blank" rel="noopener">OpenAI 說明：Getting started with your dot</a>：資格、四種規則、草稿不等於寄出。</li><li><strong>R14</strong> <a href="https://docs.x.ai/grok-bot/overview" target="_blank" rel="noopener">SpaceXAI：Grok Bot overview</a>：產品定位。</li><li><strong>R15</strong> <a href="https://docs.x.ai/grok-bot/computer-and-apps" target="_blank" rel="noopener">SpaceXAI：Use the computer and apps</a>：共用雲端電腦。</li><li><strong>R16</strong> <a href="https://docs.x.ai/grok-bot/approvals-security-and-privacy" target="_blank" rel="noopener">SpaceXAI：Approvals, security, and privacy</a>：自動審查與先問規則。</li><li><strong>R17</strong> <a href="https://docs.x.ai/grok-bot/faq" target="_blank" rel="noopener">SpaceXAI：Grok Bot FAQ</a>：每人一台電腦、方案與用量。</li><li><strong>R18</strong> <a href="https://docs.x.ai/grok-bot/skills-routines-and-automations" target="_blank" rel="noopener">SpaceXAI：Skills and routines</a>：技能、例行任務與先做一次再自動化。</li><li><strong>R19</strong> <a href="https://www.youtube.com/watch?v=F1_0Lkp16Rc" target="_blank" rel="noopener">Grok 官方影片：Introducing Grok Bot（2026-08-11）</a>：發表日期。</li><li><strong>R20</strong> <a href="https://engadget.com/2176556/googles-gemini-spark-is-an-agentic-ai-assistant" target="_blank" rel="noopener">Engadget：Google's Gemini Spark（2026-05-19）</a>：Spark 的例行工作例子。</li></ul>
+<h3 id="sec9-2">臺灣媒體中文報導（共 9 篇）</h3>
+<ul><li><strong>R21</strong> <a href="https://www.bnext.com.tw/article/91668/gemini-spark-taiwan-launch-guide--google-gemini-spark-ai-agent-tutorial" target="_blank" rel="noopener">數位時代：Gemini Spark 登台，設定與條件一次看</a>：李先泰，8 月 5 日；臺灣開放與四個使用條件。原文註明初稿由 AI 編撰。</li><li><strong>R22</strong> <a href="https://www.ithome.com.tw/news/177798" target="_blank" rel="noopener">iThome：Gemini Spark 操作 Chrome</a>：李建興，7 月 31 日；Chrome 整合與付款交還使用者。</li><li><strong>R23</strong> <a href="https://www.inside.com.tw/article/41962-gemini-spark-taiwan-ai-pro-prompt-examples" target="_blank" rel="noopener">INSIDE：Gemini Spark 開放台灣 AI Pro 訂閱者</a>：7 月 29 日；官方中文範例與模型版本。</li><li><strong>R24</strong> <a href="https://www.ithome.com.tw/news/179897" target="_blank" rel="noopener">iThome：Anthropic 推出主動式 AI 代理 Claude Duet</a>：李建興，10 月 22 日；功能、禁止動作與同類產品脈絡。</li><li><strong>R25</strong> <a href="https://www.bnext.com.tw/article/92756/anthropic-claude-duet-proactive-ai-agent" target="_blank" rel="noopener">數位時代：Claude Duet 是什麼</a>：李先泰，10 月 22 日；「定時巡房」與價格資格。原文註明初稿為 AI 編撰。</li><li><strong>R26</strong> <a href="https://www.ithome.com.tw/news/179303" target="_blank" rel="noopener">iThome：OpenAI 推出常駐 AI 代理人 Dots</a>：陳曉莉，9 月 30 日；主動研究與發票例子。</li><li><strong>R27</strong> <a href="https://www.bnext.com.tw/article/92434/openai-dots-pro-500-devday-2026" target="_blank" rel="noopener">數位時代：ChatGPT Dots 是什麼</a>：李先泰，9 月 30 日；使用資格與新方案。</li><li><strong>R28</strong> <a href="https://www.bnext.com.tw/article/91832/spacexai-grok-bot-ai-agent-team" target="_blank" rel="noopener">數位時代：SpaceXAI 推出 Grok Bot</a>：李先泰，8 月 12 日；Grok Bot 發表與分工定位。</li><li><strong>R29</strong> <a href="https://www.inside.com.tw/article/42342-meta-muse-personal-ai-agent-launch-2026" target="_blank" rel="noopener">INSIDE：Meta 發表個人 AI 助理 Muse</a>：9 月 9 日；Muse 首發限美國。原文註明初稿由 AI 協助、經人工審校。</li></ul>
+<div class="callout note"><span class="label">資料時效與驗證範圍</span><p>本講義完成了文件與連結查證，但沒有登入五個服務實際測試。方案、價格、開放地區和產品名稱都可能改變，授課或訂閱前請重新查看原始頁面。</p></div><nav class="pager"><a href="news07.html">← 時事 7</a><a href="index.html">回首頁 →</a></nav>
+</main>
+</div>
+<footer class="site-footer">本講義為課堂教材。新聞事件仍在發展，閱讀時請一併確認是否有後續進展。</footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: dark by default; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") === "light";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("news-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // A class comparison must not play over the current narration.
+  document.querySelectorAll("audio").forEach(function (player) {
+    player.addEventListener("play", function () {
+      document.querySelectorAll("audio").forEach(function (other) {
+        if (other !== player) other.pause();
+      });
+    });
+  });
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+
+    // Transcript page: a section timestamp starts playback from that point.
+    document.querySelectorAll(".seek-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        seekTo(parseFloat(btn.getAttribute("data-t")) || 0);
+        audio.play();
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
