@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04-muse-ai-agent-20Q4p1 · 人工智慧輔助應用開發實務</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --code-bg: #f6f8fa; --code-text: #24292f; --code-border: #d0d7de; --inline-bg: #eef4ff; --inline-border: #b6d5ff; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa7b8; --border: #334155; --code-bg: #0d2538; --code-text: #d6deeb; --code-border: #334155; --inline-bg: #172a45; --inline-border: #36557a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 2rem 1rem 4rem; background: var(--page-bg); color: var(--text); font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.35rem; letter-spacing: .02em; border-bottom: 1px solid var(--border); padding-bottom: .6rem; }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.2rem; margin: 1.1rem 0; }
+  .question h2 { font-size: 1.02rem; font-weight: 600; margin: 0 0 .6rem; line-height: 1.7; }
+  .options { margin: 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .8rem 0 0; color: var(--muted); font-size: .92rem; border-top: 1px dashed var(--border); padding-top: .6rem; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--code-border); border-radius: 999px; background: var(--surface); color: #0550ae; cursor: pointer; font-size: 1.2rem; }
+  html[data-theme="dark"] .theme-toggle { color: #82aaff; }
+  .code-block { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: .4rem; padding: .8rem 1rem; overflow-x: auto; }
+  .syntax-keyword { color: #8250df; }
+  .syntax-type { color: #0550ae; }
+  .syntax-function { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  .syntax-number { color: #953800; }
+  .syntax-comment { color: #57606a; }
+  .syntax-operator { color: #cf222e; }
+  .syntax-command { color: #0550ae; }
+  .syntax-flag { color: #953800; }
+  .line-number { color: #8b949e; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  html[data-theme="dark"] .code-block { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+  html[data-theme="dark"] .inline-code { color: var(--code-text); background: var(--inline-bg); border-color: var(--inline-border); }
+  html[data-theme="dark"] .syntax-keyword, html[data-theme="dark"] .syntax-operator { color: #c792ea; }
+  html[data-theme="dark"] .syntax-type, html[data-theme="dark"] .syntax-function, html[data-theme="dark"] .syntax-command { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+  html[data-theme="dark"] .syntax-number, html[data-theme="dark"] .syntax-flag { color: #f78c6c; }
+  html[data-theme="dark"] .syntax-comment { color: #a6accd; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="04-muse-ai-agent-20Q4p1">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">人工智慧輔助應用開發實務</span>04-muse-ai-agent-20Q4p1</h1>
+  <p class="subtitle">課前前測：Meta Muse 與 AI 代理</p>
+  <p class="how-to">20 題單選。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem"><h2>01 2026 年 9 月 8 日在美國上線的個人 AI 代理 App Muse，在上線第 11 天（9 月 19 日）的每日活躍使用者數約為多少？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">5.6 萬</li>
+        <li class="option" data-option="B">56 萬</li>
+        <li class="option" data-option="C">560 萬</li>
+        <li class="option" data-option="D">5,600 萬</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem"><h2>02 在網路上搜尋 Meta 的個人 AI 代理 Muse 時，可能會遇到另一個同樣叫 Muse、但與它無關的 AI。那個同名專案出自哪裡、用途是什麼？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">微軟研究院，用來生成遊戲畫面</li>
+        <li class="option" data-option="B">Google DeepMind，用來生成音樂</li>
+        <li class="option" data-option="C">OpenAI，用來做語音辨識</li>
+        <li class="option" data-option="D">Apple，用來做照片修圖</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem"><h2>03 有人用「建議做錯了還可以不採用，結果做錯了事情已經發生」這句話，來對比聊天型 AI 與代理型 AI。這句話要指出的重點是什麼？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">代理型 AI 的回應速度比聊天型 AI 慢</li>
+        <li class="option" data-option="B">聊天型 AI 需要比代理型 AI 更多算力</li>
+        <li class="option" data-option="C">代理型 AI 出錯的代價比聊天型 AI 高</li>
+        <li class="option" data-option="D">代理型 AI 不需要連線就能運作</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem"><h2>04 一個工具要算得上「AI 代理」，除了會把使用者給的目標自己拆成步驟，以及在沒有人盯著時仍能持續進行之外，還必須具備哪一項條件？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">能用超過二十種語言回答問題</li>
+        <li class="option" data-option="B">能在完全離線的環境中運作</li>
+        <li class="option" data-option="C">能自行改寫並重新編譯自己的程式碼</li>
+        <li class="option" data-option="D">能真的操作工具，例如開啟瀏覽器、把欄位填好、按下送出</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem"><h2>05 Meta 表示 Muse 不會在使用者的手機或筆電裡翻檔案，而是跑在一台專門給它使用、附有自己的瀏覽器、代理與資料都放在其中的虛擬電腦上。這個執行環境的名稱是什麼？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Muse Secure VM</li>
+        <li class="option" data-option="B">Muse Local Drive</li>
+        <li class="option" data-option="C">Muse Open Desk</li>
+        <li class="option" data-option="D">Muse Cloud Sync</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem"><h2>06 依 Meta 的官方說法，Muse 如何處理使用者的帳號密碼與付款資料？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">代理可以讀取密碼內容，但承諾不會儲存</li>
+        <li class="option" data-option="B">資料存進一個安全區，代理能拿去使用，但讀不到內容</li>
+        <li class="option" data-option="C">每次要用到時都必須由使用者當場重新輸入</li>
+        <li class="option" data-option="D">資料會連同對話一起送進模型訓練</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem"><h2>07 Meta 形容 Muse 背後的模型（目前為 1.3 版）具備下列哪一項能力？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">只能處理純文字輸入，無法理解畫面</li>
+        <li class="option" data-option="B">只能在瀏覽器擴充套件裡運作</li>
+        <li class="option" data-option="C">能同時看懂文字與畫面、呼叫外部工具，並把一個任務拆給好幾個 AI 分工</li>
+        <li class="option" data-option="D">必須由使用者逐步指定每一次點擊的座標</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem"><h2>08 讀科技新聞時，可以把看到的句子分成官方宣稱、第三方實測、獨立驗證三類。這三類可信度由低到高的排序是什麼？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">獨立驗證 → 第三方實測 → 官方宣稱</li>
+        <li class="option" data-option="B">第三方實測 → 官方宣稱 → 獨立驗證</li>
+        <li class="option" data-option="C">官方宣稱 → 獨立驗證 → 第三方實測</li>
+        <li class="option" data-option="D">官方宣稱 → 第三方實測 → 獨立驗證</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem"><h2>09 就 2026 年 9 月下旬的公開資訊而言，Muse 的「安全設計」與它的「漏洞」在被檢驗的程度上有什麼差別？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">安全設計目前只有公司自己的宣稱，漏洞則已經被獨立驗證</li>
+        <li class="option" data-option="B">安全設計已經被獨立驗證，漏洞只是未經證實的傳聞</li>
+        <li class="option" data-option="C">兩者都已由獨立研究者完成可重現的驗證</li>
+        <li class="option" data-option="D">兩者都只有媒體轉述，沒有任何一方公開說明</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem"><h2>10 Meta 官方列出的 Muse 用途包括寄信、整理收件匣、安排行程、線上購物與填網頁表單。除了 Muse 這個 App 本身之外，使用者還可以直接在哪個服務裡面使用它？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Instagram 限時動態</li>
+        <li class="option" data-option="B">WhatsApp</li>
+        <li class="option" data-option="C">Gmail 側邊欄</li>
+        <li class="option" data-option="D">Excel 巨集</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem"><h2>11 Muse 月費 20 美元的 Power 方案，每週可用的額度是多少 token？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">1 億</li>
+        <li class="option" data-option="B">3 億</li>
+        <li class="option" data-option="C">5 億</li>
+        <li class="option" data-option="D">30 億</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem"><h2>12 比較 Muse 的免費、Power、Maximum 三個收費方案，有一個細節值得看懂。下列哪一項說法正確？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">付費方案會解鎖免費方案沒有的功能</li>
+        <li class="option" data-option="B">免費方案不能用來寄信</li>
+        <li class="option" data-option="C">只有最高方案能讓代理開啟瀏覽器</li>
+        <li class="option" data-option="D">三個方案的功能一樣，付錢買到的是用量</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem"><h2>13 祖克柏在 2026 年 9 月 23 日的 Connect 2026 上說明的 Muse 長期賺錢方式，與 Meta 目前近 98% 收入的來源有什麼不同？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">目前收入幾乎全靠廣告，Muse 長期打算從交易中抽一小筆費用</li>
+        <li class="option" data-option="B">目前收入幾乎全靠訂閱，Muse 長期打算改賣廣告</li>
+        <li class="option" data-option="C">目前收入幾乎全靠硬體銷售，Muse 長期打算改收月費</li>
+        <li class="option" data-option="D">目前收入幾乎全靠交易抽成，Muse 長期打算改賣廣告</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem"><h2>14 Meta 在 Connect 2026 一併推出、用來不掏手機就能叫 Muse 做事的隨身裝置 Muse Charm，其狀態與規格為何？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">眼鏡型、必須插線連手機，已在全球正式販售</li>
+        <li class="option" data-option="B">鑰匙圈大小、有小螢幕與 5G 連線，目前只是早期原型，價格尚未公布</li>
+        <li class="option" data-option="C">手錶型、只支援 Wi-Fi，售價 99 美元且已開放預購</li>
+        <li class="option" data-option="D">音箱型、固定放在桌上使用，僅在加拿大販售</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem"><h2>15 資安研究者在 macOS 版 Muse 上公開的零時差漏洞，利用路徑大致是怎麼進行的？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">先破解虛擬機器的加密金鑰，直接讀出安全區裡的密碼</li>
+        <li class="option" data-option="B">偽造 App Store 的更新套件，讓使用者裝上惡意版本</li>
+        <li class="option" data-option="C">利用一個沒寫進文件、同一帳號下的程式即可修改的設定項，把語音聽寫內容導向攻擊者的伺服器，再於語音指令後夾帶隱藏指令</li>
+        <li class="option" data-option="D">在公用無線網路上攔截行事曆同步封包並竄改內容</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem"><h2>16 為什麼「個人 AI 代理被攻破」的後果，會比一般聊天機器人被攻破嚴重？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">代理產生的回答字數較多，錯誤訊息比較難看懂</li>
+        <li class="option" data-option="B">代理的模型檔案較大，修補所需時間比較長</li>
+        <li class="option" data-option="C">代理只在雲端執行，使用者無法自行更新版本</li>
+        <li class="option" data-option="D">代理會取得檔案、麥克風、相機、位置與行事曆等權限，被攻破後攻擊者就繼承了使用者交給它的所有權限</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem"><h2>17 「提示注入」（prompt injection）指的是什麼，而目前業界對它的處理狀況如何？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">攻擊者把惡意指令藏在 AI 會讀到的網頁、信件、文件或圖片裡；目前沒有任何一家廠商宣稱已經解決這個問題</li>
+        <li class="option" data-option="B">使用者一次輸入太多文字導致內容被截斷；已有公認的標準解法</li>
+        <li class="option" data-option="C">模型把訓練資料原文背誦出來；可用加密儲存徹底避免</li>
+        <li class="option" data-option="D">多人同時下指令造成衝突；靠排隊機制即可解決</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem"><h2>18 關於 Meta 為 Muse 提出的資安獎金與資料處理做法，下列哪一項正確？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">漏洞獎金最高 3 萬美元，且沒有針對提示注入的專項</li>
+        <li class="option" data-option="B">漏洞獎金最高 30 萬美元，提示注入的有效通報最高 13 萬美元</li>
+        <li class="option" data-option="C">對話資料會保留完整個人識別資訊後才用於訓練</li>
+        <li class="option" data-option="D">使用者無法選擇不讓自己的資料用於訓練</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem"><h2>19 截至 2026 年 9 月下旬，想使用 Muse 必須符合哪些條件？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">只要下載 App 並註冊 Meta 帳號，全球都可使用</li>
+        <li class="option" data-option="B">須為台灣的大專院校在學學生，並以學校信箱註冊</li>
+        <li class="option" data-option="C">須年滿 18 歲，且人在美國或加拿大這類有效測試市場</li>
+        <li class="option" data-option="D">須先購買隨身裝置，才能取得 App 使用權</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem"><h2>20 當個人 AI 代理開放使用後，比較穩健的入門做法是什麼？</h2></div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">先請它處理付款與寄出正式信件，以便測試能力上限</li>
+        <li class="option" data-option="B">一次開放所有權限，避免任務中途因權限不足而失敗</li>
+        <li class="option" data-option="C">為了效率，跳過計畫說明直接讓它動手執行</li>
+        <li class="option" data-option="D">先讓它做做錯了還救得回來的事，只給最少必要權限，並在牽涉金錢、個資或對外溝通時保留人工核准</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    localStorage.setItem("assessment-theme", root.dataset.theme);
+  };
+  setTheme(localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light");
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "04-muse-ai-agent-20Q4p1", MULTI = false, REVEAL_AFTER = 2;
+  const CONTEXT = "人工智慧輔助應用開發實務 · 課前前測：Meta Muse 與 AI 代理", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("LuiAU/7dfxq/RMSh0tsnVg==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("dcrCcdL9XVudaOSDkfkLdgyson/e/z44k2Tm4/D3B3Rtyqxz3JldNp9mhYP++wUUDMSgcb3/UzqdAOaN8vlmdALIohHc8V84/GbogfCfBXoOysFx0v1dWJ1o5IOR+Qt2DKyiDg==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

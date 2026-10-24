@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03-codex-projects-vscode-20Q4p12 · 人工智慧輔助應用開發實務</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+  .lead { color: var(--muted); }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .question h2 { font-size: 1.05rem; line-height: 1.7; margin: 0 0 .5rem; }
+  .options { margin: .5rem 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .75rem 0 0; padding-top: .5rem; border-top: 1px dashed var(--border); color: var(--accent); font-weight: 600; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--accent); cursor: pointer; font-size: 1.2rem; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .92em; }
+  .syntax-command { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  html[data-theme="dark"] .inline-code { color: #d6deeb; background: #172a45; border-color: #36557a; }
+  html[data-theme="dark"] .syntax-command { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="03-codex-projects-vscode-20Q4p12">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">人工智慧輔助應用開發實務</span>03-codex-projects-vscode-20Q4p12</h1>
+  <p class="subtitle">課後形成性評量：Codex 專案規則與工作階段</p>
+  <p class="how-to">20 題複選，每題 1 至 2 個正確選項。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 關於不同介面如何決定 Codex 的「專案」，下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">VS Code 擴充套件以目前開啟的資料夾或工作區作為專案</li>
+        <li class="option" data-option="B">CLI 與 IDE 擴充套件都可以看到桌面版的 Projects 畫面</li>
+        <li class="option" data-option="C">Codex CLI 可以用 <code class="inline-code language-shell"><span class="syntax-command">-C</span></code> 旗標指定要工作的資料夾</li>
+        <li class="option" data-option="D">桌面版的專案只能連結電腦上的一個資料夾</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 某組希望未來新開的每一個 Codex 對話都讀得到一條長期有效的專案規則。這條規則最適合放在哪裡？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">放在專案的規則檔，或其他納入版本控制的專案檔案中</li>
+        <li class="option" data-option="B">寫在某個已釘選對話的第一則訊息</li>
+        <li class="option" data-option="C">寫在對話的標題中</li>
+        <li class="option" data-option="D">只在目前對話中口頭交代一次</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 下列哪些情況適合建立一個 Codex 專案，而不是直接開一個新對話？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">只想問一次某個指令的用法</li>
+        <li class="option" data-option="B">這項工作會持續好幾週，陸續產生多份成果</li>
+        <li class="option" data-option="C">一次性的小任務，不需要共用任何檔案或資料夾</li>
+        <li class="option" data-option="D">這項工作會反覆用到同一批檔案</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 下列哪些情境適合在桌面版建立一個「連結多個資料夾」的本機專案？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">App 的程式與它的文件分開放在兩個資料夾</li>
+        <li class="option" data-option="B">兩件彼此完全無關的工作</li>
+        <li class="option" data-option="C">希望對話只能碰到儲存庫中的某一部分</li>
+        <li class="option" data-option="D">網站的前端與後端分開放在兩個資料夾</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 在連結多個資料夾的本機專案中，關於「次要資料夾」的敘述何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">完全無法被 Codex 讀取或修改</li>
+        <li class="option" data-option="B">新對話會從次要資料夾開始</li>
+        <li class="option" data-option="C">仍可搜尋、讀取、編輯，但不會自動載入其中的規則檔、技能與設定檔</li>
+        <li class="option" data-option="D">Git 操作預設作用在次要資料夾</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 在 Codex CLI 中管理對話時，下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">開新對話時，所有舊對話都會被刪除</li>
+        <li class="option" data-option="B">用 <code class="inline-code language-shell"><span class="syntax-command">/new</span></code> 為不同的成果開新對話</li>
+        <li class="option" data-option="C">用 <code class="inline-code language-shell"><span class="syntax-command">codex resume</span></code> 接續之前的舊對話</li>
+        <li class="option" data-option="D">接續舊對話時，專案中的其他對話會全部封存</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 某同學想確認 Codex 這次實際讀到了哪些規則檔。最直接的做法是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">打開 VS Code 的鍵盤快捷鍵設定查看</li>
+        <li class="option" data-option="B">直接問 Codex：「列出你載入的指示來源。」</li>
+        <li class="option" data-option="C">重新安裝 Codex 擴充套件</li>
+        <li class="option" data-option="D">把所有規則檔刪除後重新建立</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 關於 Codex 如何尋找與組合規則檔，下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">內容空白的規則檔會清除所有前面已載入的規則</li>
+        <li class="option" data-option="B">合併後的指示沒有任何大小上限</li>
+        <li class="option" data-option="C">全域規則從 Codex 家目錄（預設為 <code class="inline-code language-text"><span class="syntax-string">~/.codex</span></code>）讀取</li>
+        <li class="option" data-option="D">專案層從專案根目錄往下到目前資料夾，每一層最多採用一個檔案</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 專案的 <code class="inline-code language-text"><span class="syntax-string">.codex/config.toml</span></code> 中若寫了下列哪些設定，Codex 會忽略它們並在啟動時警告？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-text"><span class="syntax-string">model_provider</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-text"><span class="syntax-string">profile</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-text"><span class="syntax-string">approval_policy</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-text"><span class="syntax-string">sandbox_mode</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 Codex 設定檔中的 <code class="inline-code language-text"><span class="syntax-string">sandbox_mode</span></code> 控制的是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Codex 什麼時候要暫停下來詢問你</li>
+        <li class="option" data-option="B">Codex 介面顯示的語言</li>
+        <li class="option" data-option="C">Codex 使用哪一個模型</li>
+        <li class="option" data-option="D">指令執行時的檔案與網路存取程度</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 關於技能資料夾的結構，下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">技能資料夾中必須有 <code class="inline-code language-text"><span class="syntax-string">SKILL.md</span></code></li>
+        <li class="option" data-option="B">技能資料夾中必須包含 scripts 子資料夾</li>
+        <li class="option" data-option="C"><code class="inline-code language-text"><span class="syntax-string">SKILL.md</span></code> 開頭必須寫出 name 與 description</li>
+        <li class="option" data-option="D">技能只能手動建立，無法由 Codex 引導建立</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 在 CLI 或 IDE 擴充套件中，可以用下列哪些方式明確呼叫一個技能？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">執行 <code class="inline-code language-shell"><span class="syntax-command">/init</span></code> 產生技能</li>
+        <li class="option" data-option="B">輸入 <code class="inline-code language-shell"><span class="syntax-command">$</span></code> 提及技能名稱</li>
+        <li class="option" data-option="C">重新啟動電腦後技能才會生效</li>
+        <li class="option" data-option="D">執行 <code class="inline-code language-shell"><span class="syntax-command">/skills</span></code> 從清單中選擇</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 下列哪一項是撰寫技能時建議遵守的原則？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">一個技能盡量包辦專題中的所有流程</li>
+        <li class="option" data-option="B">除非需要確定性的結果或外部工具，優先用文字指示</li>
+        <li class="option" data-option="C">每一個步驟都盡量寫成腳本，避免使用文字</li>
+        <li class="option" data-option="D">描述寫得越長越詳細，越容易被自動選用</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 桌面版的本機環境中，哪一項功能提供常用任務（例如啟動開發伺服器、執行測試）的快捷按鈕，顯示在上方工具列？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Actions</li>
+        <li class="option" data-option="B">Setup scripts</li>
+        <li class="option" data-option="C">Worktree</li>
+        <li class="option" data-option="D">Hand off</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 關於 Codex 的斜線指令，下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-shell"><span class="syntax-command">/compact</span></code> 會壓縮目前對話的脈絡</li>
+        <li class="option" data-option="B"><code class="inline-code language-shell"><span class="syntax-command">/cloud</span></code> 會刪除本機所有的 worktree</li>
+        <li class="option" data-option="C"><code class="inline-code language-shell"><span class="syntax-command">/ide-context</span></code> 會開啟一個新的 VS Code 視窗</li>
+        <li class="option" data-option="D"><code class="inline-code language-shell"><span class="syntax-command">/fork</span></code> 會把本機對話複製成新的本機對話</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 安裝 Codex 擴充套件後，在 VS Code 中找不到 Codex 圖示。下列哪一個做法最恰當？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">重新安裝 VS Code 並清除所有設定</li>
+        <li class="option" data-option="B">改用瀏覽器開啟 Codex 雲端</li>
+        <li class="option" data-option="C">在終端機執行 git init</li>
+        <li class="option" data-option="D">開啟命令選擇區，執行 Codex: Open Codex Sidebar</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 關於編輯器設定 <code class="inline-code language-text"><span class="syntax-string">chatgpt.followUpQueueMode</span></code>，下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">這個設定應該寫進 Codex 的 config.toml</li>
+        <li class="option" data-option="B">預設值是 queue，Codex 工作中送出的訊息會排隊</li>
+        <li class="option" data-option="C">可以用 Cmd/Ctrl+Shift+Enter 單次反轉這個行為</li>
+        <li class="option" data-option="D">預設值是 steer，訊息會引導目前這一輪</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 在 VS Code 的代理工作階段中，下列哪些控制項的說明正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Language model 決定由哪一個 harness 執行工作階段</li>
+        <li class="option" data-option="B">Agent 決定工具在本機或雲端運作</li>
+        <li class="option" data-option="C">Code isolation 決定修改寫進目前資料夾，或另開 Git worktree</li>
+        <li class="option" data-option="D">Permissions 決定哪些動作需要你確認</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 在 VS Code 中選擇 New Worktree 開始工作階段時，下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">需要一個至少有一個 commit 的 Git 儲存庫</li>
+        <li class="option" data-option="B">被 Git 忽略的檔案（如 .env）預設不會帶過去，可用 <code class="inline-code language-text"><span class="syntax-string">git.worktreeIncludeFiles</span></code> 指定要複製的項目</li>
+        <li class="option" data-option="C">未 commit 的修改會自動帶進新的 worktree</li>
+        <li class="option" data-option="D">可以在沒有 Git 的一般資料夾中使用</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 桌面版會自動清理 Codex 管理的 worktree。若某個 worktree 需要長期使用，最恰當的做法是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">每天手動複製一份 worktree 資料夾備份</li>
+        <li class="option" data-option="B">把 worktree 的分支名稱改成 main</li>
+        <li class="option" data-option="C">從側邊欄專案的三點選單建立 permanent worktree，它不會被自動刪除</li>
+        <li class="option" data-option="D">關閉桌面版的所有對話，讓清理不再執行</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    localStorage.setItem("assessment-theme", root.dataset.theme);
+  };
+  setTheme(localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light");
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "03-codex-projects-vscode-20Q4p12", MULTI = true, REVEAL_AFTER = 2;
+  const CONTEXT = "人工智慧輔助應用開發實務 · 課後形成性評量：Codex 專案規則與工作階段", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("Sc1zo6Qw8q6ap0RN2C4TdQ==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("Eu8y4IYc0ozbhWht+mxXV2XtUeLgEt6OuORmYfgMUTZr4VOB5hLejrjkAG/0DjE0C+9fg4Z00IK6hQUO+gIzVwuJUY+EErCMtodmDPoCM1cIiVGPhBK2jLaHZg+bDD9Va443gYgQ0O/YhWht+m0xKA==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

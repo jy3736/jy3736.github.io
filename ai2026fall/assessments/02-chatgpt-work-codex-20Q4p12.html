@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02-chatgpt-work-codex-20Q4p12 · 人工智慧輔助應用開發實務</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+  .lead { color: var(--muted); }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .question h2 { font-size: 1.05rem; line-height: 1.7; margin: 0 0 .5rem; }
+  .options { margin: .5rem 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .75rem 0 0; padding-top: .5rem; border-top: 1px dashed var(--border); color: var(--accent); font-weight: 600; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--accent); cursor: pointer; font-size: 1.2rem; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: .92em; }
+  .syntax-command { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  html[data-theme="dark"] .inline-code { color: #d6deeb; background: #172a45; border-color: #36557a; }
+  html[data-theme="dark"] .syntax-command { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="02-chatgpt-work-codex-20Q4p12">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">人工智慧輔助應用開發實務</span>02-chatgpt-work-codex-20Q4p12</h1>
+  <p class="subtitle">課後形成性評量：ChatGPT 任務交辦與 Codex 協作</p>
+  <p class="how-to">20 題複選，每題 1 至 2 個正確選項。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 在同一個 ChatGPT 裡，下列哪些任務最適合交給 ChatGPT Work，取得一份可以檢查的完整成品？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把一學期的讀書筆記做成一份簡報</li>
+        <li class="option" data-option="B">請 AI 用來回問答解釋一個看不懂的觀念</li>
+        <li class="option" data-option="C">為畢業專題擬定一份專題計畫</li>
+        <li class="option" data-option="D">審查組員的程式碼並執行測試</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 關於 ChatGPT Work 與 Codex 的用量，下列敘述何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">兩者共用同一份用量額度，規模大的任務會消耗較多額度</li>
+        <li class="option" data-option="B">兩者各自擁有獨立額度，使用 Work 不影響 Codex 可用的額度</li>
+        <li class="option" data-option="C">不論任務規模大小，每次任務消耗的額度都相同</li>
+        <li class="option" data-option="D">Codex 執行任務時不會消耗任何用量額度</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 某同學請 AI 準備資料結構期中考。下列哪些提示片段屬於四要素中的「脈絡」？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">請出 10 題選擇題加 2 題手寫程式題，附詳解</li>
+        <li class="option" data-option="B">考試範圍是堆疊、佇列、鏈結串列</li>
+        <li class="option" data-option="C">等我作答後再批改，先不要公布程式題答案</li>
+        <li class="option" data-option="D">我對遞迴比較不熟</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 第一個提示只是起點。拿到 AI 的第一個回答後，下列哪些是用來調整方向的簡單追問？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">「給我三種不同的解釋方式。」</li>
+        <li class="option" data-option="B">把整段對話刪除，改寫一份十倍長的新提示</li>
+        <li class="option" data-option="C">把同一個提示原封不動再送出一次</li>
+        <li class="option" data-option="D">「繼續之前，先問我幾個問題。」</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 某同學附上一篇英文論文的摘要與結論，請 AI 用繁體中文整理研究問題、方法、主要發現與限制。為了之後能對照原文查找術語，提示中最適合加上哪一個要求？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">全部專有名詞都只用中文譯名，不保留英文</li>
+        <li class="option" data-option="B">把摘要逐字翻譯，不需要分段整理</li>
+        <li class="option" data-option="C">專有名詞第一次出現時保留英文原文，並附中文解釋</li>
+        <li class="option" data-option="D">只列出主要發現，省略研究方法與限制</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 AI 的回答再流暢，也可能不完整或有錯。下列哪些做法恰當？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">語氣越有自信的回答，越可以省略查證</li>
+        <li class="option" data-option="B">把第一個結果當成草稿，檢查重要的數字、人名、日期與引文</li>
+        <li class="option" data-option="C">請 AI 對照我提供的原始檔案，再檢查一次這份結果</li>
+        <li class="option" data-option="D">法律、醫療等重大決定，以 AI 的建議作為最終決定</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 依照課堂的學習誠信守則，下列哪些使用 AI 的方式是恰當的？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把作業題目整段貼上，直接交出 AI 產生的答案</li>
+        <li class="option" data-option="B">認定每門課對 AI 的規定都一樣，不必另外確認</li>
+        <li class="option" data-option="C">請 AI 依自己的筆記出練習題，作答後請它批改</li>
+        <li class="option" data-option="D">交作業前確認授課教師的規定，並依要求註明 AI 的使用方式</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 上傳文件、試算表或 PDF 等檔案後，可以請 ChatGPT 做下列哪些事？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">找出多份檔案之間的規律或前後矛盾之處</li>
+        <li class="option" data-option="B">擷取、清理或重新整理檔案中的資訊</li>
+        <li class="option" data-option="C">保證檔案內容完全正確，不必再檢查</li>
+        <li class="option" data-option="D">自動把整理結果繳交到學校的教學平台</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 在 ChatGPT 的專案（Project）中寫下專案指示後，這份指示會套用到哪裡？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">只有專案建立後的第一個對話</li>
+        <li class="option" data-option="B">專案裡的每一個對話</li>
+        <li class="option" data-option="C">帳號中所有專案的所有對話</li>
+        <li class="option" data-option="D">只有上傳檔案的那一個對話</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 某同學上傳 Python 錯誤訊息的截圖請 ChatGPT 協助。下列哪一段附帶說明最恰當？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">「幫我看一下這張圖。」</li>
+        <li class="option" data-option="B">「這是什麼？」</li>
+        <li class="option" data-option="C">「幫我把整個程式重寫一遍。」</li>
+        <li class="option" data-option="D">「請看最下面紅色那一行，解釋錯誤原因，並告訴我最小的修正方式。」</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 某項偏好只跟當下這一個對話有關，例如「這次的簡報要 8 張投影片」。這類細節最適合放在哪裡？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Settings &gt; Personalization 的自訂指示</li>
+        <li class="option" data-option="B">直接寫在這一次的提示中</li>
+        <li class="option" data-option="C">所有專案共用的專案指示</li>
+        <li class="option" data-option="D">帳號的記憶設定中，讓它永久生效</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 ChatGPT Work 可以做到下列哪些事？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">搜尋網路、瀏覽網站並比較來源，整理出研究發現</li>
+        <li class="option" data-option="B">保證產出的成果完全正確，不經人工檢查就能直接分享</li>
+        <li class="option" data-option="C">設定排程任務，或用技能重複使用某個工作流程</li>
+        <li class="option" data-option="D">在沒有連接任何外掛的情況下，讀取你的私人信件</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 在 ChatGPT 桌面版使用 Work 時選擇「Work locally」，這個選項的特點是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">可以使用你電腦上的檔案、App 或瀏覽器</li>
+        <li class="option" data-option="B">關掉 App 或電腦後，任務仍會在雲端繼續</li>
+        <li class="option" data-option="C">只能在網頁版選擇，桌面版沒有這個選項</li>
+        <li class="option" data-option="D">任務執行中不會因為需要授權而暫停</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 某同學原本只寫「幫我做一份期末報告簡報。」下列哪些補充能讓這個給 Work 的提示變好？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">要求一次做成最終版本，完成後不必讓我檢查</li>
+        <li class="option" data-option="B">指定投影片張數、主題、聽眾與報告時間</li>
+        <li class="option" data-option="C">不附任何文獻，讓 AI 自由發揮內容</li>
+        <li class="option" data-option="D">要求把文獻的發現和自己的看法分開，找不到充分證據的說法要標記出來</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 某組請 Codex 修正「收藏在重新整理後消失」的 bug。下列哪些資訊放進提示最有幫助？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">從啟動服務到重新整理頁面的完整重現步驟</li>
+        <li class="option" data-option="B">只寫一句「收藏功能壞了，幫我修好」</li>
+        <li class="option" data-option="C">要求 Codex 直接重寫整個專案，不必說明原因</li>
+        <li class="option" data-option="D">必須保留的限制（例如不更改 API 回傳格式）與驗證修正的方式</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 下列哪些做法能讓 ChatGPT Work 的任務更有效率、保持聚焦？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把必要的工作和「有空再做」的潤飾混在一起寫</li>
+        <li class="option" data-option="B">只提供相關的來源，必要時限定日期範圍</li>
+        <li class="option" data-option="C">任務偏離方向時，縮小範圍或停下來</li>
+        <li class="option" data-option="D">盡量附上所有找得到的資料，即使與主題無關</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 某組想把長時間的任務交給 Codex、同時平行跑多個任務，並從 GitHub 發起。最適合使用哪一種 Codex 介面？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">IDE 擴充套件</li>
+        <li class="option" data-option="B">Codex CLI</li>
+        <li class="option" data-option="C">ChatGPT 桌面版</li>
+        <li class="option" data-option="D">Codex 雲端</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 大多數情況建議 Codex 使用 Ask for approval 模式。這個模式的行為是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">每讀取一個檔案都必須先詢問你</li>
+        <li class="option" data-option="B">可以任意存取整台電腦與網路，完全不詢問</li>
+        <li class="option" data-option="C">可以在目前的工作區內自由作業，要超出這個範圍時會先暫停詢問</li>
+        <li class="option" data-option="D">只能讀取檔案，永遠不能修改任何檔案</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 關於 <code class="inline-code language-text"><span class="syntax-string">AGENTS.md</span></code>，下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">同一層資料夾可以同時採用多份規則檔</li>
+        <li class="option" data-option="B">Codex 只讀取全域的規則檔，不讀取專案中的規則檔</li>
+        <li class="option" data-option="C">在專案資料夾輸入 <code class="inline-code language-shell"><span class="syntax-command">/init</span></code>，可以產生一份草稿再自行修改</li>
+        <li class="option" data-option="D">可以在子資料夾放各自的規則檔，讓規則只在需要的地方生效</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 Codex 正在工作時，你仍可以在 CLI 中傳送訊息。下列哪些敘述正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">按 Enter 是引導（Steer），把訊息加入目前的執行</li>
+        <li class="option" data-option="B">按 Tab 是排隊（Queue），等這輪結束再處理</li>
+        <li class="option" data-option="C">按 Enter 會立即中止目前的任務</li>
+        <li class="option" data-option="D">按 Tab 會另外開一個新的對話</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    localStorage.setItem("assessment-theme", root.dataset.theme);
+  };
+  setTheme(localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light");
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "02-chatgpt-work-codex-20Q4p12", MULTI = true, REVEAL_AFTER = 2;
+  const CONTEXT = "人工智慧輔助應用開發實務 · 課後形成性評量：ChatGPT 任務交辦與 Codex 協作", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("nIeKAvGVTGd1rQjL9ooR5A==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("x6XLQdO5bEU0jyTr1MhVxrCnqEO1t2BHV+4q59aoU6e+q6ogstFuS1WPSYnUpjHG3qWmItPRbktVj0rp2qozpd+lpiLT1G5LVY9Kj9SmMcbdw6gu0bcOJFeBKOmyqD3EvsSoLtG3DyNXgSjpt8gzuQ==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
