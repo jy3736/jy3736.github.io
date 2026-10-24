@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01-ai-literacy-20Q4p1 · 計算機程式及實習</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+  .lead { color: var(--muted); }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .question h2 { font-size: 1.05rem; line-height: 1.7; margin: 0 0 .5rem; }
+  .options { margin: .5rem 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .75rem 0 0; padding-top: .5rem; border-top: 1px dashed var(--border); color: var(--accent); font-weight: 600; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--accent); cursor: pointer; font-size: 1.2rem; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="01-ai-literacy-20Q4p1">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">計算機程式及實習</span>01-ai-literacy-20Q4p1</h1>
+  <p class="subtitle">課前前測：AI 素養與有效學習</p>
+  <p class="how-to">20 題單選。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 一場「和 AI 一起學」的課堂活動，把成功標準設定為能說出三件事。下列哪一組最符合這個成功標準？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">「我怎麼知道」「我改了什麼」「我願意負責什麼」</li>
+        <li class="option" data-option="B">「我用了哪個工具」「花了多少時間」「AI 回答了多長」</li>
+        <li class="option" data-option="C">「我背了哪些法條」「我用過幾種 AI」「我有沒有付費帳號」</li>
+        <li class="option" data-option="D">「AI 說了什麼」「同學抄了什麼」「老師會不會發現」</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 兩位同學交換「AI 曾經怎麼幫我」的經驗。下列哪一句追問，最能檢查能力是否留在自己身上？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">「你用的是付費帳號嗎？」</li>
+        <li class="option" data-option="B">「AI 一共回答了多少字？」</li>
+        <li class="option" data-option="C">「你用過幾種不同的 AI 工具？」</li>
+        <li class="option" data-option="D">「如果關掉 AI，你還能做哪一部分？」</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 小華請 AI 解說一個概念，讀完覺得每一句都看得懂，就準備結束。若想把能力留在自己身上，下一步最合適的是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">請 AI 再寫一份更長、更詳細的解說</li>
+        <li class="option" data-option="B">把 AI 的回應存檔，視為已經學會</li>
+        <li class="option" data-option="C">關掉 AI 的回應，用自己的話解釋，再換數字或條件獨立做一次</li>
+        <li class="option" data-option="D">接受 AI 的稱讚後結束這次練習</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 某社團有 10 人填寫 1 至 5 分的滿意度，總分 40，平均 4 分。有人說：「所以每個人都給 4 分。」下列判斷何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">一定正確，因為總分除以人數剛好是 4</li>
+        <li class="option" data-option="B">不一定正確，平均無法單獨呈現每個人之間的差異</li>
+        <li class="option" data-option="C">一定正確，因為平均數就代表每個人的分數</li>
+        <li class="option" data-option="D">至少可以確定有一半的人給了 4 分</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 五個人以 1 至 5 分評分。下列哪一組分數的平均剛好是 4 分，而且其中有人只給 1 分？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">5、5、5、4、1</li>
+        <li class="option" data-option="B">4、4、4、4、3</li>
+        <li class="option" data-option="C">5、5、4、4、1</li>
+        <li class="option" data-option="D">5、5、5、5、1</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 學生想弄懂「平均數的限制」，而不是只拿到答案。下列哪一個提示最符合這個目的？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">「請直接寫出平均數限制的完整答案，約 100 字。」</li>
+        <li class="option" data-option="B">「請把平均數限制的答案改寫成像學生寫的語氣。」</li>
+        <li class="option" data-option="C">「請給我三個不同的答案，我挑最長的那一個交出去。」</li>
+        <li class="option" data-option="D">「我目前認為平均高就代表每個人都滿意。請先問我一個問題，不要直接給完整答案；等我回答再提示，最後給我一個新情境讓我自己判斷。」</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 某次測驗已公告為禁用 AI 的獨立測驗，學生仍使用 AI 作答。這個行為最直接涉及哪一個判斷面向？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">只有不利學習，沒有其他問題</li>
+        <li class="option" data-option="B">一定構成犯罪</li>
+        <li class="option" data-option="C">違反課程規範</li>
+        <li class="option" data-option="D">沒有問題，只要答案正確即可</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 判斷 AI 使用問題時，可從「不利學習」「違反課程規範」「可能觸法」三個面向思考。下列關於這三個面向的敘述，何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">一定要先出現不利學習，才可能違反課程規範</li>
+        <li class="option" data-option="B">三者可以同時出現，並不是由輕到重的必經階梯</li>
+        <li class="option" data-option="C">違反課程規範就自動等於犯罪</li>
+        <li class="option" data-option="D">老師允許使用 AI，就代表任何資料、作品都能任意使用</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 老師允許作業使用 AI 並要求揭露。小安照實揭露，交出一份漂亮的報告，卻無法說明報告中的核心概念。下列哪一個判斷與後續做法最合適？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">主要問題是不利學習；請他選一段重述、找一個新例子，再說明修改理由</li>
+        <li class="option" data-option="B">他已經違法，應直接依法處理</li>
+        <li class="option" data-option="C">他已經揭露，所以沒有任何需要補強的地方</li>
+        <li class="option" data-option="D">下次不要揭露 AI 的使用，就不會被追問</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 AI 提供了一筆有作者、期刊與年份的引用，但網址打不開。下列哪一個做法最合適？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">刪掉打不開的網址，保留格式完整的引用</li>
+        <li class="option" data-option="B">請另一個 AI 確認，兩個 AI 都同意就算兩份獨立證據</li>
+        <li class="option" data-option="C">網址打不開就證明文獻一定不存在，直接宣稱它是捏造的</li>
+        <li class="option" data-option="D">到出版者、官方資料庫或原文核對；找不到就先標「尚未查證」或改用已確認的來源</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 組員想把含姓名、學號、聯絡方式及自由回答的全班問卷，上傳到個人雲端 AI 帳號做摘要，且尚未確認服務的資料政策。下列哪一個做法最合適？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">只要刪掉姓名欄，其餘資料就可以放心上傳</li>
+        <li class="option" data-option="B">只要同學口頭說好，資料就可以做任何後續利用</li>
+        <li class="option" data-option="C">先暫停上傳，改用虛構資料、彙整統計，或處理成無法合理識別個人的資料</li>
+        <li class="option" data-option="D">問卷已在班級群組公開過，所以可以直接上傳</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 AI 產出一張與某現有插畫高度相似的海報，學生打算放上公開的專題網站，並認為「非營利又有註明 AI」就夠了。下列哪一個敘述最合適？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">非營利使用就可以全面免責</li>
+        <li class="option" data-option="B">註明來源不等於取得授權，應查素材授權與利用範圍，必要時更換素材或取得許可</li>
+        <li class="option" data-option="C">註明「由 AI 產生」就等於取得了授權</li>
+        <li class="option" data-option="D">只要看起來相似，就可以直接判定一定侵權</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 小組想決定誰擔任組長。下列哪一類資訊與這項分工決定最相關？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">成員的意願、經驗、時間與任務需求</li>
+        <li class="option" data-option="B">成員的姓名</li>
+        <li class="option" data-option="C">成員的性別</li>
+        <li class="option" data-option="D">AI 只憑姓名與性別推測出的領導能力排名</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 某活動已規定不得捏造真實紀錄。組員提議把 AI 生成的訪談文字當成實際訪談放進報告。下列哪一個替代做法最合適？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">保留這段文字，但不告訴任何人它的來源</li>
+        <li class="option" data-option="B">照樣使用，因為文字是 AI 寫的，責任不在自己</li>
+        <li class="option" data-option="C">刪掉幾個句子後，就可以當成實際訪談使用</li>
+        <li class="option" data-option="D">改成清楚標示的模擬資料並依作業規範使用，或如實呈現訪談尚未完成</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 有人合成教師的聲音，冒稱須繳專題費，騙取同學匯款。下列敘述何者最合適？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">這只是課程規範問題，不可能涉及法律</li>
+        <li class="option" data-option="B">聲音是 AI 合成的，所以行為人不必負責</li>
+        <li class="option" data-option="C">可能涉及刑法詐欺及科技合成加重規定，是否成立仍依個案要件判斷</li>
+        <li class="option" data-option="D">任何聲音合成行為都必然成立犯罪</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 你找到 AI 所引用的研究原文，確認這篇研究確實存在。下一步最合適的是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">來源存在，就代表它一定支持 AI 寫的那段話</li>
+        <li class="option" data-option="B">核對題名、作者、日期、適用對象與上下文，確認內容是否支持該主張</li>
+        <li class="option" data-option="C">只要作者姓名一致，就可以直接引用</li>
+        <li class="option" data-option="D">再問 AI 一次這篇研究是否支持該主張，就完成查證</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 AI 寫道「平均 4 分證明所有人都滿意」，但你無法取得原始問卷的分數分布。報告中下列哪一種寫法最合適？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">「目前只知道平均，無法確認每個人的感受。」</li>
+        <li class="option" data-option="B">「平均 4 分，所以所有人都滿意。」</li>
+        <li class="option" data-option="C">「大多數人都給了 4 分。」</li>
+        <li class="option" data-option="D">「經 AI 再次確認，所有人都滿意。」</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 學生在作業中附上 AI 使用說明（揭露 AI 協助）。下列關於這份說明的敘述，何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">只要寫了說明，原本禁止的 AI 使用就變成允許</li>
+        <li class="option" data-option="B">揭露時必須公開與 AI 的完整私人對話</li>
+        <li class="option" data-option="C">有了這份說明，就不需要再列出參考文獻</li>
+        <li class="option" data-option="D">它不能代替引用實際的參考文獻，也不能使原本禁止的使用變成允許</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 一項課後任務要求學生與 AI 深入探究一個問題並繳交一頁探究單。下列哪一項符合這項任務的要求？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">必須繳交與 AI 的整份完整對話紀錄</li>
+        <li class="option" data-option="B">依 AI 回應的長度評分，回應越長分數越高</li>
+        <li class="option" data-option="C">關掉 AI 回應後，用自己的話寫 80 至 150 字說明，並回答一個條件不同的新例子</li>
+        <li class="option" data-option="D">必須使用付費 AI 帳號才能完成</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 某題滿分 4 分，正確選項為 A、C（k = 2）。每勾對一個加 4/k 分，每勾錯一個扣 4/k 分，未勾選記 0，該題原始分＝（勾對數－勾錯數）×4/k。若學生勾選 A、B、D，該題原始分為多少？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">0 分</li>
+        <li class="option" data-option="B">−2 分</li>
+        <li class="option" data-option="C">2 分</li>
+        <li class="option" data-option="D">−4 分</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    try { localStorage.setItem("assessment-theme", root.dataset.theme); } catch (e) {}
+  };
+  let saved = "light";
+  try { saved = localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light"; } catch (e) {}
+  setTheme(saved);
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "01-ai-literacy-20Q4p1", MULTI = false, REVEAL_AFTER = 2;
+  const CONTEXT = "計算機程式及實習 · 課前前測：AI 素養與有效學習", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("OSo3E0kwd0wlxcmsSw55ew==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("Ygh2MWUQVQgH6emOCCxVWxtoFT9pEjZuCeXr6GkiWVl6CBsza3JVYAXniI5nLls/GwYXMQoSW2wHh+uAayw4WRUKFVdrHFduZufljGlMW1cZCHYxZRBVCAfp6Y4ILFVbG2gVTg==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

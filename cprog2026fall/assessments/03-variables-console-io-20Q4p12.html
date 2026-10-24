@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03-variables-console-io-20Q4p12 · 計算機程式及實習</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; --code-bg: #f6f8fa; --code-text: #24292f; --code-border: #d0d7de; --inline-bg: #eef4ff; --inline-border: #b6d5ff; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; --code-bg: #0d2538; --code-text: #d6deeb; --code-border: #334155; --inline-bg: #172a45; --inline-border: #36557a; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+  .lead { color: var(--muted); }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .question h2 { font-size: 1.05rem; line-height: 1.7; margin: 0 0 .5rem; }
+  .options { margin: .5rem 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .75rem 0 0; padding-top: .5rem; border-top: 1px dashed var(--border); color: var(--accent); font-weight: 600; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: #0550ae; cursor: pointer; font-size: 1.2rem; }
+  html[data-theme="dark"] .theme-toggle { color: #82aaff; }
+  .code-block { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: .4rem; padding: .75rem 1rem; overflow-x: auto; font-size: .92rem; line-height: 1.6; }
+  code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+  .syntax-keyword { color: #8250df; }
+  .syntax-type { color: #0550ae; }
+  .syntax-function { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  .syntax-number { color: #953800; }
+  .syntax-comment { color: #57606a; }
+  .syntax-operator { color: #cf222e; }
+  .syntax-command { color: #0550ae; }
+  .syntax-flag { color: #953800; }
+  .syntax-variable { color: #24292f; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-size: .92em; white-space: pre; }
+  html[data-theme="dark"] .code-block { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+  html[data-theme="dark"] .inline-code { color: var(--code-text); background: var(--inline-bg); border-color: var(--inline-border); }
+  html[data-theme="dark"] .syntax-keyword, html[data-theme="dark"] .syntax-operator { color: #c792ea; }
+  html[data-theme="dark"] .syntax-type, html[data-theme="dark"] .syntax-function, html[data-theme="dark"] .syntax-command { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+  html[data-theme="dark"] .syntax-number, html[data-theme="dark"] .syntax-flag { color: #f78c6c; }
+  html[data-theme="dark"] .syntax-comment { color: #a6accd; }
+  html[data-theme="dark"] .syntax-variable { color: #d6deeb; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="03-variables-console-io-20Q4p12">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">計算機程式及實習</span>03-variables-console-io-20Q4p12</h1>
+  <p class="subtitle">課後形成性評量：C 變數與主控台輸入輸出</p>
+  <p class="how-to">20 題複選，每題 1 至 2 個正確選項。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 下列關於 C 變數命名規則的敘述，哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">變數名稱可以使用英文字母、數字 0-9 與底線 _</li>
+        <li class="option" data-option="B">變數名稱可以用兩個底線開頭</li>
+        <li class="option" data-option="C">變數名稱不能以數字開頭</li>
+        <li class="option" data-option="D">變數名稱中完全不能出現數字</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 敘述 <code class="inline-code language-c"><span class="syntax-type">int</span> <span class="syntax-variable">foo</span>;</code> 的作用是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">在螢幕上印出 foo</li>
+        <li class="option" data-option="B">定義一個名叫 int 的新型別</li>
+        <li class="option" data-option="C">把 foo 的值印成 0</li>
+        <li class="option" data-option="D">宣告一個 int 型別、名叫 foo 的變數</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 庫存變數 stock 依序經過下列敘述更新。下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">int</span> <span class="syntax-variable">stock</span> = <span class="syntax-number">120</span>;
+<span class="syntax-variable">stock</span> = <span class="syntax-variable">stock</span> - <span class="syntax-number">45</span>;
+<span class="syntax-variable">stock</span> = <span class="syntax-variable">stock</span> + <span class="syntax-number">30</span>;</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">第二行在數學上不可能成立，所以編譯會失敗</li>
+        <li class="option" data-option="B">執行完後，stock 的值是 105</li>
+        <li class="option" data-option="C">執行完後，stock 的值仍然是 120</li>
+        <li class="option" data-option="D">第二行先算出右邊的值，再把結果存回 stock</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 下列關於整數型別的敘述，哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">有號（signed）整數型別可以存放正數和負數</li>
+        <li class="option" data-option="B">無號（unsigned）整數型別只能存放 0 和正數</li>
+        <li class="option" data-option="C">無號（unsigned）整數型別也可以存放負數</li>
+        <li class="option" data-option="D">型別佔用的位元組數，和它能存放的數值範圍無關</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 在大多數電腦上，<code class="inline-code language-c"><span class="syntax-type">short</span></code> 型別佔幾個位元組？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">1 個位元組</li>
+        <li class="option" data-option="B">8 個位元組</li>
+        <li class="option" data-option="C">2 個位元組</li>
+        <li class="option" data-option="D">4 個位元組</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 一個長度與一個數量分別存在 double 與 int 變數中，並以下列敘述印出。螢幕上印出的內容是什麼？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">double</span> <span class="syntax-variable">len</span> = <span class="syntax-number">12</span>.<span class="syntax-number">5</span>;
+<span class="syntax-type">int</span> <span class="syntax-variable">cnt</span> = <span class="syntax-number">12</span>;
+<span class="syntax-function">printf</span>(<span class="syntax-string">"%f %d\n"</span>, <span class="syntax-variable">len</span>, <span class="syntax-variable">cnt</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-plaintext"><span class="syntax-string">12.5 12</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-plaintext"><span class="syntax-string">12.500000 12</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-plaintext"><span class="syntax-string">12.500000 12.000000</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-plaintext"><span class="syntax-string">12 12</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 下列關於餘數運算子 <code class="inline-code language-plaintext"><span class="syntax-string">%</span></code> 的敘述，哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-c"><span class="syntax-number">23</span> % <span class="syntax-number">4</span></code> 的值是 5</li>
+        <li class="option" data-option="B"><code class="inline-code language-plaintext"><span class="syntax-string">%</span></code> 會把數值換算成百分比</li>
+        <li class="option" data-option="C"><code class="inline-code language-c"><span class="syntax-number">23</span> % <span class="syntax-number">4</span></code> 的值是 3</li>
+        <li class="option" data-option="D"><code class="inline-code language-plaintext"><span class="syntax-string">%</span></code> 只能用在整數上</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 下列哪些運算式的值是 2.5？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-c"><span class="syntax-number">5</span>.<span class="syntax-number">0</span> / <span class="syntax-number">2</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-c"><span class="syntax-number">5</span> / <span class="syntax-number">2</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-c">(<span class="syntax-type">double</span>)(<span class="syntax-number">5</span> / <span class="syntax-number">2</span>)</code></li>
+        <li class="option" data-option="D"><code class="inline-code language-c">(<span class="syntax-type">double</span>)<span class="syntax-number">5</span> / <span class="syntax-number">2</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 執行 <code class="inline-code language-c"><span class="syntax-type">int</span> <span class="syntax-variable">r</span> = <span class="syntax-number">30</span> / (<span class="syntax-number">2</span> + <span class="syntax-number">3</span>) * <span class="syntax-number">2</span>;</code> 之後，下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">r 的值是 3</li>
+        <li class="option" data-option="B">r 的值是 12</li>
+        <li class="option" data-option="C">小括號內的 2 + 3 最先計算</li>
+        <li class="option" data-option="D">乘法一定比同一級的除法先算</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 程式中有 <code class="inline-code language-c"><span class="syntax-type">const</span> <span class="syntax-type">double</span> <span class="syntax-variable">RATE</span> = <span class="syntax-number">0</span>.<span class="syntax-number">08</span>;</code>。下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">程式中任何改寫 RATE 的敘述，都會被當成錯誤</li>
+        <li class="option" data-option="B">加上 const 之後，RATE 只能存放整數</li>
+        <li class="option" data-option="C">稅率這類在程式執行中不應被改動的數值，適合用 const 宣告</li>
+        <li class="option" data-option="D">宣告之後，仍然可以再寫一行指定敘述把 RATE 改成 0.1</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 一個 <code class="inline-code language-c"><span class="syntax-type">int</span></code> 變數的計算結果超出了 int 能表示的範圍（溢位）。依照 C 的規則，結果會如何？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">自動改用 long long 存放，結果仍然正確</li>
+        <li class="option" data-option="B">自動變成 int 能表示的最大值</li>
+        <li class="option" data-option="C">編譯器一定會拒絕產生可執行檔</li>
+        <li class="option" data-option="D">原則上是未定義的，什麼事都可能發生</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 下列關於 <code class="inline-code language-c"><span class="syntax-variable">scanf</span></code> 的敘述，哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">scanf 會把讀到的值自動印在螢幕上</li>
+        <li class="option" data-option="B">scanf 的格式字串寫法和 printf 很像</li>
+        <li class="option" data-option="C">程式執行到 scanf 時，不會停下來等待輸入</li>
+        <li class="option" data-option="D">scanf 需要改變變數的內容，所以要在變數前面加上 &amp; 交出它的位址</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 使用 scanf 讀取時，變數型別和格式碼必須對應。下列哪些對應正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">讀取 int 變數用 <code class="inline-code language-plaintext"><span class="syntax-string">%d</span></code></li>
+        <li class="option" data-option="B">讀取 double 變數用 <code class="inline-code language-plaintext"><span class="syntax-string">%d</span></code></li>
+        <li class="option" data-option="C">讀取 double 變數用 <code class="inline-code language-plaintext"><span class="syntax-string">%lf</span></code></li>
+        <li class="option" data-option="D">讀取 int 變數用 <code class="inline-code language-plaintext"><span class="syntax-string">%lf</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 直接用 scanf 讀取鍵盤輸入時，使用者一旦輸入錯誤的資料，scanf 很容易停在半路，後面的讀取也跟著出錯。下列哪一種作法是建議的處理方式？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把程式中所有的 scanf 都改成 printf</li>
+        <li class="option" data-option="B">先用 fgets 讀入一整行，再從那一行取出資料</li>
+        <li class="option" data-option="C">每次輸入之前，先把電腦重新開機</li>
+        <li class="option" data-option="D">把所有格式碼都改成只讀取一個字元</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 已宣告 <code class="inline-code language-c"><span class="syntax-type">int</span> <span class="syntax-variable">mon</span>;</code> 與 <code class="inline-code language-c"><span class="syntax-type">int</span> <span class="syntax-variable">day</span>;</code>，程式執行下列敘述時，使用者輸入 <code class="inline-code language-plaintext"><span class="syntax-string">9/14</span></code> 後按 Enter。下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">int</span> <span class="syntax-variable">got</span> = <span class="syntax-function">scanf</span>(<span class="syntax-string">"%d-%d"</span>, <span class="syntax-operator">&amp;</span><span class="syntax-variable">mon</span>, <span class="syntax-operator">&amp;</span><span class="syntax-variable">day</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">got 的值是 2</li>
+        <li class="option" data-option="B">scanf 會把 / 自動當成 - 處理</li>
+        <li class="option" data-option="C">got 的值是 1</li>
+        <li class="option" data-option="D">day 沒有被存入任何值，不應該拿來計算</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 已宣告 <code class="inline-code language-c"><span class="syntax-type">int</span> <span class="syntax-variable">p</span>;</code> 與 <code class="inline-code language-c"><span class="syntax-type">int</span> <span class="syntax-variable">q</span>;</code>，程式執行下列敘述。使用者輸入 12 後按 Enter，再輸入 30 後按 Enter。結果如何？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-function">scanf</span>(<span class="syntax-string">"%d %d"</span>, <span class="syntax-operator">&amp;</span><span class="syntax-variable">p</span>, <span class="syntax-operator">&amp;</span><span class="syntax-variable">q</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">p 是 12，q 是 30</li>
+        <li class="option" data-option="B">p 是 12，q 沒有被讀取</li>
+        <li class="option" data-option="C">p 是 1230，q 沒有得到任何值</li>
+        <li class="option" data-option="D">遇到換行就讀取失敗，p 與 q 都沒有得到值</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 數字 42 經由下列 printf 敘述輸出。螢幕上印出的內容是什麼？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-function">printf</span>(<span class="syntax-string">"[%05d]\n"</span>, <span class="syntax-number">42</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-plaintext"><span class="syntax-string">[   42]</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-plaintext"><span class="syntax-string">[42000]</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-plaintext"><span class="syntax-string">[00042]</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-plaintext"><span class="syntax-string">[42   ]</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 五位數 98765 用下列敘述印出。螢幕上印出的內容是什麼？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-function">printf</span>(<span class="syntax-string">"[%3d]\n"</span>, <span class="syntax-number">98765</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-plaintext"><span class="syntax-string">[987]</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-plaintext"><span class="syntax-string">[98765]</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-plaintext"><span class="syntax-string">[765]</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-plaintext"><span class="syntax-string">[   98765]</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 平均分數 avg 用下列敘述印出。下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">double</span> <span class="syntax-variable">avg</span> = <span class="syntax-number">86</span>.<span class="syntax-number">375</span>;
+<span class="syntax-function">printf</span>(<span class="syntax-string">"%.1f\n"</span>, <span class="syntax-variable">avg</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">螢幕上印出 86.4</li>
+        <li class="option" data-option="B">印完之後，avg 的值仍然是 86.375</li>
+        <li class="option" data-option="C">螢幕上印出 86.3</li>
+        <li class="option" data-option="D">printf 會把 avg 改存成 86.4</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 執行下列敘述。下列關於輸出的敘述，哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-function">printf</span>(<span class="syntax-string">"%-6s%6d\n"</span>, <span class="syntax-string">"tea"</span>, <span class="syntax-number">3</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">「tea」靠左對齊，連同後面補的空白共佔 6 格</li>
+        <li class="option" data-option="B"><code class="inline-code language-plaintext"><span class="syntax-string">%s</span></code> 用來印出一個整數</li>
+        <li class="option" data-option="C">輸出是 <code class="inline-code language-plaintext"><span class="syntax-string">tea3</span></code>，中間沒有任何空白</li>
+        <li class="option" data-option="D">不計換行，這一行輸出共佔 12 個字元位置</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    try { localStorage.setItem("assessment-theme", root.dataset.theme); } catch (e) {}
+  };
+  let saved = "light";
+  try { saved = localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light"; } catch (e) {}
+  setTheme(saved);
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "03-variables-console-io-20Q4p12", MULTI = true, REVEAL_AFTER = 2;
+  const CONTEXT = "計算機程式及實習 · 課後形成性評量：C 變數與主控台輸入輸出", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("EFHlk0xTGKCh9pSfCY/C0g==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("S3Ok0G5/OILl1Li/K82G8Dxxx9IOcTSAg7W2symtgPA8ccfQCHE0gIO30L0lr+CQU3PJs24SW4KN1rbbK6Pi8FIVx79scVnjg9q0vUut7vIyEqGxYHM64YPatL1Kre7yMhPHv2xxWeKD2rS9SMvgjw==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

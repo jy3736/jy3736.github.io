@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02-wsl-first-c-program-20Q4p1 · 計算機程式及實習</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; --code-bg: #f6f8fa; --code-text: #24292f; --code-border: #d0d7de; --inline-bg: #eef4ff; --inline-border: #b6d5ff; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; --code-bg: #0d2538; --code-text: #d6deeb; --code-border: #334155; --inline-bg: #172a45; --inline-border: #36557a; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+  .lead { color: var(--muted); }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .question h2 { font-size: 1.05rem; line-height: 1.7; margin: 0 0 .5rem; }
+  .options { margin: .5rem 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .75rem 0 0; padding-top: .5rem; border-top: 1px dashed var(--border); color: var(--accent); font-weight: 600; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: #0550ae; cursor: pointer; font-size: 1.2rem; }
+  html[data-theme="dark"] .theme-toggle { color: #82aaff; }
+  .code-block { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: .4rem; padding: .75rem 1rem; overflow-x: auto; font-size: .92rem; line-height: 1.6; }
+  code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+  .syntax-keyword { color: #8250df; }
+  .syntax-type { color: #0550ae; }
+  .syntax-function { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  .syntax-number { color: #953800; }
+  .syntax-comment { color: #57606a; }
+  .syntax-operator { color: #cf222e; }
+  .syntax-command { color: #0550ae; }
+  .syntax-flag { color: #953800; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-size: .92em; }
+  html[data-theme="dark"] .code-block { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+  html[data-theme="dark"] .inline-code { color: var(--code-text); background: var(--inline-bg); border-color: var(--inline-border); }
+  html[data-theme="dark"] .syntax-keyword, html[data-theme="dark"] .syntax-operator { color: #c792ea; }
+  html[data-theme="dark"] .syntax-type, html[data-theme="dark"] .syntax-function, html[data-theme="dark"] .syntax-command { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+  html[data-theme="dark"] .syntax-number, html[data-theme="dark"] .syntax-flag { color: #f78c6c; }
+  html[data-theme="dark"] .syntax-comment { color: #a6accd; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="02-wsl-first-c-program-20Q4p1">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">計算機程式及實習</span>02-wsl-first-c-program-20Q4p1</h1>
+  <p class="subtitle">課前前測：WSL 環境與第一支 C 程式</p>
+  <p class="how-to">20 題單選。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 下列關於 WSL（Windows Subsystem for Linux）的敘述，何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">它讓 Windows 可以直接執行 Linux 程式，不需要另外安裝虛擬機器或雙系統</li>
+        <li class="option" data-option="B">它是一種必須先安裝虛擬機器軟體才能使用的 Linux 模擬器</li>
+        <li class="option" data-option="C">它是讓 Linux 電腦執行 Windows 程式的相容層</li>
+        <li class="option" data-option="D">它是 Windows 內建、用來取代 PowerShell 的文字編輯器</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 要用一行指令安裝 WSL，電腦的 Windows 版本至少要符合哪一個條件？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Windows 7 以上即可</li>
+        <li class="option" data-option="B">只能是 Windows 11，Windows 10 一律不支援</li>
+        <li class="option" data-option="C">Windows 10 版本 2004（組建 19041）以上，或 Windows 11</li>
+        <li class="option" data-option="D">Windows 10 任何版本皆可，不需要檢查組建編號</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 在以系統管理員身分執行的 PowerShell 中安裝 WSL，進度卻一直停在 0.0%。下列哪一個指令是建議的替代安裝方式？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-shell shell-command"><span class="syntax-command">wsl</span> <span class="syntax-flag">--list</span> <span class="syntax-flag">--verbose</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-shell shell-command"><span class="syntax-command">wsl</span> <span class="syntax-flag">--install</span> <span class="syntax-flag">--web-download</span> <span class="syntax-flag">-d</span> Ubuntu</code></li>
+        <li class="option" data-option="C"><code class="inline-code language-shell shell-command"><span class="syntax-command">wsl</span> <span class="syntax-flag">-u</span> root</code></li>
+        <li class="option" data-option="D"><code class="inline-code language-shell shell-command"><span class="syntax-command">winver</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 第一次開啟 Ubuntu 設定密碼時，小芸按了好幾個鍵，畫面上卻完全沒有出現任何字，連星號都沒有。她應該怎麼判斷與處理？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">代表 Ubuntu 當機，需要關閉視窗重新開啟</li>
+        <li class="option" data-option="B">代表輸入法設定錯誤，要先切換成全形再輸入</li>
+        <li class="option" data-option="C">代表 WSL 安裝失敗，要重新執行安裝</li>
+        <li class="option" data-option="D">這是正常現象，照常輸入完密碼後按 Enter 即可</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 關於第一次開啟 Ubuntu 時建立的使用者名稱與密碼，下列敘述何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">必須和自己的 Windows 登入帳號密碼完全相同</li>
+        <li class="option" data-option="B">它和 Windows 帳號無關，是 Ubuntu 專用的帳號密碼</li>
+        <li class="option" data-option="C">只有第一次開啟時需要，之後不會再用到</li>
+        <li class="option" data-option="D">每次開啟 Ubuntu 視窗時，都必須重新建立一組新的帳號</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 官方建議在 Ubuntu 中定期執行 <code class="inline-code language-shell shell-command"><span class="syntax-command">sudo</span> <span class="syntax-command">apt</span> update <span class="syntax-operator">&amp;&amp;</span> <span class="syntax-command">sudo</span> <span class="syntax-command">apt</span> upgrade</code>。下列哪一項是這麼做的理由？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Windows 不會自動更新 Ubuntu 裡的套件，而且套件清單太舊時可能導致新軟體安裝失敗</li>
+        <li class="option" data-option="B">這個指令會順便把 Windows 系統更新到最新版本</li>
+        <li class="option" data-option="C">不定期執行的話，Ubuntu 的密碼會自動過期</li>
+        <li class="option" data-option="D">這是在電腦上安裝 VS Code 的唯一方法</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 在 Ubuntu 中執行 <code class="inline-code language-shell shell-command"><span class="syntax-command">sudo</span> <span class="syntax-command">apt</span> install build-essential gdb</code>。其中 <code class="inline-code language-plaintext"><span class="syntax-string">gdb</span></code> 是哪一種工具？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">程式編輯器</li>
+        <li class="option" data-option="B">套件管理工具</li>
+        <li class="option" data-option="C">檔案總管</li>
+        <li class="option" data-option="D">除錯器</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 阿哲在 Ubuntu 中輸入 <code class="inline-code language-shell shell-command"><span class="syntax-command">pwd</span></code>，顯示目前位置是 <code class="inline-code language-plaintext"><span class="syntax-string">/mnt/c/Users/ajhe/Documents/cprog</span></code>，而且在這裡編譯和開啟檔案都非常慢。最合適的處理方式是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把課程資料夾改放到 Windows 桌面</li>
+        <li class="option" data-option="B">把 .c 檔的副檔名改成 .txt 後再編譯</li>
+        <li class="option" data-option="C">把檔案搬到 Linux 檔案系統的家目錄底下，例如 <code class="inline-code language-plaintext"><span class="syntax-string">~/cprog/</span></code></li>
+        <li class="option" data-option="D">每次編譯前先重新開機一次</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 小傑在 Windows 裝好 VS Code 後，在 Ubuntu 輸入 <code class="inline-code language-shell shell-command"><span class="syntax-command">code</span> .</code> 卻出現「command not found」，重新開啟 Ubuntu 視窗再試也一樣。最可能的原因是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">安裝 VS Code 時沒有勾選「加入 PATH」（Add to PATH）</li>
+        <li class="option" data-option="B">VS Code 必須安裝在 Ubuntu 裡，不能安裝在 Windows</li>
+        <li class="option" data-option="C">尚未在 Ubuntu 中建立任何 .c 檔案</li>
+        <li class="option" data-option="D">指令最後的句點應該改成逗號</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 從 Ubuntu 開啟 VS Code 後，視窗左下角顯示 <code class="inline-code language-plaintext"><span class="syntax-string">WSL: Ubuntu</span></code>。這代表什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Ubuntu 有新版本，需要立即更新</li>
+        <li class="option" data-option="B">VS Code 目前處於離線模式，無法存檔</li>
+        <li class="option" data-option="C">C 編譯器已經自動安裝完成</li>
+        <li class="option" data-option="D">VS Code 已經連線到 Ubuntu</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 C 程式通常執行得很快。依照 C 的編譯方式，下列哪一項是原因之一？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">C 程式在執行時才一行一行翻譯，所以不必等待</li>
+        <li class="option" data-option="B">編譯器產生的是 CPU 可以直接執行的機器碼</li>
+        <li class="option" data-option="C"><code class="inline-code language-plaintext"><span class="syntax-string">.c</span></code> 原始檔的檔案大小比其他語言小</li>
+        <li class="option" data-option="D">C 程式執行時會自動使用所有 CPU 核心</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 在終端機執行 <code class="inline-code language-shell shell-command"><span class="syntax-command">gcc</span> <span class="syntax-flag">-std=c17</span> <span class="syntax-flag">-Wall</span> <span class="syntax-flag">-Wextra</span> <span class="syntax-flag">-Wpedantic</span> greet.c <span class="syntax-flag">-o</span> hi</code> 且編譯成功。接下來要執行這支程式，應該輸入哪一個指令？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-shell shell-command"><span class="syntax-command">./greet.c</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-shell shell-command"><span class="syntax-command">./greet</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-shell shell-command"><span class="syntax-command">./hi</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-shell shell-command"><span class="syntax-command">./hi.c</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 小安已經把 score.c 編譯成可執行檔 score 並執行過。接著他修改 score.c 裡要印出的文字並存檔，但沒有重新編譯，就直接執行 score。會發生什麼事？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">仍然印出修改前的文字，因為執行的是先前編譯出來的檔案</li>
+        <li class="option" data-option="B">印出修改後的文字，因為存檔時會自動重新編譯</li>
+        <li class="option" data-option="C">終端機會自動改為執行 score.c 這個文字檔</li>
+        <li class="option" data-option="D">score 這個檔案會在存檔時被刪除</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 C 程式第一行寫著 <code class="inline-code language-c"><span class="syntax-keyword">#include</span> <span class="syntax-string">&lt;stdio.h&gt;</span></code>。這一行的作用是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">指定編譯時使用 C17 標準</li>
+        <li class="option" data-option="B">把程式的輸出另存成 stdio.h 檔案</li>
+        <li class="option" data-option="C">讓程式印出的每一段文字自動換行</li>
+        <li class="option" data-option="D">請前置處理器把 stdio.h 的內容放進來，printf 就是在其中宣告的</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 關於 <code class="inline-code language-c"><span class="syntax-type">int</span> <span class="syntax-function">main</span>(<span class="syntax-type">void</span>)</code> 這一行，下列敘述何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">程式從檔案第一行開始逐行執行，main 只是一個普通的名稱</li>
+        <li class="option" data-option="B">每個完整的程式至少要有一個 main 函式，程式從這裡開始執行；void 表示 main 不使用任何引數</li>
+        <li class="option" data-option="C">void 表示 main 執行完後不會回傳任何值</li>
+        <li class="option" data-option="D">只要程式中有 printf，就可以不寫 main</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 main 中依序有下列三個敘述（<code class="inline-code language-c"><span class="syntax-string">\n</span></code> 表示換行）。執行後螢幕上的輸出是什麼？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-function">printf</span>(<span class="syntax-string">"早安"</span>);
+<span class="syntax-function">printf</span>(<span class="syntax-string">"，同學\n"</span>);
+<span class="syntax-function">printf</span>(<span class="syntax-string">"上課囉\n"</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">三行：「早安」、「，同學」、「上課囉」</li>
+        <li class="option" data-option="B">一行：「早安，同學上課囉」</li>
+        <li class="option" data-option="C">兩行：第一行「早安，同學」，第二行「上課囉」</li>
+        <li class="option" data-option="D">兩行：第一行「早安」，第二行「，同學上課囉」</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 main 中有下列敘述。執行後螢幕上的輸出是什麼？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-comment">/* 印出課程名稱 */</span>
+<span class="syntax-function">printf</span>(<span class="syntax-string">"C 程式\n"</span>);
+<span class="syntax-comment">// printf("實習\n");</span>
+<span class="syntax-function">printf</span>(<span class="syntax-string">"加油\n"</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">兩行：「C 程式」、「加油」</li>
+        <li class="option" data-option="B">三行：「C 程式」、「實習」、「加油」</li>
+        <li class="option" data-option="C">四行：先印出「印出課程名稱」，再印出「C 程式」、「實習」、「加油」</li>
+        <li class="option" data-option="D">無法編譯，因為 // 後面不能出現程式碼</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 下列關於 main 結尾的 <code class="inline-code language-c"><span class="syntax-keyword">return</span> <span class="syntax-number">0</span>;</code> 的敘述，何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">它會在螢幕上印出數字 0</li>
+        <li class="option" data-option="B">main 少寫這一行時，程式一律無法編譯</li>
+        <li class="option" data-option="C">任何函式執行到結尾沒有寫 return，效果都等同回傳 0</li>
+        <li class="option" data-option="D">它讓 main 結束並回傳結束狀態 0；main 執行到結尾沒寫 return 時也等同回傳 0，但這個特例只適用於 main</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 已知 <code class="inline-code language-c"><span class="syntax-string">%d</span></code> 在 printf 的文字中表示「這裡要放一個整數」。main 中有下列敘述，使用 <code class="inline-code language-shell shell-command"><span class="syntax-command"><span class="syntax-flag">-Wall</span></span></code> 等警告選項編譯。下列敘述何者正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-function">printf</span>(<span class="syntax-string">"成績是 %d 分\n"</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">程式完全正確，執行時會印出「成績是 0 分」</li>
+        <li class="option" data-option="B">編譯器會發出警告；即使仍產生可執行檔，印出的數字也不可靠</li>
+        <li class="option" data-option="C"><code class="inline-code language-c"><span class="syntax-string">%d</span></code> 會被原樣印出，編譯器不會有任何訊息</li>
+        <li class="option" data-option="D">編譯器會自動補上一個整數，讓輸出正確</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 編譯時終端機顯示一則訊息，開頭是 <code class="inline-code language-plaintext"><span class="syntax-string">bmi.c:6:12: warning:</span></code>。其中 6 和 12 代表什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">這是第 6 則警告，總共有 12 則</li>
+        <li class="option" data-option="B">問題出現在 bmi.c 的第 12 行、第 6 欄附近</li>
+        <li class="option" data-option="C">問題出現在 bmi.c 的第 6 行、第 12 欄附近</li>
+        <li class="option" data-option="D">程式執行了 6 秒 12 毫秒後發生問題</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    try { localStorage.setItem("assessment-theme", root.dataset.theme); } catch (e) {}
+  };
+  let saved = "light";
+  try { saved = localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light"; } catch (e) {}
+  setTheme(saved);
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "02-wsl-first-c-program-20Q4p1", MULTI = false, REVEAL_AFTER = 2;
+  const CONTEXT = "計算機程式及實習 · 課前前測：WSL 環境與第一支 C 程式", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("ckqFV34osUKy56s7td2/XA==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("KWjEdVIIkwGQy4sZ9/+TfFAOp3teCvNgnseJepfxn342aKl3XGuTbpLF6hmZ/Z0YUGaldTwKnWKQpIkXlf/+fl5qpxNcBJFg8MWHG5eenXBSaMR1UgiTBpDLixn3/5N8UAmnCg==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
