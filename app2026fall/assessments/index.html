@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('assessment-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
+<title>APP 程式設計實務評量練習</title>
+<meta name="description" content="APP 程式設計實務已施測評量的線上練習與答案。">
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; --accent-soft: #e7effa; --post: #7a3fb0; --post-soft: #f3ecfa; --ok: #1a7f37; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; --accent-soft: #1a2638; --post: #c49bf0; --post-soft: #2a2036; --ok: #3fb950; }
+  * { box-sizing: border-box; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  main { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: clamp(1.2rem, 5vw, 1.6rem); border-bottom: 2px solid var(--accent); padding-bottom: .5rem; margin-right: 3rem; }
+  .lead { color: var(--muted); }
+  section { margin: 1.6rem 0; }
+  .session { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .6rem; font-size: 1rem; color: var(--text); margin: 0 0 .55rem; padding-bottom: .25rem; border-bottom: 1px dashed var(--border); }
+  .session .nth { color: var(--accent); }
+  .session .date { font-size: .85rem; font-weight: 500; color: var(--muted); }
+  .overall { display: inline-block; margin: 0; padding: .35rem .9rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; font-size: .92rem; }
+  .cards { display: grid; gap: .65rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr)); }
+  .card { --kind: var(--accent); --kind-soft: var(--accent-soft); position: relative; display: flex; flex-direction: column; gap: .4rem; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: .65rem; padding: .7rem .9rem .7rem 1.15rem; color: inherit; text-decoration: none; box-shadow: 0 1px 2px rgb(15 23 42 / 5%); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+  .card.post { --kind: var(--post); --kind-soft: var(--post-soft); }
+  .card::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--kind); }
+  .card:hover, .card:focus-visible { transform: translateY(-2px); border-color: var(--kind); box-shadow: 0 8px 18px rgb(15 23 42 / 11%); outline: none; }
+  html[data-theme="dark"] .card:hover, html[data-theme="dark"] .card:focus-visible { box-shadow: 0 10px 24px rgb(0 0 0 / 45%); }
+  .badge { flex: none; font-size: .74rem; font-weight: 700; padding: .05rem .55rem; border-radius: 999px; background: var(--kind-soft); color: var(--kind); white-space: nowrap; }
+  .card-head { display: flex; align-items: baseline; gap: .5rem; }
+  .card h3 { font-size: 1.02rem; margin: 0; line-height: 1.45; }
+  .facts { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+  .facts li { font-size: .75rem; line-height: 1.6; color: var(--muted); padding: 0 .45rem; border: 1px solid var(--border); border-radius: .35rem; background: var(--page-bg); }
+  .card-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: .5rem; margin-top: auto; }
+  .cta { flex: none; font-size: .84rem; font-weight: 700; color: var(--kind); white-space: nowrap; }
+  .cta::after { content: "→"; display: inline-block; margin-left: .3em; transition: transform .18s ease; }
+  .card:hover .cta::after { transform: translateX(3px); }
+  @media (prefers-reduced-motion: reduce) { .card, .cta::after { transition: none; } .card:hover, .card:focus-visible { transform: none; } }
+  .empty { color: var(--muted); }
+  .nowrap { white-space: nowrap; }
+  h1 .course-name { display: inline-block; color: var(--accent); background: var(--accent-soft); padding: 0 .35em; border-radius: .35em; margin-right: .15em; }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--accent); cursor: pointer; font-size: 1.2rem; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題" title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main>
+  <h1><span class="course-name">APP 程式設計實務</span><span class="nowrap">評量練習</span></h1>
+  <p class="lead">這裡收錄課堂上已經施測的評量，可以重新作答、自我檢查。可以逐題檢查、立即知道對錯，也可以全部作答後一次檢查；答錯可以再試，試過兩個不同的錯誤答案後才能看答案。</p>
+  <p class="overall">共 10 份評量</p>
+  <section>
+    <h2 class="session"><span class="nth">第 1 次施測</span><span class="date">9 月 14 日（一）</span></h2>
+    <div class="cards">
+    <a class="card" href="01-ai-literacy-20Q4p1.html">
+      <div class="card-head"><span class="badge">課前前測</span><h3>AI 素養與有效學習</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題單選</li><li>教材：第一週共用教案</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    <a class="card post" href="01-ai-literacy-30Q4p12.html">
+      <div class="card-head"><span class="badge">課後形成性評量</span><h3>AI 素養與有效學習</h3></div>
+      <div class="card-foot"><ul class="facts"><li>30 題複選</li><li>1～2 個正確選項</li><li>教材：第一週共用教案</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    </div>
+  </section>
+  <section>
+    <h2 class="session"><span class="nth">第 2 次施測</span><span class="date">9 月 21 日（一）</span></h2>
+    <div class="cards">
+    <a class="card" href="02-dart-basics-20Q4p1.html">
+      <div class="card-head"><span class="badge">課前前測</span><h3>Dart 開發流程與語法基礎</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題單選</li><li>教材：Unit 1–2</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    <a class="card post" href="02-dart-basics-20Q4p12.html">
+      <div class="card-head"><span class="badge">課後形成性評量</span><h3>Dart 開發流程與語法基礎</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題複選</li><li>1～2 個正確選項</li><li>教材：Unit 1–2</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    </div>
+  </section>
+  <section>
+    <h2 class="session"><span class="nth">第 3 次施測</span><span class="date">10 月 5 日（一）</span></h2>
+    <div class="cards">
+    <a class="card" href="03-dart-logic-20Q4p1.html">
+      <div class="card-head"><span class="badge">課前前測</span><h3>Dart 運算、條件與集合</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題單選</li><li>教材：Unit 2–3</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    <a class="card post" href="03-dart-logic-20Q4p12.html">
+      <div class="card-head"><span class="badge">課後形成性評量</span><h3>Dart 運算、條件與集合</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題複選</li><li>1～2 個正確選項</li><li>教材：Unit 2–3</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    </div>
+  </section>
+  <section>
+    <h2 class="session"><span class="nth">第 4 次施測</span><span class="date">10 月 12 日（一）</span></h2>
+    <div class="cards">
+    <a class="card" href="04-dart-unit03-20Q4p1.html">
+      <div class="card-head"><span class="badge">課前前測</span><h3>Dart 條件判斷、迴圈、函式與集合</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題單選</li><li>教材：Unit 3</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    <a class="card post" href="04-dart-unit03-20Q4p13.html">
+      <div class="card-head"><span class="badge">課後形成性評量</span><h3>Dart 條件判斷、迴圈、函式與集合</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題複選</li><li>1～3 個正確選項</li><li>教材：Unit 3</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    </div>
+  </section>
+  <section>
+    <h2 class="session"><span class="nth">第 5 次施測</span><span class="date">10 月 19 日（一）</span></h2>
+    <div class="cards">
+    <a class="card" href="05-dart-unit04-20Q4p1.html">
+      <div class="card-head"><span class="badge">課前前測</span><h3>Dart 類別、建構式與空值安全</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題單選</li><li>教材：Unit 4</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    <a class="card post" href="05-dart-unit04-20Q4p13.html">
+      <div class="card-head"><span class="badge">課後形成性評量</span><h3>Dart 類別、建構式與空值安全</h3></div>
+      <div class="card-foot"><ul class="facts"><li>20 題複選</li><li>1～3 個正確選項</li><li>教材：Unit 4</li></ul><span class="cta">開始練習</span></div>
+    </a>
+    </div>
+  </section>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    try { localStorage.setItem("assessment-theme", root.dataset.theme); } catch (e) {}
+  };
+  setTheme(root.dataset.theme);
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+
+})();
+</script>
+</body>
+</html>

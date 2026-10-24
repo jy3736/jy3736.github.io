@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02-dart-basics-20Q4p1 · APP 程式設計實務</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+  .lead { color: var(--muted); }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .question h2 { font-size: 1.05rem; line-height: 1.7; margin: 0 0 .5rem; }
+  .options { margin: .5rem 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .75rem 0 0; padding-top: .5rem; border-top: 1px dashed var(--border); color: var(--accent); font-weight: 600; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--accent); cursor: pointer; font-size: 1.2rem; }
+  .code-block { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: .4rem; padding: .75rem 1rem; overflow-x: auto; line-height: 1.55; font-size: .92rem; }
+  .code-block code, .inline-code { font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace; }
+  .syntax-keyword { color: #8250df; }
+  .syntax-type { color: #0550ae; }
+  .syntax-function { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  .syntax-number { color: #953800; }
+  .syntax-comment { color: #57606a; }
+  .syntax-operator { color: #cf222e; }
+  .syntax-command { color: #0550ae; }
+  .syntax-flag { color: #953800; }
+  .syntax-variable { color: #1f2328; font-weight: 600; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-size: .92em; }
+  html[data-theme="dark"] .code-block { background: #0d2538; color: #d6deeb; border-color: #334155; }
+  html[data-theme="dark"] .inline-code { color: #d6deeb; background: #172a45; border-color: #36557a; }
+  html[data-theme="dark"] .syntax-keyword, html[data-theme="dark"] .syntax-operator { color: #c792ea; }
+  html[data-theme="dark"] .syntax-type, html[data-theme="dark"] .syntax-function, html[data-theme="dark"] .syntax-command { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+  html[data-theme="dark"] .syntax-number, html[data-theme="dark"] .syntax-flag { color: #f78c6c; }
+  html[data-theme="dark"] .syntax-comment { color: #a6accd; }
+  html[data-theme="dark"] .syntax-variable { color: #d6deeb; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="02-dart-basics-20Q4p1">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">APP 程式設計實務</span>02-dart-basics-20Q4p1</h1>
+  <p class="subtitle">課前前測：Dart 開發流程與語法基礎</p>
+  <p class="how-to">20 題單選。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 依本課程的 PEA 學習循環，學生在上課前閱讀本週重點，並請 AI 換個方式解釋一個 Dart 語法。這屬於哪個階段？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">Engage（課中參與）</li>
+        <li class="option" data-option="B">Assess（檢核）</li>
+        <li class="option" data-option="C">Preview（預習）</li>
+        <li class="option" data-option="D">三個階段都不屬於</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 依本課程的生成式 AI 協作規範，下列哪一個情境不可以使用生成式 AI？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">完成標示「個人獨立完成、自動評分」的作業</li>
+        <li class="option" data-option="B">課前請 AI 用不同方式解釋一個 Dart 語法</li>
+        <li class="option" data-option="C">專題開發時請 AI 提供重構建議</li>
+        <li class="option" data-option="D">請 AI 協助理解官方文件的英文用語</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 某生請 AI 協助修正一段 Dart 程式，並寫下「AI 提示與驗證紀錄」，其中包含提示內容摘要、AI 給的建議、驗證方式與結果三項。下列哪一種「驗證方式與結果」的寫法最完整？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">AI 的說明很清楚，應該是對的</li>
+        <li class="option" data-option="B">把 AI 的完整回答全部複製貼上</li>
+        <li class="option" data-option="C">再問 AI 一次，它說沒有問題</li>
+        <li class="option" data-option="D">執行 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> analyze</code> 顯示 <code class="inline-code language-text"><span class="syntax-string">No issues found!</span></code>，再用 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> run</code> 確認輸出正確</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 在終端機執行 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> create my_cli</code>，沒有加上 <code class="inline-code language-text"><span class="syntax-flag">-t</span></code> 選項，會使用哪一個範本？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-text"><span class="syntax-string">web</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-text"><span class="syntax-string">console</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-text"><span class="syntax-string">package</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-text"><span class="syntax-string">server-shelf</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 用 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> create hello_dart</code> 建立專案後，程式進入點（含 <code class="inline-code language-dart"><span class="syntax-function">main</span>()</code> 的可執行程式檔）放在哪個資料夾？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-text"><span class="syntax-string">bin/</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-text"><span class="syntax-string">lib/</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-text"><span class="syntax-string">test/</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-text"><span class="syntax-string">web/</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 下列關於 DartPad 的敘述，何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">必須先在本機安裝 Dart SDK 才能使用</li>
+        <li class="option" data-option="B">可以任意使用 pub.dev 上的套件</li>
+        <li class="option" data-option="C">不支援 <code class="inline-code language-text"><span class="syntax-string">dart:io</span></code> 這類 VM 函式庫，所以無法用 <code class="inline-code language-dart">stdin.<span class="syntax-function">readLineSync</span>()</code> 讀取鍵盤輸入</li>
+        <li class="option" data-option="D">只能執行 Flutter 範例，不能寫命令列程式</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 執行 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> analyze</code> 得到下列訊息：<code class="inline-code language-text"><span class="syntax-string">error - e8_method_typo.dart:3:30 - The method 'spit' isn't defined for the type 'String'.</span></code> 其中的 <code class="inline-code language-text"><span class="syntax-string">3:30</span></code> 代表什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">第 30 行、第 3 個字元</li>
+        <li class="option" data-option="B">第 3 行、第 30 個字元</li>
+        <li class="option" data-option="C">發現 3 個錯誤、30 個警告</li>
+        <li class="option" data-option="D">分析花了 3.30 秒</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 關於 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> analyze</code> 與 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> run</code>，下列敘述何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> analyze</code> 必須先把程式跑起來，才能找到錯誤</li>
+        <li class="option" data-option="B">用 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> run</code> 執行時，方法名稱打錯字造成的錯誤會被自動忽略</li>
+        <li class="option" data-option="C"><code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> analyze</code> 只檢查排版，不檢查方法名稱是否存在</li>
+        <li class="option" data-option="D"><code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> analyze</code> 做的是靜態分析，不必執行程式就能先找出錯誤</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 某生已經安裝 Flutter SDK，想在終端機使用 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span></code> 指令。下列敘述何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">不必另外安裝 Dart SDK，因為 Flutter SDK 內含完整的 Dart SDK</li>
+        <li class="option" data-option="B">必須另外安裝 Dart SDK，否則無法使用 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span></code> 指令</li>
+        <li class="option" data-option="C">只能改用 DartPad，本機無法執行 Dart 程式</li>
+        <li class="option" data-option="D">要先執行 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> create</code>，才會自動安裝 Dart SDK</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 下列程式中，Dart 會把變數 <code class="inline-code language-dart"><span class="syntax-variable">price</span></code> 推論為哪一種型別？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">var</span> drink <span class="syntax-operator">=</span> <span class="syntax-string">'珍珠奶茶'</span>;
+<span class="syntax-keyword">var</span> cups <span class="syntax-operator">=</span> <span class="syntax-number">2</span>;
+<span class="syntax-keyword">var</span> price <span class="syntax-operator">=</span> <span class="syntax-number">55.0</span>;</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-dart"><span class="syntax-type">int</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-dart"><span class="syntax-type">String</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-dart"><span class="syntax-type">double</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-dart"><span class="syntax-type">bool</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 執行下列程式會發生什麼情形？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">void</span> <span class="syntax-function">main</span>() {
+  <span class="syntax-keyword">final</span> studentId <span class="syntax-operator">=</span> <span class="syntax-string">'B11234567'</span>;
+  studentId <span class="syntax-operator">=</span> <span class="syntax-string">'B99999999'</span>;
+  <span class="syntax-function">print</span>(studentId);
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">印出 B99999999</li>
+        <li class="option" data-option="B">出現錯誤，因為 <code class="inline-code language-dart"><span class="syntax-keyword">final</span></code> 變數只能設定一次</li>
+        <li class="option" data-option="C">印出 B11234567</li>
+        <li class="option" data-option="D">先印出 B11234567，再印出 B99999999</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 一部電影片長 137 分鐘。執行下列程式會印出什麼？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">var</span> minutes <span class="syntax-operator">=</span> <span class="syntax-number">137</span>;
+<span class="syntax-function">print</span>(<span class="syntax-string">'${minutes ~/ 60} 小時 ${minutes % 60} 分'</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">2 小時 17 分</li>
+        <li class="option" data-option="B">2.28 小時 17 分</li>
+        <li class="option" data-option="C">2 小時 77 分</li>
+        <li class="option" data-option="D">137 小時 0 分</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 聚餐總金額 1000 元，由 3 人分帳。執行下列程式會印出什麼？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">var</span> total <span class="syntax-operator">=</span> <span class="syntax-number">1000</span>;
+<span class="syntax-keyword">var</span> people <span class="syntax-operator">=</span> <span class="syntax-number">3</span>;
+<span class="syntax-keyword">var</span> each <span class="syntax-operator">=</span> total <span class="syntax-operator">~/</span> people;
+<span class="syntax-keyword">var</span> left <span class="syntax-operator">=</span> total <span class="syntax-operator">%</span> people;
+<span class="syntax-function">print</span>(<span class="syntax-string">'每人 $each 元，還差 $left 元由主揪補上'</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">每人 333.3 元，還差 0 元由主揪補上</li>
+        <li class="option" data-option="B">每人 334 元，還差 2 元由主揪補上</li>
+        <li class="option" data-option="C">每人 $each 元，還差 $left 元由主揪補上</li>
+        <li class="option" data-option="D">每人 333 元，還差 1 元由主揪補上</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 執行下列程式會印出什麼？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">var</span> age <span class="syntax-operator">=</span> <span class="syntax-number">20</span>;
+<span class="syntax-keyword">var</span> hasTicket <span class="syntax-operator">=</span> <span class="syntax-keyword">false</span>;
+<span class="syntax-function">print</span>(age <span class="syntax-operator">&gt;=</span> <span class="syntax-number">18</span> <span class="syntax-operator">||</span> hasTicket);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-dart"><span class="syntax-keyword">false</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-dart"><span class="syntax-number">20</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-dart"><span class="syntax-keyword">true</span></code></li>
+        <li class="option" data-option="D">出現錯誤</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 執行下列程式會印出什麼？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">var</span> steps <span class="syntax-operator">=</span> <span class="syntax-number">1000</span>;
+steps <span class="syntax-operator">+=</span> <span class="syntax-number">500</span>;
+steps <span class="syntax-operator">*=</span> <span class="syntax-number">2</span>;
+<span class="syntax-function">print</span>(steps);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">1500</li>
+        <li class="option" data-option="B">3000</li>
+        <li class="option" data-option="C">2000</li>
+        <li class="option" data-option="D">2500</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 體重 52 公斤、身高 1.60 公尺，計算 BMI 並保留 1 位小數。執行下列程式會印出什麼？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">var</span> bmi <span class="syntax-operator">=</span> <span class="syntax-number">52</span> <span class="syntax-operator">/</span> (<span class="syntax-number">1.60</span> <span class="syntax-operator">*</span> <span class="syntax-number">1.60</span>);
+<span class="syntax-function">print</span>(bmi.<span class="syntax-function">toStringAsFixed</span>(<span class="syntax-number">1</span>));</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">20</li>
+        <li class="option" data-option="B">20.31</li>
+        <li class="option" data-option="C">20.3125</li>
+        <li class="option" data-option="D">20.3</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 執行下列程式會印出什麼？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">var</span> text <span class="syntax-operator">=</span> <span class="syntax-string">'42'</span>;
+<span class="syntax-function">print</span>(<span class="syntax-type">int</span>.<span class="syntax-function">parse</span>(text) <span class="syntax-operator">+</span> <span class="syntax-number">8</span>);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">428</li>
+        <li class="option" data-option="B">50</li>
+        <li class="option" data-option="C">出現錯誤，因為字串不能和數字相加</li>
+        <li class="option" data-option="D">42</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 一支在本機用 <code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> run</code> 執行的 BMI 程式有下列一行。其中 <code class="inline-code language-dart"><span class="syntax-operator">??</span> <span class="syntax-string">''</span></code> 的作用是什麼？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">var</span> heightText <span class="syntax-operator">=</span> stdin.<span class="syntax-function">readLineSync</span>() <span class="syntax-operator">??</span> <span class="syntax-string">''</span>;</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-dart">stdin.<span class="syntax-function">readLineSync</span>()</code> 可能拿到 null，此時改用空字串當預設值</li>
+        <li class="option" data-option="B">把輸入的文字轉成 <code class="inline-code language-dart"><span class="syntax-type">double</span></code></li>
+        <li class="option" data-option="C">去掉輸入前後的空白</li>
+        <li class="option" data-option="D">把輸入的文字全部轉成大寫</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 某個 BMI 程式先用 <code class="inline-code language-dart">stdout.<span class="syntax-function">write</span>(<span class="syntax-string">'請輸入身高（公分）：'</span>);</code> 印出提示，再讀取鍵盤輸入。使用 <code class="inline-code language-dart">stdout.<span class="syntax-function">write</span>()</code> 而不是 <code class="inline-code language-dart"><span class="syntax-function">print</span>()</code> 的原因是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-dart">stdout.<span class="syntax-function">write</span>()</code> 會自動把輸入轉成數字</li>
+        <li class="option" data-option="B"><code class="inline-code language-dart"><span class="syntax-function">print</span>()</code> 無法印出中文</li>
+        <li class="option" data-option="C"><code class="inline-code language-dart">stdout.<span class="syntax-function">write</span>()</code> 印出的數字會自動保留 1 位小數</li>
+        <li class="option" data-option="D">印出提示文字後不換行，讓使用者在同一行輸入</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 下列程式會發生什麼情形？</h2>
+        <pre class="code-block"><code class="language-dart"><span class="syntax-keyword">void</span> <span class="syntax-function">main</span>() {
+  <span class="syntax-keyword">var</span> text <span class="syntax-operator">=</span> <span class="syntax-string">'五十'</span>;
+  <span class="syntax-keyword">var</span> money <span class="syntax-operator">=</span> <span class="syntax-type">int</span>.<span class="syntax-function">parse</span>(text);
+  <span class="syntax-function">print</span>(money);
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-shell shell-command"><span class="syntax-command">dart</span> analyze</code> 就回報型別錯誤，程式無法開始執行</li>
+        <li class="option" data-option="B">印出 50</li>
+        <li class="option" data-option="C">程式開始執行後，在 <code class="inline-code language-dart"><span class="syntax-type">int</span>.parse</code> 那一行丟出 <code class="inline-code language-dart"><span class="syntax-variable">FormatException</span></code></li>
+        <li class="option" data-option="D">印出 null</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    localStorage.setItem("assessment-theme", root.dataset.theme);
+  };
+  setTheme(localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light");
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "02-dart-basics-20Q4p1", MULTI = false, REVEAL_AFTER = 2;
+  const CONTEXT = "APP 程式設計實務 · 課前前測：Dart 開發流程與語法基礎", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("LqzH09dZO8D6fjeQyB4/Fw==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("dY6E8ft5GYHYUheyjDwTNwzu5f/3e3ri1l4V0+oyHzVsjuvz9R0Z7NpcdrLkPh1UDIDn8ZV7F+DYPxW86Dx7NQKM5ZD1dRviuFwbsOpaHTsOjoXx+3kZgdhSF7KMPBM3DO/ljg==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

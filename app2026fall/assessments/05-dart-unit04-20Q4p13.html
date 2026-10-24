@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05-dart-unit04-20Q4p13 · APP 程式設計實務</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5a75; --border: #d7e0ee; --code-bg: #f6f8fa; --code-text: #24292f; --code-border: #d0d7de; --inline-bg: #eef4ff; --inline-border: #b6d5ff; --answer-bg: #eef7f0; --answer-text: #14532d; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9fb0c8; --border: #2b3546; --code-bg: #0d2538; --code-text: #d6deeb; --code-border: #334155; --inline-bg: #172a45; --inline-border: #36557a; --answer-bg: #10261a; --answer-text: #a7e8bd; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 2.5rem 1rem 4rem; background: var(--page-bg); color: var(--text); font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; letter-spacing: .01em; border-bottom: 2px solid var(--border); padding-bottom: .6rem; }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .7rem; padding: 1.1rem 1.3rem; margin: 1.1rem 0; }
+  .question h2 { font-size: 1.05rem; margin: 0 0 .6rem; line-height: 1.7; }
+  .options { margin: .5rem 0 .8rem; padding-left: 1.6rem; }
+  .option { margin: .28rem 0; }
+  .answer-key { display: block; margin: 0; padding: .35rem .7rem; border-radius: .4rem; background: var(--answer-bg); color: var(--answer-text); font-weight: 600; width: fit-content; }
+  .note { color: var(--muted); font-size: .95rem; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--code-border); border-radius: 999px; background: var(--surface); color: #0550ae; cursor: pointer; font-size: 1.2rem; }
+  html[data-theme="dark"] .theme-toggle { color: #82aaff; }
+  .code-block { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: .5rem; padding: .8rem 1rem; overflow-x: auto; font-size: .93rem; line-height: 1.6; }
+  .code-block code { font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace; }
+  .syntax-keyword { color: #8250df; }
+  .syntax-type { color: #0550ae; }
+  .syntax-function { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  .syntax-number { color: #953800; }
+  .syntax-comment { color: #57606a; }
+  .syntax-operator { color: #cf222e; }
+  .syntax-command { color: #0550ae; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .25em; padding: .05em .28em; font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace; font-size: .92em; }
+  html[data-theme="dark"] .code-block { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+  html[data-theme="dark"] .inline-code { color: var(--code-text); background: var(--inline-bg); border-color: var(--inline-border); }
+  html[data-theme="dark"] .syntax-keyword, html[data-theme="dark"] .syntax-operator { color: #c792ea; }
+  html[data-theme="dark"] .syntax-type, html[data-theme="dark"] .syntax-function, html[data-theme="dark"] .syntax-command { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+  html[data-theme="dark"] .syntax-number { color: #f78c6c; }
+  html[data-theme="dark"] .syntax-comment { color: #a6accd; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="05-dart-unit04-20Q4p13">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">APP 程式設計實務</span>05-dart-unit04-20Q4p13</h1>
+  <p class="subtitle">課後形成性評量：Dart 類別、建構式與空值安全</p>
+  <p class="how-to">20 題複選，每題 1 至 3 個正確選項。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 把「名字、分數」和「判斷及不及格」都放進同一個類別，最主要的好處是什麼？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">拿到一個物件，就同時拿到它的資料和對這筆資料的動作</li>
+        <li class="option" data-option="B">程式的總行數一定會變成原本的一半</li>
+        <li class="option" data-option="C">從此之後完全不需要再使用任何變數</li>
+        <li class="option" data-option="D">可以讓程式不必再寫任何 print</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 關於類別裡的「欄位」和「方法」，下列哪些描述正確？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">欄位是類別裡的變數，代表這個物件有什麼資料</li>
+        <li class="option" data-option="B">方法可以直接使用自己物件的欄位，不必再傳一次進來</li>
+        <li class="option" data-option="C">一個類別的欄位必須全部宣告成 int 型別</li>
+        <li class="option" data-option="D">方法一定要交回一個結果，不可以是 void</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 下面這段程式建立了兩個物件，畫面上會出現什麼？</h2>
+        <pre class="code-block"><code class="language-dart">class Box {
+  <span class="syntax-type">String</span> label;
+  <span class="syntax-function">Box</span>(<span class="syntax-keyword">this</span>.label);
+}
+
+<span class="syntax-type">void</span> <span class="syntax-function">main</span>() {
+  <span class="syntax-keyword">var</span> m <span class="syntax-operator">=</span> <span class="syntax-function">Box</span>(<span class="syntax-string">&#x27;甲&#x27;</span>);
+  <span class="syntax-keyword">var</span> n <span class="syntax-operator">=</span> <span class="syntax-function">Box</span>(<span class="syntax-string">&#x27;甲&#x27;</span>);
+  n.label <span class="syntax-operator">=</span> <span class="syntax-string">&#x27;乙&#x27;</span>;
+  <span class="syntax-function">print</span>(m.label);
+}</code></pre>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">乙</li>
+        <li class="option" data-option="B">甲</li>
+        <li class="option" data-option="C">甲乙</li>
+        <li class="option" data-option="D">null</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 關於建構式的各種寫法，下列哪些描述正確？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">具名參數必須照著宣告時的順序寫，順序調換就會出錯</li>
+        <li class="option" data-option="B">寫成 <code class="inline-code language-dart">{<span class="syntax-keyword">this</span>.x <span class="syntax-operator">=</span> 預設值}</code> 的具名參數，呼叫時可以不給</li>
+        <li class="option" data-option="C">具名建構式讓同一個類別的另一種建立方式有自己的名字</li>
+        <li class="option" data-option="D"><code class="inline-code language-dart"><span class="syntax-keyword">const</span></code> 建構式建立出來的值，在編譯時就固定下來</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 把建構式改成具名參數，並且盡量把欄位宣告成 <code class="inline-code language-dart"><span class="syntax-keyword">final</span></code>，可以得到哪些好處？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">讀程式的人一看就知道每個值分別代表什麼</li>
+        <li class="option" data-option="B">所有欄位在執行時會自動被清成 null</li>
+        <li class="option" data-option="C">建立之後就不再變動的資料比較不容易出錯</li>
+        <li class="option" data-option="D">呼叫的時候可以把所有參數名稱通通省略</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 下面這段程式用具名建構式建立一筆讀值，畫面上會出現什麼？</h2>
+        <pre class="code-block"><code class="language-dart">class Reading {
+  <span class="syntax-keyword">final</span> <span class="syntax-type">String</span> sensorId;
+  <span class="syntax-keyword">final</span> <span class="syntax-type">double</span> celsius;
+  <span class="syntax-keyword">final</span> <span class="syntax-type">bool</span> isValid;
+
+  <span class="syntax-keyword">const</span> <span class="syntax-function">Reading</span>({
+    <span class="syntax-keyword">required</span> <span class="syntax-keyword">this</span>.sensorId,
+    <span class="syntax-keyword">required</span> <span class="syntax-keyword">this</span>.celsius,
+    <span class="syntax-keyword">this</span>.isValid <span class="syntax-operator">=</span> <span class="syntax-keyword">true</span>,
+  });
+
+  <span class="syntax-keyword">const</span> Reading.<span class="syntax-function">failed</span>(<span class="syntax-keyword">this</span>.sensorId) <span class="syntax-operator">:</span> celsius <span class="syntax-operator">=</span> <span class="syntax-number">0</span>, isValid <span class="syntax-operator">=</span> <span class="syntax-keyword">false</span>;
+
+  @override
+  <span class="syntax-type">String</span> <span class="syntax-function">toString</span>() <span class="syntax-operator">=&gt;</span> isValid <span class="syntax-operator">?</span> <span class="syntax-string">&#x27;$sensorId：$celsius°C&#x27;</span> <span class="syntax-operator">:</span> <span class="syntax-string">&#x27;$sensorId：讀取失敗&#x27;</span>;
+}
+
+<span class="syntax-type">void</span> <span class="syntax-function">main</span>() {
+  <span class="syntax-function">print</span>(Reading.<span class="syntax-function">failed</span>(<span class="syntax-string">&#x27;A3&#x27;</span>));
+}</code></pre>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">A3：0.0°C</li>
+        <li class="option" data-option="B">A3：讀取失敗</li>
+        <li class="option" data-option="C">A3：true</li>
+        <li class="option" data-option="D">null</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 關於 Dart 的空值安全，下列哪些描述正確？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">型別後面沒有加 <code class="inline-code language-dart"><span class="syntax-operator">?</span></code> 的變數，永遠不會是 null</li>
+        <li class="option" data-option="B">只要型別加上 <code class="inline-code language-dart"><span class="syntax-operator">?</span></code>，這個變數就再也不能存放一般的值</li>
+        <li class="option" data-option="C">忘了處理沒有資料的情況，只能等程式跑到那一行才會知道</li>
+        <li class="option" data-option="D">會是 null 的資料，型別要寫成 <code class="inline-code language-dart"><span class="syntax-type">String</span><span class="syntax-operator">?</span></code>、<code class="inline-code language-dart"><span class="syntax-type">double</span><span class="syntax-operator">?</span></code> 這種形式</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 想安全地使用一個可能是 null 的值，下列哪些做法可行？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">用 <code class="inline-code language-dart"><span class="syntax-operator">?</span>.</code> 安全呼叫，是 null 時整個算式就得到 null</li>
+        <li class="option" data-option="B">用 <code class="inline-code language-dart"><span class="syntax-operator">?</span><span class="syntax-operator">?</span></code> 補一個預設值，左邊是 null 時就改用右邊</li>
+        <li class="option" data-option="C">不必理會，直接呼叫它的方法，Dart 會自動幫忙跳過</li>
+        <li class="option" data-option="D">先用 <code class="inline-code language-dart"><span class="syntax-keyword">if</span> (值 <span class="syntax-operator">!=</span> <span class="syntax-keyword">null</span>)</code> 檢查過，在裡面就能當成有值使用</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 一個算平均的函式把回傳型別寫成 <code class="inline-code language-dart"><span class="syntax-type">double</span><span class="syntax-operator">?</span></code>，並在清單是空的時候回傳 null。這樣設計的用意是什麼？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">這樣函式執行起來會比較快</li>
+        <li class="option" data-option="B">Dart 規定回傳 double 的函式都要加上 <code class="inline-code language-dart"><span class="syntax-operator">?</span></code></li>
+        <li class="option" data-option="C">「算不出來」和「平均是 0」是兩件事，null 才誠實</li>
+        <li class="option" data-option="D">這樣呼叫的人就不必處理空清單的情況</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 一段程式宣告了 <code class="inline-code language-dart"><span class="syntax-type">String</span><span class="syntax-operator">?</span> nickname;</code>，接著直接寫 <code class="inline-code language-dart"><span class="syntax-function">nickname.length</span></code>，結果無法通過分析。關於這個情況，下列哪些說法正確？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">這個問題要等程式執行到那一行才會被發現</li>
+        <li class="option" data-option="B">分析器會指出這個值可能是 null，不可以就這樣直接存取屬性</li>
+        <li class="option" data-option="C">在還沒執行前就被抓出來，正是空值安全帶來的好處</li>
+        <li class="option" data-option="D">只要把 <code class="inline-code language-dart"><span class="syntax-operator">?</span></code> 拿掉就一定能解決，而且程式的意思完全不變</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 關於 <code class="inline-code language-dart"><span class="syntax-function">abstract</span></code>、<code class="inline-code language-dart"><span class="syntax-function">extends</span></code> 與 <code class="inline-code language-dart"><span class="syntax-function">@override</span></code>，下列哪些描述正確？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-dart"><span class="syntax-function">abstract</span></code> 類別不能直接拿來建立物件</li>
+        <li class="option" data-option="B"><code class="inline-code language-dart"><span class="syntax-function">extends</span></code> 會把父類別的欄位和方法接過來</li>
+        <li class="option" data-option="C"><code class="inline-code language-dart"><span class="syntax-function">@override</span></code> 表示這裡用自己的版本取代父類別的做法</li>
+        <li class="option" data-option="D">子類別一旦繼承，就不能再多加自己的欄位</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 下面這段程式讓子類別覆寫 <code class="inline-code language-dart"><span class="syntax-function">get label</span></code>，畫面上會依序出現哪兩行？</h2>
+        <pre class="code-block"><code class="language-dart">abstract class Shape {
+  <span class="syntax-keyword">final</span> <span class="syntax-type">String</span> id;
+
+  <span class="syntax-function">Shape</span>(<span class="syntax-keyword">this</span>.id);
+
+  <span class="syntax-type">String</span> get label;
+
+  <span class="syntax-type">String</span> <span class="syntax-function">report</span>() <span class="syntax-operator">=&gt;</span> <span class="syntax-string">&#x27;$id 是$label&#x27;</span>;
+}
+
+class Circle extends Shape {
+  <span class="syntax-function">Circle</span>(super.id);
+
+  @override
+  <span class="syntax-type">String</span> get label <span class="syntax-operator">=&gt;</span> <span class="syntax-string">&#x27;圓形&#x27;</span>;
+}
+
+<span class="syntax-type">void</span> <span class="syntax-function">main</span>() {
+  <span class="syntax-keyword">var</span> s <span class="syntax-operator">=</span> <span class="syntax-function">Circle</span>(<span class="syntax-string">&#x27;S1&#x27;</span>);
+  <span class="syntax-function">print</span>(s.label);
+  <span class="syntax-function">print</span>(s.<span class="syntax-function">report</span>());
+}</code></pre>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">label</li>
+        <li class="option" data-option="B">圓形</li>
+        <li class="option" data-option="C">S1 是 Shape</li>
+        <li class="option" data-option="D">S1 是圓形</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 關於子類別裡的 <code class="inline-code language-dart"><span class="syntax-function">super</span></code>，下列哪些描述正確？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">寫成 <code class="inline-code language-dart"><span class="syntax-function">TempSensor</span>(super.id, <span class="syntax-keyword">this</span>.celsius);</code> 會把收到的編號交給父類別的建構式</li>
+        <li class="option" data-option="B"><code class="inline-code language-dart"><span class="syntax-function">super</span></code> 只能寫在 main 函式裡面，類別裡不能用</li>
+        <li class="option" data-option="C"><code class="inline-code language-dart">super.<span class="syntax-function">report</span>()</code> 代表先使用父類別已經寫好的那個版本</li>
+        <li class="option" data-option="D">覆寫之後仍然可以先用父類別的版本，再接上自己要加的內容</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 兩種不同款式的感測器都繼承自 <code class="inline-code language-dart"><span class="syntax-function">Sensor</span></code>，為什麼可以放進同一個 <code class="inline-code language-dart"><span class="syntax-type">List</span><span class="syntax-operator">&lt;</span>Sensor<span class="syntax-operator">&gt;</span></code> 用一個迴圈處理？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">因為它們都是 <code class="inline-code language-dart"><span class="syntax-function">Sensor</span></code>，共用同一套介面</li>
+        <li class="option" data-option="B">因為它們的欄位名稱完全相同</li>
+        <li class="option" data-option="C">因為清單可以同時放進任何互不相關的型別</li>
+        <li class="option" data-option="D">因為它們都沒有覆寫過任何方法</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 一個教室類別把「算平均、數失敗筆數」都放在自己裡面，而且平均值的型別是 <code class="inline-code language-dart"><span class="syntax-type">double</span><span class="syntax-operator">?</span></code>。關於這樣的設計，下列哪些說法正確？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">呼叫的人必須自己先把無效的讀值挑掉才能用</li>
+        <li class="option" data-option="B">因為平均值是 <code class="inline-code language-dart"><span class="syntax-type">double</span><span class="syntax-operator">?</span></code>，所以它永遠不能被印出來</li>
+        <li class="option" data-option="C">呼叫的人不必知道細節，只要問這間教室的平均和失敗筆數</li>
+        <li class="option" data-option="D">印出平均之前，一定要先處理「算不出來」的情況</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 關於下列名詞的說明，哪些是正確的？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">「實例（instance）」是指存放類別原始碼的那個檔案</li>
+        <li class="option" data-option="B">「物件」是照著類別做出來的東西</li>
+        <li class="option" data-option="C">「建構式」是建立物件時會執行的特殊方法</li>
+        <li class="option" data-option="D">「getter」用起來像欄位，實際上是算出來的值</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 感測器讀取失敗的那筆資料會把 <code class="inline-code language-dart"><span class="syntax-function">isValid</span></code> 記成 false。執行下面的程式，畫面上會依序出現哪兩個數字？</h2>
+        <pre class="code-block"><code class="language-dart">class Sample {
+  <span class="syntax-keyword">final</span> <span class="syntax-type">double</span> celsius;
+  <span class="syntax-keyword">final</span> <span class="syntax-type">bool</span> isValid;
+
+  <span class="syntax-keyword">const</span> <span class="syntax-function">Sample</span>(<span class="syntax-keyword">this</span>.celsius, {<span class="syntax-keyword">this</span>.isValid <span class="syntax-operator">=</span> <span class="syntax-keyword">true</span>});
+}
+
+<span class="syntax-type">void</span> <span class="syntax-function">main</span>() {
+  <span class="syntax-keyword">const</span> list <span class="syntax-operator">=</span> [<span class="syntax-function">Sample</span>(<span class="syntax-number">27.5</span>), <span class="syntax-function">Sample</span>(<span class="syntax-number">28.9</span>), <span class="syntax-function">Sample</span>(<span class="syntax-number">0</span>, isValid<span class="syntax-operator">:</span> <span class="syntax-keyword">false</span>)];
+  <span class="syntax-function">print</span>(list.<span class="syntax-function">where</span>((s) <span class="syntax-operator">=&gt;</span> s.isValid).length);
+  <span class="syntax-function">print</span>(list.<span class="syntax-function">where</span>((s) <span class="syntax-operator">=&gt;</span> <span class="syntax-operator">!</span>s.isValid).length);
+}</code></pre>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">2</li>
+        <li class="option" data-option="B">1</li>
+        <li class="option" data-option="C">0</li>
+        <li class="option" data-option="D">3</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 把資料處理改寫成類別之後，作業要求在繳交前先執行哪一個指令，確認沒有任何警告？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-shell"><span class="syntax-command">dart create</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-shell"><span class="syntax-command">dart run</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-shell"><span class="syntax-command">dart test</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-shell"><span class="syntax-command">dart analyze</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 這個單元的作業要求繳交的成果，應該包含下列哪些內容？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">一個資料類別，欄位至少 3 個而且全部用 <code class="inline-code language-dart"><span class="syntax-keyword">final</span></code></li>
+        <li class="option" data-option="B">所有自己寫的類別都必須宣告成 <code class="inline-code language-dart"><span class="syntax-function">abstract</span></code></li>
+        <li class="option" data-option="C">一個集合類別，提供至少 2 個 getter，其中至少 1 個回傳可為 null 的型別</li>
+        <li class="option" data-option="D">主程式至少建立 3 筆資料，其中要包含 1 筆無效資料</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 某個建構式宣告成 <code class="inline-code language-dart"><span class="syntax-function">Ticket</span>({<span class="syntax-keyword">required</span> <span class="syntax-keyword">this</span>.code, <span class="syntax-keyword">required</span> <span class="syntax-keyword">this</span>.price})</code>，呼叫時卻只寫了 <code class="inline-code language-dart"><span class="syntax-function">code</span></code>。關於這個情況，下列哪些說法正確？</h2>
+        
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">程式照常執行，price 會自動變成 0</li>
+        <li class="option" data-option="B">程式照常執行，price 會自動變成 null</li>
+        <li class="option" data-option="C">還沒執行之前，分析器就會指出少給了一定要給的參數</li>
+        <li class="option" data-option="D">具名參數沒有順序，漏掉一個不會被順序抓出來，而是由分析器直接指出</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    try { localStorage.setItem("assessment-theme", root.dataset.theme); } catch (error) {}
+  };
+  let stored = null;
+  try { stored = localStorage.getItem("assessment-theme"); } catch (error) {}
+  setTheme(stored === "dark" ? "dark" : "light");
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "05-dart-unit04-20Q4p13", MULTI = true, REVEAL_AFTER = 2;
+  const CONTEXT = "APP 程式設計實務 · 課後形成性評量：Dart 類別、建構式與空值安全", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("nkQP5HUNRHFFb9Vf8OTkcg==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("xWZOxlktZjAHTfl/0qbGXr5mTacxL2hRZy6WfdzExjC8aC/GNElmXWVNlB20xshSvActyFUvBjJnQ/V9saanULJkLaYxL2hRZy6WG9LIxFDfZiPEV04AU2lP9x2zoMZevmZOplchZFMBTfl/0qWnNrxoL8Y2SWYs").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
