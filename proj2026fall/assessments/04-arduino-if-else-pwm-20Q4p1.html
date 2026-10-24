@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04-arduino-if-else-pwm-20Q4p1 · 應用實務專題（一）</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; --code-bg: #f6f8fa; --code-text: #24292f; --code-border: #d0d7de; --inline-bg: #eef4ff; --inline-border: #b6d5ff; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; --code-bg: #0d2538; --code-text: #d6deeb; --code-border: #334155; --inline-bg: #172a45; --inline-border: #36557a; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+  .lead { color: var(--muted); }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .question h2 { font-size: 1.05rem; line-height: 1.7; margin: 0 0 .5rem; }
+  .options { margin: .5rem 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .75rem 0 0; padding-top: .5rem; border-top: 1px dashed var(--border); color: var(--accent); font-weight: 600; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: #0550ae; cursor: pointer; font-size: 1.2rem; }
+  html[data-theme="dark"] .theme-toggle { color: #82aaff; }
+  .code-block { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: .4rem; padding: .75rem 1rem; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92rem; line-height: 1.55; }
+  .syntax-keyword { color: #8250df; }
+  .syntax-type { color: #0550ae; }
+  .syntax-function { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  .syntax-number { color: #953800; }
+  .syntax-comment { color: #57606a; }
+  .syntax-operator { color: #cf222e; }
+  .syntax-variable { color: #1f2328; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+  html[data-theme="dark"] .code-block { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+  html[data-theme="dark"] .inline-code { color: var(--code-text); background: var(--inline-bg); border-color: var(--inline-border); }
+  html[data-theme="dark"] .syntax-keyword, html[data-theme="dark"] .syntax-operator { color: #c792ea; }
+  html[data-theme="dark"] .syntax-type, html[data-theme="dark"] .syntax-function { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+  html[data-theme="dark"] .syntax-number { color: #f78c6c; }
+  html[data-theme="dark"] .syntax-comment { color: #a6accd; }
+  html[data-theme="dark"] .syntax-variable { color: #e6edf3; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="04-arduino-if-else-pwm-20Q4p1">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">應用實務專題（一）</span>04-arduino-if-else-pwm-20Q4p1</h1>
+  <p class="subtitle">課前前測：Arduino 條件判斷與 LED 調光</p>
+  <p class="how-to">20 題單選。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 「只寫 <code class="inline-code language-cpp"><span class="syntax-keyword">if</span></code> 的判斷」和「<code class="inline-code language-cpp"><span class="syntax-keyword">if</span> ... <span class="syntax-keyword">else</span></code> 的判斷」最主要的差別是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">只寫 <code class="inline-code language-cpp"><span class="syntax-keyword">if</span></code> 時，條件不成立就直接跳過；<code class="inline-code language-cpp"><span class="syntax-keyword">if</span> ... <span class="syntax-keyword">else</span></code> 一定會執行兩段之中的一段</li>
+        <li class="option" data-option="B">兩種寫法的執行結果完全相同，只是排版不一樣</li>
+        <li class="option" data-option="C">只寫 <code class="inline-code language-cpp"><span class="syntax-keyword">if</span></code> 的判斷不能放在 <code class="inline-code language-cpp"><span class="syntax-function">loop</span>()</code> 裡面</li>
+        <li class="option" data-option="D"><code class="inline-code language-cpp"><span class="syntax-keyword">if</span> ... <span class="syntax-keyword">else</span></code> 在條件成立時會把兩段都執行一次</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 一段 <code class="inline-code language-cpp"><span class="syntax-keyword">if</span> ... <span class="syntax-keyword">else</span> <span class="syntax-keyword">if</span> ... <span class="syntax-keyword">else</span></code> 的判斷中，有多個條件同時成立時，程式會怎麼執行？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把所有成立的區段都各執行一次</li>
+        <li class="option" data-option="B">由上往下檢查，執行第一個成立的區段之後就結束整串判斷</li>
+        <li class="option" data-option="C">由下往上檢查，執行最後一個成立的區段</li>
+        <li class="option" data-option="D">先執行 <code class="inline-code language-cpp"><span class="syntax-keyword">else</span></code> 的區段，再回頭檢查其他條件</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 變數 <code class="inline-code language-cpp"><span class="syntax-variable">count</span></code> 目前的值是 7。下列哪一個條件成立？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-cpp"><span class="syntax-variable">count</span> <span class="syntax-operator">==</span> <span class="syntax-number">8</span></code></li>
+        <li class="option" data-option="B"><code class="inline-code language-cpp"><span class="syntax-variable">count</span> <span class="syntax-operator">&gt;</span> <span class="syntax-number">10</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-cpp"><span class="syntax-variable">count</span> <span class="syntax-operator">!=</span> <span class="syntax-number">7</span></code></li>
+        <li class="option" data-option="D"><code class="inline-code language-cpp"><span class="syntax-variable">count</span> <span class="syntax-operator">&gt;=</span> <span class="syntax-number">7</span></code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 要在判斷的括號裡檢查變數 <code class="inline-code language-cpp"><span class="syntax-variable">n</span></code> 是不是等於 5，應該怎麼寫？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">寫 <code class="inline-code language-cpp"><span class="syntax-variable">n</span> <span class="syntax-operator">=</span> <span class="syntax-number">5</span></code>，因為括號裡只能出現一個等號</li>
+        <li class="option" data-option="B">寫 <code class="inline-code language-cpp"><span class="syntax-variable">n</span> <span class="syntax-operator">==</span> <span class="syntax-number">5</span></code>，兩個等號才是「檢查是不是相等」</li>
+        <li class="option" data-option="C">寫 <code class="inline-code language-cpp"><span class="syntax-variable">n</span> <span class="syntax-operator">=</span><span class="syntax-operator">&lt;</span> <span class="syntax-number">5</span></code>，這樣程式才會做比較</li>
+        <li class="option" data-option="D">兩種寫法都可以，程式會自動判斷要做哪一件事</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 在讀取旋鈕的程式中，「門檻值」指的是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">程式最多可以重複執行的次數</li>
+        <li class="option" data-option="B">類比腳位能夠承受的最大電壓</li>
+        <li class="option" data-option="C">一條分界線，把讀值分成「超過」與「沒超過」兩種情況</li>
+        <li class="option" data-option="D">LED 全亮時所需要的電流大小</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 下列程式中的腳位變數與輸出入模式皆已正確設定完成。當可變電阻的讀值是 350 時，LED 會如何？</h2>
+        <pre class="code-block"><code class="language-cpp"><span class="syntax-type">int</span> <span class="syntax-variable">threshold</span> <span class="syntax-operator">=</span> <span class="syntax-number">400</span><span class="syntax-operator">;</span>
+
+<span class="syntax-type">void</span> <span class="syntax-function">loop</span>() {
+  <span class="syntax-type">int</span> <span class="syntax-variable">analogValue</span> <span class="syntax-operator">=</span> <span class="syntax-function">analogRead</span>(<span class="syntax-variable">analogPin</span>)<span class="syntax-operator">;</span>
+
+  <span class="syntax-keyword">if</span> (<span class="syntax-variable">analogValue</span> <span class="syntax-operator">&gt;</span> <span class="syntax-variable">threshold</span>) {
+    <span class="syntax-function">digitalWrite</span>(<span class="syntax-variable">ledPin</span>, <span class="syntax-type">HIGH</span>)<span class="syntax-operator">;</span>
+  } <span class="syntax-keyword">else</span> {
+    <span class="syntax-function">digitalWrite</span>(<span class="syntax-variable">ledPin</span>, <span class="syntax-type">LOW</span>)<span class="syntax-operator">;</span>
+  }
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">亮起</li>
+        <li class="option" data-option="B">以一半的亮度亮起</li>
+        <li class="option" data-option="C">快速閃爍</li>
+        <li class="option" data-option="D">熄滅</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 有人用「只要按鈕讀到 HIGH 就把次數加 1」的寫法計數，結果按一下卻被算成好幾百次。最主要的原因是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-cpp"><span class="syntax-function">loop</span>()</code> 每秒會重複執行非常多次，按住的那段時間內會一直累加</li>
+        <li class="option" data-option="B">按鈕的電壓不足，訊號會被自動放大</li>
+        <li class="option" data-option="C">序列埠監控視窗會自己重複列印同一行文字</li>
+        <li class="option" data-option="D"><code class="inline-code language-cpp"><span class="syntax-function">digitalRead</span>()</code> 一次就會回傳好幾個數值</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 程式用一個變數記住按鈕上一次的狀態。若上一次讀到 LOW、這一次讀到 HIGH，代表什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">按鈕剛被放開</li>
+        <li class="option" data-option="B">按鈕被按住不放</li>
+        <li class="option" data-option="C">按鈕剛被按下</li>
+        <li class="option" data-option="D">按鈕從頭到尾都沒有被碰到</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 取餘數運算子 <code class="inline-code language-cpp"><span class="syntax-operator">%</span></code> 會算出相除之後剩下的數。<code class="inline-code language-cpp"><span class="syntax-number">10</span> <span class="syntax-operator">%</span> <span class="syntax-number">4</span></code> 的結果是多少？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">2</li>
+        <li class="option" data-option="B">0</li>
+        <li class="option" data-option="C">1</li>
+        <li class="option" data-option="D">40</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 一個按鈕計次的程式，每按一次都列印「按下次數：1」，數字始終不會累加。最可能的原因是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">序列埠的通訊速度設得太低，數字來不及更新</li>
+        <li class="option" data-option="B">計數變數宣告在 <code class="inline-code language-cpp"><span class="syntax-function">loop</span>()</code> 裡面，每一輪都被重設為 0</li>
+        <li class="option" data-option="C">按鈕接在號碼太小的腳位上</li>
+        <li class="option" data-option="D">沒有在 <code class="inline-code language-cpp"><span class="syntax-function">setup</span>()</code> 裡面設定 LED 的腳位</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 編譯時，錯誤訊息指向程式裡 <code class="inline-code language-cpp"><span class="syntax-keyword">else</span></code> 的那一行。最應該先檢查什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">序列埠的通訊速度有沒有設定</li>
+        <li class="option" data-option="B">有沒有在程式最前面宣告腳位變數</li>
+        <li class="option" data-option="C">LED 有沒有串接限流電阻</li>
+        <li class="option" data-option="D"><code class="inline-code language-cpp"><span class="syntax-keyword">else</span></code> 之前的那個大括號是不是少了或多了</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 UNO 用 PWM 讓 LED 呈現不同亮度，實際上是怎麼做到的？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">用非常快的速度讓腳位反覆開與關，開著的時間比例越長就看起來越亮</li>
+        <li class="option" data-option="B">直接從腳位輸出 2.5 V 這種一半的電壓</li>
+        <li class="option" data-option="C">自動把 LED 的限流電阻值調低</li>
+        <li class="option" data-option="D">把 LED 的正負腳快速對調</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 在 UNO R3 上，哪一組腳位可以用來做 LED 調光？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">0、1、2、4、7、8</li>
+        <li class="option" data-option="B">A0 到 A5</li>
+        <li class="option" data-option="C">3、5、6、9、10、11</li>
+        <li class="option" data-option="D">只有第 13 號腳位</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 想用 <code class="inline-code language-cpp"><span class="syntax-function">analogWrite</span>()</code> 控制 LED 亮度，關於事前的腳位設定，下列敘述何者正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">一定要先把該腳位設定成 INPUT</li>
+        <li class="option" data-option="B">不需要先設定 <code class="inline-code language-cpp"><span class="syntax-function">pinMode</span>()</code>，直接呼叫就可以</li>
+        <li class="option" data-option="C">必須先呼叫 <code class="inline-code language-cpp"><span class="syntax-function">Serial.begin</span>(<span class="syntax-number">9600</span>)</code> 才能使用</li>
+        <li class="option" data-option="D">必須先把該腳位設定成類比輸入</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 一段迴圈寫成 <code class="inline-code language-cpp"><span class="syntax-keyword">for</span> (<span class="syntax-type">int</span> <span class="syntax-variable">i</span> <span class="syntax-operator">=</span> <span class="syntax-number">0</span><span class="syntax-operator">;</span> <span class="syntax-variable">i</span> <span class="syntax-operator">&lt;=</span> <span class="syntax-number">100</span><span class="syntax-operator">;</span> <span class="syntax-variable">i</span> <span class="syntax-operator">+=</span> <span class="syntax-number">10</span>)</code>，<code class="inline-code language-cpp"><span class="syntax-variable">i</span></code> 會依序變成哪些數值？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">0、1、2 一直到 100</li>
+        <li class="option" data-option="B">10、20、30 一直到 100</li>
+        <li class="option" data-option="C">0、10、20 一直到 100</li>
+        <li class="option" data-option="D">100、90、80 一直到 0</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 LED 經 220 歐姆電阻接在可調光的腳位上，程式也送出了不同的亮度數值，但 LED 從頭到尾都不亮。最可能的原因是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">亮度的數值設得太大</li>
+        <li class="option" data-option="B">電阻的阻值太小</li>
+        <li class="option" data-option="C">程式裡面少了註解</li>
+        <li class="option" data-option="D">LED 的長腳與短腳接反了</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 可變電阻讀到的數值是 0 到 1023，而設定 LED 亮度需要的是 0 到 255。要把讀值換算成亮度，應該使用哪一個函式？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-cpp"><span class="syntax-function">map</span>()</code></li>
+        <li class="option" data-option="B"><code class="inline-code language-cpp"><span class="syntax-function">delay</span>()</code></li>
+        <li class="option" data-option="C"><code class="inline-code language-cpp"><span class="syntax-function">pinMode</span>()</code></li>
+        <li class="option" data-option="D"><code class="inline-code language-cpp"><span class="syntax-function">digitalWrite</span>()</code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 執行 <code class="inline-code language-cpp"><span class="syntax-function">map</span>(<span class="syntax-number">511</span>, <span class="syntax-number">0</span>, <span class="syntax-number">1023</span>, <span class="syntax-number">0</span>, <span class="syntax-number">255</span>)</code> 之後，得到的結果大約是多少？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">約 255</li>
+        <li class="option" data-option="B">約 127</li>
+        <li class="option" data-option="C">約 511</li>
+        <li class="option" data-option="D">約 1023</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 程式在同一行印出兩個數值，序列埠監控視窗上的數字全部擠在一起。最簡單的解決方式是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把序列埠的通訊速度提高到 115200</li>
+        <li class="option" data-option="B">改用 <code class="inline-code language-cpp"><span class="syntax-function">digitalWrite</span>()</code> 輸出這兩個數值</li>
+        <li class="option" data-option="C">在兩個數值之間印出跳格字元 <code class="inline-code language-cpp"><span class="syntax-string">&quot;\t&quot;</span></code> 或空格</li>
+        <li class="option" data-option="D">把 <code class="inline-code language-cpp"><span class="syntax-function">delay</span>()</code> 的等待時間拉長到 1000</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 旋鈕調光器程式把換算範圍的最後兩個數字由 <code class="inline-code language-cpp"><span class="syntax-number">0</span>, <span class="syntax-number">255</span></code> 對調成 <code class="inline-code language-cpp"><span class="syntax-number">255</span>, <span class="syntax-number">0</span></code>，旋鈕與亮度的關係會變成什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">完全沒有改變</li>
+        <li class="option" data-option="B">旋鈕轉到底時 LED 會燒壞</li>
+        <li class="option" data-option="C">LED 會開始自己一亮一滅地閃爍</li>
+        <li class="option" data-option="D">旋鈕轉到底時 LED 最暗，轉回原點時最亮</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    try { localStorage.setItem("assessment-theme", root.dataset.theme); } catch (e) {}
+  };
+  let saved = "light";
+  try { saved = localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light"; } catch (e) {}
+  setTheme(saved);
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "04-arduino-if-else-pwm-20Q4p1", MULTI = false, REVEAL_AFTER = 2;
+  const CONTEXT = "應用實務專題（一） · 課前前測：Arduino 條件判斷與 LED 調光", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("Pq3cPLM1IJbg9lkAmH6nUg==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("ZY+dHp8VAtTC2nki3FyLchzv/hCTF2O0zNZ7RLpSh3B/j/AckXYCusDUGCK0XoUQHIH8HvcXDLbCt3ssuFzkcBKN/n6RGQC0o9R1ILo6hX4ej50enxUC1MLaeSLbXItyHOn+YQ==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>

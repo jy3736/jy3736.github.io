@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02-arduino-blink-button-20Q4p1 · 應用實務專題（一）</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --border: #d0d7de; --accent: #0550ae; --code-bg: #f6f8fa; --code-text: #24292f; --code-border: #d0d7de; --inline-bg: #eef4ff; --inline-border: #b6d5ff; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa4b2; --border: #334155; --accent: #82aaff; --code-bg: #0d2538; --code-text: #d6deeb; --code-border: #334155; --inline-bg: #172a45; --inline-border: #36557a; }
+  body { background: var(--page-bg); color: var(--text); margin: 0; padding: 2rem 1rem 4rem; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+  .lead { color: var(--muted); }
+  .question { background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .question h2 { font-size: 1.05rem; line-height: 1.7; margin: 0 0 .5rem; }
+  .options { margin: .5rem 0; padding-left: 1.6rem; }
+  .option { margin: .3rem 0; }
+  .answer-key { display: block; margin: .75rem 0 0; padding-top: .5rem; border-top: 1px dashed var(--border); color: var(--accent); font-weight: 600; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: #0550ae; cursor: pointer; font-size: 1.2rem; }
+  html[data-theme="dark"] .theme-toggle { color: #82aaff; }
+  .code-block { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: .4rem; padding: .75rem 1rem; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92rem; line-height: 1.55; }
+  .syntax-keyword { color: #8250df; }
+  .syntax-type { color: #0550ae; }
+  .syntax-function { color: #0550ae; }
+  .syntax-number { color: #953800; }
+  .syntax-comment { color: #57606a; }
+  .syntax-operator { color: #cf222e; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+  html[data-theme="dark"] .code-block { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+  html[data-theme="dark"] .inline-code { color: var(--code-text); background: var(--inline-bg); border-color: var(--inline-border); }
+  html[data-theme="dark"] .syntax-keyword, html[data-theme="dark"] .syntax-operator { color: #c792ea; }
+  html[data-theme="dark"] .syntax-type, html[data-theme="dark"] .syntax-function { color: #82aaff; }
+  html[data-theme="dark"] .syntax-number { color: #f78c6c; }
+  html[data-theme="dark"] .syntax-comment { color: #a6accd; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題"
+  title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="02-arduino-blink-button-20Q4p1">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">應用實務專題（一）</span>02-arduino-blink-button-20Q4p1</h1>
+  <p class="subtitle">課前前測：Arduino 程式、LED 與按鈕</p>
+  <p class="how-to">20 題單選。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem">
+        <h2>01 在 Arduino 程式中，<code class="inline-code language-cpp"><span class="syntax-function">setup</span>()</code> 區塊裡的程式會在什麼時候執行？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">板子通電或按下重置後，只執行一次</li>
+        <li class="option" data-option="B">每一輪重複執行的區塊結束後，再執行一次</li>
+        <li class="option" data-option="C">每隔固定時間自動執行一次</li>
+        <li class="option" data-option="D">只有在序列埠監控視窗開啟時才執行</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem">
+        <h2>02 某同學寫的 Arduino 程式只有 <code class="inline-code language-cpp"><span class="syntax-keyword">void</span> <span class="syntax-function">setup</span>() { }</code>，完全沒有寫 <code class="inline-code language-cpp"><span class="syntax-function">loop</span>()</code> 區塊。按下「驗證」後，會發生什麼事？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">可以編譯，setup() 會自動一直重複執行</li>
+        <li class="option" data-option="B">可以編譯，但板子通電後什麼事都不做</li>
+        <li class="option" data-option="C">無法編譯，因為每個 Arduino 程式都至少要有 setup() 與 loop() 兩個區塊</li>
+        <li class="option" data-option="D">可以編譯，Arduino IDE 會自動補上缺少的區塊</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem">
+        <h2>03 Arduino 程式中，寫在 <code class="inline-code language-cpp"><span class="syntax-comment">//</span></code> 後面的文字稱為什麼？板子會怎麼處理它？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">稱為指令，板子會照著執行</li>
+        <li class="option" data-option="B">稱為註解，是寫給人看的說明，板子會直接忽略</li>
+        <li class="option" data-option="C">稱為錯誤訊息，會讓程式上傳失敗</li>
+        <li class="option" data-option="D">稱為腳位名稱，板子會依它設定腳位用途</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem">
+        <h2>04 Arduino UNO 板上有一顆內建 LED，程式中可以用 <code class="inline-code language-cpp"><span class="syntax-type">LED_BUILTIN</span></code> 代表它的腳位。這顆 LED 接在第幾號數位腳位？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">第 2 號</li>
+        <li class="option" data-option="B">第 12 號</li>
+        <li class="option" data-option="C">第 0 號</li>
+        <li class="option" data-option="D">第 13 號</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem">
+        <h2>05 在 setup() 中寫下 <code class="inline-code language-cpp"><span class="syntax-function">pinMode</span>(<span class="syntax-type">LED_BUILTIN</span>, <span class="syntax-type">OUTPUT</span>)<span class="syntax-operator">;</span></code>，它的作用是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">讓 LED 立刻亮起並保持亮著</li>
+        <li class="option" data-option="B">告訴板子：這個腳位要用來「送出」訊號</li>
+        <li class="option" data-option="C">讓程式暫停一段時間再繼續</li>
+        <li class="option" data-option="D">讀取這個腳位目前是高電位還是低電位</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem">
+        <h2>06 已在 setup() 把板上 LED 的腳位設為輸出，loop() 內容如下。LED 每一次亮與滅，各大約持續多久？</h2>
+        <pre class="code-block"><code class="language-cpp"><span class="syntax-keyword">void</span> <span class="syntax-function">loop</span>() {
+  <span class="syntax-function">digitalWrite</span>(<span class="syntax-type">LED_BUILTIN</span>, <span class="syntax-type">HIGH</span>)<span class="syntax-operator">;</span>
+  <span class="syntax-function">delay</span>(<span class="syntax-number">100</span>)<span class="syntax-operator">;</span>
+  <span class="syntax-function">digitalWrite</span>(<span class="syntax-type">LED_BUILTIN</span>, <span class="syntax-type">LOW</span>)<span class="syntax-operator">;</span>
+  <span class="syntax-function">delay</span>(<span class="syntax-number">1000</span>)<span class="syntax-operator">;</span>
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">亮約 0.1 秒，滅約 1 秒</li>
+        <li class="option" data-option="B">亮約 1 秒，滅約 0.1 秒</li>
+        <li class="option" data-option="C">亮約 100 秒，滅約 1000 秒</li>
+        <li class="option" data-option="D">亮與滅都約 1.1 秒</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem">
+        <h2>07 按下「驗證」後出現紅字，指出某個函式名稱無法辨識。檢查後發現該名稱的字母順序完全正確，每行結尾的分號與大括號也都成對。最可能的原因是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">程式中的等待時間設得太短</li>
+        <li class="option" data-option="B">「工具」選單中的開發板沒選對</li>
+        <li class="option" data-option="C">外接 LED 沒有串聯電阻</li>
+        <li class="option" data-option="D">Arduino 程式區分大小寫，函式名稱的大小寫打錯了</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem">
+        <h2>08 程式按下「驗證」沒有任何錯誤，但按下「上傳」時顯示上傳失敗。最應該先檢查哪一件事？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把程式中的等待時間改短</li>
+        <li class="option" data-option="B">在每一行後面加上說明文字</li>
+        <li class="option" data-option="C">「工具」選單中的開發板與連接埠是否選對</li>
+        <li class="option" data-option="D">把外接 LED 的兩隻腳對調</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem">
+        <h2>09 把一顆 LED 外接到 Arduino UNO 時，一定要串聯一顆電阻。主要原因是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">限制流過 LED 的電流，保護 LED 與板子不被損壞</li>
+        <li class="option" data-option="B">讓 LED 閃爍的速度變快</li>
+        <li class="option" data-option="C">讓板子能讀取 LED 目前是亮還是滅</li>
+        <li class="option" data-option="D">取代 GND 的接線，可以少接一條線</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem">
+        <h2>10 外接 LED 時，數位腳位先經過電阻接到 LED 的一隻腳，LED 的另一隻腳接到 UNO 的 GND。應該接到 GND 的是 LED 的哪一隻腳？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">長腳，因為長腳是負極</li>
+        <li class="option" data-option="B">短腳，因為短腳是負極</li>
+        <li class="option" data-option="C">長腳，因為電阻已經接在短腳</li>
+        <li class="option" data-option="D">哪一隻都可以，因為 LED 不分正負腳</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem">
+        <h2>11 把某個數位腳位設為輸入，但這個腳位什麼都沒接，再用 <code class="inline-code language-cpp"><span class="syntax-function">digitalRead</span>()</code> 反覆讀取。會觀察到什麼現象？這種狀態叫做什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">一直穩定讀到 HIGH，稱為上拉</li>
+        <li class="option" data-option="B">一直穩定讀到 LOW，稱為下拉</li>
+        <li class="option" data-option="C">讀到 0 到 1023 之間的各種數值，稱為可變電阻</li>
+        <li class="option" data-option="D">讀值亂跳，一下 HIGH 一下 LOW，稱為浮接</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem">
+        <h2>12 按鈕一隻腳接 5V，另一隻腳接第 2 號腳位；第 2 號腳位同時經過一顆 10k 歐姆電阻接到 GND，腳位設為 INPUT。按鈕「沒按」時，第 2 號腳位讀到什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">HIGH，因為這顆電阻把腳位接到 5V</li>
+        <li class="option" data-option="B">一下 HIGH 一下 LOW，無法確定</li>
+        <li class="option" data-option="C">LOW，因為這顆下拉電阻讓腳位穩定讀到 LOW</li>
+        <li class="option" data-option="D">0 到 1023 之間的某個數值</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem">
+        <h2>13 程式在 setup() 中寫了 <code class="inline-code language-cpp"><span class="syntax-function">Serial.begin</span>(<span class="syntax-number">9600</span>)<span class="syntax-operator">;</span></code>，但打開序列埠監控視窗後，畫面出現一堆亂碼。最可能的原因是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">監控視窗右下角的速度設定和程式中的 9600 不一致</li>
+        <li class="option" data-option="B">按鈕插在麵包板上的方向不對</li>
+        <li class="option" data-option="C">按鈕腳位沒有用 pinMode 設定用途</li>
+        <li class="option" data-option="D">外接 LED 的長短腳接反了</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem">
+        <h2>14 某個輸入腳位以 <code class="inline-code language-cpp"><span class="syntax-function">digitalRead</span>()</code> 讀到 HIGH，再把這個讀值用 Serial.println() 印出。序列埠監控視窗會顯示什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">0</li>
+        <li class="option" data-option="B">1</li>
+        <li class="option" data-option="C">5</li>
+        <li class="option" data-option="D">1023</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem">
+        <h2>15 把印出讀值的指令由 Serial.println() 改成 <code class="inline-code language-cpp"><span class="syntax-function">Serial.print</span>()</code>，兩者最主要的差別是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">前者把值送到電腦，後者把值送到 LED</li>
+        <li class="option" data-option="B">前者只能在 setup() 中使用</li>
+        <li class="option" data-option="C">後者送出的速度較快，容易出現亂碼</li>
+        <li class="option" data-option="D">前者送出值後會換到下一行，後者不換行</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem">
+        <h2>16 以 <code class="inline-code language-cpp"><span class="syntax-function">pinMode</span>(<span class="syntax-number">2</span>, <span class="syntax-type">INPUT_PULLUP</span>)<span class="syntax-operator">;</span></code> 設定第 2 號腳位來讀取按鈕。按下按鈕時，<code class="inline-code language-cpp"><span class="syntax-function">digitalRead</span>(<span class="syntax-number">2</span>)</code> 讀到什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">HIGH，因為按下時腳位經內建電阻連到 5V</li>
+        <li class="option" data-option="B">讀值亂跳，因為腳位沒有外接電阻</li>
+        <li class="option" data-option="C">LOW，因為按下時腳位直接連到 GND</li>
+        <li class="option" data-option="D">HIGH，因為內建電阻會讓按下時讀到高電位</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem">
+        <h2>17 讀取按鈕時，改用 INPUT_PULLUP 取代「INPUT 加外接電阻」的接法，主要好處是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">按鈕不必再接到 GND</li>
+        <li class="option" data-option="B">啟用腳位內部的上拉電阻，不必再外接 10k 歐姆電阻</li>
+        <li class="option" data-option="C">腳位會同時變成輸出，可以直接點亮 LED</li>
+        <li class="option" data-option="D">序列通訊的速度會自動加倍</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem">
+        <h2>18 按鈕電路已依接線圖接好，程式也沒有錯，但按下按鈕完全沒反應。最可能的原因與解決方式是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">監控視窗速度不一致，改成 115200</li>
+        <li class="option" data-option="B">程式裡缺少說明文字，補上註解即可</li>
+        <li class="option" data-option="C">外接 LED 的長短腳接反，對調即可</li>
+        <li class="option" data-option="D">按鈕插的方向不對，兩隻腳本來就相通，把按鈕轉 90 度再插</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem">
+        <h2>19 下列程式中，腳位已完成輸入與輸出設定。目前 buttonState 為 HIGH 時 LED 亮、為 LOW 時 LED 滅。若要改成「HIGH 時 LED 滅、LOW 時 LED 亮」，下列哪一種改法正確？</h2>
+        <pre class="code-block"><code class="language-cpp"><span class="syntax-type">int</span> buttonState <span class="syntax-operator">=</span> <span class="syntax-function">digitalRead</span>(buttonPin)<span class="syntax-operator">;</span>
+
+<span class="syntax-keyword">if</span> (buttonState <span class="syntax-operator">==</span> <span class="syntax-type">HIGH</span>) {
+  <span class="syntax-function">digitalWrite</span>(<span class="syntax-type">LED_BUILTIN</span>, <span class="syntax-type">HIGH</span>)<span class="syntax-operator">;</span>
+} <span class="syntax-keyword">else</span> {
+  <span class="syntax-function">digitalWrite</span>(<span class="syntax-type">LED_BUILTIN</span>, <span class="syntax-type">LOW</span>)<span class="syntax-operator">;</span>
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">把兩個 digitalWrite 中的 HIGH 與 LOW 對調</li>
+        <li class="option" data-option="B">把 if 條件的 HIGH 改成 LOW，並同時對調兩個 digitalWrite 中的 HIGH 與 LOW</li>
+        <li class="option" data-option="C">刪除整個 else 區塊</li>
+        <li class="option" data-option="D">在 if 前面加上 delay(1000)</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem">
+        <h2>20 程式開頭寫了 <code class="inline-code language-cpp"><span class="syntax-type">int</span> buttonPin <span class="syntax-operator">=</span> <span class="syntax-number">2</span><span class="syntax-operator">;</span></code>，這一行的意思是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">讓第 2 號腳位輸出高電位</li>
+        <li class="option" data-option="B">把第 2 號腳位設定成輸入</li>
+        <li class="option" data-option="C">建立一個名為 buttonPin 的整數變數，存放腳位編號 2</li>
+        <li class="option" data-option="D">讀取第 2 號腳位兩次</li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    try { localStorage.setItem("assessment-theme", root.dataset.theme); } catch (e) {}
+  };
+  let saved = "light";
+  try { saved = localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light"; } catch (e) {}
+  setTheme(saved);
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "02-arduino-blink-button-20Q4p1", MULTI = false, REVEAL_AFTER = 2;
+  const CONTEXT = "應用實務專題（一） · 課前前測：Arduino 程式、LED 與按鈕", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("pLdCcAL396R7D9tLr2oIig==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("/5UDUi7X1edZI/tp7UgkqobzYFwi1bWGVy/5Co1GKKjglW5QILTViFstmmmDSirIhptiUkbV24RZTPlnj0hJqIiXYDIg29eGPy33a40pKqaElQBSLtfV4Fkj+2nuSCSqhvRgLQ==").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
