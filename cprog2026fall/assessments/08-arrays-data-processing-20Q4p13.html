@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08-arrays-data-processing-20Q4p13 · 計算機程式及實習</title>
+<style>
+  :root { color-scheme: light; --page-bg: #f4f7fb; --surface: #fff; --text: #172033; --muted: #4a5568; --code-bg: #f6f8fa; --code-text: #24292f; --code-border: #d0d7de; --inline-bg: #eef4ff; --inline-border: #b6d5ff; }
+  html[data-theme="dark"] { color-scheme: dark; --page-bg: #0d1117; --surface: #161b22; --text: #e6edf3; --muted: #9aa7b4; --code-bg: #0d2538; --code-text: #d6deeb; --code-border: #334155; --inline-bg: #172a45; --inline-border: #36557a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 2rem 1rem 4rem; background: var(--page-bg); color: var(--text); font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.75; }
+  .assessment { max-width: 52rem; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 .5rem; }
+  .intro { color: var(--muted); margin: 0 0 2rem; }
+  .question { background: var(--surface); border: 1px solid var(--code-border); border-radius: .6rem; padding: 1rem 1.25rem; margin: 0 0 1.25rem; }
+  .question h2 { font-size: 1.05rem; margin: 0 0 .75rem; line-height: 1.7; }
+  .options { margin: 0 0 .75rem; padding-left: 1.6rem; }
+  .option { margin: .2rem 0; }
+  .answer-key { display: block; margin: 0; font-weight: 700; color: #0550ae; }
+  html[data-theme="dark"] .answer-key { color: #82aaff; }
+  .theme-toggle { position: fixed; top: 1rem; right: 1rem; width: 2.5rem; height: 2.5rem; border: 1px solid var(--code-border); border-radius: 999px; background: var(--surface); color: #0550ae; cursor: pointer; font-size: 1.2rem; }
+  html[data-theme="dark"] .theme-toggle { color: #82aaff; }
+  .code-block { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; border-radius: .4rem; padding: .75rem 1rem; overflow-x: auto; margin: 0 0 .75rem; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: .92rem; line-height: 1.6; }
+  .syntax-keyword { color: #8250df; }
+  .syntax-type { color: #0550ae; }
+  .syntax-function { color: #0550ae; }
+  .syntax-string { color: #0a6a32; }
+  .syntax-number { color: #953800; }
+  .syntax-comment { color: #57606a; }
+  .syntax-operator { color: #cf222e; }
+  .syntax-command { color: #0550ae; }
+  .syntax-flag { color: #953800; }
+  .syntax-op { color: #cf222e; }
+  .inline-code { color: #24292f; background: #eef4ff; border: 1px solid #b6d5ff; border-radius: .2em; padding: .05em .22em; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: .92em; }
+  html[data-theme="dark"] .code-block { background: var(--code-bg); color: var(--code-text); border-color: var(--code-border); }
+  html[data-theme="dark"] .inline-code { color: var(--code-text); background: var(--inline-bg); border-color: var(--inline-border); }
+  html[data-theme="dark"] .syntax-keyword, html[data-theme="dark"] .syntax-operator, html[data-theme="dark"] .syntax-op { color: #c792ea; }
+  html[data-theme="dark"] .syntax-type, html[data-theme="dark"] .syntax-function, html[data-theme="dark"] .syntax-command { color: #82aaff; }
+  html[data-theme="dark"] .syntax-string { color: #addb67; }
+  html[data-theme="dark"] .syntax-number, html[data-theme="dark"] .syntax-flag { color: #f78c6c; }
+  html[data-theme="dark"] .syntax-comment { color: #a6accd; }
+</style>
+
+<style>
+  :root { --docs-accent: var(--accent, #0550ae); --ok: #1a7f37; --ok-bg: #dafbe1; --bad: #cf222e; --bad-bg: #ffebe9; }
+  html[data-theme="dark"] { --docs-accent: var(--accent, #82aaff); --ok: #3fb950; --ok-bg: #12261a; --bad: #f85149; --bad-bg: #2d1416; }
+  .back-link { display: inline-block; margin-bottom: .5rem; color: var(--docs-accent); text-decoration: none; }
+  .back-link:hover { text-decoration: underline; }
+  .subtitle { font-weight: 700; color: var(--muted); margin: 0 0 .25rem; }
+  .how-to { color: var(--muted); margin: .25rem 0 .75rem; }
+  .notice-callout { display: flex; align-items: center; gap: .9rem; margin: .5rem 0 .9rem; padding: .7rem 1rem .7rem .7rem; background: color-mix(in srgb, var(--docs-accent) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--docs-accent) 35%, var(--border)); border-left: 4px solid var(--docs-accent); border-radius: .6rem; }
+  .notice-callout img { flex: none; width: 5.5rem; height: auto; }
+  .notice-callout p { margin: 0; font-weight: 600; line-height: 1.6; color: var(--text); }
+  @media (max-width: 30rem) { .notice-callout img { width: 4rem; } }
+  h1 .course-name { display: table; margin-bottom: .3rem; padding: .05rem .6rem; border-radius: .4rem; font-size: .95rem; background: color-mix(in srgb, var(--docs-accent) 14%, transparent); color: var(--docs-accent); }
+  .copyright-footer { max-width: 52rem; margin: 2.5rem auto 0; color: var(--muted); font-size: .85rem; line-height: 1.6; text-align: center; }
+  .copyright-footer a { color: var(--docs-accent); }
+  .scoreboard { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; margin: .5rem 0 1rem; padding: .6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: .6rem; font-size: .92rem; }
+  .scoreboard strong { color: var(--docs-accent); }
+  .question .option { cursor: pointer; border-radius: .4rem; padding: .1rem .4rem; }
+  .question .option:hover { background: color-mix(in srgb, var(--docs-accent) 8%, transparent); }
+  .question .option input { margin: 0 .5rem 0 0; accent-color: var(--docs-accent); cursor: pointer; }
+  .question .option.chosen { background: color-mix(in srgb, var(--docs-accent) 12%, transparent); }
+  .question.done .option { cursor: default; }
+  .question.done .option.is-answer { background: var(--ok-bg); color: var(--ok); font-weight: 600; }
+  .question.correct { border-color: var(--ok); }
+  .question.revealed { border-color: var(--bad); }
+  .quiz-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+  .quiz-btn { font: inherit; font-size: .9rem; padding: .25rem .9rem; border: 1px solid var(--docs-accent); border-radius: 999px; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .quiz-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .feedback { font-weight: 600; }
+  .feedback.ok { color: var(--ok); }
+  .feedback.bad { color: var(--bad); }
+  .download-hint { font-size: .85rem; color: var(--muted); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--docs-accent); border-radius: 999px; overflow: hidden; }
+  .mode-btn { font: inherit; font-size: .88rem; padding: .2rem .8rem; border: 0; background: var(--surface); color: var(--docs-accent); cursor: pointer; }
+  .mode-btn[aria-pressed="true"] { background: var(--docs-accent); color: var(--surface); font-weight: 700; }
+  .check-all-btn, .batch-summary { display: none; }
+  .check-all .check-all-btn { display: inline-block; font-weight: 700; }
+  .check-all .batch-summary { display: inline; font-weight: 600; color: var(--docs-accent); }
+  .check-all .quiz-btn.check { display: none; }
+  .check-all-footer { text-align: center; margin: 1.5rem 0 0; }
+  .question { position: relative; }
+  .question h2 { padding-right: 2.6rem; }
+  .copy-q { position: absolute; top: .75rem; right: .75rem; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem; border: 1px solid var(--border); border-radius: .45rem; background: var(--surface); color: var(--muted); cursor: pointer; font: inherit; font-size: .8rem; line-height: 1; }
+  .copy-q:hover, .copy-q:focus-visible { color: var(--docs-accent); border-color: var(--docs-accent); }
+  .copy-q svg { width: 1.05rem; height: 1.05rem; }
+  .copy-q .copied { display: none; }
+  .copy-q[hidden] { display: none; }
+  .copy-q.done { color: var(--ok); border-color: var(--ok); }
+  .copy-q.done .copied { display: block; position: absolute; top: calc(100% + .25rem); right: 0; padding: .15rem .45rem; border: 1px solid var(--ok); border-radius: .35rem; background: var(--surface); white-space: nowrap; }
+</style>
+</head>
+<body>
+<button class="theme-toggle" type="button" aria-label="切換為深色主題" title="切換為深色主題" aria-pressed="false"><span aria-hidden="true">☾</span></button>
+<main class="assessment" data-assessment-title="08-arrays-data-processing-20Q4p13">
+  <a class="back-link" href="index.html">← 回評量列表</a>
+  <h1><span class="course-name">計算機程式及實習</span>08-arrays-data-processing-20Q4p13</h1>
+  <p class="subtitle">課後形成性評量：C 陣列與基本資料處理</p>
+  <p class="how-to">20 題複選，每題 1 至 3 個正確選項。可選「逐題檢查」，每題選好就按「檢查答案」；或選「全部一次檢查」，全部作答後按「全部檢查」一次批改。答錯可以再試，試過 2 個不同的錯誤答案後才能看答案。</p>
+  <aside class="notice-callout"><img src="assets/yang28.png" alt="" width="240" height="203"><p>答對 60% 以上的題目（看答案的不算）後，可以下載含答案的 HTML 檔。作答紀錄不會保存，重新整理或離開頁面後會從頭開始。</p></aside>
+  <div class="scoreboard"><span class="mode-switch" role="group" aria-label="檢查方式"><button type="button" class="mode-btn" data-mode="one" aria-pressed="true">逐題檢查</button><button type="button" class="mode-btn" data-mode="all" aria-pressed="false">全部一次檢查</button></span><span class="progress"></span><button type="button" class="quiz-btn check-all-btn">全部檢查</button><span class="batch-summary" aria-live="polite"></span><button type="button" class="quiz-btn reset">重新作答</button><button type="button" class="quiz-btn download" disabled>下載含答案</button><span class="download-hint"></span></div>
+  <p class="intro">共 20 題，每題 A 至 D 四個選項，每題正確選項為 1 至 3 個，請選出所有正確選項。</p>
+  <section class="questions" aria-label="選擇題">
+    <article class="question" data-question-id="q01">
+      <div class="problem-statement stem"><h2>01 關於陣列的宣告與使用，下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">宣告時在名稱後面寫 <code class="inline-code language-c"><span class="syntax-string">[長度]</span></code>，例如 <code class="inline-code language-c"><span class="syntax-type">double</span> a[<span class="syntax-number">5</span>];</code></li>
+        <li class="option" data-option="B">陣列的第 N 格寫成 <code class="inline-code language-c"><span class="syntax-string">a[N]</span></code>，可以讀出它的值，也可以存入新的值</li>
+        <li class="option" data-option="C">宣告陣列時一定要同時寫出每一格的值，否則無法編譯</li>
+        <li class="option" data-option="D">每一格用起來和一般的變數完全一樣</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q02">
+      <div class="problem-statement stem"><h2>02 關於用大括號給陣列初始值，下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">大括號裡的個數必須和陣列長度完全相同，否則無法編譯</li>
+        <li class="option" data-option="B">大括號裡的第一個值會放進索引 1 的那一格</li>
+        <li class="option" data-option="C">初始值的個數少於陣列長度時，其餘的格子會自動設為 0</li>
+        <li class="option" data-option="D">初始值的個數多於陣列長度時，編譯器會發出警告</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q03">
+      <div class="problem-statement stem"><h2>03 執行下列程式片段後，下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">int</span> temps[<span class="syntax-number">5</span>] <span class="syntax-operator">=</span> {<span class="syntax-number">24</span>, <span class="syntax-number">27</span>, <span class="syntax-number">22</span>, <span class="syntax-number">30</span>, <span class="syntax-number">26</span>};
+temps[<span class="syntax-number">3</span>] <span class="syntax-operator">=</span> <span class="syntax-number">31</span>;
+<span class="syntax-function">printf</span>(<span class="syntax-string">&quot;%d\n&quot;</span>, temps[<span class="syntax-number">0</span>] <span class="syntax-operator">+</span> temps[<span class="syntax-number">3</span>]);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">螢幕上印出 55</li>
+        <li class="option" data-option="B"><code class="inline-code language-c">temps[<span class="syntax-number">3</span>]</code> 原本的 30 被換成 31</li>
+        <li class="option" data-option="C">螢幕上印出 54</li>
+        <li class="option" data-option="D">這段程式會把陣列的每一格都改成 31</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q04">
+      <div class="problem-statement stem"><h2>04 在 <code class="inline-code language-c"><span class="syntax-type">double</span></code> 佔 8 位元組的電腦上，<code class="inline-code language-c"><span class="syntax-type">double</span> prices[<span class="syntax-number">6</span>];</code> 這個陣列整體佔用多少位元組？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">8</li>
+        <li class="option" data-option="B">14</li>
+        <li class="option" data-option="C">48</li>
+        <li class="option" data-option="D">6</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q05">
+      <div class="problem-statement stem"><h2>05 關於用 <code class="inline-code language-c"><span class="syntax-keyword">sizeof</span></code> 算出陣列有幾格的作法，下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">C 會自動記錄陣列的長度，所以這個作法沒有必要</li>
+        <li class="option" data-option="B">把「整個陣列的位元組數」除以「一格的位元組數」就得到格數</li>
+        <li class="option" data-option="C">這個作法只能用在整數陣列</li>
+        <li class="option" data-option="D">把陣列傳給函式之後，這個作法就不管用了</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q06">
+      <div class="problem-statement stem"><h2>06 關於用 <code class="inline-code language-c"><span class="syntax-keyword">for</span></code> 迴圈走訪陣列，下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">可以把索引換成迴圈變數，例如寫成 <code class="inline-code language-c"><span class="syntax-string">steps[i]</span></code></li>
+        <li class="option" data-option="B">迴圈變數必須從 1 開始才不會超出範圍</li>
+        <li class="option" data-option="C">走訪 4 格的陣列時條件寫成小於 4，最後一次的迴圈變數是 3</li>
+        <li class="option" data-option="D">讓迴圈變數從 0 跑到「長度減 1」，就能一格一格處理整個陣列</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q07">
+      <div class="problem-statement stem"><h2>07 想把使用者輸入的整數存進 <code class="inline-code language-c"><span class="syntax-string">numbers</span></code> 陣列的第 <code class="inline-code language-c"><span class="syntax-string">i</span></code> 格。下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">和一般變數一樣要加 <code class="inline-code language-c"><span class="syntax-operator">&amp;</span></code>，寫成 <code class="inline-code language-c"><span class="syntax-function">scanf</span>(<span class="syntax-string">&quot;%d&quot;</span>, <span class="syntax-operator">&amp;</span>numbers[i]);</code></li>
+        <li class="option" data-option="B"><code class="inline-code language-c"><span class="syntax-operator">&amp;</span>numbers[i]</code> 是第 <code class="inline-code language-c"><span class="syntax-string">i</span></code> 格的位址</li>
+        <li class="option" data-option="C">陣列的格子不需要 <code class="inline-code language-c"><span class="syntax-operator">&amp;</span></code>，直接把格子本身交給 <code class="inline-code language-c"><span class="syntax-string">scanf</span></code> 就可以</li>
+        <li class="option" data-option="D">陣列不能用 <code class="inline-code language-c"><span class="syntax-string">scanf</span></code> 讀入，只能在宣告時用大括號給值</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q08">
+      <div class="problem-statement stem"><h2>08 執行下列程式片段後，下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">int</span> list[<span class="syntax-number">4</span>] <span class="syntax-operator">=</span> {<span class="syntax-number">9</span>, <span class="syntax-number">5</span>, <span class="syntax-number">7</span>, <span class="syntax-number">2</span>};
+<span class="syntax-keyword">for</span> (<span class="syntax-type">int</span> i <span class="syntax-operator">=</span> <span class="syntax-number">3</span>; i <span class="syntax-operator">&gt;=</span> <span class="syntax-number">0</span>; i<span class="syntax-operator">--</span>) {
+    <span class="syntax-function">printf</span>(<span class="syntax-string">&quot;%d &quot;</span>, list[i]);
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">印出的順序是 9 5 7 2</li>
+        <li class="option" data-option="B">印出的順序是 2 7 5 9</li>
+        <li class="option" data-option="C">迴圈一次都不會執行</li>
+        <li class="option" data-option="D">迴圈依序處理的索引是 3、2、1、0</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q09">
+      <div class="problem-statement stem"><h2>09 執行下列程式片段後，下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-keyword">const</span> <span class="syntax-type">int</span> WEEKS <span class="syntax-operator">=</span> <span class="syntax-number">3</span>;
+<span class="syntax-type">int</span> hours[<span class="syntax-number">3</span>] <span class="syntax-operator">=</span> {<span class="syntax-number">12</span>, <span class="syntax-number">9</span>, <span class="syntax-number">15</span>};
+<span class="syntax-type">int</span> total <span class="syntax-operator">=</span> <span class="syntax-number">0</span>;
+<span class="syntax-keyword">for</span> (<span class="syntax-type">int</span> i <span class="syntax-operator">=</span> <span class="syntax-number">0</span>; i <span class="syntax-operator">&lt;</span> WEEKS; i<span class="syntax-operator">++</span>) {
+    total <span class="syntax-operator">=</span> total <span class="syntax-operator">+</span> hours[i];
+}
+<span class="syntax-function">printf</span>(<span class="syntax-string">&quot;%.1f\n&quot;</span>, (<span class="syntax-type">double</span>)total <span class="syntax-operator">/</span> WEEKS);</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-c"><span class="syntax-string">total</span></code> 最後是 36</li>
+        <li class="option" data-option="B">螢幕上印出 12.0</li>
+        <li class="option" data-option="C">把長度集中放在一個常數裡，長度要改時只需要改一個地方</li>
+        <li class="option" data-option="D">螢幕上印出 12.5</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q10">
+      <div class="problem-statement stem"><h2>10 算平均時把式子寫成 <code class="inline-code language-c">(<span class="syntax-type">double</span>)total <span class="syntax-operator">/</span> DAYS</code>。關於這個寫法，下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">它會把 <code class="inline-code language-c"><span class="syntax-string">total</span></code> 這個變數本身永久變成浮點數</li>
+        <li class="option" data-option="B">它會讓陣列自動多出一格</li>
+        <li class="option" data-option="C">它讓相除時以浮點數的方式計算</li>
+        <li class="option" data-option="D">它可以避免整數除法把小數部分去掉</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q11">
+      <div class="problem-statement stem"><h2>11 執行下列程式片段後，下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">int</span> record[<span class="syntax-number">5</span>] <span class="syntax-operator">=</span> {<span class="syntax-number">5100</span>, <span class="syntax-number">9200</span>, <span class="syntax-number">7600</span>, <span class="syntax-number">10500</span>, <span class="syntax-number">8000</span>};
+<span class="syntax-type">int</span> reach <span class="syntax-operator">=</span> <span class="syntax-number">0</span>;
+<span class="syntax-keyword">for</span> (<span class="syntax-type">int</span> i <span class="syntax-operator">=</span> <span class="syntax-number">0</span>; i <span class="syntax-operator">&lt;</span> <span class="syntax-number">5</span>; i<span class="syntax-operator">++</span>) {
+    <span class="syntax-keyword">if</span> (record[i] <span class="syntax-operator">&gt;=</span> <span class="syntax-number">8000</span>) {
+        reach<span class="syntax-operator">++</span>;
+    }
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-c"><span class="syntax-string">reach</span></code> 最後是 3</li>
+        <li class="option" data-option="B"><code class="inline-code language-c"><span class="syntax-string">reach</span></code> 最後是 2</li>
+        <li class="option" data-option="C">值剛好等於 8000 的那一格也算符合條件</li>
+        <li class="option" data-option="D">迴圈只會檢查前兩格</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q12">
+      <div class="problem-statement stem"><h2>12 執行下列程式片段後，下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">int</span> checkedIn[<span class="syntax-number">5</span>] <span class="syntax-operator">=</span> {<span class="syntax-number">14</span>, <span class="syntax-number">6</span>, <span class="syntax-number">29</span>, <span class="syntax-number">3</span>, <span class="syntax-number">18</span>};
+<span class="syntax-type">int</span> position <span class="syntax-operator">=</span> <span class="syntax-operator">-</span><span class="syntax-number">1</span>;
+<span class="syntax-keyword">for</span> (<span class="syntax-type">int</span> i <span class="syntax-operator">=</span> <span class="syntax-number">0</span>; i <span class="syntax-operator">&lt;</span> <span class="syntax-number">5</span>; i<span class="syntax-operator">++</span>) {
+    <span class="syntax-keyword">if</span> (checkedIn[i] <span class="syntax-operator">==</span> <span class="syntax-number">29</span>) {
+        position <span class="syntax-operator">=</span> i;
+        <span class="syntax-keyword">break</span>;
+    }
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-c"><span class="syntax-string">position</span></code> 最後是 3</li>
+        <li class="option" data-option="B"><code class="inline-code language-c"><span class="syntax-string">position</span></code> 最後是 2</li>
+        <li class="option" data-option="C"><code class="inline-code language-c"><span class="syntax-string">position</span></code> 最後仍然是 -1</li>
+        <li class="option" data-option="D">找到之後就離開迴圈，不再檢查後面的格子</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q13">
+      <div class="problem-statement stem"><h2>13 在陣列中搜尋某個值之前，先把記錄位置的變數設成 -1。下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">索引不可能是負數，所以 -1 可以用來代表「還沒找到」</li>
+        <li class="option" data-option="B">-1 表示要從陣列的最後一格開始往前找</li>
+        <li class="option" data-option="C">整個陣列都比對失敗時，這個變數會維持 -1</li>
+        <li class="option" data-option="D">設成 -1 之後，迴圈會自動跳過第 0 格</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q14">
+      <div class="problem-statement stem"><h2>14 要記錄一週七天的步數。關於「用陣列」而不是「宣告七個各自命名的變數」，下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">陣列的每一格可以放不同型別的資料</li>
+        <li class="option" data-option="B">整排資料共用一個名字，每一格用索引區分</li>
+        <li class="option" data-option="C">陣列可以用迴圈一格一格處理</li>
+        <li class="option" data-option="D">用陣列之後就不必在意索引的範圍</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q15">
+      <div class="problem-statement stem"><h2>15 關於使用超出範圍的索引，下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">讀到的值一定是 0</li>
+        <li class="option" data-option="B">C 語言不會檢查索引是否在合法範圍內</li>
+        <li class="option" data-option="C">程式會去存取陣列以外的記憶體</li>
+        <li class="option" data-option="D">確保只使用合法的索引，是寫程式的人自己的責任</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q16">
+      <div class="problem-statement stem"><h2>16 某支程式宣告了一個 5 格的整數陣列 <code class="inline-code language-c"><span class="syntax-string">scores</span></code>，並在程式中直接寫出 <code class="inline-code language-c">scores[<span class="syntax-number">5</span>]</code>。下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">這個索引已經超出陣列</li>
+        <li class="option" data-option="B">索引 5 剛好是第 5 格，完全合法</li>
+        <li class="option" data-option="C">陣列會自動加長一格來容納它</li>
+        <li class="option" data-option="D">這個陣列的最後一格要寫成 <code class="inline-code language-c">scores[<span class="syntax-number">4</span>]</code></li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q17">
+      <div class="problem-statement stem"><h2>17 讀取超出陣列結尾的格子屬於未定義行為。下列敘述哪些正確？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">可能讀到 0，也可能讀到亂七八糟的數字</li>
+        <li class="option" data-option="B">編譯器一定會發出警告</li>
+        <li class="option" data-option="C">也可能讓程式當掉</li>
+        <li class="option" data-option="D">索引是變數（例如迴圈變數）時，編譯器通常看不出來</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q18">
+      <div class="problem-statement stem"><h2>18 走訪陣列時，為什麼要特別檢查迴圈條件寫的是「小於長度」而不是「小於或等於長度」？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">這樣迴圈才會從 0 開始</li>
+        <li class="option" data-option="B">寫成「小於或等於長度」會多存取一格，超出陣列的範圍</li>
+        <li class="option" data-option="C">兩種寫法完全相同，只是習慣不同</li>
+        <li class="option" data-option="D">寫成「小於或等於長度」會讓程式無法編譯</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q19">
+      <div class="problem-statement stem"><h2>19 一個 7 格的陣列依序存放第 1 天到第 7 天的紀錄。日常說的「第幾天」和索引之間的關係是什麼？</h2>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A">兩者相同，「第 3 天」就是索引 3</li>
+        <li class="option" data-option="B">「第幾天」要加 1 才是索引</li>
+        <li class="option" data-option="C">索引和「第幾天」沒有固定的關係</li>
+        <li class="option" data-option="D">「第幾天」要減 1 才是索引</li>
+      </ol>
+    </article>
+    <article class="question" data-question-id="q20">
+      <div class="problem-statement stem"><h2>20 執行下列程式片段後，下列敘述哪些正確？</h2>
+        <pre class="code-block"><code class="language-c"><span class="syntax-type">int</span> score[<span class="syntax-number">6</span>] <span class="syntax-operator">=</span> {<span class="syntax-number">70</span>, <span class="syntax-number">88</span>, <span class="syntax-number">95</span>, <span class="syntax-number">60</span>, <span class="syntax-number">100</span>, <span class="syntax-number">82</span>};
+<span class="syntax-type">int</span> high <span class="syntax-operator">=</span> <span class="syntax-number">0</span>;
+<span class="syntax-keyword">for</span> (<span class="syntax-type">int</span> i <span class="syntax-operator">=</span> <span class="syntax-number">0</span>; i <span class="syntax-operator">&lt;</span> <span class="syntax-number">6</span>; i<span class="syntax-operator">++</span>) {
+    <span class="syntax-keyword">if</span> (score[i] <span class="syntax-operator">&gt;=</span> <span class="syntax-number">90</span>) {
+        high <span class="syntax-operator">=</span> high <span class="syntax-operator">+</span> score[i];
+    }
+}</code></pre>
+      </div>
+      <ol class="options" type="A">
+        <li class="option" data-option="A"><code class="inline-code language-c"><span class="syntax-string">high</span></code> 最後是 195</li>
+        <li class="option" data-option="B">只有索引 2 和索引 4 的值被加進 <code class="inline-code language-c"><span class="syntax-string">high</span></code></li>
+        <li class="option" data-option="C"><code class="inline-code language-c"><span class="syntax-string">high</span></code> 最後是 283</li>
+        <li class="option" data-option="D">陣列每一格的值都會被加進 <code class="inline-code language-c"><span class="syntax-string">high</span></code></li>
+      </ol>
+    </article>
+  </section>
+  <p class="check-all-footer"><button type="button" class="quiz-btn check-all-btn">全部檢查</button></p>
+</main>
+<footer class="copyright-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p></footer>
+<script>
+(() => {
+  const root = document.documentElement;
+  const button = document.querySelector(".theme-toggle");
+  const icon = button.querySelector("[aria-hidden='true']");
+  const setTheme = (theme) => {
+    const dark = theme === "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    button.setAttribute("aria-label", dark ? "切換為淺色主題" : "切換為深色主題");
+    button.title = button.getAttribute("aria-label");
+    button.setAttribute("aria-pressed", String(dark));
+    icon.textContent = dark ? "☀" : "☾";
+    localStorage.setItem("assessment-theme", root.dataset.theme);
+  };
+  setTheme(localStorage.getItem("assessment-theme") === "dark" ? "dark" : "light");
+  button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark"));
+})();
+</script>
+
+<script>
+(() => {
+  const TAG = "08-arrays-data-processing-20Q4p13", MULTI = true, REVEAL_AFTER = 2;
+  const CONTEXT = "計算機程式及實習 · 課後形成性評量：C 陣列與基本資料處理", COPYRIGHT = "© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href=\"https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant\" target=\"_blank\" rel=\"noopener\">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。", PASS_RATIO = 0.6;
+  const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg><span class="copied">已複製</span>';
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.append(ta); ta.select();
+    const ok = document.execCommand("copy"); ta.remove(); return ok;
+  };
+  const KEY = atob("38ZP578BSUOoUShwhwwzOg==").split("").map((c) => c.charCodeAt(0));
+  const answers = JSON.parse(String.fromCharCode(...atob("hOQOpfsjZWOKEmxSqywRe53kY8edQmtviHNqNKUgExiehQvFkyFrAupzBFClTncY8+Ztpv1Ca2+Ic2s0pSATGJ6FbcufIwsHin0IUsZPERb/5A2knS1pYeoSbFKrLBF7m+Rjx51ACgeKfQhSxS4fGv2CbcufIwgBigw=").split("").map((c, i) => c.charCodeAt(0) ^ KEY[i % KEY.length])));
+  // Progress lives only while the page is open; nothing is saved (the site is static and
+  // shared computers reset), so every visit starts fresh.
+  const state = {};
+  const qs = [...document.querySelectorAll(".question")];
+  const board = document.querySelector(".scoreboard");
+
+  const refresh = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const first = vals.filter((v) => v.result === "correct" && v.tries === 1).length;
+    const shown = vals.filter((v) => v.result === "revealed").length;
+    board.querySelector(".progress").innerHTML =
+      `完成 <strong>${correct + shown}</strong>／${qs.length} 題　答對 <strong>${correct}</strong>（一次就對 ${first}）　看答案 ${shown}`;
+    // The answer sheet unlocks once enough questions are answered correctly (看答案 does not count).
+    const need = Math.ceil(qs.length * PASS_RATIO);
+    const dl = board.querySelector(".download");
+    dl.disabled = correct < need;
+    dl.title = dl.disabled
+      ? `答對 ${need} 題（${Math.round(PASS_RATIO * 100)}%）以上才能下載，目前答對 ${correct} 題`
+      : "下載題目與答案（HTML 檔）";
+    board.querySelector(".download-hint").textContent = dl.disabled ? `答對 ${correct}／${need} 題後可下載` : "";
+  };
+
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const downloadSheet = () => {
+    const vals = Object.values(state);
+    const correct = vals.filter((v) => v.result === "correct").length;
+    const blocks = items.map(({ q, rec, opts }, n) => {
+      const stem = q.querySelector(".stem").cloneNode(true);
+      stem.querySelectorAll("img").forEach((img) => img.setAttribute("src", img.src));
+      const ans = answers[n];
+      const status = rec.result === "correct" ? `答對（第 ${rec.tries} 次）`
+        : rec.result === "revealed" ? "看過答案" : rec.tries ? "尚未答對" : "未作答";
+      const lis = opts.map((li) => {
+        const L = li.dataset.option, hit = ans.includes(L);
+        return `<li class="${hit ? "ans" : ""}"><b>${L}.</b> ${esc(li.textContent.trim())}${hit ? " ✓" : ""}</li>`;
+      }).join("");
+      return `<article><div class="stem">${stem.innerHTML}</div><ul>${lis}</ul>` +
+        `<p class="key">答案：${ans.split("").join("、")}<span class="st">我的結果：${status}</span></p></article>`;
+    }).join("");
+    const when = new Date().toLocaleString("zh-TW", { hour12: false });
+    const doc = `<!DOCTYPE html><html lang="zh-Hant-TW"><head><meta charset="utf-8">` +
+      `<meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(TAG)}（含答案）</title><style>` +
+      `:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#4a5568;--line:#d0d7de;--ok:#1a7f37;--ok-bg:#dafbe1;--code:#f6f8fa}` +
+      `@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa4b2;--line:#334155;--ok:#3fb950;--ok-bg:#12261a;--code:#0d2538}}` +
+      `body{margin:0;padding:1.5rem 1rem 3rem;background:var(--bg);color:var(--text);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}` +
+      `main{max-width:52rem;margin:0 auto}h1{font-size:1.4rem;margin:0 0 .25rem}.meta{color:var(--muted);margin:0 0 1rem}` +
+      `article{background:var(--card);border:1px solid var(--line);border-radius:.6rem;padding:.9rem 1.1rem;margin:.8rem 0}` +
+      `.stem h2{font-size:1rem;margin:0 0 .4rem}pre{background:var(--code);padding:.6rem .8rem;border-radius:.4rem;overflow-x:auto;font-size:.85rem}img{max-width:100%}` +
+      `ul{list-style:none;margin:.4rem 0;padding:0}li{padding:.1rem .4rem;border-radius:.3rem}li.ans{background:var(--ok-bg);color:var(--ok);font-weight:600}` +
+      `.key{margin:.5rem 0 0;padding-top:.4rem;border-top:1px dashed var(--line);font-weight:700;color:var(--ok);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem}` +
+      `.st{font-weight:400;color:var(--muted)}footer{max-width:52rem;margin:2rem auto 0;color:var(--muted);font-size:.8rem;text-align:center}` +
+      `</style></head><body><main><h1>${esc(TAG)}（含答案）</h1>` +
+      `<p class="meta">${esc(CONTEXT)}<br>下載時間：${esc(when)}　答對 ${correct}／${qs.length} 題</p>${blocks}</main>` +
+      `<footer>${COPYRIGHT}</footer></body></html>`;
+    const url = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${TAG}-answers.html` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const finish = (q, ans, result, tries, msg) => {
+    q.classList.add("done", result);
+    q.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+    q.querySelectorAll(".option").forEach((li) => li.classList.toggle("is-answer", ans.includes(li.dataset.option)));
+    q.querySelectorAll(".quiz-btn").forEach((b) => b.remove());
+    const fb = q.querySelector(".feedback");
+    fb.className = "feedback " + (result === "correct" ? "ok" : "bad");
+    fb.textContent = msg || (result === "correct"
+      ? (tries === 1 ? "答對了！一次就答對。" : `答對了！（第 ${tries} 次）`)
+      : `正確答案：${ans.split("").join("、")}`);
+  };
+
+  const items = qs.map((q, n) => {
+    const id = q.dataset.questionId || String(n + 1);
+    const ans = answers[n];
+    const opts = [...q.querySelectorAll(".option")];
+    opts.forEach((li) => {
+      const input = document.createElement("input");
+      input.type = MULTI ? "checkbox" : "radio";
+      input.name = "q-" + id;
+      input.value = li.dataset.option;
+      li.prepend(input);
+      li.addEventListener("click", (e) => {
+        if (input.disabled) return;
+        if (e.target !== input) input.checked = MULTI ? !input.checked : true;
+        input.dispatchEvent(new Event("change"));
+      });
+      input.addEventListener("change", () => {
+        opts.forEach((o) => o.classList.toggle("chosen", o.querySelector("input").checked));
+        check.disabled = !q.querySelector("input:checked");
+        if (!q.classList.contains("done")) { fb.textContent = ""; fb.className = "feedback"; }
+      });
+    });
+    const bar = document.createElement("div");
+    bar.className = "quiz-actions";
+    bar.innerHTML = '<button type="button" class="quiz-btn check" disabled>檢查答案</button>' +
+      '<button type="button" class="quiz-btn show" hidden>看答案</button><span class="feedback" aria-live="polite"></span>';
+    q.querySelector(".options").after(bar);
+    const check = bar.querySelector(".check"), show = bar.querySelector(".show"), fb = bar.querySelector(".feedback");
+    const rec = state[id] || (state[id] = { tries: 0 });
+    // Returns "done" (already finished), "empty" (nothing picked, no try counted), "correct" or "wrong".
+    const grade = () => {
+      if (rec.result) return "done";
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).sort().join("");
+      if (!picked) {
+        fb.className = "feedback bad";
+        fb.textContent = "尚未作答";
+        return "empty";
+      }
+      // Only a new wrong answer counts as a try, so re-checking the same one cannot unlock 看答案.
+      rec.wrong = rec.wrong || [];
+      if (picked !== ans && rec.wrong.includes(picked)) {
+        fb.className = "feedback bad";
+        fb.textContent = `這個答案試過了，換個想法再試。已試 ${rec.tries} 次`;
+        return "wrong";
+      }
+      rec.tries += 1;
+      copy.hidden = false;
+      if (picked !== ans) rec.wrong.push(picked);
+      if (picked === ans) {
+        rec.result = "correct";
+        finish(q, ans, "correct", rec.tries);
+        return "correct";
+      }
+      fb.className = "feedback bad";
+      fb.textContent = MULTI ? `還不對（有選錯或漏選），再想想。已試 ${rec.tries} 次` : `還不對，再想想。已試 ${rec.tries} 次`;
+      if (rec.tries >= REVEAL_AFTER) show.hidden = false;
+      return "wrong";
+    };
+    check.addEventListener("click", () => { grade(); refresh(); });
+    show.addEventListener("click", () => {
+      rec.result = "revealed";
+      finish(q, ans, "revealed", rec.tries);
+      refresh();
+    });
+    // Copy the question as a ready-to-paste prompt for an AI tutor. The button appears only after
+    // the question has been checked once, and the answer is included only after it is finished.
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "copy-q";
+    copy.hidden = true;
+    copy.title = "複製題目，貼給 AI 請它引導你";
+    copy.setAttribute("aria-label", copy.title);
+    copy.innerHTML = COPY_ICON;
+    q.prepend(copy);
+    copy.addEventListener("click", async () => {
+      const stem = q.querySelector(".stem").innerText.trim();
+      const lines = opts.map((li) => `${li.dataset.option}. ${li.textContent.trim()}`);
+      const picked = [...q.querySelectorAll("input:checked")].map((i) => i.value).join("、");
+      const tried = (rec.wrong || []).map((w) => w.split("").join("、")).join("；");
+      const mine = [];
+      if (picked && !rec.result) mine.push(`我目前選的是：${picked}`);
+      if (tried) mine.push(`我試過但不對的答案：${tried}`);
+      if (rec.result) mine.push(`正確答案是：${ans.split("").join("、")}`);
+      const ask = rec.result
+        ? "請當我的家教，用提問一步步引導我理解這一題為什麼是這個答案，以及其他選項錯在哪裡。"
+        : "請當我的家教，用提問一步步引導我想通這一題，先不要直接告訴我答案。";
+      const text = [ask,
+        `（${CONTEXT}；${MULTI ? "複選題，可能有 1 個以上正確選項" : "單選題"}）`, "", stem, ...lines,
+        ...(mine.length ? ["", ...mine] : [])].join("\n");
+      if (await copyText(text)) {
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 1600);
+      }
+    });
+    return { q, grade, rec, opts };
+  });
+
+  // 檢查方式: one question at a time, or all answered questions at once.
+  const summary = board.querySelector(".batch-summary");
+  const setMode = (mode) => {
+    document.body.classList.toggle("check-all", mode === "all");
+    board.querySelectorAll(".mode-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+    summary.textContent = "";
+  };
+  setMode("one");
+  board.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+  const checkAll = () => {
+    const count = { correct: 0, wrong: 0, empty: 0 };
+    let first = null;
+    items.forEach(({ q, grade }) => {
+      const r = grade();
+      if (r in count) count[r] += 1;
+      if (!first && (r === "wrong" || r === "empty")) first = q;
+    });
+    refresh();
+    summary.textContent = count.correct + count.wrong + count.empty === 0
+      ? "全部完成了！"
+      : `本次：答對 ${count.correct} 題，還不對 ${count.wrong} 題，未作答 ${count.empty} 題`;
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  document.querySelectorAll(".check-all-btn").forEach((b) => b.addEventListener("click", checkAll));
+
+  board.querySelector(".download").addEventListener("click", downloadSheet);
+  board.querySelector(".reset").addEventListener("click", () => {
+    location.reload();
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
