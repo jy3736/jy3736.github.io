@@ -602,6 +602,91 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 .toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
 
+/* ---------- Prompt read-aloud player (inside a prompt block) ---------- */
+
+/* The block is a grid: header across the top, player and prompt text on the left, and the QR code
+   in a right-hand column that runs the full height of both. .prompt-audio itself only groups the
+   markup, so its children sit directly in the grid. */
+.prompt-block.has-audio { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+.prompt-block.has-audio > .code-head { grid-column: 1 / -1; }
+.prompt-block.has-audio > pre { grid-column: 1; grid-row: 3; }
+.prompt-audio { display: contents; }
+.prompt-audio-main {
+  grid-column: 1;
+  grid-row: 2;
+  padding: 0.5rem 0.9rem;
+  background: var(--try-bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+}
+.prompt-audio-row { display: flex; align-items: center; gap: 0.6rem; }
+.prompt-audio-qr {
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1rem 1.1rem;
+  background: var(--try-bg);
+  border-left: 1px solid var(--border);
+}
+.prompt-audio-qr-code { background: #fff; padding: 0.3rem; border-radius: 8px; line-height: 0; }
+.prompt-audio-qr-code svg { display: block; width: 150px; height: 150px; }
+.prompt-audio-hint { margin: 0; font-size: 0.8rem; line-height: 1.5; font-weight: 700; color: var(--try); text-align: center; }
+.prompt-audio-btn {
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--try);
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.prompt-audio-btn:hover { filter: brightness(1.1); }
+.prompt-audio-label { flex: none; font-weight: 700; color: var(--try); white-space: nowrap; }
+.prompt-audio-progress {
+  flex: 1;
+  min-width: 3rem;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  overflow: hidden;
+}
+.prompt-audio-bar { height: 100%; width: 0%; background: var(--try); border-radius: 999px; }
+.prompt-audio-time { flex: none; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.prompt-audio-speed {
+  flex: none;
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  cursor: pointer;
+}
+.prompt-audio-speed:hover { border-color: var(--try); color: var(--try); }
+.prompt-audio-btn:focus-visible, .prompt-audio-progress:focus-visible, .prompt-audio-speed:focus-visible {
+  outline: 2px solid var(--try);
+  outline-offset: 2px;
+}
+/* On a phone the reader is already where the QR code would take them. */
+@media (max-width: 520px) {
+  .prompt-block.has-audio { grid-template-columns: minmax(0, 1fr); }
+  .prompt-audio-row { flex-wrap: wrap; }
+  .prompt-audio-progress { order: 5; flex-basis: 100%; }
+  .prompt-audio-qr { display: none; }
+}
+
 /* ---------- Sidebar QR code ---------- */
 
 .toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
@@ -645,7 +730,8 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
     color-scheme: light;
   }
   .theme-toggle, .toc-qr { display: none !important; }
-  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .toc, .site-header nav, .copy-btn, .prompt-audio-main, .to-top, .skip-link { display: none !important; }
+  .prompt-block.has-audio > pre { grid-row: 2 / span 2; }  /* the hidden player row leaves no gap */
   .page { display: block; }
   details.explain > div { display: block; }
   body { font-size: 12pt; background: #fff; color: #000; }
@@ -804,55 +890,50 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 </tbody></table></div>
 <h3>排班規則與範圍</h3>
 <ul><li>只能安排當天、該時段有空，且主要職務與技能符合需求的人員。</li><li>每人每天最多一個時段、每週最多六個時段；同一時段不可重複安排同一人。</li><li>依目前已排時段數由少至多分配；同數時用固定順序，讓相同輸入能重現相同結果。</li><li>找不到合適人員時保留缺額，顯示日期、時段、職務及缺少人數；不得以不合格人員補數字。</li><li>工具以簡單規則運作，不需最佳化演算法、登入、伺服器、資料庫或外部套件。</li><li>須提供整週班表、需求與實際人數、缺額提示，以及「產生班表」和「重新產生班表」操作。</li></ul>
-<p><a href="downloads/unit04-schedule-spec.md" download>下載基本排班系統完整規格</a>　<a href="downloads/unit04-fictional-staff.json" download>下載虛構職員資料 JSON</a></p>
+<p><a href="downloads/unit04-schedule-spec.md" download>下載排班規則說明</a>　<a href="downloads/unit04-fictional-staff.json" download>下載職員名單</a></p>
 <h2 id="stage-1"><span class="num">02</span>階段一：先做出基本排班工具</h2>
 <p>先把排班規則和職員資料交給 AI Agent，請它做出第一版排班網頁。完成後，照著檢查清單實際操作，看看班表和人數有沒有算對；如果發現問題，就告訴 Agent 你怎麼操作、看到什麼，以及你原本預期看到什麼。</p>
 <figure class="page-figure"><img src="figures/unit04/unit04-stage1.jpg" alt="排班規格和虛構員工名單交給 AI Agent 後，產生每週班表，再由學生檢查職務、時間、工時限制和缺額。" width="1200" height="675" loading="lazy"><figcaption>第一版的重點：把規則和名單交代清楚，做出每週班表，再逐項確認人選、班別和缺額是否正確。</figcaption></figure>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">建立基本版本</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="你先看一下「unit04-schedule-spec.md」和「unit04-fictional-staff.json」這兩個檔案，跟我說說你的理解：這個工具要做什麼、主要的排班規則有哪些、怎樣才算做好。確認我們想的一樣，再開始做。">你先看一下「unit04-schedule-spec.md」和「unit04-fictional-staff.json」這兩個檔案，跟我說說你的理解：這個工具要做什麼、主要的排班規則有哪些、怎樣才算做好。確認我們想的一樣，再開始做。</span>
+<figure class="code prompt-block has-audio"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第一版：基本排班工具</span></div><button class="copy-btn" type="button">複製</button></div><div class="prompt-audio"><audio preload="none" src="audio/unit04/unit04-prompt-1.mp3"></audio><div class="prompt-audio-main"><div class="prompt-audio-row"><button type="button" class="prompt-audio-btn" aria-label="播放朗讀">▶</button><span class="prompt-audio-label">🎧 聽聽看怎麼說</span><div class="prompt-audio-progress" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="prompt-audio-bar"></div></div><span class="prompt-audio-time">00:00 / 01:04</span><button type="button" class="prompt-audio-speed" aria-label="播放速度 1.0 倍">1.0x</button></div></div><div class="prompt-audio-qr"><div class="prompt-audio-qr-code"><svg viewBox="0 0 212 212" role="img" aria-label="用手機重播這段朗讀的 QR Code" xmlns="http://www.w3.org/2000/svg" width="212" height="212" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h53v53h-53z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h11m1 0h1m1 0h2m2 0h1m1 0h4m1 0h1m2 0h1m1 0h7m-45 1h1m5 0h1m1 0h2m3 0h2m2 0h2m1 0h3m1 0h1m7 0h1m2 0h1m2 0h1m5 0h1m-45 1h1m1 0h3m1 0h1m1 0h4m6 0h1m2 0h3m1 0h1m3 0h5m1 0h1m2 0h1m1 0h3m1 0h1m-45 1h1m1 0h3m1 0h1m2 0h3m1 0h2m3 0h2m3 0h1m1 0h1m2 0h3m1 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-45 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h2m2 0h6m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1m-45 1h1m5 0h1m2 0h1m1 0h1m2 0h1m1 0h3m1 0h1m3 0h1m2 0h2m2 0h1m1 0h1m4 0h1m5 0h1m-45 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-35 1h3m4 0h2m1 0h1m3 0h1m1 0h3m5 0h1m1 0h1m-37 1h1m2 0h7m4 0h1m3 0h7m3 0h4m1 0h1m3 0h1m2 0h1m1 0h3m-45 1h2m7 0h1m2 0h1m1 0h1m1 0h6m2 0h3m1 0h1m1 0h5m1 0h1m1 0h2m2 0h2m-44 1h3m3 0h1m1 0h1m1 0h1m2 0h1m3 0h2m1 0h1m1 0h1m4 0h3m4 0h4m1 0h1m2 0h3m-45 1h1m3 0h2m1 0h5m1 0h2m4 0h5m2 0h2m7 0h1m1 0h3m2 0h1m-42 1h3m1 0h3m2 0h2m1 0h1m4 0h2m5 0h4m1 0h1m1 0h4m3 0h3m1 0h1m-41 1h2m5 0h1m3 0h4m7 0h2m3 0h1m1 0h2m1 0h2m1 0h1m2 0h2m-43 1h4m1 0h4m3 0h1m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h4m3 0h1m1 0h1m2 0h1m1 0h3m-43 1h1m2 0h2m2 0h2m3 0h1m2 0h6m1 0h2m1 0h2m2 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h2m-44 1h2m3 0h4m3 0h1m2 0h6m4 0h2m2 0h1m2 0h1m2 0h1m2 0h1m4 0h1m-44 1h1m7 0h1m1 0h3m7 0h2m3 0h1m1 0h1m2 0h5m1 0h1m2 0h2m1 0h1m-42 1h4m1 0h5m1 0h3m2 0h3m3 0h3m3 0h1m1 0h4m2 0h1m1 0h2m1 0h1m1 0h1m-44 1h1m1 0h2m2 0h1m4 0h1m1 0h1m1 0h1m1 0h4m1 0h4m1 0h3m4 0h1m1 0h2m1 0h3m1 0h1m-45 1h2m2 0h9m1 0h1m1 0h1m1 0h1m1 0h6m1 0h4m2 0h1m1 0h6m-40 1h1m2 0h1m3 0h1m1 0h3m2 0h1m1 0h1m2 0h1m3 0h1m1 0h3m1 0h1m1 0h5m3 0h3m-43 1h5m1 0h1m1 0h1m2 0h4m1 0h1m2 0h2m1 0h1m1 0h1m1 0h1m2 0h1m2 0h3m1 0h1m1 0h1m1 0h5m-41 1h1m3 0h2m2 0h1m1 0h1m2 0h1m2 0h1m3 0h1m5 0h3m2 0h2m3 0h1m1 0h3m-45 1h1m2 0h7m3 0h1m6 0h6m2 0h1m1 0h3m1 0h1m1 0h5m-41 1h2m1 0h1m1 0h1m4 0h1m1 0h4m2 0h1m2 0h6m2 0h2m1 0h1m4 0h3m3 0h1m-44 1h1m1 0h6m2 0h3m1 0h1m4 0h1m2 0h1m2 0h2m1 0h1m1 0h1m4 0h1m1 0h1m3 0h2m-43 1h2m3 0h1m1 0h1m1 0h1m7 0h2m2 0h7m2 0h1m2 0h1m1 0h3m1 0h2m1 0h1m1 0h1m-45 1h3m2 0h2m1 0h4m3 0h1m2 0h1m5 0h1m5 0h1m1 0h1m1 0h3m3 0h2m2 0h1m-45 1h1m1 0h2m3 0h4m1 0h1m1 0h2m1 0h1m4 0h2m3 0h5m1 0h2m1 0h1m1 0h3m1 0h1m1 0h1m-44 1h2m2 0h2m1 0h1m1 0h2m1 0h4m1 0h2m2 0h1m1 0h2m3 0h1m5 0h1m1 0h4m1 0h3m-45 1h3m7 0h1m6 0h1m1 0h3m2 0h1m1 0h1m1 0h3m2 0h1m1 0h1m1 0h1m4 0h3m-45 1h2m1 0h2m1 0h1m1 0h1m4 0h1m1 0h1m1 0h3m2 0h4m1 0h3m1 0h1m2 0h1m2 0h1m-35 1h3m1 0h1m3 0h1m2 0h6m4 0h3m2 0h3m2 0h3m2 0h3m-38 1h1m1 0h4m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m1 0h1m1 0h3m2 0h1m2 0h1m-44 1h4m3 0h4m2 0h2m1 0h4m3 0h4m2 0h4m2 0h1m1 0h1m3 0h2m-44 1h1m2 0h2m1 0h2m3 0h2m2 0h2m1 0h1m1 0h6m1 0h2m1 0h1m1 0h1m2 0h7m1 0h2m-37 1h1m4 0h1m1 0h6m3 0h1m2 0h1m2 0h1m1 0h2m1 0h2m3 0h4m-44 1h7m1 0h2m3 0h1m2 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-44 1h1m5 0h1m1 0h2m1 0h2m1 0h1m4 0h2m3 0h2m1 0h1m2 0h1m3 0h3m3 0h3m1 0h1m-45 1h1m1 0h3m1 0h1m1 0h1m4 0h1m1 0h1m2 0h1m1 0h5m5 0h1m1 0h1m1 0h1m1 0h5m2 0h2m-45 1h1m1 0h3m1 0h1m1 0h3m1 0h2m1 0h5m1 0h1m2 0h2m1 0h5m2 0h2m1 0h1m2 0h1m2 0h2m-45 1h1m1 0h3m1 0h1m4 0h1m2 0h4m1 0h5m1 0h1m1 0h1m3 0h1m3 0h2m1 0h1m1 0h1m1 0h1m1 0h1m-45 1h1m5 0h1m4 0h1m3 0h2m1 0h1m5 0h1m1 0h1m1 0h2m1 0h1m4 0h1m1 0h2m1 0h4m-45 1h7m1 0h1m1 0h1m1 0h3m1 0h2m5 0h2m3 0h1m2 0h1m1 0h5m2 0h2"/></g></svg></div><p class="prompt-audio-hint">📱 用手機掃描<br>在手機上重播朗讀</p></div></div><pre><code><span class="line" data-text="我給你兩個檔案：一個是排班規則說明，一個是職員名單。請先看過，用幾句話告訴我你打算怎麼做，我說可以再開始。">我給你兩個檔案：一個是排班規則說明，一個是職員名單。請先看過，用幾句話告訴我你打算怎麼做，我說可以再開始。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="我想要一個繁體中文的迷你賣場排班工具，在自己電腦上用瀏覽器打開就能用，不用登入、不用連網路，也不用另外安裝東西。請用名單裡全部 35 位虛構職員來排班；名字只出現在他被排到的班別裡，不要在班表下面再列一次全公司的名單。第一版請另外存成 v1-basic.html。">我想要一個繁體中文的迷你賣場排班工具，在自己電腦上用瀏覽器打開就能用，不用登入、不用連網路，也不用另外安裝東西。請用名單裡全部 35 位虛構職員來排班；名字只出現在他被排到的班別裡，不要在班表下面再列一次全公司的名單。第一版請另外存成 v1-basic.html。</span>
+<span class="line" data-text="幫我照規則做一個排班小工具，我在電腦上點開就能用。星期一到星期日、每天早中晚三班都要排；找不到合適的人，就標出哪一天、哪一班、缺幾個人，不要硬塞人。班表上要寫「待主管確認的建議草稿」。做好的這一份另外存起來，叫它「第一版」。">幫我照規則做一個排班小工具，我在電腦上點開就能用。星期一到星期日、每天早中晚三班都要排；找不到合適的人，就標出哪一天、哪一班、缺幾個人，不要硬塞人。班表上要寫「待主管確認的建議草稿」。做好的這一份另外存起來，叫它「第一版」。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="排班範圍是星期一到星期日，每天早、中、晚三個時段。只能排這樣的人：主要職務和技能對得上、那天那個時段有空、同一天沒有排別的班，而且這週還沒排滿六個時段。排的時候讓大家平均輪到，目前排比較少的人先排；如果一樣多，就照固定的順序，這樣同一份名單重排一次，結果還是一樣。">排班範圍是星期一到星期日，每天早、中、晚三個時段。只能排這樣的人：主要職務和技能對得上、那天那個時段有空、同一天沒有排別的班，而且這週還沒排滿六個時段。排的時候讓大家平均輪到，目前排比較少的人先排；如果一樣多，就照固定的順序，這樣同一份名單重排一次，結果還是一樣。</span>
-<span class="line" data-text=""></span>
-<span class="line" data-text="畫面上要有「產生班表」和「重新產生班表」兩個按鈕，列出日期、時段、職務、需要幾個人、實際排了幾個人，以及職員名字。人手不夠的地方，一項一項列出缺多少。資料有問題時，用清楚的中文提示我。班表上要明顯標出「待主管確認的建議草稿」。">畫面上要有「產生班表」和「重新產生班表」兩個按鈕，列出日期、時段、職務、需要幾個人、實際排了幾個人，以及職員名字。人手不夠的地方，一項一項列出缺多少。資料有問題時，用清楚的中文提示我。班表上要明顯標出「待主管確認的建議草稿」。</span>
-<span class="line" data-text=""></span>
-<span class="line" data-text="做好之後告訴我怎麼打開，還有我可以怎麼一項一項檢查有沒有做對。不要說這是最好的或唯一正確的排法。">做好之後告訴我怎麼打開，還有我可以怎麼一項一項檢查有沒有做對。不要說這是最好的或唯一正確的排法。</span></code></pre></figure>
+<span class="line" data-text="做好告訴我怎麼打開，還有怎麼檢查排得對不對。">做好告訴我怎麼打開，還有怎麼檢查排得對不對。</span></code></pre></figure>
 <h3>第一版完成後檢查</h3>
 <ul class="checklist"><li>可在本機瀏覽器開啟，介面為繁體中文，且使用 JSON 所列的 35 位職員資料排班，不在頁面下方列全公司名冊。</li><li>班表包含一週七天及每天三個時段；每個職務都列出需求人數、實際人數和姓名。</li><li>抽查人員時，確認其主要職務、技能、該日可排時間、當日其他班次及每週時段總數符合規則。</li><li>重新產生會重新計算班表；相同資料能重現相同結果。</li><li>缺額明確指出日期、時段、職務和缺少人數；沒有安排不合格人員。</li><li>所有班表都標示為待主管確認的建議草稿。</li></ul>
 <div class="callout note"><span class="label">遇到問題時怎麼回報？</span><p>提供可重現的例子，例如：「我重新產生班表後，週三中班的收銀需求顯示 2 人，但表格只列出 1 人，缺額也沒有出現。請檢查需求人數、實際排班人數與缺額是否用同一份計算結果呈現，並保留其他已通過的功能。」描述畫面行為比只說「這裡錯了」更容易讓 Agent 定位問題。</p></div>
 <h2 id="stage-2"><span class="num">03</span>階段二：加入單人臨時無法出勤</h2>
-<p>第一版檢查沒問題後，接著練習加一個新功能：如果某位員工臨時不能上某一班，系統要找人補上，並先列出最多三種排法讓主管挑。這一版要保留原本的排班功能，也要讓主管可以取消、不套用任何方案。</p>
+<p>第一版檢查沒問題後，接著練習加一個新功能：如果某位員工臨時不能上某一班，系統要找人補上，並先列出最多三位人選讓主管挑。這一版要保留原本的排班功能，也要讓主管可以取消、不套用任何方案。</p>
 <figure class="page-figure"><img src="figures/unit04/unit04-stage2.jpg" alt="某位員工臨時不能上班時，系統提出最多三位替代人選，主管可以先看方案再選擇套用或取消。" width="1200" height="675" loading="lazy"><figcaption>第二版一次處理一位員工：先看替代排法，再由主管決定要不要套用。</figcaption></figure>
 <div class="callout tip"><span class="label">先看懂，再動手修改</span><p>先請 AI Agent 說明它打算改哪些地方、怎麼保留原本功能，再由你確認後開始修改。沒有合適人選時，就留下缺額並說明可以找臨時人力或向總部求援。</p></div>
 <h3>這一版要多做到的事</h3>
-<ul><li>班表可切換查看星期一到星期日的單日畫面，或切回整週；預設先顯示星期一，減少一次看到太多內容。</li><li>只記錄這位員工在指定日期、時段不能出勤，不詢問病情或其他私人原因。</li><li>先把這位員工從該班移除，再找工作和技能符合、當天有空且沒有排到其他班的人補上；每人每週最多排六班。</li><li>最多列出三種不同排法；找到幾種就列幾種，不用硬湊三種。</li><li>每種排法都要說清楚調整了誰、原本在哪一班、改到哪一班、調整原因，以及還缺哪些人。</li><li>其他日期和班別不變。主管選擇後才套用；按取消就保留原班表。</li><li>套用後仍標示為待主管確認的草稿。找不到合適排法時要留下缺額，不要編出違反規則的班表。</li></ul>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">先看懂，再想怎麼改</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="你先看看目前這個排班工具：畫面長什麼樣、班表是怎麼排出來的、已經有哪些功能。這是我已經檢查過的基本版，請不要整個重做，也不要大改。">你先看看目前這個排班工具：畫面長什麼樣、班表是怎麼排出來的、已經有哪些功能。這是我已經檢查過的基本版，請不要整個重做，也不要大改。</span>
+<ul><li>班表可切換查看星期一到星期日的單日畫面，或切回整週；預設先顯示星期一，減少一次看到太多內容。</li><li>只記錄這位員工在指定日期、時段不能出勤，不詢問病情或其他私人原因。</li><li>先把這位員工從該班移除，再找工作和技能符合、當天有空且沒有排到其他班的人補上；每人每週最多排六班。</li><li>最多列出三位人選，這週排得少的放前面；找到幾位就列幾位，不用硬湊三位。</li><li>每個方案都要說清楚誰來補、為什麼選他，以及補完還缺哪些人。</li><li>其他日期和班別不變。主管選擇後才套用；按取消就保留原班表。</li><li>套用後仍標示為待主管確認的草稿。找不到合適排法時要留下缺額，不要編出違反規則的班表。</li></ul>
+<figure class="code prompt-block has-audio"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第二版：一個人臨時不能來</span></div><button class="copy-btn" type="button">複製</button></div><div class="prompt-audio"><audio preload="none" src="audio/unit04/unit04-prompt-2.mp3"></audio><div class="prompt-audio-main"><div class="prompt-audio-row"><button type="button" class="prompt-audio-btn" aria-label="播放朗讀">▶</button><span class="prompt-audio-label">🎧 聽聽看怎麼說</span><div class="prompt-audio-progress" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="prompt-audio-bar"></div></div><span class="prompt-audio-time">00:00 / 01:13</span><button type="button" class="prompt-audio-speed" aria-label="播放速度 1.0 倍">1.0x</button></div></div><div class="prompt-audio-qr"><div class="prompt-audio-qr-code"><svg viewBox="0 0 212 212" role="img" aria-label="用手機重播這段朗讀的 QR Code" xmlns="http://www.w3.org/2000/svg" width="212" height="212" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h53v53h-53z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h1m3 0h2m1 0h1m2 0h1m1 0h2m4 0h2m2 0h2m4 0h1m1 0h7m-45 1h1m5 0h1m2 0h1m3 0h2m1 0h3m1 0h3m1 0h1m7 0h1m2 0h1m2 0h1m5 0h1m-45 1h1m1 0h3m1 0h1m2 0h2m1 0h2m3 0h1m1 0h1m1 0h2m1 0h1m7 0h2m1 0h1m2 0h1m1 0h3m1 0h1m-45 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h3m2 0h5m6 0h2m1 0h1m1 0h3m1 0h1m-45 1h1m1 0h3m1 0h1m1 0h2m1 0h2m3 0h2m2 0h8m2 0h7m1 0h1m1 0h3m1 0h1m-45 1h1m5 0h1m1 0h3m2 0h1m4 0h3m3 0h4m1 0h1m2 0h2m4 0h1m5 0h1m-45 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-37 1h3m2 0h4m2 0h2m3 0h2m3 0h5m1 0h1m-36 1h1m3 0h1m1 0h7m2 0h2m1 0h7m1 0h2m1 0h4m1 0h1m2 0h5m2 0h1m-45 1h1m3 0h1m2 0h1m1 0h1m1 0h1m1 0h2m2 0h2m1 0h3m1 0h1m1 0h1m3 0h1m1 0h2m2 0h5m1 0h1m-42 1h1m2 0h1m1 0h1m4 0h4m1 0h2m6 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h4m2 0h1m-41 1h1m1 0h1m1 0h2m1 0h1m1 0h4m2 0h3m1 0h3m1 0h1m3 0h1m2 0h1m1 0h4m-38 1h2m1 0h1m1 0h2m1 0h1m3 0h1m1 0h5m1 0h3m1 0h2m2 0h2m1 0h1m10 0h1m-41 1h1m1 0h1m4 0h1m3 0h4m7 0h2m3 0h1m1 0h2m1 0h2m1 0h1m2 0h2m-42 1h3m2 0h1m1 0h1m2 0h1m1 0h2m2 0h1m1 0h2m1 0h2m1 0h4m1 0h2m1 0h1m2 0h3m1 0h1m2 0h1m-44 1h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m4 0h1m2 0h1m1 0h2m1 0h2m1 0h1m2 0h3m1 0h2m1 0h1m1 0h3m1 0h2m-43 1h1m3 0h1m1 0h2m1 0h2m2 0h1m2 0h1m1 0h2m1 0h1m2 0h2m3 0h3m3 0h3m1 0h1m-42 1h1m1 0h4m1 0h1m4 0h1m1 0h1m1 0h2m1 0h1m1 0h3m2 0h5m2 0h1m1 0h5m1 0h4m-45 1h1m2 0h2m1 0h1m2 0h2m4 0h1m1 0h1m2 0h1m2 0h1m2 0h1m2 0h2m2 0h2m1 0h1m1 0h3m2 0h1m-44 1h1m1 0h1m2 0h1m2 0h4m1 0h1m1 0h3m4 0h1m4 0h1m3 0h4m1 0h1m2 0h1m3 0h1m-44 1h9m2 0h2m2 0h1m2 0h1m1 0h7m2 0h2m1 0h1m1 0h7m3 0h1m-41 1h1m3 0h1m2 0h3m1 0h3m1 0h2m3 0h4m2 0h4m1 0h2m3 0h4m-43 1h1m1 0h2m1 0h1m1 0h4m1 0h1m4 0h3m1 0h1m1 0h1m3 0h3m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m-44 1h1m2 0h2m3 0h3m3 0h2m1 0h2m1 0h1m3 0h1m2 0h1m3 0h3m1 0h2m3 0h1m2 0h2m-45 1h1m3 0h5m1 0h2m1 0h1m1 0h3m2 0h6m1 0h1m1 0h5m1 0h7m-42 1h2m1 0h1m1 0h1m2 0h1m1 0h1m2 0h3m2 0h1m2 0h6m2 0h2m1 0h1m4 0h3m3 0h1m-43 1h4m1 0h1m1 0h1m1 0h1m2 0h2m2 0h2m3 0h3m1 0h1m1 0h2m1 0h1m4 0h1m6 0h1m-43 1h3m3 0h2m5 0h2m4 0h1m1 0h1m2 0h1m3 0h1m2 0h1m4 0h2m1 0h2m-42 1h1m1 0h2m2 0h3m1 0h1m2 0h1m3 0h3m1 0h1m1 0h3m1 0h1m3 0h4m1 0h2m1 0h2m2 0h2m-45 1h2m1 0h3m3 0h1m1 0h3m1 0h2m2 0h2m4 0h3m2 0h1m1 0h2m1 0h3m1 0h1m1 0h3m-43 1h1m3 0h3m2 0h3m2 0h2m3 0h1m1 0h1m3 0h1m2 0h4m2 0h2m2 0h2m-38 1h3m1 0h3m1 0h2m1 0h3m1 0h1m3 0h2m1 0h1m1 0h1m3 0h2m1 0h1m1 0h1m1 0h4m-41 1h6m2 0h2m3 0h1m1 0h6m1 0h4m2 0h1m1 0h3m3 0h4m3 0h1m-43 1h3m5 0h2m1 0h2m1 0h3m3 0h1m1 0h1m1 0h1m1 0h3m4 0h3m1 0h1m1 0h1m1 0h1m-40 1h1m1 0h2m1 0h5m1 0h1m7 0h2m1 0h6m5 0h1m2 0h3m-42 1h4m3 0h1m1 0h3m1 0h1m2 0h1m1 0h3m3 0h2m4 0h2m5 0h2m3 0h1m-44 1h1m2 0h2m1 0h2m1 0h2m1 0h1m4 0h2m1 0h6m3 0h2m1 0h3m1 0h5m2 0h2m-37 1h1m4 0h1m1 0h6m3 0h1m2 0h1m2 0h1m1 0h2m1 0h2m3 0h4m-44 1h7m1 0h2m1 0h2m3 0h1m3 0h1m1 0h1m1 0h1m2 0h1m2 0h4m2 0h1m1 0h1m1 0h2m-42 1h1m5 0h1m3 0h1m4 0h1m1 0h4m3 0h3m2 0h1m2 0h3m1 0h1m3 0h1m-41 1h1m1 0h3m1 0h1m1 0h2m1 0h2m5 0h8m1 0h1m1 0h13m2 0h1m-45 1h1m1 0h3m1 0h1m5 0h1m1 0h2m1 0h1m2 0h5m1 0h2m2 0h1m1 0h1m5 0h1m2 0h1m-42 1h1m1 0h3m1 0h1m4 0h3m1 0h4m2 0h4m1 0h2m2 0h1m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m-44 1h1m5 0h1m2 0h2m1 0h3m2 0h1m1 0h5m1 0h1m1 0h1m2 0h1m1 0h4m1 0h1m2 0h1m-41 1h7m1 0h2m2 0h2m1 0h1m1 0h1m2 0h5m1 0h2m3 0h2m2 0h5m1 0h1m2 0h1"/></g></svg></div><p class="prompt-audio-hint">📱 用手機掃描<br>在手機上重播朗讀</p></div></div><pre><code><span class="line" data-text="先看一下第一版，告訴我你打算怎麼加下面兩個功能，我說可以再改。原本的功能要留著，改好另外存成「第二版」，第一版不要動。">先看一下第一版，告訴我你打算怎麼加下面兩個功能，我說可以再改。原本的功能要留著，改好另外存成「第二版」，第一版不要動。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="先別動手，先跟我說你打算怎麼改，盡量只改需要的地方：會加什麼、改哪裡，怎麼讓原本的功能維持正常，還有改完我要怎麼驗收。等我看過、說可以，再開始改。改好的第二版請另外存成 v2-absence-rescheduling.html，第一版 v1-basic.html 保持不變。">先別動手，先跟我說你打算怎麼改，盡量只改需要的地方：會加什麼、改哪裡，怎麼讓原本的功能維持正常，還有改完我要怎麼驗收。等我看過、說可以，再開始改。改好的第二版請另外存成 v2-absence-rescheduling.html，第一版 v1-basic.html 保持不變。</span>
+<span class="line" data-text="第一，班表可以切換看某一天，或看整週，一打開先看星期一。">第一，班表可以切換看某一天，或看整週，一打開先看星期一。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="這次想加兩件事。第一，班表可以切換檢視：選星期一到星期日其中一天，或看整週，一打開先顯示星期一。切換只是換個方式看，不會改到班表內容。">這次想加兩件事。第一，班表可以切換檢視：選星期一到星期日其中一天，或看整週，一打開先顯示星期一。切換只是換個方式看，不會改到班表內容。</span>
-<span class="line" data-text="第二，主管可以選一位已排班的人、日期和時段，標記他這個時段不能來。工具就把他從這個班拿掉，照原本的排班規則，提出最多三個不一樣、而且排得出來的調整方案。每個方案都要一一確認：有空的時間、主要職務、技能、同一天或同一時段有沒有撞班、一週最多六個時段，還有人數夠不夠。">第二，主管可以選一位已排班的人、日期和時段，標記他這個時段不能來。工具就把他從這個班拿掉，照原本的排班規則，提出最多三個不一樣、而且排得出來的調整方案。每個方案都要一一確認：有空的時間、主要職務、技能、同一天或同一時段有沒有撞班、一週最多六個時段，還有人數夠不夠。</span>
+<span class="line" data-text="第二，主管選一個人、哪一天、哪一班，標記他不能來，不用問原因。請照原本的排班規則找人代班，最多列三個人選，這週排得少的放前面。每個人選都寫清楚為什麼選他、補完還缺什麼。">第二，主管選一個人、哪一天、哪一班，標記他不能來，不用問原因。請照原本的排班規則找人代班，最多列三個人選，這週排得少的放前面。每個人選都寫清楚為什麼選他、補完還缺什麼。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="每個方案要列出：誰被調動、原本排哪一班、改到哪一班、為什麼這樣調，以及還有哪裡沒補滿。沒受影響的班表就維持原樣。主管選了方案才真正套用；按取消就保留原本的班表。套用後一樣標示「待主管確認的建議草稿」。">每個方案要列出：誰被調動、原本排哪一班、改到哪一班、為什麼這樣調，以及還有哪裡沒補滿。沒受影響的班表就維持原樣。主管選了方案才真正套用；按取消就保留原本的班表。套用後一樣標示「待主管確認的建議草稿」。</span>
+<span class="line" data-text="主管按「套用」才改班表，按「取消」就不變；其他天、其他班都不要動。真的找不到人，就留著缺額，提醒主管找臨時人力或請總部支援。">主管按「套用」才改班表，按「取消」就不變；其他天、其他班都不要動。真的找不到人，就留著缺額，提醒主管找臨時人力或請總部支援。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="如果怎麼排都不符合規則，就清楚告訴我現在沒辦法重排，並建議主管找臨時人力或請總部支援。不要問對方為什麼請假，也不要叫他回來上班。等我說可以再改；做好後告訴我怎麼操作，並一項一項確認原本的產生班表和缺額提示都還能用。">如果怎麼排都不符合規則，就清楚告訴我現在沒辦法重排，並建議主管找臨時人力或請總部支援。不要問對方為什麼請假，也不要叫他回來上班。等我說可以再改；做好後告訴我怎麼操作，並一項一項確認原本的產生班表和缺額提示都還能用。</span></code></pre></figure>
+<span class="line" data-text="做好告訴我怎麼用，也確認原本的功能還正常。">做好告訴我怎麼用，也確認原本的功能還正常。</span></code></pre></figure>
 <h3>第二版完成後檢查</h3>
-<ul class="checklist"><li>班表可切換查看星期一到星期日任一天，也可切回整週；切換畫面不會改動排班資料。</li><li>指定人員不再被計入受影響時段的實際出勤人力。</li><li>所有方案都符合資格、時間、撞班及每週時段上限；不會為了湊滿三個而違規。</li><li>方案清楚列出人員與班別變動及仍未補足需求。</li><li>主管選擇前班表不變；取消時保留原班表；套用後仍清楚標示待確認。</li><li>沒有可行方案時，顯示原因及可考慮的支援方式。</li><li>沒有詢問私人請假原因或要求無法出勤的人員回來工作。</li></ul>
+<ul class="checklist"><li>班表可切換查看星期一到星期日任一天，也可切回整週；切換畫面不會改動排班資料。</li><li>指定人員不再被計入受影響時段的實際出勤人力。</li><li>所有方案都符合資格、時間、撞班及每週時段上限；不會為了湊滿三個而違規。</li><li>方案清楚列出誰來補、選他的理由，以及仍未補足的需求。</li><li>主管選擇前班表不變；取消時保留原班表；套用後仍清楚標示待確認。</li><li>沒有可行方案時，顯示原因及可考慮的支援方式。</li><li>沒有詢問私人請假原因或要求無法出勤的人員回來工作。</li></ul>
 <h2 id="stage-3"><span class="num">04</span>階段三：一次處理多人臨時無法出勤</h2>
 <p>第二版一次處理一位員工；這一版要能在同一天、同一班一次勾選好幾位不能出勤的員工，讓系統一起找替代人選。完成後，前兩版的功能也要繼續能用。</p>
 <figure class="page-figure"><img src="figures/unit04/unit04-stage3.jpg" alt="同一班有多位員工無法出勤時，系統一起計算缺額，將不同替代人員分配給各缺額，並保留未補足的人力缺口。" width="1200" height="675" loading="lazy"><figcaption>第三版一次處理同一班的多人缺勤；每位支援人員只能補一個位置，沒找到人補上的缺額要照實留下。</figcaption></figure>
 <div class="callout tip"><span class="label">一次看完所有缺額</span><p>同一個人不能被排去補兩個位置。找不到人的缺額要照實列出；主管確認前先不要改班表。套用或取消方案時，也不能影響其他日期和班別。</p></div>
 <h3>這一版要多做到的事</h3>
-<ul><li>班表可切換查看星期一到星期日任一天，或查看整週；沿用第二版的操作方式。</li><li>選好日期和時段後，主管可以一次勾選一位或多位已排班、臨時不能出勤的人員。</li><li>計算這次缺額時，先把勾選人員從這個班別移除，再逐項算出各工作還缺幾人。</li><li>最多列出三種不同排法；每種都要確認人選的工作和技能符合、當天有空、沒有撞班，而且每週不超過六班。</li><li>同一個人不能在同一方案裡補兩個位置；其他日期和時段也不能跟著改動。</li><li>每種排法都要列出不能出勤的人、支援的人、班別怎麼調整、調整原因，以及還缺哪些工作人手。</li><li>主管選擇前先不要改班表；按取消時維持原樣。套用後仍要標示為待主管確認的草稿。</li></ul>
-<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第三版：同一班別處理多人無法出勤</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="你先看看目前的第二版排班工具：班表內容是怎麼記的、一個人不能來時怎麼處理、單日和整週怎麼切換、方案怎麼預覽和套用。第二版已經做好了，請不要整個重做、大改，也不要拿掉一個人不能來的處理功能。">你先看看目前的第二版排班工具：班表內容是怎麼記的、一個人不能來時怎麼處理、單日和整週怎麼切換、方案怎麼預覽和套用。第二版已經做好了，請不要整個重做、大改，也不要拿掉一個人不能來的處理功能。</span>
+<ul><li>班表可切換查看星期一到星期日任一天，或查看整週；沿用第二版的操作方式。</li><li>選好日期和時段後，主管可以一次勾選一位或多位已排班、臨時不能出勤的人員。</li><li>計算這次缺額時，先把勾選人員從這個班別移除，再逐項算出各工作還缺幾人。</li><li>最多列出三種不同排法；每種都要確認人選的工作和技能符合、當天有空、沒有撞班，而且每週不超過六班。</li><li>同一個人不能在同一方案裡補兩個位置；其他日期和時段也不能跟著改動。</li><li>每種排法都要列出不能出勤的人、來支援的人、各補哪個職務、選他的理由，以及還缺哪些工作人手。</li><li>主管選擇前先不要改班表；按取消時維持原樣。套用後仍要標示為待主管確認的草稿。</li></ul>
+<figure class="code prompt-block has-audio"><div class="code-head"><div><span class="code-kind prompt">給 AI Agent 的提示</span><span class="code-title">第三版：同一班好幾個人不能來</span></div><button class="copy-btn" type="button">複製</button></div><div class="prompt-audio"><audio preload="none" src="audio/unit04/unit04-prompt-3.mp3"></audio><div class="prompt-audio-main"><div class="prompt-audio-row"><button type="button" class="prompt-audio-btn" aria-label="播放朗讀">▶</button><span class="prompt-audio-label">🎧 聽聽看怎麼說</span><div class="prompt-audio-progress" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="prompt-audio-bar"></div></div><span class="prompt-audio-time">00:00 / 01:21</span><button type="button" class="prompt-audio-speed" aria-label="播放速度 1.0 倍">1.0x</button></div></div><div class="prompt-audio-qr"><div class="prompt-audio-qr-code"><svg viewBox="0 0 212 212" role="img" aria-label="用手機重播這段朗讀的 QR Code" xmlns="http://www.w3.org/2000/svg" width="212" height="212" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h53v53h-53z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h5m4 0h2m1 0h1m1 0h2m2 0h1m1 0h4m1 0h1m2 0h1m1 0h7m-45 1h1m5 0h1m1 0h2m3 0h2m2 0h2m1 0h3m1 0h1m7 0h1m2 0h1m2 0h1m5 0h1m-45 1h1m1 0h3m1 0h1m1 0h4m3 0h2m1 0h1m2 0h3m1 0h1m3 0h5m1 0h1m2 0h1m1 0h3m1 0h1m-45 1h1m1 0h3m1 0h1m2 0h3m1 0h2m3 0h2m3 0h1m1 0h1m2 0h3m1 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-45 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h2m2 0h6m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1m-45 1h1m5 0h1m3 0h2m2 0h1m1 0h3m1 0h1m3 0h1m2 0h2m2 0h1m1 0h1m4 0h1m5 0h1m-45 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-35 1h3m4 0h2m1 0h1m3 0h1m1 0h3m5 0h1m1 0h1m-37 1h1m2 0h6m1 0h1m1 0h1m1 0h1m3 0h7m3 0h4m1 0h1m3 0h1m2 0h1m1 0h3m-45 1h2m8 0h1m3 0h1m1 0h6m2 0h3m1 0h1m1 0h5m1 0h1m1 0h2m2 0h2m-44 1h3m3 0h1m1 0h1m1 0h1m1 0h2m3 0h2m1 0h1m1 0h1m4 0h3m4 0h4m1 0h1m2 0h3m-45 1h1m3 0h1m2 0h4m2 0h2m4 0h5m2 0h2m7 0h1m1 0h3m2 0h1m-42 1h3m1 0h3m2 0h2m1 0h1m4 0h2m5 0h4m1 0h1m1 0h4m3 0h3m1 0h1m-41 1h2m5 0h1m3 0h4m7 0h2m3 0h1m1 0h2m1 0h2m1 0h1m2 0h2m-41 1h3m1 0h3m3 0h2m4 0h1m1 0h1m1 0h1m1 0h1m1 0h4m3 0h1m1 0h1m2 0h1m1 0h3m-43 1h2m1 0h2m2 0h2m3 0h1m2 0h6m1 0h2m1 0h2m2 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h2m-43 1h2m2 0h4m3 0h4m1 0h4m4 0h2m2 0h1m2 0h1m2 0h1m2 0h1m4 0h1m-44 1h1m2 0h1m4 0h1m1 0h4m6 0h2m3 0h1m1 0h1m2 0h5m1 0h1m2 0h2m1 0h1m-42 1h1m2 0h1m1 0h5m1 0h3m1 0h4m3 0h3m3 0h1m1 0h4m2 0h1m1 0h2m1 0h1m1 0h1m-44 1h2m1 0h1m2 0h1m4 0h1m1 0h2m2 0h4m1 0h4m1 0h3m4 0h1m1 0h2m1 0h3m1 0h1m-45 1h2m2 0h9m1 0h1m1 0h1m1 0h1m1 0h6m1 0h4m2 0h1m1 0h6m-40 1h1m2 0h1m3 0h1m1 0h3m2 0h1m1 0h1m2 0h1m3 0h1m1 0h3m1 0h1m1 0h5m3 0h3m-43 1h5m1 0h1m1 0h1m1 0h5m1 0h1m2 0h2m1 0h1m1 0h1m1 0h1m2 0h1m2 0h3m1 0h1m1 0h1m1 0h5m-41 1h1m3 0h3m1 0h1m1 0h1m2 0h1m2 0h1m3 0h1m5 0h3m2 0h2m3 0h1m1 0h3m-45 1h1m2 0h11m6 0h6m2 0h1m1 0h3m1 0h1m1 0h5m-41 1h2m1 0h1m1 0h1m3 0h1m3 0h3m2 0h1m2 0h6m2 0h2m1 0h1m4 0h3m3 0h1m-44 1h1m1 0h5m1 0h1m1 0h1m3 0h1m4 0h1m2 0h1m2 0h2m1 0h1m1 0h1m4 0h1m1 0h1m3 0h2m-43 1h2m3 0h1m1 0h1m1 0h1m1 0h1m5 0h2m2 0h7m2 0h1m2 0h1m1 0h3m1 0h2m1 0h1m1 0h1m-45 1h3m2 0h2m1 0h4m3 0h1m2 0h1m5 0h1m7 0h1m1 0h3m3 0h2m2 0h1m-45 1h1m1 0h2m3 0h4m1 0h1m1 0h2m1 0h1m4 0h2m3 0h5m1 0h2m1 0h1m1 0h3m1 0h1m1 0h1m-43 1h1m2 0h2m1 0h1m1 0h2m1 0h4m1 0h2m2 0h1m1 0h2m3 0h1m5 0h1m1 0h4m1 0h3m-45 1h3m7 0h1m2 0h1m3 0h1m1 0h3m2 0h1m1 0h1m1 0h3m2 0h1m1 0h1m1 0h1m4 0h3m-44 1h1m1 0h4m1 0h1m4 0h2m1 0h4m2 0h4m1 0h3m1 0h1m2 0h1m2 0h1m-36 1h3m2 0h1m3 0h1m2 0h6m4 0h3m2 0h3m2 0h3m2 0h3m-38 1h1m1 0h4m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m3 0h1m1 0h1m1 0h2m1 0h1m1 0h3m2 0h1m2 0h1m-44 1h4m3 0h4m2 0h1m1 0h5m3 0h4m2 0h4m2 0h1m1 0h1m3 0h2m-44 1h1m2 0h2m1 0h2m3 0h2m2 0h2m1 0h1m1 0h6m1 0h2m1 0h1m1 0h1m2 0h7m1 0h2m-37 1h1m4 0h1m1 0h6m3 0h1m2 0h1m2 0h1m1 0h2m1 0h2m3 0h4m-44 1h7m1 0h2m3 0h1m2 0h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-44 1h1m5 0h1m1 0h1m1 0h3m1 0h1m2 0h4m3 0h2m1 0h1m2 0h1m3 0h3m3 0h3m1 0h1m-45 1h1m1 0h3m1 0h1m1 0h3m2 0h1m1 0h1m4 0h5m5 0h1m1 0h1m1 0h1m1 0h5m2 0h2m-45 1h1m1 0h3m1 0h1m1 0h2m1 0h3m1 0h3m1 0h1m1 0h1m2 0h2m1 0h5m2 0h2m1 0h1m2 0h1m2 0h2m-45 1h1m1 0h3m1 0h1m4 0h1m2 0h4m1 0h5m1 0h1m1 0h1m3 0h1m3 0h2m1 0h1m1 0h1m1 0h1m1 0h1m-45 1h1m5 0h1m4 0h1m3 0h2m1 0h1m5 0h1m1 0h1m1 0h2m1 0h1m4 0h1m1 0h2m1 0h4m-45 1h7m1 0h1m1 0h1m1 0h3m1 0h2m5 0h2m3 0h1m2 0h1m1 0h5m2 0h2"/></g></svg></div><p class="prompt-audio-hint">📱 用手機掃描<br>在手機上重播朗讀</p></div></div><pre><code><span class="line" data-text="先看一下第二版，告訴我你打算怎麼改，我說可以再動手。原本的功能都要留著，改好另外存成「第三版」，前兩版不要動。">先看一下第二版，告訴我你打算怎麼改，我說可以再動手。原本的功能都要留著，改好另外存成「第三版」，前兩版不要動。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="先別動手，先跟我說你打算怎麼改，盡量只改需要的地方：主管選好同一個日期和時段後，要能一次勾選一位或好幾位已排班的人，標記他們不能來；這幾個空缺要怎麼一起安排；還有怎麼保留原本的單人處理、星期一到星期日單日和整週切換、缺額顯示、取消和主管確認這些流程。等我看過、說可以再開始改。">先別動手，先跟我說你打算怎麼改，盡量只改需要的地方：主管選好同一個日期和時段後，要能一次勾選一位或好幾位已排班的人，標記他們不能來；這幾個空缺要怎麼一起安排；還有怎麼保留原本的單人處理、星期一到星期日單日和整週切換、缺額顯示、取消和主管確認這些流程。等我看過、說可以再開始改。</span>
+<span class="line" data-text="這次要能在同一天、同一班，一次勾選好幾個不能來的人。把他們一起拿掉，算出每個職務各缺幾個人，再一起找人代班。">這次要能在同一天、同一班，一次勾選好幾個不能來的人。把他們一起拿掉，算出每個職務各缺幾個人，再一起找人代班。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="確認後再動手：把勾選的人從那天那個時段一次拿掉，每個職務重新算缺幾個人，提出最多三個不一樣、而且排得出來的方案。每個方案要把找得到的替代人選一次排好；同一個人不能同時補兩個位置，而且要符合主要職務、技能、那個時段有空、當天沒排別的班，以及這週最多六個時段。如果有些缺補不滿，可以提出只補一部分、但都符合規則的方案，並清楚列出還缺多少；如果完全找不到人支援，就清楚提醒主管考慮臨時人力或請總部支援。">確認後再動手：把勾選的人從那天那個時段一次拿掉，每個職務重新算缺幾個人，提出最多三個不一樣、而且排得出來的方案。每個方案要把找得到的替代人選一次排好；同一個人不能同時補兩個位置，而且要符合主要職務、技能、那個時段有空、當天沒排別的班，以及這週最多六個時段。如果有些缺補不滿，可以提出只補一部分、但都符合規則的方案，並清楚列出還缺多少；如果完全找不到人支援，就清楚提醒主管考慮臨時人力或請總部支援。</span>
+<span class="line" data-text="找人一樣照原本的規則，同一個人只能補一個位置。最多給三個不一樣的方案，每個方案寫清楚誰不能來、誰來補、為什麼選他，還缺哪個職務幾個人。">找人一樣照原本的規則，同一個人只能補一個位置。最多給三個不一樣的方案，每個方案寫清楚誰不能來、誰來補、為什麼選他，還缺哪個職務幾個人。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="每個方案要一一列出：不能來的人、來支援的人、原本排哪一班、改到哪一班、為什麼這樣調、每個職務需要幾個人、實際排了幾個人，還缺幾個。沒受影響的日期和時段維持原樣。主管還沒選之前都不套用；按取消就不改班表；主管套用後一樣標示「待確認的建議草稿」。不要問對方生了什麼病或私人原因。">每個方案要一一列出：不能來的人、來支援的人、原本排哪一班、改到哪一班、為什麼這樣調、每個職務需要幾個人、實際排了幾個人，還缺幾個。沒受影響的日期和時段維持原樣。主管還沒選之前都不套用；按取消就不改班表；主管套用後一樣標示「待確認的建議草稿」。不要問對方生了什麼病或私人原因。</span>
+<span class="line" data-text="主管按「套用」才改，按「取消」就不變；其他天、其他班都不要動。完全找不到人，就提醒主管找臨時人力或請總部支援。">主管按「套用」才改，按「取消」就不變；其他天、其他班都不要動。完全找不到人，就提醒主管找臨時人力或請總部支援。</span>
 <span class="line" data-text=""></span>
-<span class="line" data-text="這一版另外存成 v3-multiple-absence.html，不要蓋掉前兩版。做好後告訴我好幾個人一起不能來時怎麼操作，並一項一項檢查：只勾一個人時，結果要跟第二版一樣；勾好幾個人時，不會重複派同一個人、不會超過限制、不會動到其他日期和時段的班表，而且剩下的缺額要正確顯示。">這一版另外存成 v3-multiple-absence.html，不要蓋掉前兩版。做好後告訴我好幾個人一起不能來時怎麼操作，並一項一項檢查：只勾一個人時，結果要跟第二版一樣；勾好幾個人時，不會重複派同一個人、不會超過限制、不會動到其他日期和時段的班表，而且剩下的缺額要正確顯示。</span></code></pre></figure>
+<span class="line" data-text="做好告訴我怎麼用，並檢查：只勾一個人時，結果要跟第二版一樣；勾好幾個人時，沒有人被重複派到。">做好告訴我怎麼用，並檢查：只勾一個人時，結果要跟第二版一樣；勾好幾個人時，沒有人被重複派到。</span></code></pre></figure>
 <h3>第三版完成後檢查</h3>
 <ul class="checklist"><li>班表保留單日／整週切換，而且切換時不會改動排班內容。</li><li>同一日期與時段可一次選取多位已排班人員。</li><li>系統同步移除所有被選取人員，並按職務計算全部空缺。</li><li>每個方案都聯合檢查資格、可排時間、同日衝突、週上限及重複指派。</li><li>最多三個不同方案；若只能部分補足，逐項呈現尚缺人數。</li><li>取消保持原排班，套用只更動指定日期與時段，其他班表不變。</li><li>原有單人處理、單日／整週切換與其他基本功能仍可使用。</li></ul>
 <h2 id="outcomes"><span class="num">05</span>預期成果與檢查</h2>
@@ -1052,6 +1133,65 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
       });
     });
   }
+
+  // Read-aloud players inside prompt blocks; starting one pauses every other audio on the page.
+  var allAudio = function () { return document.querySelectorAll("audio"); };
+  document.addEventListener("play", function (e) {
+    Array.prototype.forEach.call(allAudio(), function (a) { if (a !== e.target) a.pause(); });
+  }, true);
+  var PROMPT_SPEEDS = [1, 1.25, 1.5, 0.8];
+  Array.prototype.forEach.call(document.querySelectorAll(".prompt-audio"), function (box) {
+    var a = box.querySelector("audio");
+    var btn = box.querySelector(".prompt-audio-btn");
+    var wrap = box.querySelector(".prompt-audio-progress");
+    var bar = box.querySelector(".prompt-audio-bar");
+    var time = box.querySelector(".prompt-audio-time");
+    var speed = box.querySelector(".prompt-audio-speed");
+    var fallbackTotal = time.textContent.split(" / ")[1];
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var update = function () {
+      var total = a.duration && isFinite(a.duration) ? fmt(a.duration) : fallbackTotal;
+      time.textContent = fmt(a.currentTime) + " / " + total;
+      var pct = a.duration ? (a.currentTime / a.duration) * 100 : 0;
+      bar.style.width = pct + "%";
+      wrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+      wrap.setAttribute("aria-valuetext", fmt(a.currentTime));
+    };
+    var seekTo = function (t) {
+      if (!a.duration) return;
+      a.currentTime = Math.max(0, Math.min(a.duration, t));
+      update();
+    };
+    var setPlaying = function (on) {
+      btn.textContent = on ? "⏸" : "▶";
+      btn.setAttribute("aria-label", on ? "暫停朗讀" : "播放朗讀");
+    };
+    btn.addEventListener("click", function () { if (a.paused) a.play(); else a.pause(); });
+    a.addEventListener("play", function () { setPlaying(true); });
+    a.addEventListener("pause", function () { setPlaying(false); });
+    a.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) { a.addEventListener(ev, update); });
+    wrap.addEventListener("click", function (e) {
+      var r = wrap.getBoundingClientRect();
+      seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * a.duration);
+    });
+    wrap.addEventListener("keydown", function (e) {
+      var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+      if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+      else if (e.key === "End") { e.preventDefault(); seekTo(a.duration); }
+      else if (step) { e.preventDefault(); seekTo(a.currentTime + step); }
+    });
+    speed.addEventListener("click", function () {
+      var next = PROMPT_SPEEDS[(PROMPT_SPEEDS.indexOf(a.playbackRate) + 1) % PROMPT_SPEEDS.length] || 1;
+      a.playbackRate = next;
+      speed.textContent = (next % 1 ? String(next) : next.toFixed(1)) + "x";
+      speed.setAttribute("aria-label", "播放速度 " + next + " 倍");
+    });
+  });
 
   // Back-to-top button.
   var toTop = document.querySelector(".to-top");
