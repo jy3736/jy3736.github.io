@@ -8,6 +8,10 @@ const presentButton=document.querySelector('#present-toggle');
 const previous=document.querySelector('#prev');
 const next=document.querySelector('#next');
 let current=0;
+// iPad (reports as Macintosh with touch) and Android tablets get the one-slide-at-a-time layout; see html.tablet in style.css.
+const tablet=navigator.maxTouchPoints>1&&/iPad|Macintosh|Android/.test(navigator.userAgent);
+document.documentElement.classList.toggle('tablet',tablet);
+const paged=()=>tablet&&innerWidth>900;
 const links=[...catalog.querySelectorAll('nav a')];
 const autoPod=document.querySelector('#auto-podcast');
 function nearest(from,dir){for(let i=from;i>=0&&i<slides.length;i+=dir)if(!slides[i].hidden)return i;return -1;}
@@ -20,6 +24,7 @@ function update(index,hash=true){
   document.querySelector('#page-status').textContent=`${String(current+1).padStart(2,'0')} / ${slides.length}`;
   links.forEach((a,i)=>{if(i===current)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
   const page=slides[current];
+  document.querySelector('.slide.is-current')?.classList.remove('is-current');page.classList.add('is-current');
   document.querySelector('#notes-content').replaceChildren(page.querySelector('template').content.cloneNode(true));
   if(hash && location.hash!==`#${page.id}`)history.replaceState(null,'',`#${page.id}`);
   if(moved&&autoPod.checked)playPod();
@@ -32,7 +37,7 @@ function go(index){
 function step(dir){const i=nearest(current+dir,dir);if(i>=0)go(i);}
 function openCatalog(){catalog.showModal();catalogButton.setAttribute('aria-expanded','true');catalog.querySelector('[aria-current=page]')?.scrollIntoView({block:'nearest'});document.querySelector('#catalog-close').focus();}
 function closeCatalog(){catalog.close();catalogButton.setAttribute('aria-expanded','false');catalogButton.focus({preventScroll:true});}
-function toggleNotes(force){const show=typeof force==='boolean'?force:notes.hidden;notes.hidden=!show;notesButton.setAttribute('aria-pressed',String(show));}
+function toggleNotes(force){const show=typeof force==='boolean'?force:notes.hidden;notes.hidden=!show;document.documentElement.classList.toggle('notes-open',show);notesButton.setAttribute('aria-pressed',String(show));}
 // AI reply panels (s32–s38) start hidden; the presenter opens one at a time after reading the prompt aloud.
 function setReply(button,open){button.setAttribute('aria-expanded',String(open));document.getElementById(button.getAttribute('aria-controls')).hidden=!open;}
 // Read-aloud clips (s32–s38): one shared player; the button shows play/pause and elapsed time.
@@ -59,7 +64,11 @@ try{autoPod.checked=localStorage.getItem('auto-podcast')==='1';}catch(e){}
 autoPod.addEventListener('change',()=>{try{localStorage.setItem('auto-podcast',autoPod.checked?'1':'0');}catch(e){}
   if(autoPod.checked){if(!voiceButton)playPod();}else if(voiceButton?.classList.contains('pod'))stopVoice();});
 function closeReplies(){let any=false;document.querySelectorAll('.ai-toggle[aria-expanded=true]').forEach(b=>{setReply(b,false);any=true;});return any;}
-function togglePresent(force){const on=typeof force==='boolean'?force:!document.documentElement.classList.contains('present');document.documentElement.classList.toggle('present',on);presentButton.setAttribute('aria-pressed',String(on));presentButton.textContent=on?'退出滿版':'滿版';requestAnimationFrame(()=>go(current));}
+// 滿版 on tablets also hides the browser toolbar; older iPadOS only has the webkit-prefixed calls.
+const fullscreenElement=()=>document.fullscreenElement||document.webkitFullscreenElement;
+function setFullscreen(on){const root=document.documentElement;if(on===!!fullscreenElement())return;const call=on?root.requestFullscreen||root.webkitRequestFullscreen:document.exitFullscreen||document.webkitExitFullscreen;call?.call(on?root:document)?.catch?.(()=>{});}
+['fullscreenchange','webkitfullscreenchange'].forEach(t=>document.addEventListener(t,()=>{if(tablet&&!fullscreenElement()&&document.documentElement.classList.contains('present'))togglePresent(false);}));
+function togglePresent(force){const on=typeof force==='boolean'?force:!document.documentElement.classList.contains('present');document.documentElement.classList.toggle('present',on);presentButton.setAttribute('aria-pressed',String(on));presentButton.textContent=on?'退出滿版':'滿版';if(tablet)setFullscreen(on);requestAnimationFrame(()=>go(current));}
 catalogButton.addEventListener('click',openCatalog);
 document.querySelector('#catalog-close').addEventListener('click',closeCatalog);
 catalog.addEventListener('cancel',()=>{catalogButton.setAttribute('aria-expanded','false');});
@@ -87,8 +96,12 @@ document.addEventListener('keydown',e=>{
   if(e.key==='End'){e.preventDefault();go(nearest(slides.length-1,-1));}
   if(e.key.toLowerCase()==='n'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();toggleNotes();}
 });
+// Swipe left/right to change slides on tablets; sliders and open reply panels keep their own touch handling.
+let swipe=null;
+document.querySelector('#deck').addEventListener('touchstart',e=>{swipe=paged()&&e.touches.length===1&&!e.target.closest('input,audio,.ai-reply')?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;},{passive:true});
+document.querySelector('#deck').addEventListener('touchend',e=>{if(!swipe)return;const dx=e.changedTouches[0].clientX-swipe.x,dy=e.changedTouches[0].clientY-swipe.y;swipe=null;if(Math.abs(dx)>60&&Math.abs(dx)>1.5*Math.abs(dy))step(dx<0?1:-1);},{passive:true});
 let queued=false;
-window.addEventListener('scroll',()=>{if(queued||catalog.open)return;queued=true;requestAnimationFrame(()=>{queued=false;let best=0,distance=Infinity;slides.forEach((slide,i)=>{if(slide.hidden)return;const r=slide.getBoundingClientRect();const d=innerWidth<=900?Math.abs(r.top-86):Math.abs(r.top+r.height/2-innerHeight/2);if(d<distance){distance=d;best=i;}});if(best!==current)update(best);});},{passive:true});
+window.addEventListener('scroll',()=>{if(queued||catalog.open||paged())return;queued=true;requestAnimationFrame(()=>{queued=false;let best=0,distance=Infinity;slides.forEach((slide,i)=>{if(slide.hidden)return;const r=slide.getBoundingClientRect();const d=innerWidth<=900?(r.top<=86&&r.bottom>86?0:Math.abs(r.top-86)):Math.abs(r.top+r.height/2-innerHeight/2);if(d<distance){distance=d;best=i;}});if(best!==current)update(best);});},{passive:true});
 window.addEventListener('hashchange',()=>{const i=slides.findIndex(s=>`#${s.id}`===location.hash);if(i>=0)go(i);});
 let resizing;
 window.addEventListener('resize',()=>{clearTimeout(resizing);resizing=setTimeout(()=>go(current),120);});
