@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="多門 AI Agent、C/C++ 與 Flutter 課程的教室電腦必裝軟體與安裝步驟。">
+<title>教室電腦軟體安裝指南</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #fbfaf7; --surface: #ffffff; --ink: #22262b; --muted: #5f6770; --line: #dfdcd4;
+  --accent: #0b6b62; --code-bg: #f3f1ec; --cap-bg: #eae7df;
+  --win: #1f5fbf; --ubuntu: #c2500f; --msys: #7a3fb0; --both: #0b6b62; --plain: #5f6770;
+  --warn-bg: #fdf3dc; --warn-line: #d29a1f;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181b; --surface: #1c2024; --ink: #e6e7e8; --muted: #a2a9b0; --line: #343a40;
+    --accent: #58c7b9; --code-bg: #101316; --cap-bg: #262b30;
+    --win: #7fb0f5; --ubuntu: #f0975c; --msys: #c49bee; --both: #58c7b9; --plain: #a2a9b0;
+    --warn-bg: #2e2714; --warn-line: #b98a24;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 16px; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); line-height: 1.8; font-size: 17px;
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+code, pre { font-family: ui-monospace, "SF Mono", "Cascadia Code", Consolas, Menlo, monospace; }
+.layout {
+  display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 48px;
+  max-width: 1360px; margin: 0 auto; padding: 0 32px;
+}
+aside { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: 40px 4px 40px 0; }
+aside summary { margin-bottom: 10px; font-size: 13px; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+aside ol { list-style: none; margin: 0; padding: 0; }
+aside a {
+  display: block; padding: 5px 12px; border-left: 2px solid var(--line); color: var(--muted);
+  text-decoration: none; font-size: 13.5px; line-height: 1.5;
+}
+aside .l2 a { margin-top: 10px; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+aside .l3 a { padding-left: 24px; }
+aside a:hover { color: var(--ink); }
+aside a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+main { min-width: 0; max-width: 1000px; padding: 40px 0 96px; }
+h1 { margin: 0 0 16px; font-size: 32px; line-height: 1.35; }
+.status { padding: 12px 16px; background: var(--warn-bg); border-left: 4px solid var(--warn-line); border-radius: 4px; }
+.status p { margin: 0; }
+h2 { margin: 64px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); font-size: 26px; line-height: 1.4; }
+h3 { margin: 40px 0 12px; font-size: 20px; line-height: 1.4; }
+h4 { margin: 28px 0 10px; font-size: 17px; line-height: 1.4; }
+p, ul, ol { margin: 0 0 16px; }
+main ul, main ol { padding-left: 1.5em; }
+main li { margin-bottom: 8px; }
+a { color: var(--accent); overflow-wrap: anywhere; }
+:not(pre) > code { padding: .1em .35em; background: var(--code-bg); border-radius: 4px; font-size: .88em; overflow-wrap: anywhere; }
+.cmd { margin: 16px 0 20px; border: 1px solid var(--line); border-left: 4px solid var(--env); border-radius: 6px; overflow: hidden; background: var(--code-bg); }
+.cmd.win { --env: var(--win); } .cmd.ubuntu { --env: var(--ubuntu); } .cmd.msys { --env: var(--msys); }
+.cmd.both { --env: var(--both); } .cmd.plain { --env: var(--plain); }
+figcaption { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 8px 6px 14px; background: var(--cap-bg); font-size: 14px; line-height: 1.5; }
+figcaption .label { color: var(--env); font-weight: 600; min-width: 0; }
+figcaption .label code { background: transparent; padding: 0; }
+.copy { flex: none; min-height: 32px; padding: 2px 12px; font: inherit; font-size: 13px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
+.copy:hover { border-color: var(--accent); }
+.copy.done { color: var(--accent); border-color: var(--accent); }
+pre { margin: 0; padding: 12px 14px; overflow-x: auto; font-size: 14.5px; line-height: 1.6; }
+.table-wrap { margin: 16px 0 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.65; }
+th, td { padding: 8px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+th { background: var(--cap-bg); font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; font-weight: 600; }
+td { min-width: 9em; }
+td:first-child { min-width: 0; }
+td.pending { min-width: 0; white-space: nowrap; color: var(--muted); font-size: 14px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 900px) {
+  body { font-size: 16px; }
+  .layout { display: block; padding: 0 16px; }
+  aside { position: static; max-height: none; overflow: visible; padding: 16px 0 0; }
+  aside summary { min-height: 44px; display: flex; align-items: center; font-size: 15px; cursor: pointer; }
+  aside a { padding-top: 8px; padding-bottom: 8px; }
+  main { padding-top: 16px; }
+  h1 { font-size: 26px; }
+  h2 { font-size: 22px; margin-top: 48px; }
+}
+@media print {
+  aside, .copy { display: none; }
+  .layout { display: block; padding: 0; max-width: none; }
+  main { max-width: none; padding: 0; }
+  pre { white-space: pre-wrap; overflow: visible; }
+  .cmd { break-inside: avoid; overflow: visible; }
+  .table-wrap { overflow: visible; }
+  th:first-child, td:first-child { white-space: normal; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+<details open>
+<summary>本頁目錄</summary>
+<nav aria-label="本頁目錄"><ol><li class="l2"><a href="#summary">必裝軟體與套件</a></li><li class="l2"><a href="#overview">安裝前須知</a></li><li class="l3"><a href="#overview-1">適用範圍</a></li><li class="l3"><a href="#overview-2">文件與執行順序</a></li><li class="l3"><a href="#overview-3">版本選擇與固定原則</a></li><li class="l3"><a href="#overview-4">還原基準與學生帳號</a></li><li class="l2"><a href="#shared">共用 AI Agent 與程式開發環境安裝指南</a></li><li class="l3"><a href="#shared-1">1. Windows 與 WSL 基礎環境</a></li><li class="l3"><a href="#shared-2">2. AI 桌面程式、CLI 與編輯器整合</a></li><li class="l3"><a href="#shared-3">3. C/C++：一般 GCC/G++ 工具鏈</a></li><li class="l3"><a href="#shared-4">4. Python：依功能分環境</a></li><li class="l3"><a href="#shared-5">5. Node.js、前後端與瀏覽器自動化</a></li><li class="l3"><a href="#shared-6">6. 文件、中文字型與音訊工具</a></li><li class="l3"><a href="#shared-7">7. 預載與封存前檢查</a></li><li class="l2"><a href="#flutter">Flutter 課程環境安裝指南</a></li><li class="l3"><a href="#flutter-1">1. Flutter SDK 與編輯器</a></li><li class="l3"><a href="#flutter-2">2. Android Studio 與 SDK</a></li><li class="l3"><a href="#flutter-3">3. Emulator、實機與 Web</a></li><li class="l3"><a href="#flutter-4">4. 可複製的基本驗收指令</a></li><li class="l3"><a href="#flutter-5">5. 實際課程範本驗收</a></li><li class="l3"><a href="#flutter-6">6. 預載、還原與斷網重建</a></li></ol></nav>
+</details>
+</aside>
+<main>
+<h1>教室電腦軟體安裝指南</h1>
+<div class="status"><p>專案：<strong>STUST 2026 Fall - 課堂事務</strong><br />
+整理日期：2026-10-31（臺灣時間）<br />
+文件狀態：需求已整理；<strong>尚未在教室 Windows 電腦安裝或實測，所有驗收預設為待驗收</strong>。</p>
+</div>
+<section><h2 id="summary">必裝軟體與套件</h2>
+<p>未特別標示者，Windows 與 WSL 兩端各自安裝，不可跨系統複製。版本一律在安裝當日核對，詳細步驟見後續各節。</p>
+<h4 id="summary-0-1">應用程式與工具</h4>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>類別</th>
+<th>Windows</th>
+<th>WSL 2／Ubuntu LTS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>系統</td>
+<td>Windows 10／11、虛擬化、Windows Hypervisor Platform</td>
+<td>Ubuntu LTS（VERSION 須為 2）</td>
+</tr>
+<tr>
+<td>編輯器</td>
+<td>VS Code stable、WSL 擴充</td>
+<td>VS Code Server</td>
+</tr>
+<tr>
+<td>VS Code 擴充</td>
+<td>C/C++、Python、Python 偵錯、Flutter／Dart</td>
+<td>C/C++、Python、Python 偵錯</td>
+</tr>
+<tr>
+<td>AI 工具</td>
+<td>ChatGPT Work、Codex、Gemini、Antigravity</td>
+<td>依官方支援安裝對應 CLI 或整合</td>
+</tr>
+<tr>
+<td>版本控制</td>
+<td>Git</td>
+<td>Git</td>
+</tr>
+<tr>
+<td>C/C++</td>
+<td>MSYS2 UCRT64：GCC、G++、GDB、Make</td>
+<td>build-essential、gdb、cmake</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Python stable、pip、venv、uv</td>
+<td>Python stable、pip、venv、uv</td>
+</tr>
+<tr>
+<td>JavaScript</td>
+<td>Node.js LTS、npm、pnpm</td>
+<td>Node.js LTS、npm、pnpm</td>
+</tr>
+<tr>
+<td>文件與音訊</td>
+<td>Pandoc、Poppler、FFmpeg、繁體中文字型</td>
+<td>Pandoc、Poppler、FFmpeg、繁體中文字型</td>
+</tr>
+<tr>
+<td>Ubuntu 基本工具</td>
+<td>不需要</td>
+<td>curl、wget、zip、unzip、python3-venv</td>
+</tr>
+<tr>
+<td>Flutter</td>
+<td>Flutter stable（內含 Dart）、Android Studio stable、Chrome、Edge</td>
+<td>非必要端</td>
+</tr>
+<tr>
+<td>Android SDK</td>
+<td>Platforms、Build-Tools、Command-line Tools、Platform-Tools、Emulator、CMake、NDK、手機 AVD 系統 image</td>
+<td>非必要端</td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="summary-0-2">依範本預載的套件</h4>
+<p>每個範本使用獨立環境與自己的鎖定檔，不做全域安裝。</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>範本</th>
+<th>套件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python：Flask Web</td>
+<td>Flask、Waitress、python-dotenv、requests、httpx、aiohttp</td>
+</tr>
+<tr>
+<td>Python：FastAPI Web</td>
+<td>FastAPI、Uvicorn、python-dotenv、requests、httpx、aiohttp；上傳範本加 python-multipart</td>
+</tr>
+<tr>
+<td>Python：資料分析</td>
+<td>numpy、pandas、scipy、matplotlib、seaborn、statsmodels、openpyxl、xlsxwriter</td>
+</tr>
+<tr>
+<td>Python：文件處理</td>
+<td>Markdown、markdown-it-py、PyMuPDF、pypdf、ReportLab、python-docx、python-pptx、Pillow、beautifulsoup4、lxml、qrcode</td>
+</tr>
+<tr>
+<td>Python：音訊</td>
+<td>pydub、edge-tts（聲音固定 <code>zh-TW-HsiaoChenNeural</code>）</td>
+</tr>
+<tr>
+<td>Node：Express 後端</td>
+<td>express，加上範本所需的 JSON、上傳、資料庫依賴</td>
+</tr>
+<tr>
+<td>Node：React 前端</td>
+<td>react、react-dom、Vite、TypeScript、Tailwind、ESLint</td>
+</tr>
+<tr>
+<td>Node：文件與圖表</td>
+<td>docx、exceljs、Mermaid CLI 與其瀏覽器</td>
+</tr>
+<tr>
+<td>Node：瀏覽器測試</td>
+<td>Playwright、對應版本的瀏覽器及系統依賴</td>
+</tr>
+<tr>
+<td>Flutter</td>
+<td>go_router、shared_preferences；其他外掛依教材需要加入</td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="summary-0-3">按需候選</h4>
+<p>Streamlit、whisper 轉錄與模型、Next.js 範本。僅在教材需要時預載，未採用不算必要項失敗。</p>
+
+</section>
+<section><h2 id="overview">安裝前須知</h2>
+<h3 id="overview-1">適用範圍</h3>
+<p>供多門 AI Agent 課程、一般 C/C++ 課程與 Flutter App Development 課程使用。環境為 Windows 10／11 混合電腦、WSL 2 與 Ubuntu LTS；Flutter 在 Windows 執行，以 Android 與 Web 為驗收目標。課堂編輯器統一使用 VS Code。</p>
+<p>電腦每次重開機會還原，預計僅在期中考週安裝一次，供學期後半段使用。因此安裝程式之外，也要完成學生帳號初始化、範本依賴下載、快取預載、還原基準保存與重啟後驗收。文件只涵蓋軟體、必要設定、預載與驗收。</p>
+<h3 id="overview-2">文件與執行順序</h3>
+<ol>
+<li>閱讀本頁的版本與還原原則。</li>
+<li>依 <a href="#shared">共用環境安裝指南</a> 完成 Windows 與 WSL 共用環境。</li>
+<li>依 <a href="#flutter">Flutter 環境安裝指南</a> 完成 Windows Flutter、Android 與 Web 環境。</li>
+</ol>
+<h3 id="overview-3">版本選擇與固定原則</h3>
+<ul>
+<li>安裝當日選官方最新 stable；Node.js 選 LTS，Ubuntu 選當日仍受支援且與 WSL 相容的 LTS。不要將本文件日期當作安裝版本。</li>
+<li>最新版若與作業系統或課程範本不相容，記錄原因與可用的相容 stable 版本；不得直接標示通過。Windows 10／11 分別確認官方支援條件及實際執行結果。</li>
+<li>Python 最新 stable 若缺少相容套件，可並存另一個相容版本；不取代 Ubuntu 系統 Python。</li>
+<li>以實際課程範本驗證後，固定確切 SDK、工具、擴充套件、套件與瀏覽器版本，保留 lockfile、安裝來源及必要安裝檔。後續更新要重新驗收，不在未驗證下整批升級。</li>
+<li>AI 桌面產品名稱、CLI 與編輯器整合應分別依官方下載與支援頁核對。不同產品不能當作同一套程式，也不能假定都有相同平台支援。</li>
+<li>固定本機版本不代表雲端 AI、登入機制、模型或 TTS 服務能永久使用。雲端功能須連線驗證，服務變更仍可能影響學期中使用。</li>
+</ul>
+<h3 id="overview-4">還原基準與學生帳號</h3>
+<ol>
+<li>依既有還原機制保存安裝結果，確認系統功能、Windows 軟體、WSL 發行版及其資料都在有效基準內。</li>
+<li>使用實際學生權限初始化工具；不要只在管理員帳號安裝、登入或下載快取。學生需能寫入專案、SDK 所需目錄、暫存與套件快取。</li>
+<li>保存 VS Code 擴充套件、WSL VS Code Server、各端 Python／Node 依賴、瀏覽器、Flutter／Pub／Gradle／Android SDK／AVD 等必要內容。Windows 與 WSL 的快取分開驗證。</li>
+<li>暫時斷網，以無雲端依賴範本從乾淨工作副本重建、啟動與測試；必須實際證明不需下載。測完恢復連線，另驗 AI 與雲端 TTS。</li>
+<li>任意未來 AI 生成的新依賴無法事先全部預載。離線能力僅涵蓋紀錄中已通過的範本與版本。</li>
+</ol>
+
+</section>
+<section><h2 id="shared">共用 AI Agent 與程式開發環境安裝指南</h2>
+<p>本頁是待執行指南，沒有代表教室電腦已經安裝或測試完成。每完成一節即記錄版本、環境、路徑與結果。</p>
+<h3 id="shared-1">1. Windows 與 WSL 基礎環境</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>項目</th>
+<th>Windows 原生</th>
+<th>WSL 2／Ubuntu LTS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>終端機</td>
+<td>PowerShell；版本與啟動捷徑須記錄</td>
+<td>Ubuntu Bash；記錄發行版名稱與版本</td>
+</tr>
+<tr>
+<td>編輯器</td>
+<td>安裝 VS Code stable 與 WSL 擴充套件</td>
+<td>從 Ubuntu 專案執行 <code>code .</code>，完成 VS Code Server 首次下載</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>安裝 Git；用學生帳號可執行</td>
+<td>安裝 Git；與 Windows 分開設定</td>
+</tr>
+<tr>
+<td>C/C++</td>
+<td>MSYS2 UCRT64 GCC/G++/GDB/Make</td>
+<td>build-essential、gdb、cmake</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>stable、pip、venv、uv；範本各用獨立環境</td>
+<td>獨立 Python、pip、venv、uv；不替換系統 Python</td>
+</tr>
+<tr>
+<td>JavaScript</td>
+<td>Node.js LTS、npm、pnpm</td>
+<td>Linux 版 Node.js LTS、npm、pnpm</td>
+</tr>
+<tr>
+<td>文件與測試工具</td>
+<td>對應 Windows 版及獨立快取</td>
+<td>對應 Linux 版、系統依賴及獨立快取</td>
+</tr>
+</tbody>
+</table></div>
+<p>先確認 Windows 版本符合各工具要求，再依系統管理流程啟用虛擬化、WSL 2 與 Ubuntu LTS。發行版名稱須先查詢，不直接假定預設 Ubuntu 就是選定版本。</p>
+<figure class="cmd win"><figcaption><span class="label">Windows PowerShell（查詢；安裝與系統功能變更需系統管理員權限）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>wsl --status
+wsl --list --online
+wsl --list --verbose</code></pre></figure>
+<p>依查詢結果安裝選定的 Ubuntu LTS，確認 <code>wsl --list --verbose</code> 的 VERSION 為 2。建立可用的 Ubuntu 帳號並完成首次啟動。若 Windows 組建不支援所需流程，先列為待處理，不以「WSL 已安裝」代替 WSL 2 驗收。</p>
+<figure class="cmd ubuntu"><figcaption><span class="label">Ubuntu Bash（首次連線安裝）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>sudo apt update
+sudo apt install -y build-essential gdb cmake git curl wget zip unzip python3-venv
+mkdir -p ~/classroom/checks
+cd ~/classroom/checks
+code .</code></pre></figure>
+<p>在 VS Code 確認左下角顯示 WSL 連線，整合終端機確實在 Ubuntu。C/C++、Python、Python 偵錯及課程所需擴充套件須在 Windows 與 WSL 正確端點各自安裝、啟動一次。Flutter／Dart 以 Windows 為必要端；只有 WSL 教材需要時才另行初始化對應擴充與 SDK，不能將該擴充視為已完成 Windows Flutter 安裝。</p>
+<p>VS Code 主程式安裝於 Windows，WSL 透過擴充連線；操作依 <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-vscode" target="_blank" rel="noopener">Microsoft WSL 與 VS Code 指南</a>。</p>
+<h3 id="shared-2">2. AI 桌面程式、CLI 與編輯器整合</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>需求</th>
+<th>安裝與核對方式</th>
+<th>必須留下的驗收證據</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI ChatGPT Work</td>
+<td>按官方下載確認名稱、Windows 發行與帳號可用性；與 Codex 分列</td>
+<td>實際產品名稱、版本、啟動方式、登入及可用功能</td>
+</tr>
+<tr>
+<td>OpenAI Codex</td>
+<td>分別核對桌面程式、CLI、VS Code 整合的支援範圍；兩端支援者各自安裝</td>
+<td>Windows／WSL 各自的工具路徑與檔案操作結果</td>
+</tr>
+<tr>
+<td>Google Gemini</td>
+<td>Windows 桌面程式依官方來源安裝；CLI 或編輯器整合另查支援與安裝說明</td>
+<td>登入、基本回覆；有提供工具功能者再驗工具執行</td>
+</tr>
+<tr>
+<td>Google Antigravity</td>
+<td>保留此開發工具需求；App、CLI、IDE／擴充分別辨識</td>
+<td>實際安裝項目、Windows／Linux 支援、啟動方式與測試</td>
+</tr>
+</tbody>
+</table></div>
+<p>Gemini 官方列出 Windows 10 以上、至少 8 GB 記憶體及可使用 Gemini 的帳號等條件，安裝前核對當日要求。<a href="https://support.google.com/gemini/answer/18263854?hl=en" target="_blank" rel="noopener">Gemini Windows 說明</a></p>
+<p>Antigravity 官方下載頁分列 App 與其他工具；Windows App 的最低條件包含 Windows 10 64-bit。各 CLI 與開發工具依當日下載頁選擇，不推定同名項目有完全相同能力。課堂編輯器維持 VS Code，工具若需自己的介面可另開使用，不強迫將課堂編輯器改成另一個 IDE。<a href="https://antigravity.google/download?os=windows" target="_blank" rel="noopener">Antigravity 官方下載</a></p>
+<p>OpenAI 的 Windows／WSL 操作以官方說明核對；若名稱、發行或相容性無法確認，版本表填「待官方下載核對」，不得編造安裝命令。<a href="https://learn.chatgpt.com/docs/windows/wsl" target="_blank" rel="noopener">OpenAI Windows／WSL 說明</a></p>
+<p>共同驗收程序：</p>
+<ol>
+<li>用學生權限啟動、連線、登入，確認帳號方案及授權允許使用。</li>
+<li>對具有工具執行功能的產品，在無敏感資料的測試資料夾要求建立文字檔、讀回內容、執行簡短 Python 或 C/C++ 程式；檢查檔案及執行結果。</li>
+<li>Windows 與 WSL 分開執行，確認 CLI 不是意外呼叫另一端的程式。只支援單邊者記錄支援環境、從哪個終端機啟動與另一端原因。</li>
+<li>使用者同意的權限與工具範圍依課程需要設定。測完登出及移除測試憑證；基準中不得預存個人登入資訊。重開後驗證可重新登入。</li>
+</ol>
+<h3 id="shared-3">3. C/C++：一般 GCC/G++ 工具鏈</h3>
+<h4 id="shared-3-1">Windows 安裝</h4>
+<p>安裝官方 MSYS2 至 <code>C:\msys64</code>，依官方流程完成套件資料庫與核心更新；若要求關閉終端機，重新開啟後繼續。下列指令適用 x64 電腦；其他架構須另核對套件名稱。</p>
+<figure class="cmd msys"><figcaption><span class="label">MSYS2 UCRT64 終端機（不是 PowerShell）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>pacman -Syu
+pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain</code></pre></figure>
+<p>將 <code>C:\msys64\ucrt64\bin</code> 加入 Windows PATH，關閉並重新開啟 PowerShell 及 VS Code。確認可使用 GCC、G++、GDB；Make 的實際名稱可能為 <code>mingw32-make</code>，須在範本中明確指定。不要將其他 MSYS2 環境的同名工具誤當 UCRT64 工具。<a href="https://www.msys2.org/" target="_blank" rel="noopener">MSYS2</a>；<a href="https://code.visualstudio.com/docs/cpp/config-mingw" target="_blank" rel="noopener">VS Code MinGW 指南</a></p>
+<figure class="cmd win"><figcaption><span class="label">新開 Windows PowerShell</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>Get-Command gcc,g++,gdb,mingw32-make
+gcc --version
+g++ --version
+gdb --version
+mingw32-make --version</code></pre></figure>
+<h4 id="shared-3-2">實際編譯與偵錯</h4>
+<p>在每端的測試資料夾各建立 <code>hello.c</code> 與 <code>hello.cpp</code>。以下為檔案內容，非終端機指令。</p>
+<figure class="cmd plain"><figcaption><span class="label"><code>hello.c</code></span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>#include &lt;stdio.h&gt;
+int main(void) {
+    int total = 2 + 3;
+    printf(&quot;C total=%d\n&quot;, total);
+    return 0;
+}</code></pre></figure>
+<figure class="cmd plain"><figcaption><span class="label"><code>hello.cpp</code></span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>#include &lt;iostream&gt;
+int main() {
+    int total = 2 + 3;
+    std::cout &lt;&lt; &quot;C++ total=&quot; &lt;&lt; total &lt;&lt; '\n';
+    return 0;
+}</code></pre></figure>
+<figure class="cmd win"><figcaption><span class="label">Windows PowerShell（位於上述檔案資料夾）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>gcc -g -O0 hello.c -o hello_c.exe
+g++ -g -O0 hello.cpp -o hello_cpp.exe
+.\hello_c.exe
+.\hello_cpp.exe
+gdb .\hello_cpp.exe</code></pre></figure>
+<figure class="cmd ubuntu"><figcaption><span class="label">Ubuntu Bash（位於該端的上述檔案資料夾）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>gcc -g -O0 hello.c -o hello_c
+g++ -g -O0 hello.cpp -o hello_cpp
+./hello_c
+./hello_cpp
+gdb ./hello_cpp</code></pre></figure>
+<figure class="cmd plain"><figcaption><span class="label">GDB 互動提示字元（兩端分別操作）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>break main
+run
+next
+print total
+continue
+quit</code></pre></figure>
+<p>兩個程式應輸出數值 5；中斷點要確實停住，執行初始化行後可檢視 <code>total</code>。再於 VS Code C/C++ 擴充設定各端 compiler、build task 與 debugger 路徑，驗證 F5 中斷點、逐步執行與變數檢視。Windows 的執行檔及 GDB 路徑與 WSL 各自設定，不能只複製另一端設定。另用課程 Make 範本實際建置一次。</p>
+<h3 id="shared-4">4. Python：依功能分環境</h3>
+<p>兩端各裝最新 stable Python、pip、venv 與 uv，使用官方安裝來源及適合該端的版本管理方式。Ubuntu 系統 Python 保留原狀；可用 uv 管理課程 Python。最新版本不相容時另外並存相容版本，記錄每個範本選用的直譯器。不要對系統 Python 執行整批全域套件安裝。</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>環境／範本</th>
+<th>必備套件與用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flask Web</td>
+<td>Flask、Waitress、python-dotenv、requests、httpx、aiohttp</td>
+</tr>
+<tr>
+<td>FastAPI Web</td>
+<td>FastAPI、Uvicorn、python-dotenv、requests、httpx、aiohttp；檔案上傳範本另含 python-multipart</td>
+</tr>
+<tr>
+<td>資料分析</td>
+<td>numpy、pandas、scipy、matplotlib、seaborn、statsmodels、openpyxl、xlsxwriter</td>
+</tr>
+<tr>
+<td>文件處理</td>
+<td>Markdown、markdown-it-py、PyMuPDF、pypdf、ReportLab、python-docx、python-pptx、Pillow、beautifulsoup4、lxml、qrcode</td>
+</tr>
+<tr>
+<td>音訊</td>
+<td>pydub、edge-tts；另需 FFmpeg</td>
+</tr>
+<tr>
+<td>按需候選</td>
+<td>Streamlit；whisper 轉錄及模型僅在教材需要時預載</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>python-multipart</code> 是 FastAPI 表單／上傳範本所需依賴；SQLite 可用 Python 內建 <code>sqlite3</code> 做本地資料庫驗收。其他資料庫僅按教材需要加入。</p>
+<p>每個範本保留自己的依賴清單與精確鎖定版本；Windows／WSL 分別解析、安裝及測試平台相依套件。下列指令在各自已建立的範本資料夾執行，<code>requirements.lock.txt</code> 必須先依該範本實測產生，不是本文件附送的檔案。</p>
+<figure class="cmd win"><figcaption><span class="label">Windows PowerShell（<code>python</code> 須指向已選定的課程 Python）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>python --version
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.lock.txt
+.\.venv\Scripts\python.exe -m pip check
+uv --version</code></pre></figure>
+<figure class="cmd ubuntu"><figcaption><span class="label">Ubuntu Bash（先將選定的課程 Python 設為目前 <code>python</code>）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>python --version
+python -m venv .venv
+./.venv/bin/python -m pip install -r requirements.lock.txt
+./.venv/bin/python -m pip check
+uv --version</code></pre></figure>
+<p>可改用該範本既有的 uv 流程與 <code>uv.lock</code>，但不要同時維護互相矛盾的鎖定清單。確認 VS Code 指向各範本的 <code>.venv</code>。Windows 可直接呼叫 <code>.venv</code> 的 Python，無須為了啟用環境而放寬整台電腦的 PowerShell 執行原則。</p>
+<p>Flask 使用 Waitress；FastAPI 使用 Uvicorn。假設範本 <code>app.py</code>／<code>main.py</code> 各有對應的 <code>app</code> 物件，可在已啟用該範本虛擬環境的 <strong>Windows PowerShell 或 Ubuntu Bash</strong> 擇一執行，測完以 Ctrl+C 停止：</p>
+<figure class="cmd both"><figcaption><span class="label">Windows PowerShell 或 Ubuntu Bash</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>waitress-serve --host=127.0.0.1 --port=8000 app:app</code></pre></figure>
+<figure class="cmd both"><figcaption><span class="label">Windows PowerShell 或 Ubuntu Bash</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>python -m uvicorn main:app --host 127.0.0.1 --port 8001</code></pre></figure>
+<p>從 Windows 瀏覽器開啟對應的 localhost 網址；WSL 服務也要從 Windows 瀏覽器驗證。測試首頁、JSON API、測試檔案上傳，以及 SQLite 新增／查詢與重新啟動後讀回。若涉及跨來源請求，在範本設定明確的測試來源；發生連線問題先檢查埠號、監聽位置及 WSL 轉送，不以關閉整體防火牆解決。<a href="https://flask.palletsprojects.com/en/stable/deploying/waitress/" target="_blank" rel="noopener">Flask／Waitress 官方說明</a>；<a href="https://fastapi.tiangolo.com/deployment/manually/" target="_blank" rel="noopener">FastAPI 執行說明</a></p>
+<h3 id="shared-5">5. Node.js、前後端與瀏覽器自動化</h3>
+<p>Windows 與 WSL 各安裝 Node.js LTS、npm、pnpm。記錄精確版本及實際路徑，不假設 Node.js 一定內附可用的 pnpm。安裝方式依 <a href="https://docs.npmjs.com/downloading-and-installing-node-js-and-npm/" target="_blank" rel="noopener">npm 官方說明</a> 與 pnpm 當日官方文件。</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>範本</th>
+<th>應預載內容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Express 後端</td>
+<td>express、範本所需 JSON／上傳／資料庫依賴；定義啟動與功能測試指令</td>
+</tr>
+<tr>
+<td>React 前端</td>
+<td>react、react-dom、Vite、TypeScript、Tailwind、ESLint；使用相容組合</td>
+</tr>
+<tr>
+<td>文件工具</td>
+<td>docx、exceljs；實際生成可開啟的文件</td>
+</tr>
+<tr>
+<td>圖表</td>
+<td>Mermaid CLI；下載其需要的瀏覽器並實際產圖</td>
+</tr>
+<tr>
+<td>瀏覽器測試</td>
+<td>Playwright、對應版本的瀏覽器及系統依賴</td>
+</tr>
+<tr>
+<td>可選預備</td>
+<td>Next.js 範本；僅屬可選預備，不表示現有專案已使用</td>
+</tr>
+</tbody>
+</table></div>
+<p>每個範本用自己的 <code>package.json</code> 及 lockfile，固定套件管理器；Windows 與 WSL 各自安裝。不可跨作業系統複製 <code>node_modules</code>、Python <code>.venv</code> 或平台專用二進位檔。</p>
+<figure class="cmd both"><figcaption><span class="label">Windows PowerShell 或 Ubuntu Bash（兩端各自執行）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>node --version
+npm --version
+pnpm --version
+git --version</code></pre></figure>
+<p>在 npm 範本根目錄用 <code>npm ci</code>；pnpm 範本用 <code>pnpm install --frozen-lockfile</code>，不可混用。啟動、build、lint、test 依範本實際 scripts 執行。Express 與 React 各自啟動，從 Windows 瀏覽器操作 React、呼叫後端 API、上傳測試檔與讀寫資料庫；WSL 版再完整測一次。</p>
+<p>在已安裝 Playwright 的範本根目錄完成瀏覽器下載。以下 <strong>Windows PowerShell</strong> 指令下載該 Playwright 版本需要的瀏覽器：</p>
+<figure class="cmd win"><figcaption><span class="label">Windows PowerShell</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>npx playwright install</code></pre></figure>
+<figure class="cmd ubuntu"><figcaption><span class="label">Ubuntu Bash（安裝系統依賴可能需要 sudo 權限）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>npx playwright install --with-deps</code></pre></figure>
+<p>再依範本執行頁面開啟、互動及截圖測試；不是只有下載成功就算通過。若另用 Python Playwright，須在該 Python 環境安裝套件與匹配的瀏覽器。Playwright 套件與瀏覽器須配對固定，更新套件後重新下載與驗證。<a href="https://playwright.dev/docs/browsers" target="_blank" rel="noopener">Playwright 瀏覽器說明</a></p>
+<h3 id="shared-6">6. 文件、中文字型與音訊工具</h3>
+<p>兩端分別安裝 Pandoc、Poppler、FFmpeg 與合法可使用的繁體中文字型；例如 Noto Sans TC／Noto Serif TC。字型須在產製文件的環境可找到，PDF 輸出要確認實際嵌入或選用了可顯示中文字的字型。</p>
+<figure class="cmd both"><figcaption><span class="label">Windows PowerShell 或 Ubuntu Bash（兩端各自執行）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>pandoc --version
+pdftotext -v
+pdftoppm -v
+ffmpeg -version</code></pre></figure>
+<ul>
+<li>用含「臺灣、課堂、測試」的文件測試 DOCX、XLSX、PPTX 開啟與內容；PDF 產生、文字擷取與頁面轉圖皆需檢查繁體中文。Pandoc 依實際輸出格式選轉換工具；若範本需額外 PDF 引擎，記錄並預載，不假定只裝 Pandoc 就能完成所有 PDF 轉換。</li>
+<li>pydub 須能找到 FFmpeg。用無敏感內容的短音訊檔驗證讀取、格式轉換、長度與播放。本次文件整理不執行或上傳音訊。</li>
+<li>語音合成使用 edge-tts，文字固定為臺灣繁體中文，聲音固定 <strong><code>zh-TW-HsiaoChenNeural</code></strong>。這是雲端功能，需連線；未來驗收以合成測試文字為限，不上傳既有音訊。</li>
+<li>whisper 轉錄為按需候選；啟用時明確記錄套件來源、模型名稱、大小、下載位置及相依套件，先下載模型，再測離線轉錄。未選用者標記待驗收並註明「按需候選，未納入本次基準」。</li>
+</ul>
+<h3 id="shared-7">7. 預載與封存前檢查</h3>
+<p>每個實際課程範本應準備原始碼、鎖定檔、啟動說明、無秘密的設定範例、測試資料、預期畫面，以及各平台重建需要的依賴快取。</p>
+<ul>
+<li>Python：保留選定直譯器與套件。可為每端建立對應的 wheelhouse；若依賴只有原始碼包，需預先建 wheel 或另存並驗證建置依賴。新建環境後實測離線安裝。</li>
+<li>Node：預載 npm cache 或 pnpm store；依固定 lockfile，從不含 <code>node_modules</code> 的副本重建。npm 範本可用 <code>npm ci --offline</code>；pnpm 範本可用 <code>pnpm install --offline --frozen-lockfile</code>。缺少任何依賴即補齊後重測。</li>
+<li>工具：預載 VS Code Server／擴充、Playwright 瀏覽器、Mermaid 使用的瀏覽器、字型及選用模型。記錄實際快取位置與學生讀寫權限。</li>
+<li>首次啟動：以學生帳號各開啟一次桌面程式、各類範本、文件轉換與瀏覽器自動化，排除上課時才觸發下載。</li>
+<li>完成還原基準保存後，重開、還原、暫斷網重建，再恢復網路測 AI／TTS。各端結果填入驗收表。</li>
+</ul>
+
+</section>
+<section><h2 id="flutter">Flutter 課程環境安裝指南</h2>
+<p>狀態：待教室實測。主環境為 Windows，目標為 Android 與 Web。先完成共用指南中的 Git、VS Code 與網路設定。</p>
+<h3 id="flutter-1">1. Flutter SDK 與編輯器</h3>
+<ol>
+<li>從官方取得安裝當日最新 Flutter stable SDK，解壓至學生可寫、沒有空白或特殊字元的路徑，例如 <code>C:\dev\flutter</code>。確認學生可更新快取；避免放在需要管理員權限才能寫入的位置。</li>
+<li>將 <code>C:\dev\flutter\bin</code> 加入 PATH，重新開啟 PowerShell 與 VS Code。</li>
+<li>Flutter SDK 已包含 Dart；不另裝另一套 Dart SDK。確認 <code>flutter</code> 與 <code>dart</code> 都來自同一套 SDK。</li>
+<li>在 Windows VS Code 安裝 Flutter／Dart 擴充套件並開啟一次專案，完成初始化。</li>
+</ol>
+<p>依據：<a href="https://docs.flutter.dev/install/manual" target="_blank" rel="noopener">Flutter 手動安裝</a>、<a href="https://dart.dev/get-dart" target="_blank" rel="noopener">Dart SDK 說明</a>。</p>
+<h3 id="flutter-2">2. Android Studio 與 SDK</h3>
+<p>安裝 Android Studio stable，主要用於 SDK 與 Emulator 管理；課堂程式編輯維持 VS Code。</p>
+<p>在 SDK Manager 安裝並記錄以下元件的精確版本：</p>
+<ul>
+<li>Android SDK Platforms：課程範本所需 API level。</li>
+<li>Android SDK Build-Tools、Command-line Tools、Platform-Tools（含 ADB）、Android Emulator。</li>
+<li>CMake、NDK side-by-side：依 Flutter 與課程外掛要求選相容版本。</li>
+<li>手機 AVD 所需系統 image：記錄 API、架構、image 類型與 AVD 名稱。</li>
+</ul>
+<p>使用 Android Studio 隨附 Java，確認其版本與範本 Gradle wrapper、Android Gradle Plugin 相容；以實際建置結果判斷。預下載 wrapper 對應的 Gradle distribution 與 Android 建置依賴，不任意將所有元件升到不同的最新版。</p>
+<p>依據：<a href="https://docs.flutter.dev/platform-integration/android/setup" target="_blank" rel="noopener">Flutter Android 設定</a>。</p>
+<h3 id="flutter-3">3. Emulator、實機與 Web</h3>
+<h4 id="flutter-3-1">Emulator</h4>
+<p>啟用韌體硬體虛擬化與 Windows Hypervisor Platform，依官方要求設定並重啟。建立手機 AVD、啟動至主畫面，確認在 WSL 2 同時可用的情況下能正常啟動、執行 App 與 hot reload。</p>
+<p>Android Studio 官方最低記憶體條件區分 Studio 8 GB、Studio 加 Emulator 16 GB；安裝當日再核對完整條件。不符合模擬器條件時，採 Web 或 Android 實機驗收，模擬器欄保留待驗收並說明限制，未測不能寫通過。</p>
+<p>依據：<a href="https://developer.android.com/studio/install" target="_blank" rel="noopener">Android Studio 安裝條件</a>、<a href="https://developer.android.com/studio/run/emulator-acceleration" target="_blank" rel="noopener">Emulator 硬體加速</a>。</p>
+<h4 id="flutter-3-2">Android 實機</h4>
+<p>依手機廠牌安裝必要 Windows USB 驅動，使用可傳資料的 USB 線；在手機啟用開發人員選項與 USB debugging，閱讀並確認此電腦的偵錯授權。檢查 ADB 識別、安裝與執行 App。未提供手機時明確填「待驗收：未有手機」，不可用模擬器結果代替。</p>
+<figure class="cmd win"><figcaption><span class="label">Windows PowerShell（ADB 所在的 SDK platform-tools 已加入 PATH）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>adb devices -l</code></pre></figure>
+<p>狀態須為 <code>device</code>，若為 <code>unauthorized</code> 或 <code>offline</code>，先排除授權／連線問題。</p>
+<h4 id="flutter-3-3">Web</h4>
+<p>安裝 Chrome 與 Edge stable；Chrome 作為下列命令的主要測試瀏覽器，Edge 另測啟動與頁面功能。依 <a href="https://docs.flutter.dev/platform-integration/web/setup" target="_blank" rel="noopener">Flutter Web 設定</a> 核對支援方式。</p>
+<h3 id="flutter-4">4. 可複製的基本驗收指令</h3>
+<figure class="cmd win"><figcaption><span class="label">Windows PowerShell：依序執行；授權指令為互動流程，須逐項閱讀後決定是否接受。</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>Get-Command flutter,dart
+flutter --version
+dart --version
+flutter doctor --android-licenses
+flutter doctor -v
+flutter precache --android --web
+flutter devices
+flutter emulators</code></pre></figure>
+<p>只判讀本課 Android／Web 所需工具與裝置，無須要求無關目標全部綠燈；將相關錯誤逐項記錄。若 SDK 路徑或 Java 選擇有誤，依官方設定修正，再重新驗收。</p>
+<p>在學生可寫的新空白資料夾執行下列命令；該處不可已存在同名專案。</p>
+<figure class="cmd win"><figcaption><span class="label">Windows PowerShell</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>flutter create --platforms=android,web classroom_flutter_check
+cd classroom_flutter_check
+flutter pub get
+flutter analyze
+flutter test
+flutter build apk --debug
+flutter build web
+flutter run -d chrome</code></pre></figure>
+<p>在 Chrome 操作 App 並測 hot reload。以 Ctrl+C 停止後，在 Android Studio Device Manager 開啟 AVD，或連上已授權的 Android 手機，再執行：</p>
+<figure class="cmd win"><figcaption><span class="label">Windows PowerShell（仍在專案根目錄）</span><button type="button" class="copy">複製</button></figcaption><pre tabindex="0"><code>flutter devices
+flutter run</code></pre></figure>
+<p>有選單時選擇 Android 裝置；若多裝置需明確指定，可使用 <code>flutter run -d</code> 搭配 <code>flutter devices</code> 列出的裝置 ID。確認 App 安裝、畫面互動、偵錯及 hot reload，並記錄實際裝置。另用 <code>flutter run -d edge</code> 驗證 Edge。</p>
+<p>指令參考：<a href="https://docs.flutter.dev/reference/flutter-cli" target="_blank" rel="noopener">Flutter CLI</a>。</p>
+<h3 id="flutter-5">5. 實際課程範本驗收</h3>
+<p>空白專案通過後，仍須逐一開啟教材使用的範本，以各自 <code>pubspec.yaml</code>、<code>pubspec.lock</code>、Gradle wrapper 與 Android 設定完成 resolve、analyze、test、build、run：</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>範本</th>
+<th>Android／Web 必驗功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基礎 App</td>
+<td>UI 互動、狀態更新、hot reload</td>
+</tr>
+<tr>
+<td>多頁導覽</td>
+<td>go_router 切換頁面、返回與參數傳遞</td>
+</tr>
+<tr>
+<td>本地偏好</td>
+<td>shared_preferences 寫入、讀取，重啟 App 後讀回</td>
+</tr>
+<tr>
+<td>HTTP JSON API</td>
+<td>連到無秘密的測試 API、解析 JSON、顯示成功與錯誤狀態</td>
+</tr>
+</tbody>
+</table></div>
+<p>套件來源：<a href="https://pub.dev/packages/go_router" target="_blank" rel="noopener">go_router</a>、<a href="https://pub.dev/packages/shared_preferences" target="_blank" rel="noopener">shared_preferences</a>。版本依實測固定，不在本文件預填未測版本。</p>
+<p>HTTP 範本可搭配共用環境的本地 API，分別設定 Web 與 Android 可達的位址。Android 的 <code>localhost</code> 指向裝置自身；依模擬器網路或實機連線方式設定主機位址／ADB 轉送。Web 若有跨來源限制需設定測試 API 的 CORS。確認 Android 網路權限及教材使用協定的設定，不把連線失敗誤判成 SDK 缺漏。</p>
+<p>camera、audio、資料庫等其他外掛僅依教材需要加入；先核對 Android／Web 支援與權限，再個別測試。不保證任意新生成的外掛已可離線使用。</p>
+<h3 id="flutter-6">6. 預載、還原與斷網重建</h3>
+<ol>
+<li>以學生帳號完成 Flutter cache、Pub cache、Gradle distribution／依賴、Android SDK、system image、AVD 與 VS Code 擴充初始化。</li>
+<li>留存每個實際範本的精確鎖定檔、SDK 版本、Java／Gradle／Android Gradle Plugin／NDK 組合與快取位置。</li>
+<li>將上述資料納入還原基準，確認學生有必要讀寫權限，無個人憑證。</li>
+<li>正常重開並還原後，先確認 SDK／AVD／範本與快取仍在，再暫時斷網。</li>
+<li>從不含 <code>build</code>、<code>.dart_tool</code> 的新範本副本執行 <code>flutter pub get --offline</code>、analyze、test、Android／Web build 與本地功能測試。Gradle 亦須不需下載；在範本 <code>android</code> 目錄以 Windows PowerShell 執行 <code>.\gradlew.bat --offline assembleDebug</code> 驗證 Gradle 快取。記錄所有缺漏後補載重測。</li>
+<li>API 範例斷網驗收使用可達的本地服務；需要外部雲端者另在恢復網路後測試。保存驗收日誌與產物路徑。</li>
+</ol>
+<p>離線通過只適用於實測的範本、目標與版本；安裝後仍需線上服務的功能另行記錄。</p>
+
+</section>
+</main>
+</div>
+<script>
+document.querySelectorAll('.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var text = btn.closest('.cmd').querySelector('pre code').textContent;
+    function done(ok) {
+      btn.textContent = ok ? '已複製' : '請手動選取';
+      btn.classList.toggle('done', ok);
+      setTimeout(function () { btn.textContent = '複製'; btn.classList.remove('done'); }, 1500);
+    }
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove(); done(ok);
+    }
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    else fallback();
+  });
+});
+var aside = document.querySelector('aside');
+var details = aside.querySelector('details');
+var narrow = matchMedia('(max-width: 900px)');
+function syncToc() { details.open = !narrow.matches; }
+narrow.addEventListener('change', syncToc);
+syncToc();
+var links = {};
+aside.querySelectorAll('a').forEach(function (a) {
+  links[a.getAttribute('href').slice(1)] = a;
+  a.addEventListener('click', function () { if (narrow.matches) details.open = false; });
+});
+var ids = Object.keys(links);
+var shown = null;
+function markActive() {
+  var current = ids[0];
+  ids.forEach(function (id) {
+    if (document.getElementById(id).getBoundingClientRect().top <= innerHeight * 0.3) current = id;
+  });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) current = ids[ids.length - 1];
+  if (current === shown) return;
+  shown = current;
+  ids.forEach(function (id) { links[id].classList.toggle('active', id === current); });
+  if (!narrow.matches) links[current].scrollIntoView({ block: 'nearest' });
+}
+addEventListener('scroll', markActive, { passive: true });
+markActive();
+</script>
+</body>
+</html>
