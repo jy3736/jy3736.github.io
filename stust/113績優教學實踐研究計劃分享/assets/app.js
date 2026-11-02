@@ -63,7 +63,7 @@ function playPod(){const b=slides[current].querySelector('.say.pod');if(b&&navig
 try{autoPod.checked=localStorage.getItem('auto-podcast')==='1';}catch(e){}
 autoPod.addEventListener('change',()=>{try{localStorage.setItem('auto-podcast',autoPod.checked?'1':'0');}catch(e){}
   if(autoPod.checked){if(!voiceButton)playPod();}else if(voiceButton?.classList.contains('pod'))stopVoice();});
-function closeReplies(){let any=false;document.querySelectorAll('.ai-toggle[aria-expanded=true]').forEach(b=>{setReply(b,false);any=true;});return any;}
+function closeReplies(){if(voiceButton?.closest('.ai-reply'))stopVoice();let any=false;document.querySelectorAll('.ai-toggle[aria-expanded=true]').forEach(b=>{setReply(b,false);any=true;});return any;}
 // 滿版 on tablets also hides the browser toolbar; older iPadOS only has the webkit-prefixed calls.
 const fullscreenElement=()=>document.fullscreenElement||document.webkitFullscreenElement;
 function setFullscreen(on){const root=document.documentElement;if(on===!!fullscreenElement())return;const call=on?root.requestFullscreen||root.webkitRequestFullscreen:document.exitFullscreen||document.webkitExitFullscreen;call?.call(on?root:document)?.catch?.(()=>{});}
