@@ -85,6 +85,8 @@ window.addEventListener('scroll',()=>{if(queued||catalog.open||paged())return;qu
 window.addEventListener('hashchange',()=>{const i=slides.findIndex(s=>`#${s.id}`===location.hash);if(i>=0)go(i);});
 let resizing;
 window.addEventListener('resize',()=>{clearTimeout(resizing);resizing=setTimeout(()=>go(current),120);});
+// Open in 滿版 by default; browsers refuse real fullscreen without a tap, so tablets get it on the next 滿版 toggle.
+togglePresent(true);
 const initial=slides.findIndex(s=>`#${s.id}`===location.hash&&!s.hidden);
 update(Math.max(0,initial),false);
 window.addEventListener('load',()=>go(Math.max(0,initial)));
