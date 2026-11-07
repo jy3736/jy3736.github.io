@@ -519,7 +519,17 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 /* 側邊欄底部：本頁公開網址的 QR Code，手機掃描即可開啟；窄螢幕本來就在手機上，不顯示 */
 .toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
 .toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
-.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border: 0; border-radius: 6px; line-height: 0; cursor: zoom-in; font: inherit; }
+.toc-qr-code:hover { box-shadow: 0 0 0 2px var(--accent); }
+.toc-qr-code:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* 點側邊欄 QR Code 後的放大視窗（common.js 建立的 <dialog>） */
+.qr-dialog { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); padding: 1.2rem 1.2rem 1rem; text-align: center; max-width: calc(100vw - 2rem); max-height: calc(100vh - 2rem); }
+.qr-dialog::backdrop { background: rgba(0, 0, 0, 0.6); }
+.qr-dialog-code { display: inline-block; background: #fff; padding: 0.8rem; border-radius: 8px; line-height: 0; cursor: zoom-out; }
+.qr-dialog-code svg { display: block; width: min(70vmin, 420px); height: min(70vmin, 420px); }
+.qr-dialog-hint { font-size: 0.9rem; color: var(--muted); margin: 0.7rem 0 0.8rem; }
+.qr-dialog-close { font: inherit; font-size: 0.9rem; padding: 0.35rem 1.2rem; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--text); cursor: pointer; }
+.qr-dialog-close:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .toc-qr-code svg { display: block; width: 124px; height: 124px; }
 .toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
 @media (max-width: 960px) { .toc-qr { display: none; } }
@@ -669,7 +679,7 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
     --on-accent: #ffffff;
     color-scheme: light;
   }
-  .toc, .toc-qr, .site-header nav, .theme-toggle, .seek-btn, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .toc, .toc-qr, .qr-dialog, .site-header nav, .theme-toggle, .seek-btn, .copy-btn, .to-top, .skip-link { display: none !important; }
   .page { display: block; }
   details.explain > div { display: block; }
   body { font-size: 12pt; background: #fff; color: #000; }
@@ -710,7 +720,7 @@ table th:first-child, table td:first-child { white-space: nowrap; }
 <a href="news09.html" data-hint="AI 一次交出 722 份數學手稿之後：我們的學習要怎麼調整？">時事 9</a>
 <a href="news10.html" aria-current="page" data-hint="AI 不能再對孩子說「我是你朋友」：紐約州新法怎麼管聊天機器人">時事 10</a></nav><button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button></div></header>
 <div class="page">
-<aside class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">12:46</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/news10-podcast.mp3?v=662deeb958b9" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 12:46</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button><button type="button" class="toc-speed-btn" data-speed="2.0" aria-pressed="false">2.0x</button></div></div></div><details><summary>本頁目錄</summary><ol><li><a href="#sec1">一、AI 說「我懂你」，在紐約可能違法</a></li><li><a href="#sec2">二、為什麼紐約要立這條法？</a></li><li><a href="#sec3">三、十二條紅線，分成三類看</a></li><li><a href="#sec4">四、誰要驗年齡？大人也要嗎？</a></li><li><a href="#sec5">五、吵什麼：太模糊，還是剛剛好？</a></li><li><a href="#sec6">六、日期、數字與說法，一件一件看</a></li><li><a href="#sec7">七、回到臺灣：我們有什麼規則？</a></li><li><a href="#sec8">八、課堂實作：幫 AI 的回覆打分數</a></li><li><a href="#sec9">九、關鍵詞</a></li><li><a href="#sec10">十、參考資料：25 個來源，含 6 篇臺灣媒體中文報導</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h2m2 0h1m1 0h1m3 0h2m2 0h3m1 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m2 0h1m2 0h1m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m2 0h1m3 0h2m4 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m1 0h1m3 0h6m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m3 0h2m-25 1h1m1 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h4m1 0h1m2 0h1m1 0h2m-33 1h2m5 0h8m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-32 1h3m2 0h1m2 0h2m2 0h1m3 0h1m4 0h3m1 0h4m1 0h2m-33 1h2m2 0h2m2 0h3m4 0h2m1 0h3m2 0h2m2 0h1m1 0h1m-30 1h2m4 0h1m1 0h3m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-29 1h3m5 0h1m1 0h1m2 0h3m1 0h2m1 0h2m4 0h1m2 0h2m-31 1h1m1 0h1m1 0h2m6 0h1m5 0h3m2 0h1m1 0h3m-27 1h1m5 0h1m1 0h2m1 0h4m3 0h2m2 0h3m2 0h2m-31 1h2m1 0h5m1 0h1m3 0h1m1 0h2m1 0h1m2 0h2m1 0h3m1 0h3m-31 1h1m7 0h1m1 0h1m2 0h1m1 0h2m3 0h1m1 0h2m1 0h2m1 0h2m1 0h2m-32 1h2m3 0h1m4 0h1m1 0h4m1 0h1m3 0h1m2 0h1m1 0h2m1 0h2m-27 1h1m2 0h3m6 0h1m2 0h1m1 0h1m3 0h1m1 0h1m-29 1h1m1 0h1m2 0h5m1 0h7m3 0h1m3 0h1m3 0h2m-31 1h1m1 0h2m3 0h1m8 0h8m2 0h1m2 0h1m2 0h1m-30 1h1m1 0h4m1 0h1m1 0h2m4 0h1m1 0h5m3 0h2m1 0h2m-32 1h1m2 0h1m7 0h2m4 0h1m1 0h1m4 0h2m1 0h1m2 0h1m-32 1h1m5 0h3m2 0h1m2 0h2m1 0h3m2 0h1m1 0h5m2 0h2m-25 1h3m1 0h1m1 0h3m2 0h1m4 0h1m3 0h2m-30 1h7m1 0h2m3 0h2m2 0h3m1 0h4m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h3m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m1 0h1m2 0h1m1 0h1m1 0h2m1 0h6m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h2m1 0h1m2 0h4m3 0h1m1 0h2m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m2 0h3m5 0h3m2 0h4m1 0h2m3 0h1m-33 1h7m1 0h1m1 0h1m1 0h7m1 0h2m1 0h1m4 0h3"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">12:46</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/news10-podcast.mp3?v=662deeb958b9" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 12:46</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button><button type="button" class="toc-speed-btn" data-speed="2.0" aria-pressed="false">2.0x</button></div></div></div><details><summary>本頁目錄</summary><ol><li><a href="#sec1">一、AI 說「我懂你」，在紐約可能違法</a></li><li><a href="#sec2">二、為什麼紐約要立這條法？</a></li><li><a href="#sec3">三、十二條紅線，分成三類看</a></li><li><a href="#sec4">四、誰要驗年齡？大人也要嗎？</a></li><li><a href="#sec5">五、吵什麼：太模糊，還是剛剛好？</a></li><li><a href="#sec6">六、日期、數字與說法，一件一件看</a></li><li><a href="#sec7">七、回到臺灣：我們有什麼規則？</a></li><li><a href="#sec8">八、課堂實作：幫 AI 的回覆打分數</a></li><li><a href="#sec9">九、關鍵詞</a></li><li><a href="#sec10">十、參考資料：25 個來源，含 6 篇臺灣媒體中文報導</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><button type="button" class="toc-qr-code" aria-haspopup="dialog" aria-label="放大本頁網址 QR Code" title="點一下放大"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h2m2 0h1m1 0h1m3 0h2m2 0h3m1 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m2 0h1m2 0h1m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m2 0h1m3 0h2m4 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m1 0h1m3 0h6m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m3 0h2m-25 1h1m1 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h4m1 0h1m2 0h1m1 0h2m-33 1h2m5 0h8m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-32 1h3m2 0h1m2 0h2m2 0h1m3 0h1m4 0h3m1 0h4m1 0h2m-33 1h2m2 0h2m2 0h3m4 0h2m1 0h3m2 0h2m2 0h1m1 0h1m-30 1h2m4 0h1m1 0h3m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-29 1h3m5 0h1m1 0h1m2 0h3m1 0h2m1 0h2m4 0h1m2 0h2m-31 1h1m1 0h1m1 0h2m6 0h1m5 0h3m2 0h1m1 0h3m-27 1h1m5 0h1m1 0h2m1 0h4m3 0h2m2 0h3m2 0h2m-31 1h2m1 0h5m1 0h1m3 0h1m1 0h2m1 0h1m2 0h2m1 0h3m1 0h3m-31 1h1m7 0h1m1 0h1m2 0h1m1 0h2m3 0h1m1 0h2m1 0h2m1 0h2m1 0h2m-32 1h2m3 0h1m4 0h1m1 0h4m1 0h1m3 0h1m2 0h1m1 0h2m1 0h2m-27 1h1m2 0h3m6 0h1m2 0h1m1 0h1m3 0h1m1 0h1m-29 1h1m1 0h1m2 0h5m1 0h7m3 0h1m3 0h1m3 0h2m-31 1h1m1 0h2m3 0h1m8 0h8m2 0h1m2 0h1m2 0h1m-30 1h1m1 0h4m1 0h1m1 0h2m4 0h1m1 0h5m3 0h2m1 0h2m-32 1h1m2 0h1m7 0h2m4 0h1m1 0h1m4 0h2m1 0h1m2 0h1m-32 1h1m5 0h3m2 0h1m2 0h2m1 0h3m2 0h1m1 0h5m2 0h2m-25 1h3m1 0h1m1 0h3m2 0h1m4 0h1m3 0h2m-30 1h7m1 0h2m3 0h2m2 0h3m1 0h4m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h3m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m1 0h1m2 0h1m1 0h1m1 0h2m1 0h6m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h2m1 0h1m2 0h4m3 0h1m1 0h2m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m2 0h3m5 0h3m2 0h4m1 0h2m3 0h1m-33 1h7m1 0h1m1 0h1m1 0h7m1 0h2m1 0h1m4 0h3"/></g></svg></button><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁；點一下可放大</p></div></aside>
 <main id="main">
 <section class="hero"><p class="eyebrow">時事 10</p><h1>AI 不能再對孩子說「我是你朋友」：紐約州新法怎麼管聊天機器人</h1><p class="lead">「我懂你的感受。」「你真的好厲害。」「上次你說心情不好，現在好點了嗎？」這三句話，很多人都聽聊天 AI 說過。2026 年 10 月 28 日，美國紐約州州長侯可（Kathy Hochul）簽署一條法律：聊天機器人對未成年人，不可以假裝有感情、不可以拍馬屁，也不可以主動追問心情、翻出之前聊過的私事。州長的說法是：「未成年人再也不能接觸到假裝是他們朋友、男友或女友的聊天機器人。」這份講義帶你看懂這條法律到底管什麼、為什麼有人說它最強、有人說它太模糊，最後回到你自己每天用的聊天 AI。資料查證到 2026 年 11 月 7 日，臺灣時間。</p><ul class="meta"><li>事件時間：2026 年 10 月下旬（11 月 7 日查證）</li><li>可獨立閱讀</li><li>不需程式基礎</li><li>🎧 語音導讀：12 分 46 秒</li></ul></section><div class="callout note"><span class="label">先注意一件事</span><p>這是紐約州的州法，只管發生在紐約州的使用。我們讀的是法案原文、州政府文件、新聞和律師事務所的分析，不是法律意見，也沒有測試任何聊天產品。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a></p></div>
 <h2 id="sec1">一、AI 說「我懂你」，在紐約可能違法</h2>
@@ -974,6 +984,44 @@ table th:first-child, table td:first-child { white-space: nowrap; }
         audio.play();
       });
     });
+  }
+
+  // Sidebar QR code: a click opens an enlarged copy in a modal dialog.
+  // Esc, the close button, or a click on the backdrop or the code closes it.
+  var qrBtn = document.querySelector(".toc-qr-code");
+  var qrSvg = qrBtn && qrBtn.querySelector("svg");
+  if (qrSvg) {
+    var dlg = document.createElement("dialog");
+    dlg.className = "qr-dialog";
+    dlg.setAttribute("aria-label", "放大的本頁網址 QR Code");
+    var box = document.createElement("div");
+    box.className = "qr-dialog-code";
+    var big = qrSvg.cloneNode(true);
+    big.setAttribute("aria-label", "放大的本頁網址 QR Code");
+    box.appendChild(big);
+    var hint = document.createElement("p");
+    hint.className = "qr-dialog-hint";
+    hint.textContent = "用手機相機掃描，在手機上開啟本頁";
+    var closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "qr-dialog-close";
+    closeBtn.textContent = "關閉";
+    dlg.appendChild(box);
+    dlg.appendChild(hint);
+    dlg.appendChild(closeBtn);
+    document.body.appendChild(dlg);
+    var closeQr = function () {
+      if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open");
+      qrBtn.focus();
+    };
+    qrBtn.addEventListener("click", function () {
+      if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+      closeBtn.focus();
+    });
+    closeBtn.addEventListener("click", closeQr);
+    box.addEventListener("click", closeQr);
+    dlg.addEventListener("click", function (e) { if (e.target === dlg) closeQr(); });
+    dlg.addEventListener("cancel", function (e) { e.preventDefault(); closeQr(); });
   }
 
   // Back-to-top button.
