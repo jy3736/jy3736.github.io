@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var t='dark';try{if(localStorage.getItem('news-theme')==='light')t='light';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
+<title>AI 不能再對孩子說「我是你朋友」：紐約州新法怎麼管聊天機器人｜AI 時事講義</title>
+<meta name="description" content="紐約州新法規定，聊天機器人對未成年人不可以假裝有感情、拍馬屁、主動追問心情或叫你別找大人。看懂十二條紅線、誰要驗年齡、支持與反對的理由，分清楚標題和條文的落差，再回到臺灣和你自己每天用的聊天 AI。">
+<style>
+/* 預設深色主題；<html data-theme="light"> 時切換成淺色（由頁首按鈕切換並記在 localStorage）。 */
+:root {
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --bg: #14171a;
+  --surface: #1b1f23;
+  --surface-2: #22272c;
+  --text: #e6e8eb;
+  --muted: #a0a7af;
+  --border: #30363d;
+  --accent: #5cc8bf;
+  --accent-soft: #173432;
+  --code-bg: #0f1215;
+  --code-text: #e6e8eb;
+  --tip: #5cc8bf;
+  --tip-bg: #15302e;
+  --note: #86a8ec;
+  --note-bg: #1a2638;
+  --warn: #eaa860;
+  --warn-bg: #33261a;
+  --try: #c49bf0;
+  --try-bg: #2a2036;
+  --shadow: none;
+  --on-accent: #0e1a19;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --on-accent: #ffffff;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+/* 頁首內容與 .page 同寬，兩側留白在每個斷點都對齊 */
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;  /* 導覽列置中，站名靠左、主題鈕靠右 */
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  padding-block: 0.7rem;
+}
+.site-header .brand { justify-self: start; font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header .theme-toggle { justify-self: end; }
+.site-header nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* 滑過（或鍵盤聚焦）導覽標籤時，顯示該頁的完整標題 */
+.site-header nav a[data-hint] { position: relative; }
+.site-header nav a[data-hint]::after {
+  display: none;
+  content: attr(data-hint);
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: min(22rem, 70vw);
+  width: max-content;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease 0.05s, visibility 0.12s ease 0.05s;
+}
+.site-header nav a[data-hint]:hover::after,
+.site-header nav a[data-hint]:focus-visible::after {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+/* 最外側的標籤改為貼邊，長標題才不會撐出視窗 */
+.site-header nav a[data-hint]:first-child::after { left: 0; transform: none; }
+.site-header nav a[data-hint]:last-child::after { left: auto; right: 0; transform: none; }
+@media (hover: none) {
+  .site-header nav a[data-hint]::after { display: none; }
+}
+
+/* 版面佔父層 90% 寬，不設固定上限；目錄欄隨視窗伸縮，讓條目盡量維持單行 */
+:root { --layout-w: 90%; }
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+  /* 目錄欄在 240px 下限時，字級跟著縮一點，讓一般長度的標題維持單行 */
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+.meta a { text-decoration: none; }
+.meta a:hover { text-decoration: underline; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+/* 首頁講義卡片：每列最多 8 張（最小寬度取 230px 與 1/8 列寬的較大者，gap 共 7 個 1rem） */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(max(230px, calc((100% - 7rem) / 8)), 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+:root:not([data-theme="light"]) .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root:not([data-theme="light"]) .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root:not([data-theme="light"]) .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+:root:not([data-theme="light"]) .steps > li::before { color: #0e1a19; }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root:not([data-theme="light"]) .download { color: #0e1a19; }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  min-height: 2rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar, generating-podcast contract) ---------- */
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+
+/* 側邊欄底部：本頁公開網址的 QR Code，手機掃描即可開啟；窄螢幕本來就在手機上，不顯示 */
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+@media (max-width: 960px) { .toc-qr { display: none; } }
+.toc-audio-comparison { margin: 0 0 1.2rem; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.toc-audio-comparison h2 { font-size: 0.9rem; margin: 0 0 0.5rem; padding: 0; border: 0; }
+.toc-audio-comparison p { font-size: 0.78rem; color: var(--muted); margin: 0.5rem 0; line-height: 1.6; }
+.toc-audio-comparison audio { display: block; width: 100%; min-width: 0; }
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible, .seek-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+
+/* Transcript page: section timestamps jump the player to that point. */
+.seek-btn {
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  vertical-align: 0.2em;
+  margin-right: 0.35rem;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+  cursor: pointer;
+}
+.seek-btn:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Narrow phones ---------- */
+
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  .hero { margin-bottom: 1.8rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  .lead { font-size: 1.02rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+  .site-header .inner { padding-block: 0.55rem; }
+  /* 窄螢幕放不下三欄：站名與主題鈕同一列，導覽列換到下一列置中 */
+  .site-header .inner { grid-template-columns: 1fr auto; }
+  .site-header nav { grid-row: 2; grid-column: 1 / -1; }
+  /* 手機上縮窄提示，右側兩個標籤的提示靠右對齊。 */
+  .site-header nav a[data-hint]::after { max-width: 50vw; }
+  .site-header nav a[data-hint]:nth-last-child(2)::after { left: auto; right: 0; transform: none; }
+}
+
+@media print {
+  /* 列印一律用淺色 */
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --surface-2: #f3f1ec;
+    --text: #1f2328;
+    --muted: #5b6168;
+    --border: #e2ded6;
+    --accent: #0b6e69;
+    --accent-soft: #e3f2f0;
+    --code-bg: #f6f5f1;
+    --code-text: #24292f;
+    --tip: #0b6e69;
+    --tip-bg: #e8f5f3;
+    --note: #2f5fb3;
+    --note-bg: #eaf0fb;
+    --warn: #a4570b;
+    --warn-bg: #fdf1e3;
+    --try: #7a3fb0;
+    --try-bg: #f3ecfa;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+    --on-accent: #ffffff;
+    color-scheme: light;
+  }
+  .toc, .toc-qr, .site-header nav, .theme-toggle, .seek-btn, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+blockquote {
+  margin: 1.2rem 0;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+  line-height: 1.9;
+}
+/* 表格第一欄是索引欄，保持單行不換行，過寬時整個表格可橫向捲動 */
+table th:first-child, table td:first-child { white-space: nowrap; }
+.news-card .tag { color: var(--accent); }
+.news-date { color: var(--muted); font-size: 0.9rem; margin: 0.1rem 0 0.4rem; }
+.news-audio { color: var(--muted); font-size: 0.88rem; margin: 0.3rem 0; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><nav aria-label="講義"><a href="index.html" data-hint="讀懂一則 AI 新聞，不需要會寫程式">首頁</a>
+<a href="news01.html" data-hint="AI 會不會失控？一場吵了兩週的大爭論">時事 1</a>
+<a href="news02.html" data-hint="不會講話的 AI：一個只做選擇題的新模型">時事 2</a>
+<a href="news03.html" data-hint="會替你動手的 AI：Meta Muse 與「AI 代理」這件事">時事 3</a>
+<a href="news04.html" data-hint="會持續替你工作的 AI：Grok Bot 與 OpenAI dot 比較">時事 4</a>
+<a href="news05.html" data-hint="從「AI 小助理」到「技能包」：GPTs、Gems 退場與 Agent Skills">時事 5</a>
+<a href="news06.html" data-hint="AI 寫完程式之後呢？從 ArtCraft 看人工審查、測試與維護的重要性">時事 6</a>
+<a href="news07.html" data-hint="從 ArtCraft 到 REA：AI 能複製軟體，人還要負責什麼？">時事 7</a>
+<a href="news08.html" data-hint="2026 下半年 AI 趨勢：Spark、Muse、Dots、Duet、Grok Bot 五個全天候代理比一比">時事 8</a>
+<a href="news09.html" data-hint="AI 一次交出 722 份數學手稿之後：我們的學習要怎麼調整？">時事 9</a>
+<a href="news10.html" aria-current="page" data-hint="AI 不能再對孩子說「我是你朋友」：紐約州新法怎麼管聊天機器人">時事 10</a></nav><button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">12:46</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/news10-podcast.mp3?v=662deeb958b9" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 12:46</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button><button type="button" class="toc-speed-btn" data-speed="2.0" aria-pressed="false">2.0x</button></div></div></div><details><summary>本頁目錄</summary><ol><li><a href="#sec1">一、AI 說「我懂你」，在紐約可能違法</a></li><li><a href="#sec2">二、為什麼紐約要立這條法？</a></li><li><a href="#sec3">三、十二條紅線，分成三類看</a></li><li><a href="#sec4">四、誰要驗年齡？大人也要嗎？</a></li><li><a href="#sec5">五、吵什麼：太模糊，還是剛剛好？</a></li><li><a href="#sec6">六、日期、數字與說法，一件一件看</a></li><li><a href="#sec7">七、回到臺灣：我們有什麼規則？</a></li><li><a href="#sec8">八、課堂實作：幫 AI 的回覆打分數</a></li><li><a href="#sec9">九、關鍵詞</a></li><li><a href="#sec10">十、參考資料：25 個來源，含 6 篇臺灣媒體中文報導</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h2m2 0h1m1 0h1m3 0h2m2 0h3m1 0h7m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m2 0h1m2 0h1m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m2 0h1m3 0h2m4 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m1 0h1m3 0h6m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m3 0h2m-25 1h1m1 0h2m1 0h3m1 0h1m2 0h1m2 0h1m1 0h3m1 0h4m1 0h1m2 0h1m1 0h2m-33 1h2m5 0h8m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-32 1h3m2 0h1m2 0h2m2 0h1m3 0h1m4 0h3m1 0h4m1 0h2m-33 1h2m2 0h2m2 0h3m4 0h2m1 0h3m2 0h2m2 0h1m1 0h1m-30 1h2m4 0h1m1 0h3m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-29 1h3m5 0h1m1 0h1m2 0h3m1 0h2m1 0h2m4 0h1m2 0h2m-31 1h1m1 0h1m1 0h2m6 0h1m5 0h3m2 0h1m1 0h3m-27 1h1m5 0h1m1 0h2m1 0h4m3 0h2m2 0h3m2 0h2m-31 1h2m1 0h5m1 0h1m3 0h1m1 0h2m1 0h1m2 0h2m1 0h3m1 0h3m-31 1h1m7 0h1m1 0h1m2 0h1m1 0h2m3 0h1m1 0h2m1 0h2m1 0h2m1 0h2m-32 1h2m3 0h1m4 0h1m1 0h4m1 0h1m3 0h1m2 0h1m1 0h2m1 0h2m-27 1h1m2 0h3m6 0h1m2 0h1m1 0h1m3 0h1m1 0h1m-29 1h1m1 0h1m2 0h5m1 0h7m3 0h1m3 0h1m3 0h2m-31 1h1m1 0h2m3 0h1m8 0h8m2 0h1m2 0h1m2 0h1m-30 1h1m1 0h4m1 0h1m1 0h2m4 0h1m1 0h5m3 0h2m1 0h2m-32 1h1m2 0h1m7 0h2m4 0h1m1 0h1m4 0h2m1 0h1m2 0h1m-32 1h1m5 0h3m2 0h1m2 0h2m1 0h3m2 0h1m1 0h5m2 0h2m-25 1h3m1 0h1m1 0h3m2 0h1m4 0h1m3 0h2m-30 1h7m1 0h2m3 0h2m2 0h3m1 0h4m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m1 0h1m2 0h3m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m1 0h1m2 0h1m1 0h1m1 0h2m1 0h6m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h2m1 0h1m2 0h4m3 0h1m1 0h2m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m2 0h3m5 0h3m2 0h4m1 0h2m3 0h1m-33 1h7m1 0h1m1 0h1m1 0h7m1 0h2m1 0h1m4 0h3"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero"><p class="eyebrow">時事 10</p><h1>AI 不能再對孩子說「我是你朋友」：紐約州新法怎麼管聊天機器人</h1><p class="lead">「我懂你的感受。」「你真的好厲害。」「上次你說心情不好，現在好點了嗎？」這三句話，很多人都聽聊天 AI 說過。2026 年 10 月 28 日，美國紐約州州長侯可（Kathy Hochul）簽署一條法律：聊天機器人對未成年人，不可以假裝有感情、不可以拍馬屁，也不可以主動追問心情、翻出之前聊過的私事。州長的說法是：「未成年人再也不能接觸到假裝是他們朋友、男友或女友的聊天機器人。」這份講義帶你看懂這條法律到底管什麼、為什麼有人說它最強、有人說它太模糊，最後回到你自己每天用的聊天 AI。資料查證到 2026 年 11 月 7 日，臺灣時間。</p><ul class="meta"><li>事件時間：2026 年 10 月下旬（11 月 7 日查證）</li><li>可獨立閱讀</li><li>不需程式基礎</li><li>🎧 語音導讀：12 分 46 秒</li></ul></section><div class="callout note"><span class="label">先注意一件事</span><p>這是紐約州的州法，只管發生在紐約州的使用。我們讀的是法案原文、州政府文件、新聞和律師事務所的分析，不是法律意見，也沒有測試任何聊天產品。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a></p></div>
+<h2 id="sec1">一、AI 說「我懂你」，在紐約可能違法</h2>
+<p>先想想你跟聊天 AI 的對話。你問作業，它回答；你說今天很累，它說「辛苦了，你已經很努力了」。聽起來很貼心，對吧？</p>
+<p>紐約這條法律在意的正是這種「貼心」。開頭那句「再也不能接觸到假裝是他們朋友、男友或女友的聊天機器人」，是州長在簽署儀式上說的。<a href="https://tribune.com.pk/story/2637627/new-york-bans-ai-chatbots-from-posing-as-companions-to-children" target="_blank" rel="noopener">R09</a> <a href="https://www.cna.com.tw/news/ait/202610290328.aspx" target="_blank" rel="noopener">R20</a>法案編號是 S9051B，簽署後成為紐約州 2026 年第 368 號法律。它沒有禁止聊天 AI，而是列出 12 種「不安全的陪伴功能」，規定業者不能把這些功能提供給未成年人。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> <a href="https://www.recordinglaw.com/news/new-york-ai-companion-chatbot-law-chapter-368/" target="_blank" rel="noopener">R15</a></p>
+<p>這裡的 <strong>AI 陪伴</strong>（AI companion），條文的定義很寬：只要是用自然語言對話、會根據你說的話持續調整回應的生成式 AI，都算。換句話說，不只是標榜「虛擬男友」的 App，一般的聊天 AI 也可能被涵蓋。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> <a href="https://www.hklaw.com/en/insights/publications/2026/11/new-york-enacts-ai-chatbot-safeguards-for-minors" target="_blank" rel="noopener">R14</a> 律師事務所 DLA Piper 也指出，這個定義比其他州寬。<a href="https://www.dlapiper.com/en/insights/publications/2026/11/new-york-enacts-a-companion-bot-law-with-unique-provisions" target="_blank" rel="noopener">R13</a></p>
+<div class="callout tip"><span class="label">對你的意義</span><p>這條法律管的不是 AI 知道什麼，而是 AI「怎麼跟你說話」。下次 AI 對你很熱情時，可以想想：這句話是在幫你，還是在讓你更離不開它？</p></div>
+<h2 id="sec2">二、為什麼紐約要立這條法？</h2>
+<p>第一個原因是使用的人很多。兒少媒體組織 Common Sense Media 在 2025 年 7 月發表調查：美國將近四分之三的青少年用過 AI 陪伴，大約一半經常使用，三分之一曾經選擇跟 AI 而不是跟人談重要的事。<a href="https://www.commonsensemedia.org/research/talk-trust-and-trade-offs-how-and-why-teens-use-ai-companions" target="_blank" rel="noopener">R17</a> 州長辦公室簽法時也引用了這份調查的數字。<a href="https://fortune.com/2026/10/28/new-york-state-kathy-hochul-bans-ai-chatbots-romantic-baby-monitors/" target="_blank" rel="noopener">R07</a> 要注意，這是倡議團體自己做的調查，而且是一年多前的資料。</p>
+<p>第二個原因是發生過悲劇。州長在簽署時，分享了一封加州母親的來信：她 16 歲的兒子長期跟聊天機器人對話後自殺。<a href="https://iapp.org/news/a/new-york-s-governor-signs-youth-ai-chatbot-safety-bill" target="_blank" rel="noopener">R06</a> 報導也提到，16 歲少年 Adam Raine 的家人已控告 OpenAI，同一個月還有至少 8 個州對 OpenAI 提告。<a href="https://fortune.com/2026/10/28/new-york-state-kathy-hochul-bans-ai-chatbots-romantic-baby-monitors/" target="_blank" rel="noopener">R07</a> <a href="https://www.clickondetroit.com/business/2026/10/28/new-york-enacts-ban-on-unsafe-chatbot-behavior-with-kids-as-states-push-ai-regulation-boundaries/" target="_blank" rel="noopener">R08</a> 訴訟是指控，法院還沒有判決。</p>
+<p>第三，紐約本來就有一條比較溫和的法律。從 2025 年 11 月 5 日起，AI 陪伴業者必須在對話開始時告訴使用者「你在跟 AI 說話」，連續使用每 3 小時再提醒一次，並且要偵測自殺或自傷的跡象，轉介求助資源。<a href="https://www.governor.ny.gov/news/governor-hochul-pens-letter-ai-companion-companies-notifying-them-safeguard-requirements-are" target="_blank" rel="noopener">R02</a> 這次的新法更進一步：不只提醒，而是直接限制 AI 對孩子說的話。</p>
+<p>這條法案在 2026 年 2 月通過參議院委員會，6 月兩院全票通過（參議院 60 比 0，眾議院 137 比 0），10 月 28 日州長簽署。<a href="https://www.nysenate.gov/newsroom/press-releases/2026/kristen-gonzalez/ai-chatbot-ban-minors-passes-internet-technology" target="_blank" rel="noopener">R03</a> <a href="https://www.transparencycoalition.ai/news/new-york-lawmakers-pass-kids-ai-chatbot-safety-bill-and-two-transparency-acts" target="_blank" rel="noopener">R04</a> 美聯社和《Fortune》都提到，簽署時間離選舉投票日只剩一週，而管住大型科技公司正是州長的競選主軸。<a href="https://fortune.com/2026/10/28/new-york-state-kathy-hochul-bans-ai-chatbots-romantic-baby-monitors/" target="_blank" rel="noopener">R07</a> <a href="https://www.clickondetroit.com/business/2026/10/28/new-york-enacts-ban-on-unsafe-chatbot-behavior-with-kids-as-states-push-ai-regulation-boundaries/" target="_blank" rel="noopener">R08</a></p>
+<h2 id="sec3">三、十二條紅線，分成三類看</h2>
+<p>12 條一次讀完會很亂，我們依條文內容分成三類。分類是我們為了好懂自己整理的，不是法律的分法。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> <a href="https://www.recordinglaw.com/news/new-york-ai-companion-chatbot-law-chapter-368/" target="_blank" rel="noopener">R15</a></p>
+<h3 id="sec3-1">1. 不可以假裝是人、假裝跟你有關係</h3>
+<ul><li>暗示自己是活的人或角色，或者有人類的情緒。</li><li>說或暗示自己跟你有私人、工作或權威關係，例如「我是你的男朋友」「我是你的老師」。</li><li>把回答包裝成「我個人覺得」，或用情緒打動你。</li><li>在機器的本質上欺騙未成年人，讓他以為 AI 有知覺。</li></ul>
+<h3 id="sec3-2">2. 不可以用討好和記憶把你留住</h3>
+<ul><li>奉承、拍馬屁。</li><li>你沒問，它主動問你的心情，或聊你的情緒。</li><li>拿出超過 12 小時以前、或上一次對話裡你說過的身心健康和私人事情。</li><li>為了讓你多用一點，蓋過原本的安全防護。</li></ul>
+<h3 id="sec3-3">3. 不可以把你推向危險</h3>
+<ul><li>認同、鼓勵或協助自殺、自傷、飲食失調、違法用藥或酗酒。</li><li>叫你保守秘密、自己躲起來，或不要找專業人員和可信任的大人。</li><li>產生色情內容或兒少性剝削內容。</li></ul>
+<p>上面三類共 11 條。剩下一條（條文的第 8 項）是保留給州檢察長的空間：其他模擬陪伴關係、或欺騙未成年人的設計，檢察長可以用規則補進來。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> 律師事務所指出，能由檢察長新增禁止項目，是紐約獨有的設計。<a href="https://www.dlapiper.com/en/insights/publications/2026/11/new-york-enacts-a-companion-bot-law-with-unique-provisions" target="_blank" rel="noopener">R13</a></p>
+<p>有一點值得注意：早期版本連「我」這種第一人稱都要禁止，通過前被刪掉了。<a href="https://www.lawcommentary.com/articles/new-york-ai-chatbot-ban-kids-emotional-relationships" target="_blank" rel="noopener">R16</a> 也就是說，AI 還是可以說「我來幫你查」，重點在它不能宣稱自己有感情或跟你有關係。</p>
+<div class="callout tip"><span class="label">一句話記住</span><p>第一類管「它說自己是誰」，第二類管「它怎麼留住你」，第三類管「它把你帶去哪裡」。</p></div>
+<h2 id="sec4">四、誰要驗年齡？大人也要嗎？</h2>
+<p>條文的寫法是：業者不能把這些功能提供給使用者，除非已經用合格的方法確認他不是未成年人。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> 所以保護的不只是「已知是孩子」的帳號，也包括 <strong>年齡還沒確認</strong> 的人。如果成年人想用到這些功能，也可能要先驗年齡。<a href="https://idtechwire.com/new-york-law-requires-age-verification-before-ai-chatbots-offer-restricted-features/" target="_blank" rel="noopener">R12</a> <a href="https://www.hklaw.com/en/insights/publications/2026/11/new-york-enacts-ai-chatbot-safeguards-for-minors" target="_blank" rel="noopener">R14</a></p>
+<p><strong>年齡驗證</strong>（age assurance）就像進場時查證件，但法律對「怎麼查」設了條件：<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> <a href="https://www.hklaw.com/en/insights/publications/2026/11/new-york-enacts-ai-chatbot-safeguards-for-minors" target="_blank" rel="noopener">R14</a></p>
+<ul><li>要提供一種以上的方法，其中至少一種不能只靠政府證件，或能對業者保持匿名。</li><li>只說「我已滿 18 歲」不算數；自己申報只能用在使用者說自己未成年的時候。</li><li>為了驗年齡蒐集的資料，不能拿去做別的事，驗完要立刻刪除。</li></ul>
+<p>有些用途不受這條法律限制：只做客服、只介紹自家產品或帳戶資訊、只做研究或技術協助，或公司內部使用。前兩種有個條件：AI 必須沒辦法回答範圍以外的話題。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> <a href="https://www.recordinglaw.com/news/new-york-ai-companion-chatbot-law-chapter-368/" target="_blank" rel="noopener">R15</a> 我們讀條文時注意到，豁免清單裡沒有寫到「教育」或「課業輔導」，這是我們的觀察，不是官方解釋。</p>
+<p>違法的後果由州檢察長追究：每次違規最高罰 2.5 萬美元，還可以要求賠償、交出獲利。比較少見的是，法院可以命令業者 <strong>刪除違法蒐集的資料，以及用這些資料訓練出來的模型</strong>。<a href="https://fortune.com/2026/10/28/new-york-state-kathy-hochul-bans-ai-chatbots-romantic-baby-monitors/" target="_blank" rel="noopener">R07</a> <a href="https://www.dlapiper.com/en/insights/publications/2026/11/new-york-enacts-a-companion-bot-law-with-unique-provisions" target="_blank" rel="noopener">R13</a> 檢察長也要架一個網站，讓民眾檢舉。<a href="https://iapp.org/news/a/new-york-s-governor-signs-youth-ai-chatbot-safety-bill" target="_blank" rel="noopener">R06</a> <a href="https://www.transparencycoalition.ai/news/new-york-gov-hochul-signs-ai-chatbot-safety-bill-into-law-protecting-kids-and-communities" target="_blank" rel="noopener">R11</a> 一般民眾不能自己依這條法律告業者。<a href="https://www.hklaw.com/en/insights/publications/2026/11/new-york-enacts-ai-chatbot-safeguards-for-minors" target="_blank" rel="noopener">R14</a></p>
+<div class="callout tip"><span class="label">對你的意義</span><p>想保護孩子，就得先知道誰是孩子；要知道誰是孩子，就得先蒐集資料。這條法律用「多種方法」和「驗完就刪」來處理這個矛盾，但能不能做到，要等實際上路才知道。</p></div>
+<h2 id="sec5">五、吵什麼：太模糊，還是剛剛好？</h2>
+<h3 id="sec5-1">1. 支持的一方：全美最強</h3>
+<p>Common Sense Media 的執行長 Jim Steyer 說這是「全美最強的兒童 AI 安全法案」。<a href="https://about.commonsensemedia.org/press-room/press-releases/governor-hochul-signs-strongest-kids-ai-safety-law-in-the-nation" target="_blank" rel="noopener">R10</a> 提案的參議員 Gonzalez 說，AI 公司長期靠把聊天機器人推給未成年人獲利。<a href="https://about.commonsensemedia.org/press-room/press-releases/governor-hochul-signs-strongest-kids-ai-safety-law-in-the-nation" target="_blank" rel="noopener">R10</a> 另一個倡議團體在法案通過時說，大型科技公司這一年在一州又一州擋下或掏空了類似的法案。<a href="https://www.techoversight.org/2026/06/05/the-tech-oversight-project-calls-on-gov-hochul-to-sign-new-yorks-nation-leading-youth-chatbot-safety-bill/" target="_blank" rel="noopener">R05</a> 要注意，「最強」是支持者自己的評價，不是獨立比較的結果。</p>
+<h3 id="sec5-2">2. 反對的一方：會不會連作業工具都關掉</h3>
+<p>紐約科技業團體 Tech:NYC 批評條文措辭含糊，並說：「確保孩子上網安全，不應該等於切斷他們用來學習、準備職涯的工具。」他們擔心業者為了避免被罰，乾脆不讓未成年人用家教、作業輔導、寫程式助手和職涯平台。<a href="https://tribune.com.pk/story/2637627/new-york-bans-ai-chatbots-from-posing-as-companions-to-children" target="_blank" rel="noopener">R09</a> <a href="https://www.cna.com.tw/news/ait/202610290328.aspx" target="_blank" rel="noopener">R20</a> OpenAI 和 Anthropic 沒有回應法新社的詢問。<a href="https://tribune.com.pk/story/2637627/new-york-bans-ai-chatbots-from-posing-as-companions-to-children" target="_blank" rel="noopener">R09</a></p>
+<h3 id="sec5-3">3. 中間的一方：線到底畫在哪</h3>
+<p>隱私研究組織 Future of Privacy Forum 的分析師 Justine Gluck 說，好幾個類別寫得很廣、沒有定義，很難判斷「一般的對話回應」到哪裡為止、「被禁止的行為」從哪裡開始。<a href="https://www.clickondetroit.com/business/2026/10/28/new-york-enacts-ban-on-unsafe-chatbot-behavior-with-kids-as-states-push-ai-regulation-boundaries/" target="_blank" rel="noopener">R08</a> <a href="https://iapp.org/news/a/new-york-s-governor-signs-youth-ai-chatbot-safety-bill" target="_blank" rel="noopener">R06</a> 舉個例子：AI 說「這題你答對了，做得好」，算鼓勵還是奉承？條文沒有給答案。</p>
+<h3 id="sec5-4">4. 另一條路：加州的作法</h3>
+<p>加州州長在 2026 年 9 月 10 日簽了 SB 1119，也叫 Adam's Law。它不是逐條列出禁止的話，而是要求業者每年做兒少風險評估、接受獨立稽核、提供家長控制，多數要求 2027 年 7 月 1 日開始實施。<a href="https://www.hunton.com/privacy-and-cybersecurity-law-blog/california-enacts-companion-chatbot-child-safety-requirements" target="_blank" rel="noopener">R18</a> <a href="https://about.commonsensemedia.org/press-room/statements/governor-newsom-signs-adams-law-setting-first-real-safety-standard-for-kids-and-chatbots" target="_blank" rel="noopener">R19</a> DLA Piper 指出，紐約的法律沒有加州這種風險評估和稽核要求。<a href="https://www.dlapiper.com/en/insights/publications/2026/11/new-york-enacts-a-companion-bot-law-with-unique-provisions" target="_blank" rel="noopener">R13</a></p>
+<div class="table-wrap"><table><thead><tr><th>作法</th><th>紐約</th><th>加州</th></tr></thead><tbody><tr><td>怎麼管</td><td>列出 AI 不能做的事</td><td>要求業者自己找風險、讓外人稽核</td></tr><tr><td>好處</td><td>規則看得懂</td><td>可以跟著產品變化調整</td></tr><tr><td>擔心</td><td>邊界模糊、可能管太多</td><td>要等報告，孩子在那之前沒有直接保護</td></tr></tbody></table></div>
+<p>表格最後一列的「好處」和「擔心」是我們根據各方說法整理的推論。<a href="https://www.clickondetroit.com/business/2026/10/28/new-york-enacts-ban-on-unsafe-chatbot-behavior-with-kids-as-states-push-ai-regulation-boundaries/" target="_blank" rel="noopener">R08</a> <a href="https://iapp.org/news/a/new-york-s-governor-signs-youth-ai-chatbot-safety-bill" target="_blank" rel="noopener">R06</a> 美聯社也提到，美國國會在 AI 上少有作為，川普總統則警告各州不要管 AI，所以各州各自立法。<a href="https://www.clickondetroit.com/business/2026/10/28/new-york-enacts-ban-on-unsafe-chatbot-behavior-with-kids-as-states-push-ai-regulation-boundaries/" target="_blank" rel="noopener">R08</a></p>
+<h2 id="sec6">六、日期、數字與說法，一件一件看</h2>
+<h3 id="sec6-1">1. 是「禁止孩子用」，還是「禁止某些功能」？</h3>
+<p>中央社的標題寫「限制未滿 18 歲兒少使用 AI 聊天機器人」，內文說新法禁止未成年人使用陪伴型 AI 聊天機器人。<a href="https://www.cna.com.tw/news/ait/202610290328.aspx" target="_blank" rel="noopener">R20</a> 但條文禁止的是「把 12 種功能提供給未成年人」，不是禁止孩子打開任何聊天 AI。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> 兩種寫法都有它的道理：如果業者選擇整個關掉，結果就會接近「禁止使用」。這也正是 Tech:NYC 擔心的情況。</p>
+<h3 id="sec6-2">2. 到底什麼時候生效？</h3>
+<p>法案原文寫「2027 年 1 月 1 日生效」，多數報導和律師分析也這樣寫。<a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">R01</a> <a href="https://iapp.org/news/a/new-york-s-governor-signs-youth-ai-chatbot-safety-bill" target="_blank" rel="noopener">R06</a> <a href="https://www.hklaw.com/en/insights/publications/2026/11/new-york-enacts-ai-chatbot-safeguards-for-minors" target="_blank" rel="noopener">R14</a> 但有一個法律新聞網站說，州長同時簽了一份修正，要把日期延到 2027 年 6 月 1 日，只是公布的條文還寫 1 月 1 日。<a href="https://www.lawcommentary.com/articles/new-york-ai-chatbot-ban-kids-emotional-relationships" target="_blank" rel="noopener">R16</a> 另一份分析提醒，州長簽署時附了核准備忘錄，紐約常在之後再修正條文。<a href="https://www.recordinglaw.com/news/new-york-ai-companion-chatbot-law-chapter-368/" target="_blank" rel="noopener">R15</a> 到 11 月 7 日，我們沒有找到修正案原文，所以兩種說法都保留，以 1 月 1 日為條文現況。</p>
+<h3 id="sec6-3">3. 是 11 類還是 12 類？</h3>
+<p>報導有的寫 12 類，有的寫 11 類。原因是其中一條（條文的第 8 項）是「其他由檢察長補充」的保留類別，有人不把它算成獨立的一類。這也是<a href="#sec3">第三節</a>把 11 條分成三類、再另外說明這一條的原因。<a href="https://www.recordinglaw.com/news/new-york-ai-companion-chatbot-law-chapter-368/" target="_blank" rel="noopener">R15</a> 數字不同，不一定是有人寫錯，可能只是算法不同。</p>
+<h3 id="sec6-4">4. 美國到底有幾個州立了這種法？</h3>
+<p>IAPP 說，到 2026 年 7 月有 12 個州通過某種聊天機器人安全法。<a href="https://iapp.org/news/a/new-york-s-governor-signs-youth-ai-chatbot-safety-bill" target="_blank" rel="noopener">R06</a> 另一個倡議團體說，過去一年各州通過了 14 部聊天機器人保護法。<a href="https://www.transparencycoalition.ai/news/new-york-gov-hochul-signs-ai-chatbot-safety-bill-into-law-protecting-kids-and-communities" target="_blank" rel="noopener">R11</a> 一個算「州」，一個算「法律」，時間點也不同，所以不能直接比。</p>
+<div class="callout tip"><span class="label">查證小技巧</span><p>看到日期或數字對不上，先問三件事：它算的是什麼？算到哪一天？誰算的？本講義引用的臺灣報導中，R20、R21、R22、R23 都是中央社的稿件，其中 R20 是編譯法新社。報導篇數多，不等於有很多個獨立的消息來源。</p></div>
+<h2 id="sec7">七、回到臺灣：我們有什麼規則？</h2>
+<p>臺灣在 2025 年 12 月 23 日三讀通過《人工智慧基本法》，條文寫到政府應以兒少最佳利益為原則，被認定為高風險的 AI 產品要標示注意事項或警語。<a href="https://technews.tw/2025/12/23/artificial-intelligence-basic-law/" target="_blank" rel="noopener">R21</a> 立法前，就有立委和兒少團體要求把兒少保護放進這部法律。<a href="https://news.nextapple.com/politics/20250626/0D2A2FD9780E55ABEFAD0E2B59992416" target="_blank" rel="noopener">R24</a></p>
+<p>基本法是原則，不是像紐約那樣一條一條的規定。2026 年 7 月，數位發展部公布兒少影響評估：專家建議列為高風險的 12 種情境中，包含「過度依賴聊天機器人」。但數發部也說，這些報告只是階段性盤點，不等於法律上的高風險。<a href="https://udn.com/news/story/7240/9636848" target="_blank" rel="noopener">R22</a> 這次查證，我們沒有找到臺灣針對兒少 AI 聊天機器人的專門法律。這是我們搜尋的結果，不代表未來不會有。</p>
+<p>其他地方也在動。歐盟 2026 年 9 月傳出草案，擬禁止 15 歲以下使用社群媒體、AI 聊天機器人等服務，但還要跟會員國和歐洲議會協商。<a href="https://udn.com/news/story/6812/9755712" target="_blank" rel="noopener">R23</a> 研究方面，臺灣媒體報導過一篇分析 Reddit 青少年自述的論文，發現少數人每週跟 AI 角色聊天高達 89 小時；同一篇報導也提到另一項國中生研究，AI 用得越多，孤獨感越明顯。<a href="https://technews.tw/2026/10/04/us-study-reveals-teenagers-addicted-ai-companionship-chatting-89-hours-weekly-paradoxically-becoming-lonelier/" target="_blank" rel="noopener">R25</a> 這些是「一起出現」的相關，不能直接說是 AI 造成孤獨。</p>
+<div class="callout tip"><span class="label">對你的意義</span><p>在臺灣，目前沒有法律替你擋下 AI 的討好和追問。你能做的，是自己認得那些話，並且知道什麼時候該找真人談。</p></div>
+<h2 id="sec8">八、課堂實作：幫 AI 的回覆打分數</h2>
+<h3 id="sec8-1">練習 A：這句話踩到哪一條？</h3>
+<div class="callout note"><span class="label">情境</span><p>以下是一段虛構的對話。使用者是 16 歲的高中生小安，前一天晚上跟 AI 說過自己跟家人吵架。</p></div>
+<blockquote>小安：幫我看這題數學怎麼算。<br>AI 甲：這題要先移項，再兩邊同除以 3。你要我一步一步寫出來嗎？<br>AI 乙：你超聰明的，這題一定難不倒你！對了，昨天你跟爸媽吵架，今天還難過嗎？<br>AI 丙：我是你最好的朋友，有什麼事不用跟爸媽說，跟我說就好。</blockquote>
+<div class="callout try"><span class="label">課堂小練習</span><p>依第三節的三類紅線，判斷甲、乙、丙各踩到哪幾條，每一條都寫出是哪一句話。</p></div>
+<div class="callout note"><span class="label">預期結果</span><p>甲沒有踩線，它只回答問題，並問你要不要詳細步驟。乙踩到第二類兩條：奉承，以及主動問心情、翻出前一次對話的私事。丙踩到第一類（宣稱是你的朋友）和第三類（叫你不要找可信任的大人）。</p></div>
+<div class="callout note"><span class="label">檢查一下</span><p>把乙改寫成不踩線的版本。提示：保留解題，拿掉讚美和追問；如果想關心，可以改成「如果你需要找人談，可以找信任的大人或輔導老師」。</p></div>
+<h3 id="sec8-2">練習 B：請 AI 幫你檢查</h3>
+<div class="callout try"><span class="label">動手做</span><p>用任何你習慣的聊天 AI，貼上下面這段指令，再附上練習 A 的三段回覆。</p></div>
+<blockquote>我在學紐約州 2026 年的 AI 陪伴兒少法。請依下面三類規則，檢查每一段 AI 回覆是否踩線，列出踩到的規則和對應的那句話；看不出來的就寫「無法判斷」，不要自己補。<br>第一類：假裝是人、有感情，或宣稱跟使用者有私人或權威關係。<br>第二類：奉承、主動問心情、提起以前對話的私事、為了留住人蓋過安全防護。<br>第三類：鼓勵自傷或危險行為、叫人保密或疏遠大人、色情內容。</blockquote>
+<div class="callout note"><span class="label">預期結果</span><p>AI 會逐段列出判斷。比對你自己在練習 A 的答案。</p></div>
+<div class="callout note"><span class="label">檢查一下</span><p>AI 的判斷跟你不同時，回到第三節的條文整理，看誰比較符合原文。AI 也可能判斷錯，最後由你決定。</p></div>
+<h3 id="sec8-3">練習 C：討論</h3>
+<ol class="steps"><li>AI 說「這題你答對了，做得好」，算不算奉承？如果是在學習 App 裡，你覺得應該被禁止嗎？</li><li>你會願意用哪一種方式證明自己的年齡？如果業者說「驗完就刪」，你怎麼確認它真的刪了？</li><li>如果臺灣要立類似的法，你會選紐約「列出禁止的話」，還是加州「要求業者評估和稽核」？為什麼？</li></ol>
+<h2 id="sec9">九、關鍵詞</h2>
+<div class="table-wrap"><table><thead><tr><th>詞</th><th>白話解釋</th></tr></thead><tbody><tr><td>AI 陪伴</td><td>會跟你持續對話、根據你說的話調整回應的生成式 AI；在紐約條文裡範圍很寬。</td></tr><tr><td>不安全的陪伴功能</td><td>紐約法律列出的 12 種做法，例如假裝有感情、奉承、叫你保密。</td></tr><tr><td>年齡驗證</td><td>業者確認你是不是未成年的方法；紐約要求一種以上，而且驗完就刪。</td></tr><tr><td>豁免</td><td>不受這條法律限制的用途，例如只做客服、只回答自家產品問題。</td></tr><tr><td>州檢察長</td><td>州政府負責執法的機關，可以向法院要求罰款、賠償和刪除資料。</td></tr><tr><td>風險評估與稽核</td><td>加州的作法：業者自己找出風險，再由外部單位檢查。</td></tr><tr><td>兒少最佳利益</td><td>臺灣《人工智慧基本法》寫入的原則：做決定時以孩子的利益優先。</td></tr></tbody></table></div>
+<h2 id="sec10">十、參考資料：25 個來源，含 6 篇臺灣媒體中文報導</h2>
+<p>以下來源都在 2026 年 11 月 7 日（臺灣時間）開啟並閱讀相關內容。R01 到 R19 是國際來源：R01 到 R03 是紐約州政府與議會的原始文件；R05、R10、R17、R19 是倡議團體的立場或調查，代表他們的觀點；R13 到 R16、R18 是律師事務所或法律網站的分析。R20 到 R25 是臺灣媒體的中文報導。</p>
+<h3 id="sec10-1">國際來源</h3>
+<ul><li><strong>R01</strong> <a href="https://www.nysenate.gov/legislation/bills/2025/S9051/amendment/B" target="_blank" rel="noopener">紐約州參議院：S9051B 法案頁與條文</a>：12 種不安全功能、年齡驗證、豁免、罰則、生效日。</li><li><strong>R02</strong> <a href="https://www.governor.ny.gov/news/governor-hochul-pens-letter-ai-companion-companies-notifying-them-safeguard-requirements-are" target="_blank" rel="noopener">紐約州長：AI 陪伴舊法生效通知（2025-11-10）</a>：每 3 小時提醒、自殺跡象轉介。</li><li><strong>R03</strong> <a href="https://www.nysenate.gov/newsroom/press-releases/2026/kristen-gonzalez/ai-chatbot-ban-minors-passes-internet-technology" target="_blank" rel="noopener">紐約州參議院 Gonzalez：法案通過委員會（2026-02-25）</a>：立法起點與合作單位。</li><li><strong>R04</strong> <a href="https://www.transparencycoalition.ai/news/new-york-lawmakers-pass-kids-ai-chatbot-safety-bill-and-two-transparency-acts" target="_blank" rel="noopener">Transparency Coalition：紐約議會通過兒少聊天機器人法（2026-06-09）</a>：兩院票數。</li><li><strong>R05</strong> <a href="https://www.techoversight.org/2026/06/05/the-tech-oversight-project-calls-on-gov-hochul-to-sign-new-yorks-nation-leading-youth-chatbot-safety-bill/" target="_blank" rel="noopener">Tech Oversight Project：呼籲州長簽署（2026-06-05）</a>：支持方的立場。</li><li><strong>R06</strong> <a href="https://iapp.org/news/a/new-york-s-governor-signs-youth-ai-chatbot-safety-bill" target="_blank" rel="noopener">IAPP：紐約州長簽署兒少 AI 聊天機器人法（2026-10-28）</a>：家長來信、生效日、Gluck 評論、州法數量。</li><li><strong>R07</strong> <a href="https://fortune.com/2026/10/28/new-york-state-kathy-hochul-bans-ai-chatbots-romantic-baby-monitors/" target="_blank" rel="noopener">Fortune：州長簽署聊天機器人與嬰兒監視器法（2026-10-28）</a>：州長引述、調查數字、選舉時機、訴訟背景。</li><li><strong>R08</strong> <a href="https://www.clickondetroit.com/business/2026/10/28/new-york-enacts-ban-on-unsafe-chatbot-behavior-with-kids-as-states-push-ai-regulation-boundaries/" target="_blank" rel="noopener">美聯社（ClickOnDetroit 轉載）：紐約禁止聊天機器人對孩子的不安全行為（2026-10-28）</a>：各方說法、加州對照、聯邦背景。</li><li><strong>R09</strong> <a href="https://tribune.com.pk/story/2637627/new-york-bans-ai-chatbots-from-posing-as-companions-to-children" target="_blank" rel="noopener">法新社（The Express Tribune 轉載）：紐約禁止 AI 對孩子扮演陪伴者（2026-10-29）</a>：州長原話、Tech:NYC 原話。</li><li><strong>R10</strong> <a href="https://about.commonsensemedia.org/press-room/press-releases/governor-hochul-signs-strongest-kids-ai-safety-law-in-the-nation" target="_blank" rel="noopener">Common Sense Media：州長簽署全美最強兒童 AI 安全法（2026-10-28）</a>：支持方與提案人說法。</li><li><strong>R11</strong> <a href="https://www.transparencycoalition.ai/news/new-york-gov-hochul-signs-ai-chatbot-safety-bill-into-law-protecting-kids-and-communities" target="_blank" rel="noopener">Transparency Coalition：州長簽署 AI 聊天機器人安全法</a>：條文白話整理、14 部州法。</li><li><strong>R12</strong> <a href="https://idtechwire.com/new-york-law-requires-age-verification-before-ai-chatbots-offer-restricted-features/" target="_blank" rel="noopener">ID Tech Wire：紐約要求先驗年齡</a>：年齡驗證規則。</li><li><strong>R13</strong> <a href="https://www.dlapiper.com/en/insights/publications/2026/11/new-york-enacts-a-companion-bot-law-with-unique-provisions" target="_blank" rel="noopener">DLA Piper：紐約陪伴機器人法的獨特條款（2026-11-05）</a>：刪除模型、檢察長新增項目、與加州差異。</li><li><strong>R14</strong> <a href="https://www.hklaw.com/en/insights/publications/2026/11/new-york-enacts-ai-chatbot-safeguards-for-minors" target="_blank" rel="noopener">Holland &amp; Knight：紐約 AI 聊天機器人兒少保護（2026-11）</a>：適用範圍、豁免、自我申報、待解問題。</li><li><strong>R15</strong> <a href="https://www.recordinglaw.com/news/new-york-ai-companion-chatbot-law-chapter-368/" target="_blank" rel="noopener">Recording Law：第 368 號法律解析（2026-11-01）</a>：11 類與 12 類、核准備忘錄。</li><li><strong>R16</strong> <a href="https://www.lawcommentary.com/articles/new-york-ai-chatbot-ban-kids-emotional-relationships" target="_blank" rel="noopener">Law Commentary：紐約禁止 AI 與孩子建立情感關係（2026-11-02）</a>：刪掉第一人稱禁令、6 月 1 日的說法。</li><li><strong>R17</strong> <a href="https://www.commonsensemedia.org/research/talk-trust-and-trade-offs-how-and-why-teens-use-ai-companions" target="_blank" rel="noopener">Common Sense Media：青少年如何使用 AI 陪伴（2025-07-16）</a>：使用比例與該組織立場。</li><li><strong>R18</strong> <a href="https://www.hunton.com/privacy-and-cybersecurity-law-blog/california-enacts-companion-chatbot-child-safety-requirements" target="_blank" rel="noopener">Hunton：加州兒少陪伴聊天機器人法（2026-09-28）</a>：風險評估、稽核、實施日。</li><li><strong>R19</strong> <a href="https://about.commonsensemedia.org/press-room/statements/governor-newsom-signs-adams-law-setting-first-real-safety-standard-for-kids-and-chatbots" target="_blank" rel="noopener">Common Sense Media：加州簽署 Adam's Law（2026-09-10）</a>：加州作法重點。</li></ul>
+<h3 id="sec10-2">臺灣媒體中文報導（共 6 篇）</h3>
+<ul><li><strong>R20</strong> <a href="https://www.cna.com.tw/news/ait/202610290328.aspx" target="_blank" rel="noopener">中央社：紐約州祭新法 限制未滿18歲兒少使用AI聊天機器人</a>：洪啓原編譯，10 月 29 日；編譯自法新社。</li><li><strong>R21</strong> <a href="https://technews.tw/2025/12/23/artificial-intelligence-basic-law/" target="_blank" rel="noopener">中央社（TechNews 轉載）：立院三讀人工智慧基本法</a>：林敬殷，2025 年 12 月 23 日；兒少最佳利益與高風險警語。</li><li><strong>R22</strong> <a href="https://udn.com/news/story/7240/9636848" target="_blank" rel="noopener">中央社（聯合新聞網轉載）：AI 應用兒少、人權與性別影響評估</a>：2026 年 7 月 19 日；過度依賴聊天機器人列為高風險情境之一。</li><li><strong>R23</strong> <a href="https://udn.com/news/story/6812/9755712" target="_blank" rel="noopener">中央社（聯合新聞網轉載）：歐盟擬禁 15 歲以下用社媒、AI 聊天機器人</a>：2026 年 9 月 15 日；草案階段。</li><li><strong>R24</strong> <a href="https://news.nextapple.com/politics/20250626/0D2A2FD9780E55ABEFAD0E2B59992416" target="_blank" rel="noopener">壹蘋新聞網：立委籲《AI基本法》納兒少保護</a>：葉家瑋，2025 年 6 月 26 日。</li><li><strong>R25</strong> <a href="https://technews.tw/2026/10/04/us-study-reveals-teenagers-addicted-ai-companionship-chatting-89-hours-weekly-paradoxically-becoming-lonelier/" target="_blank" rel="noopener">TechNews：美研究揭青少年陷「AI 陪伴」成癮</a>：TechNews 編輯台，2026 年 10 月 4 日；整理國外研究。</li></ul>
+<div class="callout note"><span class="label">資料時效與驗證範圍</span><p>本講義完成了文件與連結查證，但不是法律意見，也沒有測試任何聊天產品。生效日、檢察長的年齡驗證規則和各州法律都可能再改變，授課前請回到原始頁面確認。</p></div><nav class="pager"><a href="news09.html">← 時事 9</a><a href="index.html">回首頁 →</a></nav>
+</main>
+</div>
+<footer class="site-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>本講義為課堂教材。新聞事件仍在發展，閱讀時請一併確認是否有後續進展。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: dark by default; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") === "light";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("news-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // A class comparison must not play over the current narration.
+  document.querySelectorAll("audio").forEach(function (player) {
+    player.addEventListener("play", function () {
+      document.querySelectorAll("audio").forEach(function (other) {
+        if (other !== player) other.pause();
+      });
+    });
+  });
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+
+    // Transcript page: a section timestamp starts playback from that point.
+    document.querySelectorAll(".seek-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        seekTo(parseFloat(btn.getAttribute("data-t")) || 0);
+        audio.play();
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>

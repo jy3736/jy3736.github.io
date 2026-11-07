@@ -1,0 +1,1009 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var t='dark';try{if(localStorage.getItem('news-theme')==='light')t='light';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B0%3C/text%3E%3C/svg%3E">
+<title>AI 一次交出 722 份數學手稿之後：我們的學習要怎麼調整？｜AI 時事講義</title>
+<meta name="description" content="OpenAI 一次公開 722 份 AI 數學手稿，裡面有突破、有還沒人看過的，也有隔天就撤回的。分清楚三種狀態和幾個容易誤讀的數字，再想想當答案變得這麼便宜，你的學習要怎麼調整。">
+<style>
+/* 預設深色主題；<html data-theme="light"> 時切換成淺色（由頁首按鈕切換並記在 localStorage）。 */
+:root {
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --bg: #14171a;
+  --surface: #1b1f23;
+  --surface-2: #22272c;
+  --text: #e6e8eb;
+  --muted: #a0a7af;
+  --border: #30363d;
+  --accent: #5cc8bf;
+  --accent-soft: #173432;
+  --code-bg: #0f1215;
+  --code-text: #e6e8eb;
+  --tip: #5cc8bf;
+  --tip-bg: #15302e;
+  --note: #86a8ec;
+  --note-bg: #1a2638;
+  --warn: #eaa860;
+  --warn-bg: #33261a;
+  --try: #c49bf0;
+  --try-bg: #2a2036;
+  --shadow: none;
+  --on-accent: #0e1a19;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --on-accent: #ffffff;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+/* 頁首內容與 .page 同寬，兩側留白在每個斷點都對齊 */
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;  /* 導覽列置中，站名靠左、主題鈕靠右 */
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  padding-block: 0.7rem;
+}
+.site-header .brand { justify-self: start; font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header .theme-toggle { justify-self: end; }
+.site-header nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* 滑過（或鍵盤聚焦）導覽標籤時，顯示該頁的完整標題 */
+.site-header nav a[data-hint] { position: relative; }
+.site-header nav a[data-hint]::after {
+  display: none;
+  content: attr(data-hint);
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  max-width: min(22rem, 70vw);
+  width: max-content;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease 0.05s, visibility 0.12s ease 0.05s;
+}
+.site-header nav a[data-hint]:hover::after,
+.site-header nav a[data-hint]:focus-visible::after {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+/* 最外側的標籤改為貼邊，長標題才不會撐出視窗 */
+.site-header nav a[data-hint]:first-child::after { left: 0; transform: none; }
+.site-header nav a[data-hint]:last-child::after { left: auto; right: 0; transform: none; }
+@media (hover: none) {
+  .site-header nav a[data-hint]::after { display: none; }
+}
+
+/* 版面佔父層 90% 寬，不設固定上限；目錄欄隨視窗伸縮，讓條目盡量維持單行 */
+:root { --layout-w: 90%; }
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+  /* 目錄欄在 240px 下限時，字級跟著縮一點，讓一般長度的標題維持單行 */
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+.meta a { text-decoration: none; }
+.meta a:hover { text-decoration: underline; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+/* 首頁講義卡片：每列最多 8 張（最小寬度取 230px 與 1/8 列寬的較大者，gap 共 7 個 1rem） */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(max(230px, calc((100% - 7rem) / 8)), 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+:root:not([data-theme="light"]) .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root:not([data-theme="light"]) .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root:not([data-theme="light"]) .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+:root:not([data-theme="light"]) .steps > li::before { color: #0e1a19; }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root:not([data-theme="light"]) .download { color: #0e1a19; }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  min-height: 2rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar, generating-podcast contract) ---------- */
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+
+/* 側邊欄底部：本頁公開網址的 QR Code，手機掃描即可開啟；窄螢幕本來就在手機上，不顯示 */
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+@media (max-width: 960px) { .toc-qr { display: none; } }
+.toc-audio-comparison { margin: 0 0 1.2rem; padding: 0.9rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.toc-audio-comparison h2 { font-size: 0.9rem; margin: 0 0 0.5rem; padding: 0; border: 0; }
+.toc-audio-comparison p { font-size: 0.78rem; color: var(--muted); margin: 0.5rem 0; line-height: 1.6; }
+.toc-audio-comparison audio { display: block; width: 100%; min-width: 0; }
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible, .seek-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+
+/* Transcript page: section timestamps jump the player to that point. */
+.seek-btn {
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  vertical-align: 0.2em;
+  margin-right: 0.35rem;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.05rem 0.55rem;
+  cursor: pointer;
+}
+.seek-btn:hover { border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Narrow phones ---------- */
+
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: 16px; line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  .hero { margin-bottom: 1.8rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  .lead { font-size: 1.02rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+  .site-header .inner { padding-block: 0.55rem; }
+  /* 窄螢幕放不下三欄：站名與主題鈕同一列，導覽列換到下一列置中 */
+  .site-header .inner { grid-template-columns: 1fr auto; }
+  .site-header nav { grid-row: 2; grid-column: 1 / -1; }
+  /* 手機上縮窄提示，右側兩個標籤的提示靠右對齊。 */
+  .site-header nav a[data-hint]::after { max-width: 50vw; }
+  .site-header nav a[data-hint]:nth-last-child(2)::after { left: auto; right: 0; transform: none; }
+}
+
+@media print {
+  /* 列印一律用淺色 */
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --surface-2: #f3f1ec;
+    --text: #1f2328;
+    --muted: #5b6168;
+    --border: #e2ded6;
+    --accent: #0b6e69;
+    --accent-soft: #e3f2f0;
+    --code-bg: #f6f5f1;
+    --code-text: #24292f;
+    --tip: #0b6e69;
+    --tip-bg: #e8f5f3;
+    --note: #2f5fb3;
+    --note-bg: #eaf0fb;
+    --warn: #a4570b;
+    --warn-bg: #fdf1e3;
+    --try: #7a3fb0;
+    --try-bg: #f3ecfa;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+    --on-accent: #ffffff;
+    color-scheme: light;
+  }
+  .toc, .toc-qr, .site-header nav, .theme-toggle, .seek-btn, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+blockquote {
+  margin: 1.2rem 0;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid var(--accent);
+  background: var(--surface-2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: var(--text);
+  line-height: 1.9;
+}
+/* 表格第一欄是索引欄，保持單行不換行，過寬時整個表格可橫向捲動 */
+table th:first-child, table td:first-child { white-space: nowrap; }
+.news-card .tag { color: var(--accent); }
+.news-date { color: var(--muted); font-size: 0.9rem; margin: 0.1rem 0 0.4rem; }
+.news-audio { color: var(--muted); font-size: 0.88rem; margin: 0.3rem 0; }
+
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI 時事講義</a><nav aria-label="講義"><a href="index.html" data-hint="讀懂一則 AI 新聞，不需要會寫程式">首頁</a>
+<a href="news01.html" data-hint="AI 會不會失控？一場吵了兩週的大爭論">時事 1</a>
+<a href="news02.html" data-hint="不會講話的 AI：一個只做選擇題的新模型">時事 2</a>
+<a href="news03.html" data-hint="會替你動手的 AI：Meta Muse 與「AI 代理」這件事">時事 3</a>
+<a href="news04.html" data-hint="會持續替你工作的 AI：Grok Bot 與 OpenAI dot 比較">時事 4</a>
+<a href="news05.html" data-hint="從「AI 小助理」到「技能包」：GPTs、Gems 退場與 Agent Skills">時事 5</a>
+<a href="news06.html" data-hint="AI 寫完程式之後呢？從 ArtCraft 看人工審查、測試與維護的重要性">時事 6</a>
+<a href="news07.html" data-hint="從 ArtCraft 到 REA：AI 能複製軟體，人還要負責什麼？">時事 7</a>
+<a href="news08.html" data-hint="2026 下半年 AI 趨勢：Spark、Muse、Dots、Duet、Grok Bot 五個全天候代理比一比">時事 8</a>
+<a href="news09.html" aria-current="page" data-hint="AI 一次交出 722 份數學手稿之後：我們的學習要怎麼調整？">時事 9</a>
+<a href="news10.html" data-hint="AI 不能再對孩子說「我是你朋友」：紐約州新法怎麼管聊天機器人">時事 10</a></nav><button class="theme-toggle" type="button" aria-label="切換成淺色主題"><span class="theme-icon" aria-hidden="true">☀️</span><span class="theme-text">淺色</span></button></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio"><div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">11:07</span></div><audio id="podcast-audio" preload="metadata"><source src="audio/news09-podcast.mp3?v=ff7bcf50fe87" type="audio/mpeg"></audio><div class="toc-audio-controls"><button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button><div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div></div><div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 11:07</span></div><div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button><button type="button" class="toc-speed-btn" data-speed="2.0" aria-pressed="false">2.0x</button></div></div></div><details><summary>本頁目錄</summary><ol><li><a href="#sec1">一、幾秒鐘的答案，和沒有人讀完的 722 份手稿</a></li><li><a href="#sec2">二、為什麼 OpenAI 要一次丟出這麼多？</a></li><li><a href="#sec3">三、722 份手稿，分成三種狀態看</a></li><li><a href="#sec4">四、真正的難題：讀懂和檢查，誰來做？</a></li><li><a href="#sec5">五、吵什麼：這樣發表，算不算進步？</a></li><li><a href="#sec6">六、日期、數字與說法，一件一件看</a></li><li><a href="#sec7">七、回到臺灣：學校怎麼看 AI 寫的答案？</a></li><li><a href="#sec8">八、你的學習要怎麼調整？</a></li><li><a href="#sec9">九、課堂實作：當一次 AI 答案的驗證者</a></li><li><a href="#sec10">十、關鍵詞</a></li><li><a href="#sec11">十一、參考資料：26 個來源，含 6 篇臺灣媒體中文報導</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m1 0h1m3 0h1m1 0h1m3 0h2m2 0h3m1 0h7m-33 1h1m5 0h1m1 0h3m1 0h1m1 0h1m5 0h5m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m3 0h1m2 0h1m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m4 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m3 0h1m3 0h2m4 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m5 0h6m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h2m2 0h1m1 0h2m1 0h1m3 0h2m-25 1h1m1 0h2m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m1 0h4m1 0h1m2 0h1m1 0h2m-33 1h2m5 0h2m1 0h5m3 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-33 1h1m1 0h5m6 0h1m3 0h1m4 0h3m1 0h4m1 0h2m-33 1h2m3 0h1m2 0h1m1 0h1m4 0h2m2 0h2m2 0h2m2 0h1m1 0h1m-30 1h2m1 0h1m2 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-23 1h1m1 0h1m1 0h2m1 0h3m1 0h2m1 0h2m4 0h1m2 0h2m-31 1h2m2 0h2m1 0h1m3 0h2m5 0h3m2 0h1m1 0h3m-26 1h1m6 0h1m1 0h5m3 0h2m2 0h3m2 0h2m-31 1h7m2 0h1m3 0h1m1 0h2m1 0h1m2 0h2m1 0h3m1 0h3m-27 1h1m3 0h1m1 0h1m2 0h1m1 0h3m2 0h1m1 0h2m1 0h2m1 0h2m1 0h2m-33 1h3m1 0h3m4 0h1m1 0h4m1 0h1m3 0h1m2 0h1m1 0h2m1 0h2m-31 1h1m6 0h1m1 0h1m3 0h1m2 0h2m1 0h1m1 0h1m3 0h1m1 0h1m-29 1h3m1 0h5m1 0h2m3 0h3m3 0h1m3 0h1m3 0h2m-31 1h1m2 0h1m1 0h1m1 0h2m1 0h3m1 0h1m1 0h8m2 0h1m2 0h1m2 0h1m-31 1h2m1 0h2m1 0h1m1 0h1m1 0h2m4 0h1m1 0h5m3 0h2m1 0h2m-32 1h2m1 0h1m3 0h1m4 0h1m4 0h1m1 0h1m4 0h2m1 0h1m2 0h1m-32 1h1m1 0h1m3 0h3m5 0h2m1 0h3m2 0h1m1 0h5m2 0h2m-25 1h3m1 0h5m2 0h1m4 0h1m3 0h2m-30 1h7m1 0h3m2 0h1m3 0h3m1 0h4m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h3m3 0h2m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h2m2 0h1m1 0h1m1 0h1m1 0h2m1 0h6m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h2m1 0h1m2 0h4m3 0h1m1 0h2m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h5m2 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m2 0h3m5 0h3m2 0h4m1 0h2m3 0h1m-33 1h7m1 0h1m1 0h9m1 0h2m1 0h1m4 0h3"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero"><p class="eyebrow">時事 9</p><h1>AI 一次交出 722 份數學手稿之後：我們的學習要怎麼調整？</h1><p class="lead">你可能也有過這種經驗：把作業題目貼給 AI，幾秒鐘就拿到一個看起來很完整的答案，連步驟都寫好了。2026 年 10 月 6 日（美國時間），OpenAI 用一個還沒對外公開的內部 AI 模型，一次在網路上公開 722 份數學手稿，處理的是數學家多年沒有解開的問題。OpenAI 自己在說明裡寫著：「有些沒有經過形式化檢查的結果，可能有問題。」這份講義帶你看懂這批手稿哪些有人確認、哪些還沒有、哪些已經出錯，為什麼數學家吵成一團，最後回到你自己：當答案變得這麼便宜，你的學習要怎麼調整。資料查證到 2026 年 11 月 7 日，臺灣時間。</p><ul class="meta"><li>事件時間：2026 年 10 月（11 月 7 日查證）</li><li>可獨立閱讀</li><li>不需程式基礎</li><li>🎧 語音導讀：11 分 07 秒</li></ul></section><div class="callout note"><span class="label">先注意一件事</span><p>這份講義不需要你懂高等數學，也不判斷任何一份手稿在數學上對不對；那要交給專業數學家花很長時間檢查。我們讀的是 OpenAI 在 GitHub 公開的說明與更新紀錄、數學家團體的聲明、國際媒體報導、學者文章，以及臺灣媒體的中文報導。英文引述是我們的中文翻譯。事情還在發展，手稿份數與檢查進度都可能再變。<a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">R01</a> <a href="https://github.com/openai/math/blob/main/history.md" target="_blank" rel="noopener">R02</a></p></div>
+<h2 id="sec1">一、幾秒鐘的答案，和沒有人讀完的 722 份手稿</h2>
+<p>先說幾個詞。<strong>開放問題</strong>（open problem）就是數學家知道題目、但還沒有人證明出答案的問題，有些已經卡了幾十年。<strong>手稿</strong>（manuscript）是還沒有經過審查的論文草稿。一般論文要先經過<strong>同儕審查</strong>（peer review），也就是請同領域的專家一行一行檢查，常常要花好幾年。<a href="https://theconversation.com/is-this-the-mathocalypse-why-openais-latest-results-dump-has-left-mathematicians-in-shock-293837" target="_blank" rel="noopener">R11</a></p>
+<p>10 月 6 日，OpenAI 在 GitHub 的 openai/math 專案裡，一次放上 722 份 AI 產出的數學手稿，分成 372 個「家族」，每個家族是一組相關的結果。<a href="https://www.unite.ai/openai-releases-722-math-manuscripts-from-an-unreleased-ai-model/" target="_blank" rel="noopener">R10</a> <a href="https://www.soft4fun.net/tech/ai/openai-722-math-manuscripts-internal-frontier-model-lean.htm" target="_blank" rel="noopener">R21</a> OpenAI 說，這個模型沒有名字、也沒有對外開放；它被丟了大約 4,000 個問題，平均每個結果大約用掉 ChatGPT Pro 思考 3 小時的算力。<a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">R01</a> OpenAI 的發言人對媒體說，幾乎每一份都是用一段提示詞、交給一個 AI 代理做出來的。<a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">R07</a></p>
+<p>讓人意外的不只是數量。《科學人》（Scientific American）報導，連 OpenAI 自己的研究員都還沒有把全部讀完。<a href="https://www.scientificamerican.com/article/the-most-exciting-claims-from-openais-heap-of-new-proofs/" target="_blank" rel="noopener">R09</a> 數學家陶哲軒受訪時說，他只看了其中大約 10 篇。<a href="https://abmedia.io/terence-tao-openai-proofs-quasi-riemann-numberphile" target="_blank" rel="noopener">R24</a></p>
+<div class="callout tip"><span class="label">對你的意義</span><p>產出一份答案和確認一份答案是兩件事。AI 可以很快交出很多東西，但「有沒有人確認過」要另外問。</p></div>
+<h2 id="sec2">二、為什麼 OpenAI 要一次丟出這麼多？</h2>
+<p>第一個原因是 OpenAI 自己寫的：這個模型在既有的數學測驗上已經接近滿分，測不出差別，所以改拿真正的開放問題來測。<a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">R01</a></p>
+<p>第二個原因是一個月前的爭議。9 月 8 日，OpenAI 宣布它的內部系統用大約 1 萬個 AI 代理、跑了約 88 小時，處理了流體力學裡著名的 Navier-Stokes 問題。<a href="https://www.bnext.com.tw/article/92182/openai-navier-stokes-proof-buckmaster-dispute" target="_blank" rel="noopener">R25</a> 紐約大學數學家 Buckmaster 指控，OpenAI 是在得知他和合作者的研究方向之後才動手，還想把合作者從作者名單拿掉；OpenAI 否認使用他們的成果。這是指控與否認，沒有任何裁決。<a href="https://fortune.com/2026/09/08/openai-says-it-cracked-navier-stokes-math-grand-challenge-buckmaster-accusation-cheating-intimidation-tao-lament" target="_blank" rel="noopener">R19</a> <a href="https://www.bnext.com.tw/article/92182/openai-navier-stokes-proof-buckmaster-dispute" target="_blank" rel="noopener">R25</a></p>
+<p>第三個原因是規則還沒有定。爭議之後，九位數學家組成「數學與 AI 顧問小組」（AGMAI），9 月 29 日提出建議：AI 公司應該說明怎麼挑題目、試了多少題，並公布模型名稱、提示詞、推理過程、算力與成本。<a href="https://agmai.org/" target="_blank" rel="noopener">R03</a> 這個小組也寫明，它不贊成用不公開的模型測試高等數學問題，並請 AI 公司停止。<a href="https://www.unite.ai/openai-releases-722-math-manuscripts-from-an-unreleased-ai-model/" target="_blank" rel="noopener">R10</a></p>
+<p>時間線整理如下：</p>
+<ul><li>9 月 8 日：OpenAI 宣布 Navier-Stokes 成果，搶功爭議爆發。</li><li>9 月 29 日：顧問小組提出發表建議。</li><li>10 月 6 日：OpenAI 公開 722 份手稿。</li><li>10 月 7 日：撤回 3 份、修訂 14 份；人類數學協會發表反對聲明。</li><li>10 月 24 日：數學家成立社群專案，協助改寫難讀的手稿。</li><li>10 月 26 日：OpenAI 又新增 2 份手稿。</li></ul>
+<p><a href="https://github.com/openai/math/blob/main/history.md" target="_blank" rel="noopener">R02</a> <a href="https://www.ahmath.org/statements" target="_blank" rel="noopener">R05</a> <a href="https://terrytao.wordpress.com/2026/10/24/oai-math-revised-a-community-hub-for-revising-openais-math-write-ups/" target="_blank" rel="noopener">R16</a></p>
+<h2 id="sec3">三、722 份手稿，分成三種狀態看</h2>
+<p>下面的三種分法是這份講義自己整理的，不是 OpenAI 的官方分類。</p>
+<h3 id="sec3-1">1. 專家大致同意「裡面有真東西」</h3>
+<p>最受注意的一項叫「準黎曼猜想」，是著名的黎曼猜想的較弱版本。《量子雜誌》（Quanta Magazine）報導，專家大致同意這個結果是對的，新意在於用很聰明的方式把既有的想法組合起來。<a href="https://www.quantamagazine.org/ai-proved-the-quasi-riemann-hypothesis-what-happens-now-20261019/" target="_blank" rel="noopener">R13</a> 陶哲軒說這是這個領域「50 年來最大的進展」，也說「黎曼猜想沒有倒，但被撞凹了不少」。<a href="https://abmedia.io/terence-tao-openai-proofs-quasi-riemann-numberphile" target="_blank" rel="noopener">R24</a> 要注意，OpenAI 也寫明這一項不是用一般流程做出來的，其中一個版本還經過人工編輯。<a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">R01</a></p>
+<h3 id="sec3-2">2. 還沒有人確認</h3>
+<p><strong>Lean</strong> 是一種讓電腦逐步檢查證明的程式，就像一位非常嚴格的閱卷老師，每一步都要合規則才給過。把證明改寫成 Lean 能檢查的樣子，叫做<strong>形式化</strong>（formalization）。</p>
+<ul><li>OpenAI 的更新紀錄寫，大約 42% 的主要結果有 Lean 形式化。<a href="https://github.com/openai/math/blob/main/history.md" target="_blank" rel="noopener">R02</a></li><li>其他的部分，OpenAI 自己說「可能有問題」。<a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">R01</a></li><li>就算通過 Lean，也只代表每一步合規則，不代表電腦檢查的那句話真的就是原本的題目，也不代表結果重要或新穎。閱卷老師只看你的步驟，不會檢查你有沒有把題目抄錯。<a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">R07</a></li></ul>
+<h3 id="sec3-3">3. 已經確定出錯</h3>
+<p>10 月 7 日，也就是公開後隔天，OpenAI 撤回 3 份手稿。原因是其中一份有一個正負號的錯誤，讓論證不成立，另外兩份用到它的結果，也一起倒了。另外還修訂了 14 份。<a href="https://github.com/openai/math/blob/main/history.md" target="_blank" rel="noopener">R02</a> <a href="https://retractionwatch.com/2026/10/08/openai-withdraws-preprints-722-manuscripts-unsolved-math-problems/" target="_blank" rel="noopener">R06</a></p>
+<div class="callout tip"><span class="label">一句話記住</span><p>同一批 AI 產出裡，可能同時有真正的突破、還沒人看過的東西，和已經出錯的東西；看起來一樣完整，狀態卻完全不同。</p></div>
+<h2 id="sec4">四、真正的難題：讀懂和檢查，誰來做？</h2>
+<p>既然狀態不同，就得有人一份一份看。問題是，這些手稿很難讀。數學家 Radziwiłł 對《量子雜誌》說，這些論文寫得非常糟，在任何數學期刊都會被立刻退稿；他自己用半頁就能把準黎曼的論證說清楚。<a href="https://www.quantamagazine.org/ai-proved-the-quasi-riemann-hypothesis-what-happens-now-20261019/" target="_blank" rel="noopener">R13</a></p>
+<p>於是工作落到人身上：</p>
+<ul><li>10 月 24 日，幾位數學家成立社群專案 oai-math-revised，邀請學生、博士後和教授一起改寫這些手稿，因為它們「難懂，引用也不完整」。<a href="https://terrytao.wordpress.com/2026/10/24/oai-math-revised-a-community-hub-for-revising-openais-math-write-ups/" target="_blank" rel="noopener">R16</a></li><li>數學家 Sarnak 把這學期的課改成帶學生讀這個證明，並說在人類看懂所有細節以前，他不會把它叫做「定理」。<a href="https://www.quantamagazine.org/ai-proved-the-quasi-riemann-hypothesis-what-happens-now-20261019/" target="_blank" rel="noopener">R13</a></li><li>澳洲蒙納許大學的 Melissa Lee 提醒，同儕審查本來就要好幾年，現在的問題是誰要承擔讀懂這些難讀證明的工作；學生和剛入行的研究者受到的衝擊最大。<a href="https://theconversation.com/is-this-the-mathocalypse-why-openais-latest-results-dump-has-left-mathematicians-in-shock-293837" target="_blank" rel="noopener">R11</a></li><li>動區動趨整理《The Verge》的採訪指出，有數學家說朋友和同事的研究經費申請「整個被抹掉」，沒有終身職的研究者受影響最大。<a href="https://www.blocktempo.com/openai-mathematicians-years-verify-ai-proofs-lean-gaps-three-retracted/" target="_blank" rel="noopener">R23</a></li></ul>
+<div class="callout tip"><span class="label">對你的意義</span><p>機器負責產出，讀懂、檢查和負責留給人。產出越多，這份工作越重。這也是下一節大家吵架的原因。</p></div>
+<h2 id="sec5">五、吵什麼：這樣發表，算不算進步？</h2>
+<h3 id="sec5-1">1. 支持的一方：這是重要的一天</h3>
+<p>數學家 Saha 說：「對數學來說，這是很重要的一天。」不過他也說，多數結果是既有研究方向上的推進，不是翻天覆地的改變。<a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">R07</a> 陶哲軒雖然批評發表方式，也肯定準黎曼成果的分量。<a href="https://abmedia.io/terence-tao-openai-proofs-quasi-riemann-numberphile" target="_blank" rel="noopener">R24</a></p>
+<h3 id="sec5-2">2. 反對的一方：這不是學術，是展示力量</h3>
+<p>人類數學協會（Association for Human Mathematics）10 月 7 日發表聲明：「數學家並沒有要求做這件事。」「一次發表 700 多份文件，不是展現學術，而是展現力量。」並呼籲數學家停止和 OpenAI 合作。<a href="https://www.ahmath.org/statements" target="_blank" rel="noopener">R05</a> <a href="https://news.cnyes.com/news/id/6626630" target="_blank" rel="noopener">R22</a> 陶哲軒說，事先不通知正在研究這些問題的人「至少可以說是極其粗魯、失禮」，有年輕研究者的專案「一夜之間被抹掉」。<a href="https://abmedia.io/terence-tao-openai-proofs-quasi-riemann-numberphile" target="_blank" rel="noopener">R24</a> 他在 9 月就警告，不分青紅皂白地「挖礦式」開採開放問題，可能毀掉未來數學賴以成長的生態。<a href="https://fortune.com/2026/09/08/openai-says-it-cracked-navier-stokes-math-grand-challenge-buckmaster-accusation-cheating-intimidation-tao-lament" target="_blank" rel="noopener">R19</a> 10 月 10 日，他在演講中提出「數學 2.0」：AI 應該用來支撐數學社群，讓人的理解留在中心，而不是只比誰自動解開最多題。<a href="https://terrytao.wordpress.com/2026/10/10/math-2-0/" target="_blank" rel="noopener">R15</a></p>
+<h3 id="sec5-3">3. 中間的一方：可以做，但要交出收據</h3>
+<p>麻省理工學院的 Sutherland 說：「我們應該要求看收據。」在模型公開、別人能重做出結果之前，「一段提示詞就解開」的說法應該當成還沒驗證。<a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">R07</a> <a href="https://www.engadget.com/2279815/openai-just-posted-hundreds-more-results-on-major-math-problems/" target="_blank" rel="noopener">R08</a> 康乃爾大學的 Townsend 認為，應該先公布有 Lean 檢查的那些。<a href="https://retractionwatch.com/2026/10/08/openai-withdraws-preprints-722-manuscripts-unsolved-math-problems/" target="_blank" rel="noopener">R06</a> 顧問小組則主張，發表後的理解過程應該由整個數學社群自然形成，不該由公司指定少數人先看。<a href="https://terrytao.wordpress.com/2026/10/25/disadvantages-of-designating-mathematicians-for-ai-output-releases/" target="_blank" rel="noopener">R04</a> 但 OpenAI 沒有公布提示詞，推理摘要也只附了 10 組。<a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">R07</a></p>
+<h3 id="sec5-4">4. 另一條路：把人類已經證明的東西交給電腦檢查</h3>
+<p>Decrypt 的報導提到一個對照：Anthropic 在 9 月公開的做法，是把 1995 年人類已經證明的費馬最後定理，改寫成 Lean 可以檢查的形式，而不是宣稱解開新問題。<a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">R07</a></p>
+<div class="table-wrap"><table><thead><tr><th>做法</th><th>一次公開新結果</th><th>檢查既有證明</th></tr></thead><tbody><tr><td>怎麼做</td><td>AI 解開放問題，一次公開數百份</td><td>AI 把人類已知的證明交給電腦逐步檢查</td></tr><tr><td>好處</td><td>可能很快帶來新突破</td><td>結果比較容易確認，不搶別人的題目</td></tr><tr><td>擔心</td><td>讀不完、可能有錯、衝擊研究者</td><td>不產生新數學，進展比較慢</td></tr></tbody></table></div>
+<p>表格裡的「好處」與「擔心」是我們根據各方說法整理的推論，不是任何一方的官方說法。</p>
+<h2 id="sec6">六、日期、數字與說法，一件一件看</h2>
+<h3 id="sec6-1">1. 722、719、721：份數為什麼一直變？</h3>
+<p>722 是 10 月 6 日公開時的份數。<a href="https://www.unite.ai/openai-releases-722-math-manuscripts-from-an-unreleased-ai-model/" target="_blank" rel="noopener">R10</a> 隔天撤回 3 份，更新紀錄用 719 份計算。<a href="https://github.com/openai/math/blob/main/history.md" target="_blank" rel="noopener">R02</a> 10 月 26 日又新增 2 份，到 11 月 7 日，說明頁寫的是 721 份、373 個家族。<a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">R01</a> 三個數字都對，只是算到不同的日子。</p>
+<h3 id="sec6-2">2. 722 份手稿，不等於解開 722 道題</h3>
+<p>很多標題和轉述寫成「解開 700 多道數學題」，但 722 算的是手稿份數。Decrypt 特別說明，722 是手稿，不是解開的問題數。<a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">R07</a> OpenAI 用的是 372 個家族；《量子雜誌》有一篇用 377 個結果。<a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">R01</a> <a href="https://www.quantamagazine.org/ai-proved-the-quasi-riemann-hypothesis-what-happens-now-20261019/" target="_blank" rel="noopener">R13</a> 而且一個家族裡有完整解答，也有只算「部分進展」的。</p>
+<h3 id="sec6-3">3. 42% 還是 22%？</h3>
+<p>OpenAI 說約 42% 有 Lean，算的是「主要結果」：300 個除以 719 份。<a href="https://github.com/openai/math/blob/main/history.md" target="_blank" rel="noopener">R02</a> Decrypt 與硬是要學引用的約 22%，算的是「主要結果有形式化的手稿」：162 份除以 722 份。<a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">R07</a> <a href="https://www.soft4fun.net/tech/ai/openai-722-math-manuscripts-internal-frontier-model-lean.htm" target="_blank" rel="noopener">R21</a> 分子和分母都不一樣，所以不能說誰在說謊。</p>
+<h3 id="sec6-4">4. 4,000 題、8,000 題，和不能算的成功率</h3>
+<p>OpenAI 說模型被丟了大約 4,000 題。<a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">R01</a> 鉅亨網的報導寫成約 8,000 題、命中率約 5%，和 OpenAI 自己的說明不同，到 11 月 7 日，我們沒有在 OpenAI 的說明裡找到 8,000 這個數字。<a href="https://news.cnyes.com/news/id/6626630" target="_blank" rel="noopener">R22</a> 動區動趨也提醒，4,000 題和 372 個家族不能直接相除當成「成功率」，因為兩邊算的單位不同。<a href="https://www.blocktempo.com/openai-mathematicians-years-verify-ai-proofs-lean-gaps-three-retracted/" target="_blank" rel="noopener">R23</a></p>
+<h3 id="sec6-5">5. 「顧問小組確認了」？</h3>
+<p>Engadget 一句話寫成顧問小組「確認了」這些結果。<a href="https://www.engadget.com/2279815/openai-just-posted-hundreds-more-results-on-major-math-problems/" target="_blank" rel="noopener">R08</a> 但顧問小組自己的文件是請 AI 公司公開更多資訊，並表明不贊成用不公開的模型測試高等數學問題。<a href="https://agmai.org/" target="_blank" rel="noopener">R03</a> <a href="https://www.unite.ai/openai-releases-722-math-manuscripts-from-an-unreleased-ai-model/" target="_blank" rel="noopener">R10</a> 講義採用顧問小組自己的說法。日期上，美國時間是 10 月 6 日，部分臺灣報導寫 10 月 7 日，是時差與報導時間造成的差別。<a href="https://www.ahmath.org/statements" target="_blank" rel="noopener">R05</a> <a href="https://www.blocktempo.com/openai-mathematicians-years-verify-ai-proofs-lean-gaps-three-retracted/" target="_blank" rel="noopener">R23</a></p>
+<div class="callout tip"><span class="label">查證小技巧</span><p>看到一個數字，先問三個問題：算的是什麼？算到哪一天？誰算的？另外，幾篇臺灣報導如果都在轉述同一篇外電或同一個影片，它們只是一個來源，不是好幾個獨立的證據。</p></div>
+<h2 id="sec7">七、回到臺灣：學校怎麼看 AI 寫的答案？</h2>
+<p>到 11 月 7 日，我們沒有找到教育部針對大專校院發布的生成式 AI 統一指引。中央社 2024 年的報導說，教育部當時已發布中小學版本的注意事項，並委託研究高教的指引原則，之後才研議大學版；這是兩年前的資料，後續進度我們沒有查到。<a href="https://udn.com/news/story/6885/8212676" target="_blank" rel="noopener">R26</a></p>
+<p>大學目前多半自己訂規則。以臺灣師範大學 2025 年 12 月的指引為例：AI 給的答案「正確性仍需要學生最終評估與判斷」；作業若有 AI 生成的初稿，要清楚標註；如果傳統作業可以被 AI 很快完成，老師可以設計新的評量方式。<a href="https://ctld.ntnu.edu.tw/wp-content/uploads/2025/12/附件1-臺師大生成式AI之學習應用及參考指引中文版_20251211.pdf" target="_blank" rel="noopener">R20</a></p>
+<p>我們也注意到，這次臺灣的中文報導多半來自科技、財經與區塊鏈媒體，內容大多整理自外電或專訪。<a href="https://www.soft4fun.net/tech/ai/openai-722-math-manuscripts-internal-frontier-model-lean.htm" target="_blank" rel="noopener">R21</a> <a href="https://news.cnyes.com/news/id/6626630" target="_blank" rel="noopener">R22</a> <a href="https://www.blocktempo.com/openai-mathematicians-years-verify-ai-proofs-lean-gaps-three-retracted/" target="_blank" rel="noopener">R23</a> <a href="https://abmedia.io/terence-tao-openai-proofs-quasi-riemann-numberphile" target="_blank" rel="noopener">R24</a> 到查證這天，我們沒有找到臺灣數學界對這批手稿的正式回應。這是我們的觀察，不代表沒有人討論。</p>
+<div class="callout tip"><span class="label">對你的意義</span><p>先看你自己這學期每一門課的大綱，老師允許 AI 做到哪裡、要不要標註。規則可能每一門課都不一樣。</p></div>
+<h2 id="sec8">八、你的學習要怎麼調整？</h2>
+<p>數學家的處境，是一個放大版的你：AI 交出很多答案，人負責分辨、讀懂和負責。下面五個調整，是我們根據前面各方說法整理的建議，不是任何單位的規定。</p>
+<h3 id="sec8-1">1. 從「會算」到「會判斷」</h3>
+<p>柏克萊大學的 Ranade 寫道，學生要「知道自己懂什麼、不懂什麼」，要能看穿「靠權威和氣勢壓人的證明」，也要能理解、消化並質疑 AI 給的東西。<a href="https://terrytao.wordpress.com/2026/10/29/ai-mathematics-education-and-a-public-goods-problem/" target="_blank" rel="noopener">R17</a> 這次數學界花最多力氣的地方，正是判斷哪些手稿對、哪些錯。</p>
+<h3 id="sec8-2">2. 從「找答案」到「問對問題」</h3>
+<p>英國數學科學學院的報告認為，人的專業仍然關鍵：找出值得問的問題、提供關鍵想法、判斷 AI 的結果，再把發現用到真實世界。<a href="https://terrytao.wordpress.com/2026/10/31/the-mathematical-sciences-in-an-ai-enabled-world/" target="_blank" rel="noopener">R18</a> 題目要怎麼定義清楚、什麼問題值得解，仍然需要人。</p>
+<h3 id="sec8-3">3. 基本功不是不重要，而是變成你的檢查工具</h3>
+<p>電腦科學家 Aaronson 建議學生可以大量使用 AI，但仍然要用「老方法」把東西學起來，不然以後就沒有人能把 AI 用好。<a href="https://scottaaronson.blog/?p=10169" target="_blank" rel="noopener">R14</a> 你不必每一步都算得比 AI 快，但要懂得夠深，才看得出 AI 什麼時候說錯。</p>
+<h3 id="sec8-4">4. 卡關和失敗本身就是學習</h3>
+<p>麻省理工學院的 Minzer 和兩位研究生，趕在 AI 之前用自己的方法發表了相關成果。他說：「失敗並且知道自己為什麼失敗，有很大的價值。」也擔心「用 AI 會把這些全部拿走」。<a href="https://www.quantamagazine.org/as-ai-closed-in-on-unique-games-proof-researchers-raced-to-beat-the-machines-20261007/" target="_blank" rel="noopener">R12</a> 如果每次卡住就直接看答案，你就少了一次練習。</p>
+<h3 id="sec8-5">5. 為結果負責，也讓別人看得懂</h3>
+<p>這批手稿最大的批評之一，是寫得讓人看不懂。<a href="https://www.quantamagazine.org/ai-proved-the-quasi-riemann-hypothesis-what-happens-now-20261019/" target="_blank" rel="noopener">R13</a> <a href="https://terrytao.wordpress.com/2026/10/24/oai-math-revised-a-community-hub-for-revising-openais-math-write-ups/" target="_blank" rel="noopener">R16</a> 交出作業時，你要能說明每一步、標註哪些是 AI 幫的，並且為對錯負責。<a href="https://ctld.ntnu.edu.tw/wp-content/uploads/2025/12/附件1-臺師大生成式AI之學習應用及參考指引中文版_20251211.pdf" target="_blank" rel="noopener">R20</a> 英國的報告也提醒，AI 可能吃掉畢業生累積經驗的入門工作，所以學校和雇主都要想清楚，會用 AI 的畢業生到底能提供什麼。<a href="https://terrytao.wordpress.com/2026/10/31/the-mathematical-sciences-in-an-ai-enabled-world/" target="_blank" rel="noopener">R18</a></p>
+<div class="callout tip"><span class="label">一句話記住</span><p>未來最需要的，不是算得最快的人，而是最會判斷、最會提問，也願意為結果負責的人。</p></div>
+<h2 id="sec9">九、課堂實作：當一次 AI 答案的驗證者</h2>
+<h3 id="sec9-1">練習 A：三則 AI 回覆，哪一則可以交？</h3>
+<div class="callout note"><span class="label">情境</span><p>小晴是虛構的企管系二年級學生。她的統計作業問：「一家飲料店上週賣出 400 杯，這週賣出 500 杯，銷量成長了百分之幾？」她用三個不同的聊天 AI，得到三則回覆。我們用三個標準檢查：答案對不對、步驟能不能自己驗算、有沒有加上查不到的東西。</p></div>
+<blockquote>回覆一：成長了 25%。算法是（500－400）÷ 400 ＝ 0.25，也就是 25%。</blockquote>
+<p>&gt;</p>
+<blockquote>回覆二：成長了 20%。因為多賣了 100 杯，100 ÷ 500 ＝ 0.2。</blockquote>
+<p>&gt;</p>
+<blockquote>回覆三：成長了 25%。根據《2025 臺灣飲料產業年報》第 12 頁，這也是業界的平均成長率。</blockquote>
+<div class="callout try"><span class="label">課堂小練習</span><p>用三個標準替每則回覆打勾或打叉，說出哪一則可以直接參考、哪一則要改。</p></div>
+<div class="callout note"><span class="label">預期結果</span><p>回覆一三項都過。回覆二錯一項：成長率要除以「原本的」400 杯，不是 500 杯，所以答案錯；它的步驟寫出來了，反而讓你看得出錯在哪裡。回覆三錯兩項：答案雖然對，但沒有步驟可以驗算，還加上一份你查不到的「年報」和「業界平均」，題目根本沒有問。</p></div>
+<div class="callout note"><span class="label">檢查一下</span><p>不看 AI，自己算一次。再把回覆三改寫成一則可以交的答案：保留算式，刪掉無法查證的說法。</p></div>
+<h3 id="sec9-2">練習 B：請 AI 幫你檢查</h3>
+<div class="callout try"><span class="label">動手做</span><p>用任何一個聊天 AI，貼上下面這段指令，再附上一題你自己的作業和你的答案。</p></div>
+<blockquote>請逐步檢查我下面這題的解法。每一步請告訴我：這一步對不對、理由是什麼。如果題目資訊不夠、或你不確定，請直接寫「無法判斷」，不要自己補資料，也不要引用你查不到的來源。最後請列出我應該自己再驗算的地方。</blockquote>
+<div class="callout note"><span class="label">預期結果</span><p>AI 會一步一步回應，並列出幾個你要再確認的地方；遇到資訊不夠的地方，應該寫「無法判斷」。</p></div>
+<div class="callout note"><span class="label">檢查一下</span><p>AI 也可能錯，就像這次被撤回的手稿一樣。挑一個 AI 說「對」的步驟，自己再算一次，或回到課本與老師的講義比對。</p></div>
+<h3 id="sec9-3">練習 C：討論</h3>
+<ol class="steps"><li>你這學期的哪一門課，AI 已經可以做得比你快？哪些部分仍然需要懂的人來把關？</li><li>如果 AI 能直接給答案，你還願意花時間卡關嗎？什麼時候值得自己想，什麼時候可以直接請 AI 幫忙？</li><li>你覺得學校應該禁止、開放，還是要求標註 AI 的使用？三種作法各有什麼好處和擔心？</li></ol>
+<h2 id="sec10">十、關鍵詞</h2>
+<div class="table-wrap"><table><thead><tr><th>詞</th><th>白話解釋</th></tr></thead><tbody><tr><td>開放問題</td><td>知道題目、但還沒有人證明出答案的數學問題。</td></tr><tr><td>手稿</td><td>還沒有經過專家審查的論文草稿。</td></tr><tr><td>同儕審查</td><td>請同領域專家逐行檢查論文，常要花好幾年。</td></tr><tr><td>家族</td><td>OpenAI 把相關結果分成一組，共 372 組。</td></tr><tr><td>Lean</td><td>讓電腦逐步檢查證明的程式，像嚴格的閱卷老師。</td></tr><tr><td>形式化</td><td>把證明改寫成電腦能逐步檢查的形式。</td></tr><tr><td>撤回</td><td>發現錯誤後，把已經公開的手稿收回。</td></tr><tr><td>提示詞</td><td>你交給 AI 的指令或問題。</td></tr><tr><td>顧問小組</td><td>九位數學家組成、建議 AI 公司怎麼發表數學成果的團體。</td></tr><tr><td>人類數學協會</td><td>反對這次發表方式、主張以人類理解為核心的數學家團體。</td></tr></tbody></table></div>
+<h2 id="sec11">十一、參考資料：26 個來源，含 6 篇臺灣媒體中文報導</h2>
+<p>以下來源都在 2026 年 11 月 7 日（臺灣時間）開啟並閱讀相關內容。R01–R02 是 OpenAI 在 GitHub 的官方說明與更新紀錄；R03–R05 是數學家團體的聲明；R06–R10 是新聞與科技媒體報導（R10 由 AI 研究代理撰寫、經編輯審閱，只用於和 R01 相同的事實）；R11–R18 是學者文章與分析；R19 是 9 月爭議的新聞報導；R20 是臺灣大學的官方指引；R21–R26 是臺灣媒體的中文報導，多數整理自外電或專訪。</p>
+<h3 id="sec11-1">國際來源與官方文件</h3>
+<ul><li><strong>R01</strong> <a href="https://github.com/openai/math/blob/main/README.md" target="_blank" rel="noopener">GitHub openai/math 說明頁（README，查證日版本）</a>：721 份手稿、373 個家族；約 4,000 題；平均約 3 小時算力；約 42% 有 Lean；未形式化結果可能有問題；準黎曼與霍奇兩項是例外流程。</li><li><strong>R02</strong> <a href="https://github.com/openai/math/blob/main/history.md" target="_blank" rel="noopener">GitHub openai/math 更新紀錄（2026-10-07 起）</a>：10 月 7 日撤回 3 份、修訂 14 份；300／719 約 42%；10 月 26 日新增 2 份。</li><li><strong>R03</strong> <a href="https://agmai.org/" target="_blank" rel="noopener">數學與 AI 顧問小組 AGMAI 官網（2026-09-22 起）</a>：成員、獨立不支薪；建議公開模型名稱、提示詞、推理過程、算力與成本，說明怎麼選題。</li><li><strong>R04</strong> <a href="https://terrytao.wordpress.com/2026/10/25/disadvantages-of-designating-mathematicians-for-ai-output-releases/" target="_blank" rel="noopener">AGMAI：不應指定特定數學家先看 AI 成果（2026-10-25）</a>：發表後的理解應由社群自然形成。</li><li><strong>R05</strong> <a href="https://www.ahmath.org/statements" target="_blank" rel="noopener">人類數學協會：對 OpenAI 10 月 6 日發表的聲明（2026-10-07）</a>：「不是展現學術，而是展現力量」；呼籲停止合作。</li><li><strong>R06</strong> <a href="https://retractionwatch.com/2026/10/08/openai-withdraws-preprints-722-manuscripts-unsolved-math-problems/" target="_blank" rel="noopener">Retraction Watch：OpenAI 公開 722 份手稿隔天撤回三份（2026-10-08）</a>：撤回原因與 14 份修訂；Townsend 與 Sutherland 的看法。</li><li><strong>R07</strong> <a href="https://decrypt.co/380366/openai-secret-ai-model-cracked-hundreds-math-problems-one-prompt" target="_blank" rel="noopener">Decrypt：OpenAI 說祕密模型一段提示詞解開數百題（2026-10-07）</a>：722 是手稿不是題數；162／722；Lean 的限制；Sutherland、Saha 的話；Anthropic 的對照做法。</li><li><strong>R08</strong> <a href="https://www.engadget.com/2279815/openai-just-posted-hundreds-more-results-on-major-math-problems/" target="_blank" rel="noopener">Engadget：OpenAI 又公開數百個數學結果（2026-10-07）</a>：沒有公布提示詞與算力；Sutherland 說應視為未驗證；「顧問小組確認」一句與 R03 不符。</li><li><strong>R09</strong> <a href="https://www.scientificamerican.com/article/the-most-exciting-claims-from-openais-heap-of-new-proofs/" target="_blank" rel="noopener">Scientific American：OpenAI 一大堆新證明裡最引人注目的宣稱（2026-10-08）</a>：連 OpenAI 研究員都還沒讀完；不是全部通過 Lean。</li><li><strong>R10</strong> <a href="https://www.unite.ai/openai-releases-722-math-manuscripts-from-an-unreleased-ai-model/" target="_blank" rel="noopener">Unite.AI：OpenAI 公開 722 份未發布模型的數學手稿（2026-10-06）</a>：發布當天的 722 份、372 個家族；顧問小組請 AI 公司停止用不公開模型測試。</li><li><strong>R11</strong> <a href="https://theconversation.com/is-this-the-mathocalypse-why-openais-latest-results-dump-has-left-mathematicians-in-shock-293837" target="_blank" rel="noopener">The Conversation：這是「數學末日」嗎？（2026-10-09）</a>：同儕審查要好幾年；學生與初入行研究者受衝擊。</li><li><strong>R12</strong> <a href="https://www.quantamagazine.org/as-ai-closed-in-on-unique-games-proof-researchers-raced-to-beat-the-machines-20261007/" target="_blank" rel="noopener">Quanta Magazine：AI 逼近 Unique Games 證明，研究者趕在機器前面（2026-10-07）</a>：Minzer 談失敗的價值。</li><li><strong>R13</strong> <a href="https://www.quantamagazine.org/ai-proved-the-quasi-riemann-hypothesis-what-happens-now-20261019/" target="_blank" rel="noopener">Quanta Magazine：AI 證明了準黎曼猜想，接下來呢？（2026-10-19）</a>：專家大致同意結果正確；Radziwiłł 批評寫作品質；Sarnak 改課；用 377 個結果。</li><li><strong>R14</strong> <a href="https://scottaaronson.blog/?p=10169" target="_blank" rel="noopener">Shtetl-Optimized（Scott Aaronson）：The Mathocalypse（2026-10-07）</a>：讀懂成為瓶頸；學生仍要用老方法學。</li><li><strong>R15</strong> <a href="https://terrytao.wordpress.com/2026/10/10/math-2-0/" target="_blank" rel="noopener">陶哲軒部落格：Math 2.0（2026-10-10）</a>：批評過度強調讓 AI 自動解開放問題，主張以理解為核心。</li><li><strong>R16</strong> <a href="https://terrytao.wordpress.com/2026/10/24/oai-math-revised-a-community-hub-for-revising-openais-math-write-ups/" target="_blank" rel="noopener">陶哲軒部落格客座文：oai-math-revised 社群改寫專案（2026-10-24）</a>：手稿難懂、引用不完整，邀請學生與研究者參與改寫。</li><li><strong>R17</strong> <a href="https://terrytao.wordpress.com/2026/10/29/ai-mathematics-education-and-a-public-goods-problem/" target="_blank" rel="noopener">陶哲軒部落格客座文（Ranade）：AI、數學、教育與公共財問題（2026-10-29）</a>：學生要知道自己懂什麼，並能理解與質疑 AI。</li><li><strong>R18</strong> <a href="https://terrytao.wordpress.com/2026/10/31/the-mathematical-sciences-in-an-ai-enabled-world/" target="_blank" rel="noopener">陶哲軒部落格：AI 時代的數學科學（轉介英國數學科學學院報告，2026-10-31）</a>：人的專業負責提問與判斷；人才管道與入門工作的風險。</li><li><strong>R19</strong> <a href="https://fortune.com/2026/09/08/openai-says-it-cracked-navier-stokes-math-grand-challenge-buckmaster-accusation-cheating-intimidation-tao-lament" target="_blank" rel="noopener">Fortune：OpenAI 說解開數學大難題，卻引發疑問（2026-09-08）</a>：Navier-Stokes 爭議、Buckmaster 指控與 OpenAI 否認；陶哲軒的警告。</li><li><strong>R20</strong> <a href="https://ctld.ntnu.edu.tw/wp-content/uploads/2025/12/附件1-臺師大生成式AI之學習應用及參考指引中文版_20251211.pdf" target="_blank" rel="noopener">國立臺灣師範大學：生成式 AI 之學習應用及參考指引（2025-12-11）</a>：正確性由學生最終判斷；AI 初稿要標註；評量方式可調整。</li></ul>
+<h3 id="sec11-2">臺灣媒體中文報導（共 6 篇）</h3>
+<ul><li><strong>R21</strong> <a href="https://www.soft4fun.net/tech/ai/openai-722-math-manuscripts-internal-frontier-model-lean.htm" target="_blank" rel="noopener">硬是要學：OpenAI 一次釋出 722 篇 AI 數學論文：官方稱由比 GPT-6 Astra 更強的內部模型產出</a>：手哥，2026-10-07；722 份、372 個家族、4,000 題；22% 為第三方估計；整理自 OpenAI 說明與外電。</li><li><strong>R22</strong> <a href="https://news.cnyes.com/news/id/6626630" target="_blank" rel="noopener">鉅亨網：OpenAI一次釋出722篇AI論文引戰 陶哲軒帶頭數學家聯合抵制</a>：未署名，2026-10-09；人類數學協會聲明的中文說法；8,000 題與 README 不同。</li><li><strong>R23</strong> <a href="https://www.blocktempo.com/openai-mathematicians-years-verify-ai-proofs-lean-gaps-three-retracted/" target="_blank" rel="noopener">動區動趨：OpenAI 一次丟出 722 篇數學論文，有學者多年心血一夜歸零</a>：Joe，2026-10-11；成功率不能直接相除；300／719；研究者受影響；主要整理自 The Verge 採訪與 OpenAI 更新紀錄。</li><li><strong>R24</strong> <a href="https://abmedia.io/terence-tao-openai-proofs-quasi-riemann-numberphile" target="_blank" rel="noopener">鏈新聞：陶哲軒批 OpenAI 數百篇證明「極其失禮」：黎曼猜想被撞凹沒倒</a>：Elponcho，2026-10-18；陶哲軒的評價與批評；整理自 Numberphile 專訪。</li><li><strong>R25</strong> <a href="https://www.bnext.com.tw/article/92182/openai-navier-stokes-proof-buckmaster-dispute" target="_blank" rel="noopener">數位時代：1萬個AI代理解開90年數學難題！OpenAI為何反遭學者控「搶研究」？</a>：李先泰，2026-09-09；9 月 Navier-Stokes 宣稱與搶功爭議的背景。</li><li><strong>R26</strong> <a href="https://udn.com/news/story/6885/8212676" target="_blank" rel="noopener">聯合新聞網（中央社）：教團憂AI教育缺倫理規範 教部：已有指引並組聯盟</a>：未署名，2024-09-07；教育部中小學 AI 注意事項與高教指引研究；中央社稿，屬兩年前的舊資料。</li></ul>
+<div class="callout note"><span class="label">資料時效與驗證範圍</span><p>我們讀了上列來源的內容，沒有自己檢查任何一份手稿的數學是否正確，也沒有使用 OpenAI 的內部模型。openai.com 官方文章、The Verge、Wired、BBC 等網站阻擋自動讀取，沒有列入。手稿份數、Lean 比例和撤回清單到上課前都可能再改變，請以 GitHub 更新紀錄為準。</p></div><nav class="pager"><a href="news08.html">← 時事 8</a><a href="news10.html">時事 10 →</a></nav>
+</main>
+</div>
+<footer class="site-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>本講義為課堂教材。新聞事件仍在發展，閱讀時請一併確認是否有後續進展。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: dark by default; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") === "light";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("news-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // A class comparison must not play over the current narration.
+  document.querySelectorAll("audio").forEach(function (player) {
+    player.addEventListener("play", function () {
+      document.querySelectorAll("audio").forEach(function (other) {
+        if (other !== player) other.pause();
+      });
+    });
+  });
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+
+    // Transcript page: a section timestamp starts playback from that point.
+    document.querySelectorAll(".seek-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        seekTo(parseFloat(btn.getAttribute("data-t")) || 0);
+        audio.play();
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+</script>
+</body>
+</html>
