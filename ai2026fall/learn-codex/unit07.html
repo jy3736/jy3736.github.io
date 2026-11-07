@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
 <title>第 7 單元：從機器學習到 AI Agent</title>
-<meta name="description" content="回顧 ChatGPT 之前就在身邊工作的機器學習，用打磚塊遊戲看模型怎麼學，認識只做判斷的新模型 Jev，再依成果選擇 Chat、Work 或 Codex，並把想法寫成可驗收的需求。">
+<meta name="description" content="回顧 ChatGPT 之前就在身邊工作的機器學習，用打磚塊遊戲看模型怎麼學，認識只做判斷的新模型 Jev 與 OpenAI Decisions API，再分辨聊天與交辦給 Agent，依成果選擇 Chat、Work 或 Codex，並把想法寫成可驗收的需求。">
 <style>
 :root {
   --bg: #fbfaf7;
@@ -705,12 +705,12 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 <section class="hero">
   <p class="eyebrow">第 7 單元</p>
   <h1>從機器學習到 AI Agent</h1>
-  <p class="lead">先回顧 ChatGPT 出現之前就已經在生活中工作的 AI（機器學習與辨別式 AI），用一個打磚塊遊戲看模型怎麼從例子中學會，再認識 2026 年只做判斷的新模型 Jev。最後回到交辦：依你要的成果選擇工作方式，並把想法寫成可以驗收的需求。不論你讀哪一個科系，都用得上這套判斷。</p>
+  <p class="lead">先回顧 ChatGPT 出現之前就已經在生活中工作的 AI（機器學習與辨別式 AI），用一個打磚塊遊戲看模型怎麼從例子中學會，再認識 2026 年只做判斷的新模型 Jev，以及 OpenAI 隨後推出的 Decisions API。最後回到交辦：分辨和 AI 聊天與把工作交給 Agent 的差別，依你要的成果選擇工作方式，並把想法寫成可以驗收的需求。不論你讀哪一個科系，都用得上這套判斷。</p>
 </section>
 
 <div class="callout tip">
   <span class="label">這一單元完成什麼</span>
-  <p>能說出機器學習「從例子學規則」的五個步驟；能分辨辨別式 AI、Jev 這類判斷模型與生成式 AI 各自交出什麼成果；能分辨「我要一個回答」、「我要整理好的成果」與「我要可操作的工具」；能寫出目標、脈絡、產出、界線與驗收例子。</p>
+  <p>能說出機器學習「從例子學規則」的五個步驟；能分辨辨別式 AI、Jev 這類判斷模型與生成式 AI 各自交出什麼成果，並說明判斷模型為什麼便宜又快；能說出聊天與交辦給 Agent 的差別；能分辨「我要一個回答」、「我要整理好的成果」與「我要可操作的工具」；能寫出目標、脈絡、產出、界線與驗收例子。</p>
 </div>
 
 <h2 id="before-genai"><span class="num">01</span>ChatGPT 之前的 AI：機器學習與辨別式 AI</h2>
@@ -786,9 +786,10 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 
 <h2 id="jev"><span class="num">03</span>新趨勢：Jev，只做判斷的新一代 AI</h2>
 <p>2026 年 9 月，新創公司 <strong>TypeSafe AI</strong> 結束隱形期，宣布募得 4,000 萬美元種子資金，並發表第一個產品 <strong>Jev</strong>。執行長兼共同創辦人 Diogo Almeida 曾是 OpenAI 研究員，參與 ChatGPT 與 GPT-4 的研發。TypeSafe 把 Jev 稱為一種新的模型類別：<strong>System One Model</strong>。這個名稱借自心理學家康納曼（Daniel Kahneman）的說法：System 1 是快速、直覺的判斷，System 2 是緩慢、仔細的推理。Jev 不聊天、不寫文章，專門做快速的判斷，而且是給其他軟體呼叫使用的。</p>
+<p>短短幾週內，這個方向就引起很大關注。依彭博社 2026 年 10 月 9 日的報導，TypeSafe 完成 8.7 億美元的 A 輪募資，由創投公司 Andreessen Horowitz（a16z）領投，公司估值約 75 億美元。10 月 14 日推出的 <strong>Jev 1.14</strong> 開始接受圖片（PNG、JPEG），並新增「框選」題型；官方把圖片輸入與超長內容（最多約 26 萬個 token）標示為還不適合正式上線的實驗功能。</p>
 
 <h3 id="jev-how">Jev 怎麼運作：先給選項，再回傳機率</h3>
-<p>軟體把一段「情況說明」和幾個問題一起交給 Jev，並事先限定可以接受的答案。Jev 不會寫出一段文字，而是回傳每個答案的<strong>機率</strong>，以及它對這次判斷的<strong>信心程度</strong>。官方提供三種題型：</p>
+<p>軟體把一段「情況說明」和幾個問題一起交給 Jev，並事先限定可以接受的答案。Jev 不會寫出一段文字，而是回傳每個答案的<strong>機率</strong>，以及它對這次判斷的<strong>信心程度</strong>。最常用的是下面三種題型；1.14 版另外加了「框選」，在圖片中標出某樣東西的位置：</p>
 <figure class="page-figure">
   <img src="figures/unit07-jev.jpg" alt="Jev 的運作流程：軟體提出情況說明「上週訂的耳機到現在還沒收到」、問題「這則訊息屬於哪一類」與限定選項退貨、付款、出貨；Jev 快速判斷；回傳出貨 86%、付款 9%、退貨 5% 與信心程度高；再依門檻分流，信心夠高自動分派給出貨組，信心不夠轉給人工判斷。下方列出是非題、選擇題、量表題三種題型，並比較傳統機器學習、Jev 與生成式 AI 的輸出與換新問題的方式。" loading="lazy" width="1600" height="1026">
   <figcaption>以客服訊息分類為例：Jev 只在給定的選項中挑答案，並附上機率，讓系統決定什麼時候交給人。</figcaption>
@@ -798,17 +799,51 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   <div class="card"><span class="tag">選擇題</span><h4>從選項中挑一個</h4><p>每個選項各有一個機率。例如：這則訊息屬於退貨、付款還是出貨詢問？</p></div>
   <div class="card"><span class="tag">量表題</span><h4>在等級上評分</h4><p>在「低、中、高」這類等級上給分數。例如：這則顧客抱怨的緊急程度是低、中還是高？</p></div>
 </div>
-<p>因為每個答案都附有機率，使用 Jev 的系統可以設定<strong>門檻</strong>：信心夠高就自動處理，信心不夠就再查資料，或轉給人工判斷。官方舉的應用都是企業的大量重複流程，例如客服案件分類、發票審核、保險核保、資安警示分級，以及檢查 AI Agent 的工作成果。</p>
+<p>因為每個答案都附有機率，使用 Jev 的系統可以設定<strong>門檻</strong>：信心夠高就自動處理，信心不夠就再查資料，或轉給人工判斷。官方把它形容成軟體裡的「聰明 if 判斷」，並建議每個問題只問一件具體的事，複雜的判斷拆成幾個小問題，再由程式組合答案。</p>
+
+<h3 id="jev-uses">實際用在哪裡</h3>
+<p>Jev 的應用集中在「量很大、每一筆都要很快下判斷」的流程：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>用途</th><th>Jev 回答的問題</th><th>公開的例子</th></tr></thead>
+  <tbody>
+    <tr><td>分類與分流</td><td>這張客服單屬於哪一組？這封信要交給誰？</td><td>LangChain 把 Jev 當作自動分流的一個選項。</td></tr>
+    <tr><td>安全把關</td><td>這段輸入是否想誘騙 AI 做不該做的事？</td><td>Vercel 的 AI Gateway 用 Jev 取代原本的安全分類器，報導指出速度快 5 到 18 倍、準確度相近。</td></tr>
+    <tr><td>風險分級</td><td>這筆交易像不像詐騙？這則資安警示有多緊急？</td><td>官方列出的詐騙偵測、資安警示評分。</td></tr>
+    <tr><td>檢查 AI 的工作</td><td>AI Agent 這一步呼叫的工具對嗎？這個回答有沒有根據？</td><td>官方列出的評分、裁判與防護欄用途。</td></tr>
+  </tbody>
+</table></div>
+<p>它也有明確的弱點。官方文件提到，Jev 在<strong>計數、算術與日期比較</strong>上不可靠，輸入的資料又長又雜時準確度也會下降。這和第 02 節的遊戲一樣：判斷模型擅長「看情況下判斷」，需要精確計算的部分，仍應交給程式。</p>
+
+<h3 id="jev-price">價格：為什麼判斷模型可以這麼便宜</h3>
+<p>大型語言模型通常依 <strong>token</strong> 計價，token 是模型切分文字的小單位。生成式 AI 要逐字寫出回答，輸出的 token 往往比輸入貴好幾倍。Jev 只回傳機率和信心，幾乎沒有輸出，所以定價方式很不一樣：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>服務</th><th>輸入（每一百萬 token）</th><th>輸出</th><th>速度（官方說法）</th></tr></thead>
+  <tbody>
+    <tr><td>Jev（TypeSafe）</td><td>0.042 美元</td><td>免費</td><td>端到端約 70 到 500 毫秒</td></tr>
+    <tr><td>Decisions API（OpenAI）</td><td>0.10 美元</td><td>免費</td><td>約比一般生成 API 快 10 倍</td></tr>
+    <tr><td>一般生成式模型（例如 GPT-6 Luna）</td><td>0.10 美元</td><td>每一百萬 token 0.50 美元</td><td>依回答長度而定，常需數秒</td></tr>
+  </tbody>
+</table></div>
+<p>以 Jev 的定價來算，判斷一則約 200 個 token 的客服訊息，一百萬則的輸入費用大約 8.4 美元。實際帳單還要看訊息長度、一次問幾個問題與流量，表中的價格也會隨時調整，正式使用前要再查最新價目。</p>
+
+<h3 id="decisions-api">OpenAI 也推出了判斷用的 API</h3>
+<p>這不只是一家新創的想法。OpenAI 在 2026 年 10 月 6 日推出 <strong>Decisions API</strong> 測試版，10 月 22 日正式開放，使用 <code>gpt-6-luna</code> 模型。它同樣不寫文章，而是讀取文字、圖片或結構化資料後，回傳「型別固定」的答案：</p>
+<div class="card-grid">
+  <div class="card"><span class="tag">predicate</span><h4>條件是否成立</h4><p>回傳 0 到 1 的機率。例如：這張商品照片看得到明顯損壞嗎？</p></div>
+  <div class="card"><span class="tag">choice</span><h4>從選項中挑一個</h4><p>回傳選中的選項、每個選項的機率與信心。例如：把客訴分給帳務、技術或出貨。</p></div>
+  <div class="card"><span class="tag">score</span><h4>依等級評分</h4><p>在 2 到 10 個有順序的等級上評分。例如：這個問題有多嚴重？</p></div>
+</div>
+<p>一次請求最多可以問 400 個問題。和 Jev 一樣，這類 API 是給程式和 AI Agent 呼叫的，一般使用 ChatGPT 時不會直接看到它。兩家公司在一個月內相繼推出同類產品，說明「快速、附機率的判斷」已經成為 AI 工具的一個獨立類別。</p>
 
 <h3 id="jev-compare">Jev、辨別式 AI 與生成式 AI 比一比</h3>
 <div class="table-wrap"><table>
   <thead><tr><th>比較重點</th><th>傳統機器學習（辨別式 AI）</th><th>Jev（System One Model）</th><th>生成式 AI（例如 ChatGPT）</th></tr></thead>
   <tbody>
     <tr><td>回答的問題</td><td>訓練時就決定好的一個問題</td><td>每次由軟體提出問題，答案限定在給定的選項內</td><td>幾乎任何問題或指令</td></tr>
-    <tr><td>輸入</td><td>整理好的數字或類別欄位（特徵）</td><td>一段情況說明（例如一則訊息、一張單據的內容）加上問題與選項</td><td>自由的文字、圖片或檔案</td></tr>
+    <tr><td>輸入</td><td>整理好的數字或類別欄位（特徵）</td><td>一段情況說明（例如一則訊息、一張單據的內容，1.14 版起也可以是圖片）加上問題與選項</td><td>自由的文字、圖片或檔案</td></tr>
     <tr><td>輸出</td><td>類別、機率或數字</td><td>各選項的機率、是非機率或量表分數，並附信心程度</td><td>新產生的文字、圖片或程式</td></tr>
     <tr><td>換一個新問題</td><td>要重新收集、標註資料，再訓練一個新模型</td><td>依官方說明，改寫問題與選項即可，不必重新訓練</td><td>改寫提示即可</td></tr>
-    <tr><td>速度</td><td>很快</td><td>報導引述官方數字約 100 毫秒以內</td><td>較慢，複雜問題常需數秒以上</td></tr>
+    <tr><td>速度</td><td>很快</td><td>官方公布端到端約 70 到 500 毫秒</td><td>較慢，複雜問題常需數秒以上</td></tr>
     <tr><td>怎麼使用</td><td>嵌在系統裡自動運作</td><td>由程式或 AI Agent 呼叫，結果交給下一個步驟</td><td>人直接對話，或由 AI Agent 使用</td></tr>
     <tr><td>怎麼判斷好壞</td><td>和正確答案比對，計算準確率</td><td>除了準確率，還要看機率是否可信：說「八成把握」的判斷，實際上是否約八成正確</td><td>多半沒有唯一答案，需要人判斷</td></tr>
   </tbody>
@@ -819,13 +854,13 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 <p>第 02 節打磚塊遊戲裡的神經網路，只會回答「球會落在哪裡」。如果想問它「這一球會不會漏接？」，就得重新設計輸出、重新收集資料、重新訓練，這就是傳統機器學習「一個模型只做一件事」的特性。Jev 的想法則是：準備一個通用的判斷模型，每次換一個問題和一組選項來問它。另外，遊戲中的模型只給出一個落點，沒有說自己有多少把握；Jev 會附上信心程度，讓系統決定什麼時候交給人處理。</p>
 <div class="callout warn">
   <span class="label">讀新產品新聞的提醒</span>
-  <p>Jev 目前只開放候補名單的開發者試用。速度、成本與判斷品質，都是公司自行公布的測試結果，尚待第三方驗證。看到新產品的宣傳數字時，先把它當成公司的「主張」，而不是已經證實的「事實」。這也是第 1 單元「檢查 AI 的答案」的延伸：來源是誰、證據在哪裡，比說法本身更重要。</p>
+  <p>Jev 仍在早期試用階段，開發者從候補名單陸續開放。速度、成本與判斷品質，多半是公司自行公布的測試結果；例如官方宣稱「快約 194 倍、便宜約 445 倍」，但一份整理上萬則使用者心得的分析，得到的中位數只有快約 7 倍、省約 30 倍。報導中「約三分之一財星 500 大企業已採用」的說法，公司也沒有公布客戶名單可以查證。看到新產品的宣傳數字時，先把它當成公司的「主張」，而不是已經證實的「事實」。這也是第 1 單元「檢查 AI 的答案」的延伸：來源是誰、證據在哪裡，比說法本身更重要。</p>
 </div>
 <div class="callout tip">
   <span class="label">重點</span>
   <p>AI 的發展不是「生成式 AI 取代辨別式 AI」。許多工作流程真正需要的，是快速、可以設定門檻的判斷。Jev 這類新模型，是把大型語言模型的理解能力，用「辨別式」的形式交付給軟體使用。</p>
 </div>
-<p class="sources" style="font-size:0.9rem;color:var(--muted)">資料來源（整理於 2026 年 10 月）：<a href="https://siliconangle.com/2026/09/16/typesafe-ai-exits-stealth-with-40m-to-build-ai-for-use-by-software/" target="_blank" rel="noopener">SiliconANGLE</a>、<a href="https://www.morningstar.com/news/business-wire/20260915525333/typesafe-ai-emerges-from-stealth-with-40m-in-funding-with-new-model-for-composable-ai" target="_blank" rel="noopener">Business Wire 新聞稿</a>、<a href="https://www.width.ai/post/what-is-jev-ai-typesafe" target="_blank" rel="noopener">Width.ai 說明</a>。</p>
+<p class="sources" style="font-size:0.9rem;color:var(--muted)">資料來源（整理於 2026 年 11 月）：<a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener">TypeSafe 發表文章</a>、<a href="https://docs.typesafe.ai/models" target="_blank" rel="noopener">TypeSafe 模型與價格</a>、<a href="https://siliconangle.com/2026/09/16/typesafe-ai-exits-stealth-with-40m-to-build-ai-for-use-by-software/" target="_blank" rel="noopener">SiliconANGLE</a>、<a href="https://news.bgov.com/private-equity/andreessen-horowitz-backs-jev-maker-at-7-5-billion-value" target="_blank" rel="noopener">Bloomberg</a>、<a href="https://www.techtimes.com/articles/328875/20261013/typesafe-ai-raises-870m-jev-decision-model-that-never-generates-text.htm" target="_blank" rel="noopener">Tech Times</a>、<a href="https://developers.openai.com/api/docs/guides/decisions" target="_blank" rel="noopener">OpenAI Decisions API 說明</a>、<a href="https://developers.openai.com/api/docs/changelog" target="_blank" rel="noopener">OpenAI API 更新紀錄</a>。</p>
 
 <h2 id="concepts"><span class="num">04</span>不同 AI 使用方式，處理不同任務</h2>
 <p>這些名詞不是彼此完全分開的盒子；一個 Agent 可以使用生成式模型與推理能力，也可以透過對話接收你的要求。</p>
@@ -833,7 +868,7 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   <thead><tr><th>概念</th><th>做什麼</th><th>課堂情境</th></tr></thead>
   <tbody>
     <tr><td>辨別式 AI／機器學習</td><td>依資料辨識、分類或預測。</td><td>打磚塊遊戲預測落點；把虛構的活動物品依用途分類，結果仍須核對。</td></tr>
-    <tr><td>判斷模型（如 Jev）</td><td>在給定選項中挑答案，附上機率與信心。</td><td>把一則客服訊息歸類，信心不夠就交給人。</td></tr>
+    <tr><td>判斷模型（如 Jev、Decisions API）</td><td>在給定選項中挑答案，附上機率與信心。</td><td>把一則客服訊息歸類，信心不夠就交給人。</td></tr>
     <tr><td>生成式 AI</td><td>依要求產生文字、圖像或其他內容。</td><td>起草一段讀書方法的說明，再對照提供的資料。</td></tr>
     <tr><td>Chatbot</td><td>透過對話解釋、討論與追問。</td><td>問「目標與待辦事項有什麼不同？」</td></tr>
     <tr><td>推理模型</td><td>協助多步分析、比較與規劃。</td><td>逐步列出哪些操作值得測試，仍由你核對。</td></tr>
@@ -841,6 +876,19 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   </tbody>
 </table></div>
 <p>名稱不是正確性的保證。回答得流暢、步驟很多或網頁很漂亮，都不能代替來源核對與實際操作。</p>
+
+<h3 id="chat-vs-agent">和 AI 聊天，還是把工作交給 Agent</h3>
+<p>OpenAI 的說明把 Agent 拆成三個部分：理解任務、規劃下一步的<strong>模型</strong>；用來查資料或動手的<strong>工具</strong>；以及設定界線、由人監督的<strong>防護與人工把關</strong>。和聊天最大的差別，在於「下一步由誰決定」：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>比較重點</th><th>和 AI 聊天</th><th>交辦給 Agent</th></tr></thead>
+  <tbody>
+    <tr><td>怎麼開始</td><td>問一個問題，或一起想一個點子。</td><td>說明想要的成果、相關脈絡與界線。</td></tr>
+    <tr><td>接下來</td><td>通常由你再傳一則訊息，帶著對話往下走。</td><td>Agent 可以自己決定並連續做好幾步。</td></tr>
+    <tr><td>你收到什麼</td><td>一段可以使用、追問或修改的回答。</td><td>要檢查的成果，加上結果、問題或卡住的地方。</td></tr>
+    <tr><td>你的角色</td><td>引導對話、檢查回答。</td><td>決定方向、檢查進度，並決定成果怎麼用。</td></tr>
+  </tbody>
+</table></div>
+<p>兩者會重疊：聊天也能使用工具，Agent 也是透過對話來引導。它們是兩種和 AI 合作的方式，不是兩個分開的畫面。Agent 要規劃、使用工具、檢查結果，通常花的時間比較久，也可能用掉較多的使用額度。</p>
 
 <h2 id="roles"><span class="num">05</span>Chat、Work、Codex：依任務與成果選擇</h2>
 <p>第 1 單元介紹過 ChatGPT 的三種工作方式。這裡換個角度，從<strong>你要拿到什麼成果</strong>來選：Chat 是對話夥伴，Work 是處理完整任務的助理，Codex 是在專案裡製作或修改數位工具的夥伴。這是幫助你交辦工作的分類，不表示每種工具只有一項能力。</p>
@@ -859,6 +907,24 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
     <tr><td>你怎麼檢查</td><td>能否用自己的話說明，是否符合講義。</td><td>每列是否對得上來源，有無補造資料。</td><td>自己操作、看結果、試錯誤輸入與邊界。</td></tr>
   </tbody>
 </table></div>
+<h3 id="where-to-switch">在 ChatGPT 桌面版裡切換</h3>
+<p>ChatGPT 桌面版支援 macOS、Windows 與 Linux。送出訊息前，先選 <strong>ChatGPT</strong> 或 <strong>Codex</strong>：在 ChatGPT 裡，用輸入框上方的切換鈕選 <strong>Chat</strong> 或 <strong>Work</strong>；在 Codex 裡，從 <strong>New chat</strong> 開始，並開啟一個資料夾作為專案。</p>
+<p>Work 可以在你的電腦上執行，也可以在雲端執行。需要用到電腦裡的檔案或 App 時選本機；不需要時選 <strong>Cloud</strong>，關掉電腦後工作仍會繼續。如果你的工作區開放「雲端任務使用本機電腦」，在桌面版用 Cloud 開始的 Work 任務，也可以改到手機或網頁上接著看進度；需要本機檔案的步驟，電腦就要保持開機連線。</p>
+<div class="callout tip">
+  <span class="label">交辦給 Agent 之前，先問自己三個問題</span>
+  <ul>
+    <li>我說得出想要的成果，以及怎樣才算「完成」嗎？</li>
+    <li>它拿得到需要的資料和工具嗎？</li>
+    <li>我能判斷結果好不好，出錯時有辦法回到原狀嗎？</li>
+  </ul>
+  <p>三題都答得出來，就適合交給 Work 或 Codex；如果還不會判斷結果，先把範圍縮小，或找懂的人一起看。</p>
+</div>
+<div class="callout note">
+  <span class="label">2026 年秋季新加入的兩個選項</span>
+  <p><strong>dots</strong>：一個長期待命的個人 Agent。它在雲端有自己的電腦和瀏覽器，對話結束後仍會繼續推進工作，有成果或需要你決定時再回來找你；可以在 ChatGPT 裡傳訊息、通話，也能接上 Slack 或 Teams。適合「持續要處理」的事，例如追蹤一個活動的報名人數，有變化再通知你。目前陸續開放給符合資格的 Pro、Business Premium 帳號，以及管理者啟用的 Enterprise、Edu 工作區。</p>
+  <p><strong>ChatGPT Space</strong>：把筆記、檔案與對話整理成可以分享的<strong>頁面</strong>或<strong>簡報</strong>，和組員同時編輯，也能在留言裡標記 ChatGPT 請它修改。帳號需要已啟用 Space。</p>
+  <p>這兩項功能是否出現在你的畫面，取決於方案、地區與學校的工作區設定。本單元的練習只用 Chat、Work 與 Codex 就能完成。</p>
+</div>
 <div class="callout note">
   <span class="label">你負責判斷，AI 協助實作</span>
   <p>你負責說清楚情境、需求與怎樣才算對；AI 協助實作。遇到看不懂的內容，請它用一般用語說明改了哪些檔案、怎麼開啟、要測試什麼。不要因為 AI 說「完成」就省略檢查。</p>
@@ -882,7 +948,7 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 <p><strong>完成檢核：</strong>你能說出部分完成與全部完成的差別，並自己想出一種表格沒列到、但值得測的情況（例如重新整理頁面後勾選會不會消失）。</p>
 
 <h3 id="practice-c">練習 C：Work 用提供的材料交付待辦表</h3>
-<p><strong>題目：</strong>你的小組有一段會議紀錄，希望整理成可保存的待辦表。下方就是全部來源；把紀錄與提示一起貼入 Work 即可。</p>
+<p><strong>題目：</strong>你的小組有一段會議紀錄，希望整理成可保存的待辦表。下方就是全部來源；在 ChatGPT 用切換鈕選 <strong>Work</strong>，把紀錄與提示一起貼上即可。</p>
 <figure class="code"><div class="code-head"><div><span class="code-title">提供給 Work 的虛構會議紀錄</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="小組會議紀錄（全部為虛構）">小組會議紀錄（全部為虛構）</span>
 <span class="line" data-text="目標：完成一份讀書交流報告。">目標：完成一份讀書交流報告。</span>
 <span class="line" data-text="組員甲：整理三份參考資料，期限為討論前。">組員甲：整理三份參考資料，期限為討論前。</span>
@@ -901,13 +967,29 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 </ul>
 
 <h3 id="practice-d">練習 D：Codex 製作可操作的準備清單</h3>
-<p><strong>題目：</strong>把練習 B 的對照表變成真的網頁。在電腦上建立一個新資料夾（例如 <code>study-checklist</code>），用 Codex 桌面版或 VS Code 開啟它作為專案，再貼上下面的提示詞。這和「請解釋工具怎麼做」不同：你要收到能開啟、能勾選、能再次修改的檔案。</p>
+<p><strong>題目：</strong>把練習 B 的對照表變成真的網頁。在電腦上建立一個新資料夾（例如 <code>study-checklist</code>）。打開 ChatGPT 桌面版，選 <strong>Codex</strong>，開啟這個資料夾作為專案（也可以用 VS Code 開啟資料夾，再打開 Codex 側邊欄），然後貼上下面的提示詞。這和「請解釋工具怎麼做」不同：你要收到能開啟、能勾選、能再次修改的檔案。</p>
 <figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">Codex：學習準備清單網頁</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請在這個專案資料夾做一個「學習準備清單」網頁，存成一個用瀏覽器直接開啟就能使用的檔案，畫面用繁體中文。">請在這個專案資料夾做一個「學習準備清單」網頁，存成一個用瀏覽器直接開啟就能使用的檔案，畫面用繁體中文。</span>
 <span class="line" data-text="頁面上方是標題和一句用途說明，下面有三個勾選項目：讀懂題目、整理資料、準備驗收。項目下方顯示「已完成 X／3」，勾選或取消勾選時立刻更新。">頁面上方是標題和一句用途說明，下面有三個勾選項目：讀懂題目、整理資料、準備驗收。項目下方顯示「已完成 X／3」，勾選或取消勾選時立刻更新。</span>
 <span class="line" data-text="驗收例子：全部不勾顯示 0／3；勾兩項顯示 2／3；三項全勾顯示 3／3；全勾後取消一項回到 2／3。">驗收例子：全部不勾顯示 0／3；勾兩項顯示 2／3；三項全勾顯示 3／3；全勾後取消一項回到 2／3。</span>
 <span class="line" data-text="不需要登入，不收集任何個人資料，不要加上我沒有提到的功能。完成後告訴我檔名、怎麼開啟，以及我應該照哪些步驟檢查。">不需要登入，不收集任何個人資料，不要加上我沒有提到的功能。完成後告訴我檔名、怎麼開啟，以及我應該照哪些步驟檢查。</span></code></pre></figure>
+<figure class="code reply-block"><div class="code-head"><div><span class="code-kind reply">Codex 可能的回覆</span></div></div><pre><code><span class="line" data-text="學習準備清單做好了！">學習準備清單做好了！</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="・檔名：index.html，放在 study-checklist 資料夾裡。">・檔名：index.html，放在 study-checklist 資料夾裡。</span>
+<span class="line" data-text="・在檔案總管（或 Finder）裡對 index.html 按兩下，就會用瀏覽器打開，不需要網路。">・在檔案總管（或 Finder）裡對 index.html 按兩下，就會用瀏覽器打開，不需要網路。</span>
+<span class="line" data-text="・頁面有標題、一句用途說明和三個勾選項目，下方顯示「已完成 X／3」。">・頁面有標題、一句用途說明和三個勾選項目，下方顯示「已完成 X／3」。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="請照這四步檢查：">請照這四步檢查：</span>
+<span class="line" data-text="1. 什麼都不勾，應顯示 0／3。">1. 什麼都不勾，應顯示 0／3。</span>
+<span class="line" data-text="2. 勾「讀懂題目」和「整理資料」，應顯示 2／3。">2. 勾「讀懂題目」和「整理資料」，應顯示 2／3。</span>
+<span class="line" data-text="3. 再勾「準備驗收」，應顯示 3／3。">3. 再勾「準備驗收」，應顯示 3／3。</span>
+<span class="line" data-text="4. 取消其中一項，應回到 2／3。">4. 取消其中一項，應回到 2／3。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="我沒有加入登入、存檔或其他功能；重新整理頁面後，勾選會清空。">我沒有加入登入、存檔或其他功能；重新整理頁面後，勾選會清空。</span></code></pre></figure>
 <p><strong>預期成果：</strong>一個可以離線開啟的網頁，四組驗收例子都對得上。</p>
-<p><strong>完成檢核：</strong>照著驗收例子逐一操作；確認沒有多出登入、帳號或其他沒要求的功能。通過之後，用 <code>git init</code>、<code>git add -A</code>、<code>git commit</code> 留一個存檔點，再試著提出一個小改進（例如加一個項目），確認數字變成 X／4。</p>
+<p><strong>完成檢核：</strong>照著驗收例子逐一操作；確認沒有多出登入、帳號或其他沒要求的功能。通過之後，先把整個 <code>study-checklist</code> 資料夾複製一份留底（例如改名為 <code>study-checklist-第一版</code>），改壞了也回得來。再請 Codex 做一個小改進：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">Codex：加一個項目</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請在清單最後加上第四個項目「確認繳交格式」，完成數改成顯示 X／4，其他行為不變。">請在清單最後加上第四個項目「確認繳交格式」，完成數改成顯示 X／4，其他行為不變。</span>
+<span class="line" data-text="改完後告訴我改了哪個檔案的哪些地方，以及我要怎麼重新檢查。">改完後告訴我改了哪個檔案的哪些地方，以及我要怎麼重新檢查。</span></code></pre></figure>
+<p>重新打開頁面，確認全部不勾是 0／4、四項全勾是 4／4。</p>
 <p>做完四個練習，比較一下：對話回答、待辦文件、可操作網頁，這三種成果各自要怎麼驗收？</p>
 
 <h2 id="requirement"><span class="num">07</span>把想法寫成清楚的需求</h2>
@@ -922,6 +1004,17 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   <li><b>3 產出</b>標題、用途與項目清楚，勾選後顯示完成數量</li>
   <li><b>4 界線與驗收</b>數量一致、取消勾選會更新、離線可用，不收集個人資料</li>
 </ul>
+<p>OpenAI 給 Agent 的交辦建議，和這幾個要素幾乎一一對應：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>交辦內容</th><th>要說清楚的事</th><th>對應本單元的要素</th></tr></thead>
+  <tbody>
+    <tr><td>任務</td><td>要完成什麼、給誰用、哪些不在範圍內。</td><td>目標</td></tr>
+    <tr><td>脈絡</td><td>依據哪些資料與限制；資料不足時該怎麼做。</td><td>脈絡</td></tr>
+    <tr><td>動作</td><td>哪些可以自己做、哪些要先問你、什麼時候停下來。</td><td>界線</td></tr>
+    <tr><td>產出</td><td>交出什麼、什麼格式、放在哪裡，怎麼判斷好壞。</td><td>產出與驗收</td></tr>
+  </tbody>
+</table></div>
+<p>OpenAI 也建議<strong>給一個「完成」的樣子</strong>，這正是驗收例子的作用。另外要記得：寫在提示裡的界線只是說明你的意圖，真正限制 AI 能讀寫什麼的，是工具裡的權限設定；兩者都要顧到。</p>
 <div class="callout try">
   <span class="label">比較兩種說法</span>
   <p><strong>太簡略：</strong>「幫我做一個準備清單。」</p>
@@ -942,8 +1035,8 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
 
 <h2 id="workflow"><span class="num">08</span>每個練習都走同樣的四個階段</h2>
 <figure class="page-figure">
-  <img src="figures/unit07-workflow.jpg" alt="每個練習的四個階段：題目敘述看懂誰要用、輸入什麼、解決哪個小問題；建議提示詞用自己的話交代目標、脈絡、產出、界線與驗收；預期成果先寫下全部不勾 0／3、勾選兩項 2／3、三項全勾 3／3；完成檢核親自操作，檢查正常操作、取消勾選會更新、邊界與錯誤情況、沒有多出的功能。下方循環：記錄落差、說清楚問題、修改後再測、再對照預期成果；短版、完整版、改進版每個版本都用 git commit 留存檔點。" loading="lazy" width="1600" height="897">
-  <figcaption>先寫下預期結果，再操作與驗收；記錄落差、修改後重測，並為每個版本留一個存檔點。</figcaption>
+  <img src="figures/unit07-workflow.jpg" alt="每個練習的四個階段：題目敘述看懂誰要用、輸入什麼、解決哪個小問題；建議提示詞用自己的話交代目標、脈絡、產出、界線與驗收；預期成果先寫下全部不勾 0／3、勾選兩項 2／3、三項全勾 3／3；完成檢核親自操作，檢查正常操作、取消勾選會更新、邊界與錯誤情況、沒有多出的功能。下方循環：記錄落差、說清楚問題、修改後再測、再對照預期成果；短版、完整版、改進版每個版本都先把資料夾另存一份，改壞了就回得來。" loading="lazy" width="1600" height="897">
+  <figcaption>先寫下預期結果，再操作與驗收；記錄落差、修改後重測，並為每個版本另存一份資料夾。</figcaption>
 </figure>
 <ul class="flow">
   <li><b>1 題目敘述</b>知道誰要用、輸入什麼、要解決哪個小問題</li>
@@ -952,17 +1045,25 @@ dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
   <li><b>4 完成檢核</b>親自操作，核對數字，記錄問題與修改後結果</li>
 </ul>
 <p>這也是第 4 到第 6 單元三個實作練習的共同骨架：成績報告產生器、截止日看板、促銷購物車結帳試算器，都是先講清楚規則、先寫下預期答案，再讓 Codex 動手，最後由你核對。</p>
+<p>檢查完一輪，你只會走向下面三種之一：</p>
+<div class="card-grid">
+  <div class="card"><span class="tag">繼續</span><h4>符合需求</h4><p>成果符合交辦內容，重要細節有根據，下一步也在說好的範圍內。</p></div>
+  <div class="card"><span class="tag">改方向</span><h4>指出問題</h4><p>說出哪裡不對、要改成什麼標準，例如「取消勾選後數字沒有減少，應該回到 2／3」。</p></div>
+  <div class="card"><span class="tag">先停下來</span><h4>需要你決定</h4><p>缺資料、缺權限或遇到要你核准的動作，先處理好再讓它繼續。</p></div>
+</div>
+<p>改了指示，並不會讓已經做完的動作自動復原。如果 AI 說它改了某個檔案，就打開那個檔案確認。</p>
 <div class="callout warn">
   <span class="label">把判斷留在自己手上</span>
   <p>這些練習只使用虛構資料。AI 起草的說明、整理的資料與建立的網頁，都要對照來源或親自操作檢查；不作為成績、交易、醫療、法律或其他正式決策的依據。</p>
 </div>
 <p>這一單元結束前，留下你自己的五欄需求表。下次想請 Codex 做一個小工具時，從這張表開始。</p>
+<p class="sources" style="font-size:0.9rem;color:var(--muted)">ChatGPT 與 Codex 功能說明（整理於 2026 年 11 月）：<a href="https://learn.chatgpt.com/docs/working-with-agents" target="_blank" rel="noopener">Working with agents</a>、<a href="https://learn.chatgpt.com/docs/get-started-with-work" target="_blank" rel="noopener">Get started with ChatGPT Work</a>、<a href="https://learn.chatgpt.com/docs/app" target="_blank" rel="noopener">ChatGPT desktop app</a>、<a href="https://learn.chatgpt.com/docs/dots" target="_blank" rel="noopener">Meet dots</a>、<a href="https://learn.chatgpt.com/docs/space/getting-started" target="_blank" rel="noopener">Get started with ChatGPT Space</a>。功能是否能用，以你的帳號、方案與學校工作區設定為準。</p>
 
 <nav class="pager" aria-label="上下頁"><a href="unit06.html">上一單元：第 6 單元 動手實作促銷購物車結帳試算器</a><a href="index.html">回講義首頁</a></nav>
 
 </main>
 </div>
-<footer class="site-footer">本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</footer>
+<footer class="site-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</p></footer>
 <button class="to-top" type="button" hidden>回到頂端</button>
 <script>
 (function () {
