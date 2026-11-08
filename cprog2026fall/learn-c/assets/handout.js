@@ -132,22 +132,24 @@
     var req=deck.requestFullscreen||deck.webkitRequestFullscreen;
     function fsEl(){return document.fullscreenElement||document.webkitFullscreenElement;}
     // In full screen the control bar floats over the slide and fades after 2.5 s without input.
-    var idle=null;
+    var idle=null,returnFocus=null;
     function wake(){
       deck.classList.remove('bar-idle');clearTimeout(idle);
       if(deck.classList.contains('is-full'))idle=setTimeout(function(){deck.classList.add('bar-idle');},2500);
     }
     ['mousemove','touchstart','keydown'].forEach(function(ev){deck.addEventListener(ev,wake,{passive:true});});
     function setFull(on){
+      var wasFull=deck.classList.contains('is-full');
       deck.classList.toggle('is-full',on);wake();document.documentElement.style.overflow=on?'hidden':'';
       full.textContent=on?'✕ 離開全螢幕':'⛶ 全螢幕';full.setAttribute('aria-label',on?'離開全螢幕':'全螢幕');
       if(on)deck.focus();
+      else if(wasFull&&returnFocus){returnFocus.focus();returnFocus=null;}
     }
     full.addEventListener('click',function(){
       if(fsEl()===deck){(document.exitFullscreen||document.webkitExitFullscreen).call(document);}
       else if(deck.classList.contains('is-full')){setFull(false);}
-      else if(req){var p=req.call(deck);if(p&&p.catch)p.catch(function(){setFull(true);});}
-      else{setFull(true);}
+      else if(req){returnFocus=document.activeElement;var p=req.call(deck);if(p&&p.catch)p.catch(function(){setFull(true);});}
+      else{returnFocus=document.activeElement;setFull(true);}
     });
     ['fullscreenchange','webkitfullscreenchange'].forEach(function(ev){
       document.addEventListener(ev,function(){setFull(fsEl()===deck);});
