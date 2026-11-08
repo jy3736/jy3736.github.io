@@ -1,0 +1,1494 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t;try{t=localStorage.getItem('learn-codex-theme');}catch(e){}if(t!=='light'&&t!=='dark')t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);var z;try{z=parseFloat(localStorage.getItem('learn-codex-text-scale'));}catch(e){}if(z>1&&z<=2)document.documentElement.style.setProperty('--text-scale',z);})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%98%3C/text%3E%3C/svg%3E">
+<title>第 8 單元：用技能把你的做法教給 AI</title>
+<meta name="description" content="認識技能（Agent Skills）：一個寫好步驟的資料夾，讓 Codex、ChatGPT 與 Claude 每次都照同一套做法完成工作。學會規劃使用情境、寫出會被選用的描述與清楚的步驟，用對話做出第一個技能，再測試、改進與安全地分享。">
+<style>
+:root {
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --text: #1f2328;
+  --muted: #5b6168;
+  --border: #e2ded6;
+  --accent: #0b6e69;
+  --accent-soft: #e3f2f0;
+  --on-accent: #ffffff;
+  --code-bg: #f6f5f1;
+  --code-text: #24292f;
+  --tip: #0b6e69;
+  --tip-bg: #e8f5f3;
+  --note: #2f5fb3;
+  --note-bg: #eaf0fb;
+  --warn: #a4570b;
+  --warn-bg: #fdf1e3;
+  --try: #7a3fb0;
+  --try-bg: #f3ecfa;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --radius: 12px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --layout-w: 90%;
+  color-scheme: light;
+}
+
+/* Dark theme: set on <html data-theme="dark"> by the inline head script (OS setting, or the saved toggle choice). */
+:root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f23;
+    --surface-2: #22272c;
+    --text: #e6e8eb;
+    --muted: #a0a7af;
+    --border: #30363d;
+    --accent: #5cc8bf;
+    --accent-soft: #173432;
+    --on-accent: #0e1a19;
+    --code-bg: #0f1215;
+    --code-text: #e6e8eb;
+    --tip: #5cc8bf;
+    --tip-bg: #15302e;
+    --note: #86a8ec;
+    --note-bg: #1a2638;
+    --warn: #eaa860;
+    --warn-bg: #33261a;
+    --try: #c49bf0;
+    --try-bg: #2a2036;
+    --shadow: none;
+    color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+/* Text size: --text-scale is set on <html> by the head script and the header A−/A+ control (1 to 2). */
+html { scroll-behavior: smooth; scroll-padding-top: 1rem; font-size: calc(100% * var(--text-scale, 1)); }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: calc(17px * var(--text-scale, 1));
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-underline-offset: 3px; }
+
+img { max-width: 100%; }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; }
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.site-header .inner {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.7rem;
+}
+.site-header .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: 0.95rem; }
+.site-header nav a { text-decoration: none; color: var(--muted); }
+.site-header nav a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+
+/* Hovering a nav number shows that unit's full title instantly, in a strip under the header. */
+.site-header .inner { position: relative; }
+/* the label is scaled, never the <a>: a transform on the link would make it the
+   containing block for the strip below and collapse it to the link's width */
+.site-header nav a > span { display: inline-block; transition: transform 0.12s ease; }
+.site-header nav a { transition: color 0.12s ease; }
+.site-header nav a:hover,
+.site-header nav a:focus-visible { color: var(--accent); }
+.site-header nav a:hover > span,
+.site-header nav a:focus-visible > span { transform: scale(1.18); }
+.site-header nav a[data-title]::after {
+  content: attr(data-title);
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  /* the box hugs the title: its own width plus roughly 10%, and never wider than the header */
+  width: max-content;
+  max-width: 90%;
+  padding: 0.55rem 1em;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 18%);
+  pointer-events: none;
+}
+.site-header nav a:hover::after,
+.site-header nav a:focus-visible::after { display: block; }
+@media (prefers-reduced-motion: reduce) {
+  .site-header nav a, .site-header nav a > span { transition: none; }
+  .site-header nav a:hover > span, .site-header nav a:focus-visible > span { transform: none; }
+}
+@media (max-width: 960px) {
+  /* touch screens have no hover: the strip would stick after a tap */
+  .site-header nav a[data-title]::after { content: none; }
+}
+
+.page {
+  width: var(--layout-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: clamp(240px, 22vw, 340px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 2.4vw, 2.5rem);
+}
+
+.toc {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+@media (min-width: 961px) {
+  .toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding-block: 2rem;
+    /* Keep the sidebar at its normal size when the text is enlarged, so the content gets the room. */
+    zoom: calc(1 / var(--text-scale, 1));
+    max-height: calc(100vh * var(--text-scale, 1));
+  }
+}
+.toc details { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 0.6rem 0.9rem; margin-top: 1rem; }
+@media (min-width: 961px) {
+  .toc ol a { font-size: clamp(0.82rem, 0.3rem + 0.75vw, 0.92rem); padding-inline: 0.5rem; }
+}
+@media (min-width: 961px) {
+  .toc details { border: 0; background: transparent; padding: 0; margin: 0; }
+}
+.toc summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+.toc li { margin: 0.1rem 0; }
+.toc-num { display: inline-block; min-width: 1.9em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.toc a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-left: 2px solid transparent;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--text); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+
+main { min-width: 0; padding-block: 2rem 4rem; }
+
+/* ---------- Typography ---------- */
+
+.hero { margin-bottom: 2.5rem; }
+.eyebrow { color: var(--accent); font-weight: 700; letter-spacing: 0.05em; font-size: 0.9rem; margin: 0; }
+h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); line-height: 1.3; margin: 0.3rem 0 0.8rem; }
+.lead { font-size: 1.1rem; color: var(--muted); margin: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; padding: 0; list-style: none; }
+.meta li { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.15rem 0.8rem; font-size: 0.9rem; }
+
+h2 {
+  font-size: 1.6rem;
+  line-height: 1.4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+h2 .num { color: var(--accent); margin-right: 0.4rem; }
+h3 { font-size: 1.25rem; margin: 2.2rem 0 0.6rem; line-height: 1.5; }
+h4 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; }
+p, ul, ol { margin: 0.7rem 0; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 700; }
+
+:not(pre) > code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.05em 0.35em;
+  overflow-wrap: anywhere;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+/* ---------- Components ---------- */
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.card h4 { margin: 0 0 0.3rem; }
+.card p { margin: 0.3rem 0; font-size: 0.96rem; }
+.card .tag { display: inline-block; font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+
+/* Colored, fully clickable unit cards on the index page. */
+.unit-card {
+  --wc: var(--accent);
+  --wc-bg: var(--accent-soft);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--wc-bg) 0%, var(--surface) 70%);
+  border-color: color-mix(in srgb, var(--wc) 35%, var(--border));
+  border-top: 5px solid var(--wc);
+  padding: 1.2rem 1.3rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.unit-card.unit-0 { --wc: #a35a00; --wc-bg: #fbeedb; }
+.unit-card.unit-1 { --wc: #0b6e69; --wc-bg: #dff2ef; }
+.unit-card.unit-2 { --wc: #6a3fb5; --wc-bg: #ece4fa; }
+:root[data-theme="dark"] .unit-card.unit-0 { --wc: #f0b25c; --wc-bg: #3a2a14; }
+:root[data-theme="dark"] .unit-card.unit-1 { --wc: #5cc8bf; --wc-bg: #17332f; }
+:root[data-theme="dark"] .unit-card.unit-2 { --wc: #b996f2; --wc-bg: #2a2140; }
+.unit-card .tag {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--wc);
+  border-radius: 999px;
+  padding: 0.1rem 0.7rem;
+}
+:root[data-theme="dark"] .unit-card .tag { color: #15171a; }
+.unit-card h4 { font-size: 1.15rem; margin: 0.6rem 0 0.4rem; line-height: 1.5; }
+.unit-card .card-link { color: var(--text); text-decoration: none; }
+.unit-card .card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.unit-card .card-link:focus-visible { outline: none; }
+.unit-card:has(.card-link:focus-visible) { outline: 3px solid var(--wc); outline-offset: 3px; }
+.unit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px color-mix(in srgb, var(--wc) 25%, transparent); border-color: var(--wc); }
+.unit-card:hover .card-link { color: var(--wc); }
+.unit-card .card-cta { margin-top: auto; padding-top: 0.4rem; font-weight: 700; color: var(--wc); }
+.unit-card .download { position: relative; z-index: 1; background: var(--wc); }
+@media (prefers-reduced-motion: reduce) { .unit-card { transition: none; } .unit-card:hover { transform: none; } }
+
+.callout {
+  border-left: 4px solid var(--c);
+  background: var(--cbg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.8rem 1.1rem;
+  margin: 1.2rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child { margin-bottom: 0; }
+.callout .label { display: block; font-weight: 700; color: var(--c); margin-bottom: 0.2rem; }
+.callout.tip { --c: var(--tip); --cbg: var(--tip-bg); }
+.callout.note { --c: var(--note); --cbg: var(--note-bg); }
+.callout.warn { --c: var(--warn); --cbg: var(--warn-bg); }
+.callout.try { --c: var(--try); --cbg: var(--try-bg); }
+
+.table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+th:first-child, td:first-child { white-space: nowrap; }
+
+.steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0.1rem 0 0.9rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid var(--border);
+  margin-left: 0.9rem;
+}
+.steps > li:last-child { border-left-color: transparent; }
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: -0.95rem;
+  top: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.steps > li::before { color: var(--on-accent); }
+.steps > li > :first-child { margin-top: 0; }
+
+.code {
+  margin: 1rem 0 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--code-bg);
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+.code-title { font-family: var(--mono); color: var(--text); overflow-wrap: anywhere; }
+.code-kind { color: var(--muted); font-family: var(--font); margin-right: 0.5rem; white-space: nowrap; }
+.code-kind.prompt { color: var(--try); font-weight: 700; }
+.code-kind.terminal { color: var(--note); font-weight: 700; }
+.code-kind.output { color: var(--tip); font-weight: 700; }
+.code-kind.reply { color: var(--tip); font-weight: 700; }
+.copy-btn {
+  flex: none;
+  font: inherit;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.6rem;
+  cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  tab-size: 4;
+}
+.code pre .ln {
+  display: inline-block;
+  min-width: 2.2em;
+  margin-right: 0.9em;
+  text-align: right;
+  color: var(--muted);
+  opacity: 0.6;
+  user-select: none;
+}
+.code.prompt-block { border-color: color-mix(in srgb, var(--try) 40%, var(--border)); }
+.code.prompt-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+.code.reply-block { border-color: color-mix(in srgb, var(--tip) 40%, var(--border)); background: var(--tip-bg); }
+.code.reply-block pre { white-space: pre-wrap; font-family: var(--font); font-size: 0.95rem; }
+
+details.explain {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 1rem 0;
+}
+details.explain > summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+}
+details.explain[open] > summary { border-bottom: 1px solid var(--border); }
+details.explain > div { padding: 0.3rem 1.1rem 0.9rem; }
+
+dl.glossary { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.2rem 1.2rem; margin: 1rem 0; }
+@media (min-width: 700px) { dl.glossary { grid-template-columns: max-content minmax(0, 1fr); } }
+dl.glossary dt { font-weight: 700; white-space: nowrap; }
+dl.glossary dd { margin: 0 0 0.6rem; color: var(--text); }
+
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem; margin: 1.2rem 0; padding: 0; list-style: none; }
+.flow li {
+  flex: 1 1 140px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+.flow li b { display: block; color: var(--accent); }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 1.9rem; }
+.checklist li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35em;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 0.95rem;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+}
+:root[data-theme="dark"] .download { color: var(--on-accent); }
+
+.pager { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.pager a { text-decoration: none; }
+
+.site-footer { color: var(--muted); font-size: 0.85rem; padding-block: 2rem; text-align: center; width: var(--layout-w); margin: 0 auto; }
+
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+
+/* ---------- Header tools: text size + theme ---------- */
+
+.header-tools { display: inline-flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.text-size {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.text-size button {
+  font: inherit;
+  font-size: 0.85rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 0.15rem 0.7rem;
+  cursor: pointer;
+  line-height: 1.6;
+}
+.text-size .text-size-btn { font-weight: 700; }
+.text-size .text-size-value { min-width: 3.6em; border-inline: 1px solid var(--border); font-variant-numeric: tabular-nums; color: var(--muted); }
+.text-size button:hover:not(:disabled) { color: var(--accent); background: var(--accent-soft); }
+.text-size button:disabled { opacity: 0.4; cursor: default; }
+.text-size button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* ---------- Theme toggle ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.15rem 0.75rem;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Podcast player (sidebar) ---------- */
+
+.card-audio { font-size: 0.88rem; font-weight: 700; color: var(--wc, var(--accent)); }
+.part-audio { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.toc-audio {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.75rem;
+  margin: 1rem 0 0;
+}
+@media (min-width: 961px) {
+  .toc-audio { margin: 0 0 1.2rem; }
+}
+.toc-audio-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+.toc-audio-title { font-weight: 700; color: var(--text); font-size: 0.86rem; display: flex; align-items: center; gap: 0.3rem; }
+.toc-audio-badge {
+  font-size: 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.toc-audio-controls { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
+.toc-audio-btn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 50%;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.1s, filter 0.15s;
+}
+.toc-audio-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.toc-audio-btn:focus-visible, .toc-audio-progress-wrap:focus-visible, .toc-speed-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.toc-audio-progress-wrap {
+  flex: 1;
+  height: 7px;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.toc-audio-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.1s linear; }
+.toc-audio-time-row {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 0.45rem;
+}
+.toc-audio-speed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+.toc-speed-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.toc-speed-btns { display: flex; flex: 1; gap: 0.2rem; }
+.toc-speed-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.1rem 0;
+  font-size: 0.72rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  line-height: 1.2;
+}
+.toc-speed-btn:hover { border-color: var(--accent); color: var(--accent); }
+.toc-speed-btn.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .toc-audio-btn, .toc-audio-progress-bar { transition: none; } }
+
+/* ---------- Sidebar QR code ---------- */
+
+.toc-qr { margin-top: 1.3rem; padding-top: 0.9rem; border-top: 1px solid var(--border); text-align: center; }
+.toc-qr-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin: 0 0 0.55rem; }
+.toc-qr-code { display: inline-block; background: #fff; padding: 0.4rem; border-radius: 6px; line-height: 0; }
+.toc-qr-code svg { display: block; width: 124px; height: 124px; }
+.toc-qr-hint { font-size: 0.72rem; color: var(--muted); margin: 0.5rem 0 0; line-height: 1.5; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  :root { --layout-w: 92%; }
+  .page { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .toc-qr { display: none; }
+}
+@media (max-width: 640px) {
+  :root { --layout-w: 94%; }
+  body { font-size: calc(16px * var(--text-scale, 1)); line-height: 1.75; }
+  main { padding-block: 1.25rem 3rem; }
+  h2 { font-size: 1.4rem; margin: 2.6rem 0 0.8rem; padding-top: 1.1rem; }
+  h3 { font-size: 1.15rem; margin: 1.8rem 0 0.5rem; }
+  th, td { padding: 0.45rem 0.6rem; }
+  .callout { padding: 0.7rem 0.9rem; }
+}
+
+/* Unit sub-pages: back link in the hero and the part list on an index card. */
+.hero .meta-back { margin: 0.9rem 0 0; font-weight: 600; }
+.hero .meta-back a { color: var(--accent); text-decoration: none; }
+.hero .meta-back a:hover { text-decoration: underline; }
+.unit-card .card-parts { position: relative; z-index: 1; list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.unit-card .card-parts li { font-size: 0.92rem; line-height: 1.5; }
+.unit-card .card-parts a { color: var(--wc); text-decoration: none; font-weight: 600; }
+.unit-card .card-parts a:hover { text-decoration: underline; }
+
+@media print {
+  :root, :root[data-theme="dark"] {
+    --bg: #fbfaf7; --surface: #ffffff; --surface-2: #f3f1ec; --text: #1f2328; --muted: #5b6168;
+    --border: #e2ded6; --accent: #0b6e69; --accent-soft: #e3f2f0; --on-accent: #ffffff;
+    --code-bg: #f6f5f1; --code-text: #24292f; --tip: #0b6e69; --tip-bg: #e8f5f3; --note: #2f5fb3;
+    --note-bg: #eaf0fb; --warn: #a4570b; --warn-bg: #fdf1e3; --try: #7a3fb0; --try-bg: #f3ecfa;
+    color-scheme: light;
+  }
+  .theme-toggle, .text-size, .toc-qr { display: none !important; }
+  html { font-size: 100%; }
+  .toc, .site-header nav, .copy-btn, .to-top, .skip-link { display: none !important; }
+  .page { display: block; }
+  details.explain > div { display: block; }
+  body { font-size: 12pt; background: #fff; color: #000; }
+  h2 { break-before: page; }
+  .code pre { white-space: pre-wrap; }
+}
+
+.page-figure {
+  margin: 1.5rem 0;
+  padding: 0;
+}
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #fbf3e2;
+}
+.page-figure.shot img { width: auto; max-width: 100%; margin: 0 auto; background: #fff; }
+.page-figure figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.lecture-slide { margin: 1.2rem 0 1.8rem; }
+.lecture-slide-open { display:block; padding:0; width:100%; border:1px solid var(--line, #708090); border-radius:12px; overflow:hidden; cursor:zoom-in; background:#faf6ed; }
+.lecture-slide-open img { display:block; width:100%; height:auto; }
+.lecture-slide figcaption { color:var(--muted); font-size:.95rem; margin-top:.5rem; }
+.lecture-slide figcaption span { white-space:nowrap; }
+.lecture-slide-open:focus-visible, .infographic-viewer button:focus-visible { outline:3px solid #ef901f; outline-offset:3px; }
+.infographic-viewer[hidden] { display:none; }
+.infographic-viewer { position:fixed; inset:0; z-index:10000; background:#101d2e; color:#fff; display:flex; flex-direction:column; padding:16px; box-sizing:border-box; gap:10px; }
+.infographic-viewer:fullscreen { width:100%; height:100%; }
+.infographic-viewer header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.infographic-viewer h2 { color:#fff; margin:0; border:0; padding:0; font-size:clamp(1rem,2vw,1.5rem); }
+.infographic-viewer .slide-stage { min-height:0; flex:1; display:flex; justify-content:center; align-items:center; overflow:auto; }
+.infographic-viewer img { display:block; max-width:100%; max-height:100%; object-fit:contain; }
+.infographic-viewer .slide-controls { display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:10px; }
+.infographic-viewer button { min-width:44px; min-height:44px; padding:8px 14px; border:1px solid #adb9c9; border-radius:8px; background:#fff; color:#102137; font-size:1rem; cursor:pointer; }
+.infographic-viewer button:disabled { opacity:.4; cursor:default; }
+.infographic-viewer p { margin:0; text-align:center; font-size:.9rem; color:#ced9e8; }
+@media(max-width:600px) { .infographic-viewer { padding:10px; } .infographic-viewer header { flex-direction:column; align-items:stretch; } .infographic-viewer header button { align-self:flex-end; } }
+@media print { .lecture-slide-open { border:0; } .lecture-slide figcaption span,.infographic-viewer { display:none!important; } }
+
+.page.no-toc { grid-template-columns: minmax(0, 1fr); }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要內容</a>
+<header class="site-header"><div class="inner"><a class="brand" href="index.html">AI Agent 創作實務講義</a><nav aria-label="講義"><a href="index.html" data-title="AI Agent 創作實務講義"><span>首頁</span></a>
+<a href="unit01.html" data-title="第 1 單元：用 ChatGPT 問對問題與交辦任務"><span>單元 1</span></a>
+<a href="unit02.html" data-title="第 2 單元：用 Codex 安全地修改專案程式"><span>單元 2</span></a>
+<a href="unit03.html" data-title="第 3 單元：在 VS Code 中與 Codex 協作"><span>單元 3</span></a>
+<a href="unit04.html" data-title="第 4 單元：動手實作成績報告產生器"><span>單元 4</span></a>
+<a href="unit05.html" data-title="第 5 單元：動手實作截止日看板"><span>單元 5</span></a>
+<a href="unit06.html" data-title="第 6 單元：動手實作促銷購物車結帳試算器"><span>單元 6</span></a>
+<a href="unit07.html" data-title="第 7 單元：從機器學習到 AI Agent"><span>單元 7</span></a>
+<a href="unit08.html" data-title="第 8 單元：用技能把你的做法教給 AI" aria-current="page"><span>單元 8</span></a></nav><div class="header-tools"><div class="text-size" role="group" aria-label="文字大小"><button class="text-size-btn" type="button" data-step="-1" aria-label="縮小文字" title="縮小文字（-）">A−</button><button class="text-size-value" type="button" aria-label="文字大小 100%，按一下恢復預設" title="恢復預設大小（0）">100%</button><button class="text-size-btn" type="button" data-step="1" aria-label="放大文字" title="放大文字（+）">A+</button></div><button class="theme-toggle" type="button" aria-label="切換主題"><span class="theme-icon" aria-hidden="true">🌙</span><span class="theme-text">深色</span></button></div></div></header>
+<div class="page">
+<aside class="toc" aria-label="本頁目錄"><div class="toc-audio">
+<div class="toc-audio-header"><span class="toc-audio-title">🎧 語音導讀</span><span class="toc-audio-badge">10:22</span></div>
+<audio id="podcast-audio" preload="metadata"><source src="audio/unit08-podcast.mp3" type="audio/mpeg"></audio>
+<div class="toc-audio-controls">
+<button type="button" class="toc-audio-btn" id="tocAudioPlay" aria-label="播放">▶</button>
+<div class="toc-audio-progress-wrap" id="tocAudioProgressWrap" title="點擊調整進度" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="00:00"><div class="toc-audio-progress-bar" id="tocAudioProgressBar"></div></div>
+</div>
+<div class="toc-audio-time-row"><span class="toc-audio-time" id="tocAudioTime">00:00 / 10:22</span></div>
+<div class="toc-audio-speed"><span class="toc-speed-label">倍速</span><div class="toc-speed-btns"><button type="button" class="toc-speed-btn" data-speed="0.8" aria-pressed="false">0.8x</button><button type="button" class="toc-speed-btn active" data-speed="1.0" aria-pressed="true">1.0x</button><button type="button" class="toc-speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button><button type="button" class="toc-speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button></div></div>
+</div><details><summary>本頁目錄</summary><ol><li><a href="#words"><span class="toc-num">01</span>先認識幾個名詞</a></li>
+<li><a href="#why"><span class="toc-num">02</span>為什麼需要技能：教一次，每次都用得上</a></li>
+<li><a href="#anatomy"><span class="toc-num">03</span>技能長什麼樣子</a></li>
+<li><a href="#where"><span class="toc-num">04</span>在 Codex、ChatGPT 與 Claude 裡使用技能</a></li>
+<li><a href="#plan"><span class="toc-num">05</span>動手之前：先想清楚使用情境</a></li>
+<li><a href="#description"><span class="toc-num">06</span>寫出會被選用的描述</a></li>
+<li><a href="#instructions"><span class="toc-num">07</span>把步驟寫清楚</a></li>
+<li><a href="#build"><span class="toc-num">08</span>動手做：用對話做出第一個技能</a></li>
+<li><a href="#test"><span class="toc-num">09</span>測試與改進</a></li>
+<li><a href="#share"><span class="toc-num">10</span>分享技能，以及安全須知</a></li></ol></details><div class="toc-qr"><p class="toc-qr-title">📱 用手機看這份講義</p><div class="toc-qr-code"><svg viewBox="0 0 164 164" role="img" aria-label="本頁網址 QR Code" xmlns="http://www.w3.org/2000/svg" width="164" height="164" class="segno"><g transform="scale(4)"><path fill="#fff" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#000" d="M4 4.5h7m2 0h2m1 0h3m3 0h2m1 0h4m1 0h7m-33 1h1m5 0h1m6 0h3m2 0h1m2 0h2m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m3 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m3 0h1m1 0h1m1 0h1m4 0h1m3 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h3m2 0h1m2 0h1m1 0h2m1 0h1m-24 1h1m1 0h5m3 0h4m1 0h3m5 0h1m2 0h5m-29 1h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h5m1 0h2m1 0h2m1 0h2m1 0h1m-33 1h3m1 0h6m2 0h1m2 0h1m2 0h1m1 0h3m5 0h1m1 0h2m-30 1h1m1 0h2m2 0h1m2 0h1m2 0h1m3 0h1m1 0h4m1 0h1m2 0h4m-32 1h5m1 0h1m1 0h1m2 0h1m3 0h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h3m-29 1h3m4 0h1m4 0h3m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m-31 1h7m6 0h1m2 0h1m1 0h1m1 0h1m2 0h2m3 0h2m-32 1h3m1 0h2m1 0h1m3 0h6m4 0h1m1 0h4m2 0h2m-31 1h4m2 0h2m2 0h5m1 0h2m1 0h2m1 0h1m2 0h1m1 0h2m3 0h1m-33 1h2m1 0h1m4 0h2m1 0h1m1 0h2m2 0h4m2 0h2m1 0h2m1 0h2m1 0h1m-33 1h1m5 0h6m2 0h4m3 0h1m5 0h2m1 0h2m-32 1h3m4 0h2m1 0h1m1 0h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h5m1 0h1m-33 1h1m2 0h4m1 0h1m1 0h1m2 0h1m3 0h1m1 0h1m4 0h2m1 0h3m1 0h1m-32 1h1m1 0h1m4 0h1m1 0h4m1 0h1m1 0h6m1 0h1m2 0h1m2 0h1m2 0h1m-33 1h1m1 0h2m1 0h2m2 0h1m2 0h1m1 0h4m4 0h1m3 0h2m2 0h2m-32 1h1m1 0h3m2 0h1m1 0h1m1 0h6m2 0h4m3 0h1m1 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m3 0h1m2 0h1m3 0h3m2 0h7m3 0h1m-25 1h1m1 0h3m1 0h1m1 0h5m2 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m2 0h2m2 0h4m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h5m2 0h1m2 0h1m1 0h3m1 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m4 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h2m1 0h2m1 0h2m1 0h4m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m3 0h1m1 0h1m2 0h2m3 0h3m1 0h1m-30 1h1m5 0h1m4 0h3m1 0h2m3 0h3m2 0h2m1 0h3m-31 1h7m1 0h3m3 0h2m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1"/></g></svg></div><p class="toc-qr-hint">掃描 QR Code，在手機上開啟本頁</p></div></aside>
+<main id="main">
+<section class="hero">
+  <p class="eyebrow">第 8 單元</p>
+  <h1>用技能把你的做法教給 AI</h1>
+  <p class="lead">同一件事，每次都要重新跟 AI 解釋一遍規則、格式和注意事項，既累又容易漏。<strong>技能</strong>（skill）讓你把做法寫下來「教一次」，之後 AI 遇到同類工作就會自己照著做。技能是一個開放標準：同一份技能可以給 OpenAI 的 Codex 與 ChatGPT 使用，也可以給 Anthropic 的 Claude 使用。這個單元以 Anthropic 發布的技能製作指南為主軸，搭配 OpenAI 的官方說明，帶你從規劃、撰寫、測試到分享，完成一個真的能用的技能。整個過程都用對話完成，不需要寫程式。</p>
+  <ul class="meta">
+    <li>建議閱讀 45 分鐘</li>
+    <li>需要：ChatGPT 桌面版的 Codex（或 VS Code 的 Codex 擴充套件）</li>
+    <li>選用：Claude 或 Claude Code</li>
+  </ul>
+</section>
+
+<div class="callout tip">
+  <span class="label">這一單元完成什麼</span>
+  <p>能說出技能是什麼、和提示詞有什麼不同；能說明 AI 為什麼只先讀技能的「名稱與描述」；能為自己常做的一件事寫出 2 到 3 個使用情境；能寫出包含「做什麼」與「什麼時候用」的描述；能用對話請 Codex 做出一個技能，並用三種測試檢查它；知道怎麼讓同一份技能在 Codex、ChatGPT 與 Claude 之間共用，以及安裝別人的技能前要注意什麼。</p>
+</div>
+
+<h2 id="words"><span class="num">01</span>先認識幾個名詞</h2>
+<figure class="lecture-slide" data-section="words" id="unit08-01">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：技能、連接器與外掛。"><img src="figures/unit08-01.png" alt="技能、連接器與外掛。：以食譜比喻技能的做法、廚房比喻連接器的工具，外掛可將兩者打包。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>技能、連接器與外掛。 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>這幾個詞在本單元會一直出現。看到不懂的詞，回來這裡查就好。</p>
+<dl class="glossary">
+  <dt>技能（skill）</dt>
+  <dd>一個資料夾，裡面寫好「某件事該怎麼做」的步驟、範例與參考資料。AI 讀了它，就能照同一套流程把事情做好。</dd>
+  <dt>SKILL.md</dt>
+  <dd>技能資料夾裡<strong>一定要有</strong>的說明檔。檔名必須完全一樣，大寫的 SKILL 加上小寫的 .md。</dd>
+  <dt>名稱（name）</dt>
+  <dd>技能的英文代號，例如 <code>meeting-todo</code>，只用小寫英文、數字和連字號。</dd>
+  <dt>描述（description）</dt>
+  <dd>一段說明「這個技能做什麼、什麼時候該用」的文字。AI 靠它決定要不要使用這個技能，是技能裡最重要的一段話。</dd>
+  <dt>觸發</dt>
+  <dd>AI 判斷你的請求符合某個技能，於是自動載入並照著做。沒有觸發，技能寫得再好也用不到。</dd>
+  <dt>Agent Skills 開放標準</dt>
+  <dd>Anthropic 公開的技能格式規格（agentskills.io）。Codex、ChatGPT 與 Claude 都採用這個格式，所以技能可以跨工具使用。</dd>
+  <dt>連接器（MCP）</dt>
+  <dd>讓 AI 連上其他服務（例如 Google 雲端硬碟、Notion、Slack）的接口。MCP 是 Model Context Protocol 的縮寫。</dd>
+  <dt>外掛（plugin）</dt>
+  <dd>把一個或多個技能，連同連接器一起打包、方便別人安裝的套件。</dd>
+</dl>
+
+<h2 id="why"><span class="num">02</span>為什麼需要技能：教一次，每次都用得上</h2>
+<figure class="lecture-slide" data-section="why" id="unit08-02">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：把重複交代變成固定做法。"><img src="figures/unit08-02.png" alt="把重複交代變成固定做法。：比較每週重新貼提示詞與重用技能；沒寫明的負責人填待確認，成果仍須核對。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>把重複交代變成固定做法。 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>回想第 7 單元的練習 C：把會議紀錄整理成待辦表。你在提示詞裡交代了欄位、「沒寫明就填待確認」、不要替小組做決定、最後要存成檔案。如果每週都要整理一次會議紀錄，你就得每週把這一大段重新貼一次；哪天漏了一句「不要替小組決定」，AI 就可能自己編出一個負責人。</p>
+<p>Anthropic 的指南這樣形容技能：<strong>與其在每一次對話裡重新解釋你的偏好、流程和專業知識，不如用技能教 Claude 一次，之後每次都受益。</strong>OpenAI 對 Codex 與 ChatGPT 的說明也是同一個意思：技能把你本來就在做的流程記下來，讓 AI 每次遇到這類工作都照同一套步驟，不必再把同一段提示、範本或要求貼進每個對話。</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>比較重點</th><th>每次寫提示詞</th><th>做成技能</th></tr></thead>
+  <tbody>
+    <tr><td>交代方式</td><td>每次重新說明規則與格式</td><td>寫一次，存成檔案</td></tr>
+    <tr><td>結果穩定度</td><td>看你那次寫得完不完整</td><td>每次都照同一套步驟</td></tr>
+    <tr><td>怎麼開始</td><td>貼上一大段提示</td><td>說一句「整理成待辦表」，或直接叫出技能名稱</td></tr>
+    <tr><td>分享給別人</td><td>把提示詞傳給對方，對方自己貼</td><td>把技能資料夾交給對方，或包成外掛讓人安裝</td></tr>
+    <tr><td>適合</td><td>一次性、每次都不一樣的請求</td><td>會一再重複、步驟和格式要一致的工作</td></tr>
+  </tbody>
+</table></div>
+<h3 id="recipe">技能是食譜，連接器是廚房</h3>
+<p>指南用廚房打比方：連接器（MCP）像一間設備齊全的專業廚房，讓 AI 拿得到工具與食材，例如讀取你的雲端硬碟、在 Notion 建立頁面；技能則是<strong>食譜</strong>，一步一步告訴 AI 怎麼用這些工具做出一道好菜。只有廚房、沒有食譜，AI 雖然能動手，但每次做法都不一樣；只有食譜、沒有廚房，AI 就只能用它本來就會的能力，例如整理文字、製作文件。</p>
+<div class="card-grid">
+  <div class="card"><span class="tag">連接器</span><h4>AI「能」做什麼</h4><p>連上服務、讀取即時資料、操作工具。</p></div>
+  <div class="card"><span class="tag">技能</span><h4>AI「該怎麼」做</h4><p>記錄流程、格式與注意事項，讓每次結果一致。</p></div>
+</div>
+
+<h2 id="anatomy"><span class="num">03</span>技能長什麼樣子</h2>
+<figure class="lecture-slide" data-section="anatomy" id="unit08-03">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：一個資料夾就是技能。"><img src="figures/unit08-03.png" alt="一個資料夾就是技能。：meeting-todo 資料夾含必要的 SKILL.md，以及選用的 references、assets、scripts。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>一個資料夾就是技能。 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>技能就是一個資料夾。資料夾名稱和技能名稱一樣，裡面最少只要一個 <code>SKILL.md</code>，需要時再附上其他檔案：</p>
+<figure class="code"><div class="code-head"><div><span class="code-title">技能資料夾的結構</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="meeting-todo/            ← 資料夾名稱 = 技能名稱">meeting-todo/            ← 資料夾名稱 = 技能名稱</span>
+<span class="line" data-text="├── SKILL.md             ← 必要：名稱、描述與步驟說明">├── SKILL.md             ← 必要：名稱、描述與步驟說明</span>
+<span class="line" data-text="├── references/          ← 選用：較長的參考資料，需要時才讀">├── references/          ← 選用：較長的參考資料，需要時才讀</span>
+<span class="line" data-text="├── assets/              ← 選用：範本、圖示等成品會用到的素材">├── assets/              ← 選用：範本、圖示等成品會用到的素材</span>
+<span class="line" data-text="└── scripts/             ← 選用：需要每次算得一模一樣時，附上的小程式">└── scripts/             ← 選用：需要每次算得一模一樣時，附上的小程式</span></code></pre></figure>
+<p><code>SKILL.md</code> 的開頭用兩條 <code>---</code> 夾住兩個必填欄位，下面接著寫步驟。這就是一個能用的技能：</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">SKILL.md 的最小格式</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="---">---</span>
+<span class="line" data-text="name: meeting-todo">name: meeting-todo</span>
+<span class="line" data-text="description: 做什麼。什麼時候用（使用者會怎麼說）。">description: 做什麼。什麼時候用（使用者會怎麼說）。</span>
+<span class="line" data-text="---">---</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="# 步驟說明"># 步驟說明</span>
+<span class="line" data-text="1. ……">1. ……</span>
+<span class="line" data-text="2. ……">2. ……</span></code></pre></figure>
+<p>你不需要自己建立這些資料夾和檔案。下一節之後的練習，都是用對話請 Codex 建立、修改；你負責決定內容寫得對不對。</p>
+
+<h3 id="disclosure">AI 怎麼讀技能：三層，用到才往下讀</h3>
+<figure class="lecture-slide" data-section="anatomy" id="unit08-04">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：用到才往下讀。"><img src="figures/unit08-04.png" alt="用到才往下讀。：名稱與描述用來判斷用途，選用後讀內文，需要時才讀附帶檔案。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>用到才往下讀。 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>一個人可能裝了幾十個技能。如果 AI 每次都把全部技能從頭讀到尾，會塞滿它的「工作記憶」，反而變慢、變不準。所以技能採用<strong>漸進揭露</strong>（progressive disclosure）的設計，像查一本書：先看目錄，翻到需要的章節，遇到附錄再去翻附錄。</p>
+<ul class="flow">
+  <li><b>第 1 層 名稱與描述</b>隨時都在 AI 的視線裡，用來判斷「這次要不要用這個技能」</li>
+  <li><b>第 2 層 SKILL.md 內文</b>決定使用後才讀，裡面是完整步驟</li>
+  <li><b>第 3 層 附帶的檔案</b>步驟中提到、真的需要時才打開</li>
+</ul>
+<p>這帶出整個單元最重要的一件事：<strong>AI 只靠第 1 層的名稱與描述來決定要不要用你的技能。</strong>描述寫不好，裡面的步驟再完整也不會被讀到。OpenAI 的說明也提醒，裝了很多技能時，Codex 會先把描述縮短，所以關鍵用途和觸發字要放在描述的最前面。</p>
+
+<h3 id="portable">同一份技能，多個 AI 都能用</h3>
+<p>Anthropic 把技能格式公開成<strong>開放標準</strong>，OpenAI 的 Codex 與 ChatGPT 也建立在同一個標準上。指南的說法是：就像連接器（MCP）一樣，技能應該能在不同工具與平台之間攜帶。所以你做好的 <code>meeting-todo</code>，只要放到各工具會去找的位置，Codex、ChatGPT 與 Claude 都讀得懂。</p>
+<p>指南也提醒兩件事：技能可能同時和其他技能一起被載入，所以不要假設自己是 AI 唯一的工具；有些技能刻意用到某個平台才有的功能，作者可以在選填欄位 <code>compatibility</code> 註明需要的環境。</p>
+
+<h2 id="where"><span class="num">04</span>在 Codex、ChatGPT 與 Claude 裡使用技能</h2>
+<figure class="lecture-slide" data-section="where" id="unit08-05">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：自動選用，也能明確指定"><img src="figures/unit08-05.png" alt="自動選用，也能明確指定：比較依描述自動選用與明確指定技能，列出 Codex、ChatGPT、Claude Code 的呼叫方式。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>自動選用，也能明確指定 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>技能的寫法相同，差別在於放在哪裡、怎麼叫出來。下表整理兩家公司的工具；畫面名稱可能隨版本更新而調整，找意思最接近的選項即可。</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>工具</th><th>技能放在哪裡</th><th>怎麼明確叫出來</th><th>內建的建立助手</th></tr></thead>
+  <tbody>
+    <tr><td>Codex</td><td>專案資料夾的 <code>.agents/skills/</code>（只在這個專案用），或個人資料夾的 <code>.agents/skills/</code>（每個專案都能用）</td><td>輸入 <code>$</code> 接技能名稱，例如 <code>$meeting-todo</code>；或輸入 <code>/skills</code> 挑選</td><td><code>$skill-creator</code></td></tr>
+    <tr><td>ChatGPT</td><td>桌面版側邊欄的 <strong>Skills</strong> 可以看到各專案的技能；網頁版與手機版透過外掛裡的技能使用</td><td>輸入 <code>@</code> 選擇技能</td><td><code>@skill-creator</code>（Work 模式）</td></tr>
+    <tr><td>Claude Code</td><td>專案資料夾的 <code>.claude/skills/</code>，或個人資料夾的 <code>.claude/skills/</code></td><td>輸入 <code>/</code> 接技能名稱，例如 <code>/meeting-todo</code></td><td>skill-creator 技能（需另外下載安裝）</td></tr>
+    <tr><td>Claude 網頁版與 App</td><td>把技能資料夾壓縮成 zip，在設定的 Capabilities（功能）頁面的 Skills 上傳</td><td>直接描述需求，由 Claude 自動選用</td><td>內建 skill-creator</td></tr>
+  </tbody>
+</table></div>
+<p>不論哪個工具，技能都有兩種被叫出來的方式：</p>
+<ul>
+  <li><strong>自動選用</strong>：你的請求符合技能的描述時，AI 自己決定使用。例如你貼上會議紀錄說「幫我整理待辦」，它就會載入 <code>meeting-todo</code>。</li>
+  <li><strong>明確指定</strong>：用上表的 <code>$</code>、<code>@</code> 或 <code>/</code> 直接叫出技能名稱。測試新技能、或你確定要用某個技能時最可靠。</li>
+</ul>
+<div class="callout note">
+  <span class="label">還有一種做法：示範一次給它看</span>
+  <p>在 Mac 上的 ChatGPT 桌面版，Codex 與 Work 模式提供 <strong>Record &amp; Replay</strong>：開啟 Plugins，在「+」選單選擇錄製技能，接著在電腦上實際操作一遍你的流程（例如下載每週報表、填寫一張申請單），結束後它會分析你的操作，起草一份技能。適合「做給它看比講給它聽容易」的工作。這個功能需要 macOS，並開啟電腦操作（Computer Use）。</p>
+</div>
+
+<h2 id="plan"><span class="num">05</span>動手之前：先想清楚使用情境</h2>
+<figure class="lecture-slide" data-section="plan" id="unit08-06">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：先想情境，再寫技能"><img src="figures/unit08-06.png" alt="先想情境，再寫技能：從使用者說法、步驟、工具與成果規劃情境，以整理會議待辦為例。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>先想情境，再寫技能 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>指南的第一個建議是：<strong>寫任何東西之前，先找出 2 到 3 個具體的使用情境。</strong>每個情境寫下四件事：使用者會怎麼說、要經過哪些步驟、需要什麼工具、最後得到什麼。</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>使用情境</th><th>使用者會怎麼說</th><th>步驟</th><th>成果</th></tr></thead>
+  <tbody>
+    <tr><td>小組會議後</td><td>「幫我把這份紀錄整理成待辦」</td><td>讀紀錄、找出每件要做的事、填負責人與期限、標出未決定</td><td>一張待辦表與待討論清單</td></tr>
+    <tr><td>社團幹部會議後</td><td>「列出誰要做什麼」</td><td>同上，另外排除已取消的事項</td><td>待辦表、已取消清單</td></tr>
+    <tr><td>交給老師之前</td><td>「把待辦表存成檔案」</td><td>先在對話顯示表格，再存成文字檔</td><td>一份可下載的文件</td></tr>
+  </tbody>
+</table></div>
+<p>想情境時，問自己四個問題：使用者想完成什麼？需要哪幾個步驟？需要哪些工具，AI 本來就會的能力夠嗎，還是要連接器？有哪些「內行人才知道」的規則要寫進去？</p>
+
+<h3 id="categories">技能常見的三種類型</h3>
+<p>Anthropic 觀察使用者做的技能，歸納出三類。你不必寫程式，三類都能做：</p>
+<div class="card-grid">
+  <div class="card"><span class="tag">類型 1</span><h4>文件與成品製作</h4><p>讓成品每次都一致、有品質，例如照系所格式排版的報告、統一風格的活動海報文案、固定版型的簡報。常見做法是寫進格式規範、附上範本，並在完成前跑一遍品質檢查清單。</p></div>
+  <div class="card"><span class="tag">類型 2</span><h4>工作流程自動化</h4><p>有固定順序的多步驟流程，例如「整理會議紀錄、產生待辦表、列出待討論事項」。常見做法是寫明步驟、在每一步設檢查點，不通過就回頭修正。</p></div>
+  <div class="card"><span class="tag">類型 3</span><h4>搭配連接器強化</h4><p>已經連上某個服務，再教 AI 怎麼用好它，例如連上雲端硬碟後，每週自動到固定資料夾找新紀錄並整理。常見做法是把呼叫順序與出錯時怎麼處理寫清楚。</p></div>
+</div>
+
+<h3 id="success">怎樣才算成功</h3>
+<p>指南建議事先訂出成功的樣子，並坦白說這些是大概的目標，而不是精確門檻，判斷時難免帶點主觀。換成課堂可以做的檢查：</p>
+<ul class="checklist">
+  <li><strong>會被選用</strong>：準備 10 句應該用到它的請求，大約 9 句會自動選用，不用你手動指定。</li>
+  <li><strong>不用一直提醒</strong>：AI 不需要你再交代「下一步要做什麼」。</li>
+  <li><strong>結果一致</strong>：同一個請求做 3 次，表格的欄位、順序與標註方式都一樣。</li>
+  <li><strong>別人也會用</strong>：沒看過這個技能的同學，第一次就能用它完成工作。</li>
+</ul>
+
+<h2 id="description"><span class="num">06</span>寫出會被選用的描述</h2>
+<figure class="lecture-slide" data-section="description" id="unit08-07">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：描述要寫用途、觸發語與界線"><img src="figures/unit08-07.png" alt="描述要寫用途、觸發語與界線：把模糊描述改成明確用途、使用者觸發語與不適用的範圍。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>描述要寫用途、觸發語與界線 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>描述是 AI 決定要不要用技能的唯一依據，指南說它是「最重要的部分」。描述的公式是：</p>
+<div class="callout tip">
+  <span class="label">描述公式</span>
+  <p><strong>做什麼</strong> ＋ <strong>什麼時候用</strong>（使用者實際會說的話）＋ <strong>關鍵能力或界線</strong></p>
+</div>
+<div class="table-wrap"><table>
+  <thead><tr><th>寫法</th><th>描述</th><th>問題</th></tr></thead>
+  <tbody>
+    <tr><td>太模糊</td><td>幫忙處理會議。</td><td>沒說做什麼，也沒說什麼時候用，AI 不知道何時該選它。</td></tr>
+    <tr><td>沒有觸發語</td><td>產生結構完整的多欄位任務追蹤表。</td><td>說了做什麼，但沒有使用者會講的話，你說「整理待辦」時它可能不會被選到。</td></tr>
+    <tr><td>太技術</td><td>將非結構化文字解析為任務實體與屬性。</td><td>使用者不會這樣說話。</td></tr>
+    <tr><td>清楚</td><td>把會議紀錄整理成待辦表，欄位為工作項目、負責人、期限、待確認事項。當使用者提供會議紀錄，並說「整理待辦」「列出誰要做什麼」「會議紀錄轉待辦表」時使用。只依來源整理，不替小組決定。不用於撰寫會議紀錄、安排行事曆或寄送通知。</td><td>有做什麼、有觸發語、有界線，也寫了什麼時候<strong>不該</strong>用。</td></tr>
+  </tbody>
+</table></div>
+<p>最後一句「不用於……」叫做<strong>反向觸發</strong>。當技能在不相關的請求也跑出來時，加上反向觸發、把範圍寫得更具體，是指南建議的修法。</p>
+
+<h3 id="rules">命名與格式的規則</h3>
+<p>這些規則由 AI 幫你遵守即可，但檢查成果時要看得出對錯：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>項目</th><th>規則</th><th>例子</th></tr></thead>
+  <tbody>
+    <tr><td>檔名</td><td>一定是 <code>SKILL.md</code>，大小寫完全一致</td><td><code>skill.md</code>、<code>SKILL.MD</code> 都不行</td></tr>
+    <tr><td>名稱</td><td>小寫英文、數字與連字號，和資料夾同名</td><td>可以：<code>meeting-todo</code>；不行：<code>Meeting Todo</code>、<code>meeting_todo</code></td></tr>
+    <tr><td>保留字</td><td>名稱不能用 claude 或 anthropic</td><td><code>claude-helper</code> 不行</td></tr>
+    <tr><td>描述長度</td><td>1,024 個字元以內</td><td>大約三到五句中文</td></tr>
+    <tr><td>描述內容</td><td>不能出現角括號 <code>&lt;</code> <code>&gt;</code></td><td>描述會被放進 AI 的系統指示，角括號可能被拿來夾帶惡意指令</td></tr>
+    <tr><td>說明文件</td><td>技能資料夾裡不放 README，說明都寫在 <code>SKILL.md</code> 或 <code>references/</code></td><td>要分享到網路上時，README 放在技能資料夾外面</td></tr>
+  </tbody>
+</table></div>
+<p>描述可以用中文寫。觸發語要用使用者<strong>實際會打的話</strong>：你們都用中文提出請求，就把中文說法寫進去；常見的英文說法也可以一起列。</p>
+
+<h2 id="instructions"><span class="num">07</span>把步驟寫清楚</h2>
+<figure class="lecture-slide" data-section="instructions" id="unit08-08">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：把模糊要求改成可檢查的步驟"><img src="figures/unit08-08.png" alt="把模糊要求改成可檢查的步驟：逐列對回原文、標示待確認與已取消事項，並組織原則、步驟、格式、範例及常見問題。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>把模糊要求改成可檢查的步驟 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>描述決定技能會不會被用到，內文決定用到之後做得好不好。指南建議的內文結構是：</p>
+<ul class="flow">
+  <li><b>重要原則</b>最不能違反的規則放最上面</li>
+  <li><b>步驟</b>依順序寫，每一步說清楚做什麼</li>
+  <li><b>輸出格式</b>附上範本，成果長什麼樣子</li>
+  <li><b>範例</b>一個輸入、一個應有的輸出</li>
+  <li><b>常見問題</b>遇到什麼狀況、怎麼處理</li>
+</ul>
+<div class="table-wrap"><table>
+  <thead><tr><th>寫法</th><th>不好</th><th>好</th></tr></thead>
+  <tbody>
+    <tr><td>具體</td><td>確認資料沒問題再繼續。</td><td>每一列都要能在原文找到對應的句子；沒寫明的負責人或期限填「待確認」。</td></tr>
+    <tr><td>明確</td><td>日期要處理好。</td><td>期限照原文抄寫（例如「下週五前」），不要自行換算成日期。</td></tr>
+    <tr><td>有例外</td><td>（沒寫）</td><td>已經決定取消的事項不列入待辦表，改列在「已取消」。</td></tr>
+  </tbody>
+</table></div>
+<p>指南整理出技能「有載入、卻沒照做」的常見原因，修法也都很直接：</p>
+<ul>
+  <li><strong>寫太長</strong>：改用條列與編號；細節移到 <code>references/</code>，內文只寫「需要時去讀哪個檔案」。指南建議 <code>SKILL.md</code> 控制在 5,000 字以內。</li>
+  <li><strong>重點被埋沒</strong>：最重要的規則放在最上面，用「重要原則」這類標題標出來，必要時在結尾再說一次。</li>
+  <li><strong>用語模糊</strong>：把「好好檢查」改成具體要檢查哪幾項。</li>
+  <li><strong>需要每次都一模一樣</strong>：例如加總金額、檢查日期格式。文字說明會被 AI 解讀，程式則每次結果相同；這時可以請 AI 寫一個小檢查程式放進 <code>scripts/</code>，由技能叫它來驗算。</li>
+</ul>
+
+<h2 id="build"><span class="num">08</span>動手做：用對話做出第一個技能</h2>
+<figure class="lecture-slide" data-section="build" id="unit08-09">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：先做成功，再萃取成技能"><img src="figures/unit08-09.png" alt="先做成功，再萃取成技能：先完成一次工作並修正，再萃取成 meeting-todo，開新對話換資料測試，最後比較參考技能。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>先做成功，再萃取成技能 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>指南觀察到，最會做技能的人有一個共同習慣：<strong>先在一次對話裡把一件困難的工作反覆修到成功，再把成功的做法萃取成技能。</strong>這比一開始就寫一份完美的說明快得多。這一節照這個順序走。</p>
+<p><a class="download" href="downloads/unit08-meeting-skill.zip">下載練習資料：會議紀錄與參考技能</a></p>
+<p>解壓縮後會得到 <code>meeting-skill</code> 資料夾，裡面有兩份虛構會議紀錄，以及一份完成的參考技能。參考技能放在 <code>reference-skill</code> 裡，請做完練習再打開比較。</p>
+
+<h3 id="build-a">步驟 1：先在對話中把工作做到滿意</h3>
+<p>打開 ChatGPT 桌面版，選 <strong>Codex</strong>，開啟 <code>meeting-skill</code> 資料夾作為專案（也可以用 VS Code 開啟資料夾，再打開 Codex 側邊欄）。貼上：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">Codex：先做一次</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請讀這個資料夾裡的 meeting-01.txt，只根據裡面的內容整理成待辦表，欄位是工作項目、負責人、期限、待確認事項。">請讀這個資料夾裡的 meeting-01.txt，只根據裡面的內容整理成待辦表，欄位是工作項目、負責人、期限、待確認事項。</span>
+<span class="line" data-text="沒有寫明的負責人或期限請填「待確認」，不要替小組決定。表格下方列出還需要討論的事情。">沒有寫明的負責人或期限請填「待確認」，不要替小組決定。表格下方列出還需要討論的事情。</span>
+<span class="line" data-text="先在對話中給我看表格就好，不要建立或修改任何檔案。">先在對話中給我看表格就好，不要建立或修改任何檔案。</span></code></pre></figure>
+<p>逐列對回原文。如果有不滿意的地方，就在同一個對話裡直接說，例如「期限請照原文抄寫，不要換成日期」。這些修正正是之後要寫進技能的規則。</p>
+
+<h3 id="build-b">步驟 2：把成功的做法存成技能</h3>
+<p>結果滿意之後，請 Codex 用內建的建立助手，把這次對話的做法寫成技能：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">Codex：萃取成技能</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="$skill-creator 請把我們剛才整理會議紀錄的做法，做成這個專案的技能，名稱是 meeting-todo，放在這個專案的 .agents/skills 裡。">$skill-creator 請把我們剛才整理會議紀錄的做法，做成這個專案的技能，名稱是 meeting-todo，放在這個專案的 .agents/skills 裡。</span>
+<span class="line" data-text="描述請包含：做什麼、使用者會怎麼說（例如「整理待辦」「列出誰要做什麼」「會議紀錄轉待辦表」），以及不該使用的情況（撰寫會議紀錄、安排行事曆、寄送通知）。">描述請包含：做什麼、使用者會怎麼說（例如「整理待辦」「列出誰要做什麼」「會議紀錄轉待辦表」），以及不該使用的情況（撰寫會議紀錄、安排行事曆、寄送通知）。</span>
+<span class="line" data-text="步驟裡要寫進我剛才提出的所有修正。只用文字說明，不需要程式。">步驟裡要寫進我剛才提出的所有修正。只用文字說明，不需要程式。</span>
+<span class="line" data-text="完成後請用一般用語告訴我：技能放在哪裡、描述寫了什麼，以及我可以怎麼測試它。">完成後請用一般用語告訴我：技能放在哪裡、描述寫了什麼，以及我可以怎麼測試它。</span></code></pre></figure>
+<figure class="code reply-block"><div class="code-head"><div><span class="code-kind reply">Codex 可能的回覆</span></div></div><pre><code><span class="line" data-text="技能做好了！">技能做好了！</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="・位置：這個專案的 .agents/skills/meeting-todo/SKILL.md">・位置：這個專案的 .agents/skills/meeting-todo/SKILL.md</span>
+<span class="line" data-text="・名稱：meeting-todo">・名稱：meeting-todo</span>
+<span class="line" data-text="・描述：把會議紀錄整理成待辦表，欄位為工作項目、負責人、期限、待確認事項。當你提供會議紀錄，並說「整理待辦」「列出誰要做什麼」「會議紀錄轉待辦表」時使用。只依來源整理，不替小組決定。不用於撰寫會議紀錄、安排行事曆或寄送通知。">・描述：把會議紀錄整理成待辦表，欄位為工作項目、負責人、期限、待確認事項。當你提供會議紀錄，並說「整理待辦」「列出誰要做什麼」「會議紀錄轉待辦表」時使用。只依來源整理，不替小組決定。不用於撰寫會議紀錄、安排行事曆或寄送通知。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="步驟裡已經寫進你剛才的兩項修正：期限照原文抄寫、沒寫明的填「待確認」。">步驟裡已經寫進你剛才的兩項修正：期限照原文抄寫、沒寫明的填「待確認」。</span>
+<span class="line" data-text=""></span>
+<span class="line" data-text="建議這樣測試：">建議這樣測試：</span>
+<span class="line" data-text="1. 開一個新對話，輸入 $meeting-todo 並附上 meeting-02.txt，看它是否照步驟整理。">1. 開一個新對話，輸入 $meeting-todo 並附上 meeting-02.txt，看它是否照步驟整理。</span>
+<span class="line" data-text="2. 再開一個新對話，不指定技能，直接說「幫我把 meeting-02.txt 整理成待辦」，看它會不會自動選用。">2. 再開一個新對話，不指定技能，直接說「幫我把 meeting-02.txt 整理成待辦」，看它會不會自動選用。</span>
+<span class="line" data-text="3. 問一個不相關的請求，例如「幫我寫一封請假信」，確認它不會被選用。">3. 問一個不相關的請求，例如「幫我寫一封請假信」，確認它不會被選用。</span></code></pre></figure>
+<p>請 Codex 把 <code>SKILL.md</code> 的內容顯示出來，自己讀一遍。它是一般文字，讀得懂；你要判斷的是：描述有沒有寫到你會說的話？重要原則是不是放在最上面？你剛才提出的修正有沒有全部寫進去？</p>
+
+<h3 id="build-c">步驟 3：和參考技能比較</h3>
+<p>做完之後，打開 <code>reference-skill/meeting-todo/SKILL.md</code> 比較。兩份不必一模一樣，但可以看看參考技能多寫了哪些規則，例如「一人負責兩件事要分成兩列」、「語氣不確定的承諾要註明」，再決定要不要補進你的版本。</p>
+<figure class="code"><div class="code-head"><div><span class="code-kind ">Markdown</span><span class="code-title">reference-skill/meeting-todo/SKILL.md</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="---"><span class="ln">1</span>---</span>
+<span class="line" data-text="name: meeting-todo"><span class="ln">2</span>name: meeting-todo</span>
+<span class="line" data-text="description: 把會議紀錄或討論紀錄整理成待辦表，欄位為工作項目、負責人、期限、待確認事項。當使用者貼上或提供會議紀錄，並說「整理待辦」「列出誰要做什麼」「會議紀錄轉待辦表」「幫我抓出待辦事項」時使用。只依來源整理，不替小組決定負責人或期限。不用於撰寫會議紀錄本身、安排行事曆或寄送通知。"><span class="ln">3</span>description: 把會議紀錄或討論紀錄整理成待辦表，欄位為工作項目、負責人、期限、待確認事項。當使用者貼上或提供會議紀錄，並說「整理待辦」「列出誰要做什麼」「會議紀錄轉待辦表」「幫我抓出待辦事項」時使用。只依來源整理，不替小組決定負責人或期限。不用於撰寫會議紀錄本身、安排行事曆或寄送通知。</span>
+<span class="line" data-text="---"><span class="ln">4</span>---</span>
+<span class="line" data-text=""><span class="ln">5</span></span>
+<span class="line" data-text="# 會議紀錄轉待辦表"><span class="ln">6</span># 會議紀錄轉待辦表</span>
+<span class="line" data-text=""><span class="ln">7</span></span>
+<span class="line" data-text="## 重要原則"><span class="ln">8</span>## 重要原則</span>
+<span class="line" data-text="- 只使用會議紀錄裡寫到的內容，不新增來源沒有的任務、姓名或日期。"><span class="ln">9</span>- 只使用會議紀錄裡寫到的內容，不新增來源沒有的任務、姓名或日期。</span>
+<span class="line" data-text="- 負責人或期限沒有寫明時，填「待確認」，不要替小組決定。"><span class="ln">10</span>- 負責人或期限沒有寫明時，填「待確認」，不要替小組決定。</span>
+<span class="line" data-text="- 已經決定取消的事項不列入待辦表，改列在「已取消」。"><span class="ln">11</span>- 已經決定取消的事項不列入待辦表，改列在「已取消」。</span>
+<span class="line" data-text=""><span class="ln">12</span></span>
+<span class="line" data-text="## 步驟"><span class="ln">13</span>## 步驟</span>
+<span class="line" data-text="1. 逐句讀完會議紀錄，找出所有「有人要去做的事」。"><span class="ln">14</span>1. 逐句讀完會議紀錄，找出所有「有人要去做的事」。</span>
+<span class="line" data-text="2. 一件事一列；同一個人負責兩件事，就分成兩列。"><span class="ln">15</span>2. 一件事一列；同一個人負責兩件事，就分成兩列。</span>
+<span class="line" data-text="3. 期限照原文抄寫（例如「下週五前」），不要自行換算成日期。"><span class="ln">16</span>3. 期限照原文抄寫（例如「下週五前」），不要自行換算成日期。</span>
+<span class="line" data-text="4. 語氣不確定的承諾（例如「應該可以」）照填，並在待確認事項註明原因。"><span class="ln">17</span>4. 語氣不確定的承諾（例如「應該可以」）照填，並在待確認事項註明原因。</span>
+<span class="line" data-text="5. 先在對話中顯示表格，再列出「還需要討論的事情」。"><span class="ln">18</span>5. 先在對話中顯示表格，再列出「還需要討論的事情」。</span>
+<span class="line" data-text="6. 使用者要檔案時，存成 Markdown 文字檔，告訴使用者檔名與位置。"><span class="ln">19</span>6. 使用者要檔案時，存成 Markdown 文字檔，告訴使用者檔名與位置。</span>
+<span class="line" data-text=""><span class="ln">20</span></span>
+<span class="line" data-text="## 輸出格式"><span class="ln">21</span>## 輸出格式</span>
+<span class="line" data-text="| 工作項目 | 負責人 | 期限 | 待確認事項 |"><span class="ln">22</span>| 工作項目 | 負責人 | 期限 | 待確認事項 |</span>
+<span class="line" data-text="|---|---|---|---|"><span class="ln">23</span>|---|---|---|---|</span>
+<span class="line" data-text=""><span class="ln">24</span></span>
+<span class="line" data-text="表格下方依序列出："><span class="ln">25</span>表格下方依序列出：</span>
+<span class="line" data-text="- 已取消：（沒有就寫「無」）"><span class="ln">26</span>- 已取消：（沒有就寫「無」）</span>
+<span class="line" data-text="- 還需要討論的事情："><span class="ln">27</span>- 還需要討論的事情：</span>
+<span class="line" data-text=""><span class="ln">28</span></span>
+<span class="line" data-text="## 範例"><span class="ln">29</span>## 範例</span>
+<span class="line" data-text="輸入：「組員乙：整理報告大綱，期限尚未決定。」"><span class="ln">30</span>輸入：「組員乙：整理報告大綱，期限尚未決定。」</span>
+<span class="line" data-text="輸出列：| 整理報告大綱 | 組員乙 | 待確認 | 期限尚未決定 |"><span class="ln">31</span>輸出列：| 整理報告大綱 | 組員乙 | 待確認 | 期限尚未決定 |</span>
+<span class="line" data-text=""><span class="ln">32</span></span>
+<span class="line" data-text="## 完成前自我檢查"><span class="ln">33</span>## 完成前自我檢查</span>
+<span class="line" data-text="- 每一列都能在原文找到對應的句子。"><span class="ln">34</span>- 每一列都能在原文找到對應的句子。</span>
+<span class="line" data-text="- 沒有出現原文沒有的人名或日期。"><span class="ln">35</span>- 沒有出現原文沒有的人名或日期。</span>
+<span class="line" data-text="- 「待確認」的數量和原文中沒寫明的地方一致。"><span class="ln">36</span>- 「待確認」的數量和原文中沒寫明的地方一致。</span></code></pre></figure>
+
+<h3 id="build-claude">讓 Claude 也能用同一份技能</h3>
+<p>技能格式相同，只要放到 Claude 會去找的位置。在同一個 Codex 對話裡請它幫忙：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">Codex：準備給 Claude 使用的版本</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="請把 .agents/skills/meeting-todo 整個資料夾，原封不動複製一份到這個專案的 .claude/skills/meeting-todo，讓 Claude Code 也能使用。">請把 .agents/skills/meeting-todo 整個資料夾，原封不動複製一份到這個專案的 .claude/skills/meeting-todo，讓 Claude Code 也能使用。</span>
+<span class="line" data-text="另外把 meeting-todo 資料夾壓縮成 meeting-todo.zip 放在專案資料夾裡，讓我可以上傳到 Claude 網頁版。">另外把 meeting-todo 資料夾壓縮成 meeting-todo.zip 放在專案資料夾裡，讓我可以上傳到 Claude 網頁版。</span>
+<span class="line" data-text="完成後告訴我兩個位置，並提醒我：之後改了其中一份，另一份也要一起更新。">完成後告訴我兩個位置，並提醒我：之後改了其中一份，另一份也要一起更新。</span></code></pre></figure>
+<p>使用 Claude Code 時，打開同一個專案資料夾，輸入 <code>/meeting-todo</code> 就能叫出技能；使用 Claude 網頁版或 App 時，到設定的 Capabilities（功能）頁面，在 Skills 上傳 <code>meeting-todo.zip</code> 並開啟它。兩份副本要記得同步：只改一份，兩個工具的做法就會開始不一樣。</p>
+
+<h2 id="test"><span class="num">09</span>測試與改進</h2>
+<figure class="lecture-slide" data-section="test" id="unit08-10">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：三種測試，找出該改哪裡"><img src="figures/unit08-10.png" alt="三種測試，找出該改哪裡：以觸發、功能與比較測試找出問題，分別調整描述、使用界線或步驟後再測。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>三種測試，找出該改哪裡 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>指南建議從三個方向測試技能。不需要任何程式，用幾個新對話就能完成：</p>
+<div class="card-grid">
+  <div class="card"><span class="tag">測試 1</span><h4>觸發測試：該用時會用嗎？</h4><p>明顯的請求、換句話說的請求都要觸發；不相關的請求不能觸發。</p></div>
+  <div class="card"><span class="tag">測試 2</span><h4>功能測試：做得對嗎？</h4><p>給一份新的資料，對照預期結果，連特殊情況都要做對。</p></div>
+  <div class="card"><span class="tag">測試 3</span><h4>比較測試：真的比較好嗎？</h4><p>同一件事，有技能和沒有技能各做一次，看哪個要你修正的次數少。</p></div>
+</div>
+
+<h3 id="test-trigger">測試 1：觸發測試</h3>
+<p>每一句都<strong>開一個新對話</strong>測試，不要指定技能名稱，看 Codex 有沒有自動選用 <code>meeting-todo</code>（它通常會在回覆或過程中提到使用了哪個技能；不確定時可以直接問它）。</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>應該觸發嗎</th><th>請求</th></tr></thead>
+  <tbody>
+    <tr><td>應該（明顯的請求）</td><td>「幫我把 meeting-02.txt 整理成待辦」</td></tr>
+    <tr><td>應該（換句話說）</td><td>「看一下 meeting-02.txt，誰要負責什麼？」</td></tr>
+    <tr><td>應該（換句話說）</td><td>「開完會了，紀錄在 meeting-02.txt，接下來要做哪些事？」</td></tr>
+    <tr><td>不應該（不相關）</td><td>「幫我寫一封跟老師請假的信」</td></tr>
+    <tr><td>不應該（寫在反向觸發裡）</td><td>「幫我寫下次會議的紀錄範本」</td></tr>
+  </tbody>
+</table></div>
+<p>一個好用的檢查方法：直接問「<strong>你什麼時候會使用 meeting-todo 技能？</strong>」AI 會把描述的內容講回來，你可以聽聽看少了什麼。</p>
+
+<h3 id="test-function">測試 2：功能測試</h3>
+<p><code>meeting-02.txt</code> 刻意放了幾個容易出錯的情況。先自己寫下預期結果，再請技能整理，逐項對照：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">Codex：明確指定技能做功能測試</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="$meeting-todo 請整理這個資料夾裡的 meeting-02.txt。">$meeting-todo 請整理這個資料夾裡的 meeting-02.txt。</span></code></pre></figure>
+<div class="table-wrap"><table>
+  <thead><tr><th>原文的情況</th><th>正確的處理</th></tr></thead>
+  <tbody>
+    <tr><td>小林負責兩件事</td><td>海報初稿、確認印刷費用分成兩列，負責人都是小林</td></tr>
+    <tr><td>紀念品決定取消</td><td>不在待辦表裡，列在「已取消」</td></tr>
+    <tr><td>場地布置沒人負責</td><td>負責人與期限都是「待確認」</td></tr>
+    <tr><td>小王「應該」月底前</td><td>期限照抄「月底前」，待確認事項註明需問指導老師</td></tr>
+    <tr><td>找贊助沒人認領</td><td>列入待辦，負責人「待確認」，也出現在待討論清單</td></tr>
+    <tr><td>期限寫法</td><td>「11/15 前」「下週五前」照原文抄寫，沒有被換算</td></tr>
+  </tbody>
+</table></div>
+<p>同一個請求再開兩個新對話各做一次，比較三次的表格欄位、順序與標註方式是否一致。</p>
+
+<h3 id="test-compare">測試 3：比較測試</h3>
+<p>開一個新對話，只說「幫我整理 meeting-02.txt」，並在請求最後加上「這次不要使用任何技能」。和剛才用技能的結果比較：哪一份需要你修正的地方比較少？哪一份有編造的負責人或日期？你需要額外交代幾次？指南的例子裡，同一件工作沒有技能時來回了 15 則訊息，有技能時只需要回答 2 個釐清問題。</p>
+
+<h3 id="iterate">看訊號，對症修改</h3>
+<p>指南說技能是「活的文件」，要依使用情況持續修改。常見訊號與修法：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>訊號</th><th>看到的狀況</th><th>怎麼修</th></tr></thead>
+  <tbody>
+    <tr><td>觸發不足</td><td>該用時沒用；你常常要手動指定；同學問「這個技能什麼時候用？」</td><td>在描述加上更多使用者會說的話與關鍵字</td></tr>
+    <tr><td>觸發過度</td><td>不相關的請求也跑出來；有人乾脆把它關掉</td><td>加上反向觸發（不用於……），把範圍寫得更具體</td></tr>
+    <tr><td>沒照步驟</td><td>有載入，但結果時好時壞，或需要你一直糾正</td><td>重要規則移到最上面、寫得更具體，加上範例與常見問題</td></tr>
+  </tbody>
+</table></div>
+<p>修改時，同樣用對話請 Codex 幫你改：</p>
+<figure class="code prompt-block"><div class="code-head"><div><span class="code-kind prompt">給 Codex 的提示</span><span class="code-title">Codex：依測試結果改進技能</span></div><button class="copy-btn" type="button">複製</button></div><pre><code><span class="line" data-text="剛才測試 meeting-todo 時發現：一人負責兩件事時被合成一列，而且說「開完會了，接下來要做哪些事？」時沒有自動使用這個技能。">剛才測試 meeting-todo 時發現：一人負責兩件事時被合成一列，而且說「開完會了，接下來要做哪些事？」時沒有自動使用這個技能。</span>
+<span class="line" data-text="請修改 .agents/skills/meeting-todo/SKILL.md：在步驟中規定一件事一列；在描述中加入「接下來要做哪些事」這類說法。其他內容不要改。">請修改 .agents/skills/meeting-todo/SKILL.md：在步驟中規定一件事一列；在描述中加入「接下來要做哪些事」這類說法。其他內容不要改。</span>
+<span class="line" data-text="改完告訴我改了哪幾句，如果 .claude/skills 裡也有一份，請一起更新。">改完告訴我改了哪幾句，如果 .claude/skills 裡也有一份，請一起更新。</span></code></pre></figure>
+
+<h2 id="share"><span class="num">10</span>分享技能，以及安全須知</h2>
+<figure class="lecture-slide" data-section="share" id="unit08-11">
+  <button class="lecture-slide-open" type="button" aria-label="開啟投影片：分享做法，也保留自己的判斷"><img src="figures/unit08-11.png" alt="分享做法，也保留自己的判斷：依工具選擇資料夾、zip 或外掛分享，檢查來源與權限、核對成果，並同步兩份副本。" loading="lazy" width="1672" height="941"></button>
+  <figcaption>分享做法，也保留自己的判斷 <span>（點圖放大）</span></figcaption>
+</figure>
+<p>技能做好之後，可以依對象選擇分享方式：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>分享對象</th><th>做法</th></tr></thead>
+  <tbody>
+    <tr><td>同一個專案的組員</td><td>技能放在專案資料夾的 <code>.agents/skills/</code> 或 <code>.claude/skills/</code>，專案資料夾給誰，技能就跟著給誰</td></tr>
+    <tr><td>自己的每個專案</td><td>請 AI 把技能複製到個人資料夾的技能位置</td></tr>
+    <tr><td>Claude 網頁版的使用者</td><td>把技能資料夾壓縮成 zip，對方自行上傳；組織管理者也可以替整個工作區統一部署</td></tr>
+    <tr><td>ChatGPT 與 Codex 的使用者</td><td>把技能（可以連同連接器）包成<strong>外掛</strong>，對方從 ChatGPT 與 Codex 共用的外掛目錄安裝；能否分享依工作區設定而定</td></tr>
+  </tbody>
+</table></div>
+<p>介紹你的技能時，指南建議<strong>講成果，不講構造</strong>：「把會議紀錄丟進去，三十秒得到一張不會編造負責人的待辦表」，比「一個含 YAML 標頭與 Markdown 步驟的資料夾」更能讓別人想試。</p>
+
+<div class="callout warn">
+  <span class="label">安裝別人的技能之前</span>
+  <ul>
+    <li><strong>只安裝信任來源的技能。</strong>技能是寫給 AI 的指示，附帶的程式還可能在你的電腦上執行。安裝前先請 AI 用一般用語說明這個技能會做哪些事、會不會讀寫檔案或連上網路。</li>
+    <li><strong>技能不會自動給它權限。</strong>OpenAI 的說明特別指出：安裝外掛不等於授權它使用連接器或服務，每一項權限都要在各自的設定裡另外核准。</li>
+    <li><strong>技能不能取代你的檢查。</strong>就算用了技能，成果仍要對照來源；技能只是讓流程穩定，不保證每次都正確。</li>
+    <li><strong>別裝太多。</strong>同時開啟太多技能會佔用 AI 的工作記憶。指南提醒同時開啟 20 到 50 個以上時要檢討，用不到的先關掉。</li>
+  </ul>
+</div>
+
+<h3 id="checklist">完成前檢查清單</h3>
+<p>改寫自指南附錄的檢查清單。做完自己的技能後，逐項打勾：</p>
+<ul class="checklist">
+  <li>想好 2 到 3 個具體的使用情境。</li>
+  <li>資料夾名稱與技能名稱一致，只用小寫英文、數字和連字號。</li>
+  <li>檔名是 <code>SKILL.md</code>，開頭有兩條 <code>---</code>。</li>
+  <li>描述寫到「做什麼」和「什麼時候用」，包含使用者會說的話，也寫了不該用的情況。</li>
+  <li>描述裡沒有角括號。</li>
+  <li>重要原則放在最上面，步驟具體，有範例與常見問題。</li>
+  <li>明顯與換句話說的請求會觸發，不相關的請求不會觸發。</li>
+  <li>功能測試的特殊情況都處理正確，三次結果一致。</li>
+  <li>如果同時給 Codex 與 Claude 使用，兩份副本內容相同。</li>
+</ul>
+
+<div class="callout try">
+  <span class="label">換成你自己的技能</span>
+  <p>想一件你每週或每次都要做、而且做法固定的事，例如：把實驗數據整理成系上規定的表格、把活動資訊寫成社團固定格式的公告、把讀書筆記整理成複習卡、照指導老師的格式檢查報告引用。先在一個對話裡把它做到滿意，再用本節的步驟做成技能，跑完三種測試。記得只使用虛構或公開的資料。</p>
+</div>
+
+<div class="callout warn">
+  <span class="label">把判斷留在自己手上</span>
+  <p>技能讓 AI 每次都照你的方法做，但方法本身對不對、這次的成果對不對，仍要由你判斷。本單元的練習只使用虛構資料，成果不作為成績、交易、醫療、法律或其他正式決策的依據。</p>
+</div>
+
+<p class="sources" style="font-size:0.9rem;color:var(--muted)">資料來源（整理於 2026 年 11 月）：Anthropic《<a href="https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf" target="_blank" rel="noopener">The Complete Guide to Building Skills for Claude</a>》、<a href="https://agentskills.io" target="_blank" rel="noopener">Agent Skills 開放標準</a>、<a href="https://github.com/anthropics/skills" target="_blank" rel="noopener">Anthropic 技能範例</a>、OpenAI <a href="https://learn.chatgpt.com/docs/skills-and-plugins" target="_blank" rel="noopener">Skills &amp; Plugins</a>、<a href="https://learn.chatgpt.com/docs/build-skills" target="_blank" rel="noopener">Build skills</a>、<a href="https://learn.chatgpt.com/docs/extend/record-and-replay" target="_blank" rel="noopener">Record &amp; Replay</a>、<a href="https://github.com/openai/skills" target="_blank" rel="noopener">OpenAI 技能範例</a>。功能是否能用，以你的帳號、方案與學校工作區設定為準。</p>
+
+<nav class="pager" aria-label="上下頁"><a href="unit07.html">上一單元：第 7 單元 從機器學習到 AI Agent</a><a href="index.html">回講義首頁</a></nav>
+
+</main>
+</div>
+<footer class="site-footer"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>本講義為課堂教材，軟體畫面與功能可能隨版本更新而調整。</p></footer>
+<button class="to-top" type="button" hidden>回到頂端</button>
+<script>
+(function () {
+  // Copy buttons: copy the raw code (without line numbers) to the clipboard.
+  document.querySelectorAll(".code").forEach(function (block) {
+    var button = block.querySelector(".copy-btn");
+    var pre = block.querySelector("pre");
+    if (!button || !pre) return;
+    button.addEventListener("click", function () {
+      var text = Array.prototype.map
+        .call(pre.querySelectorAll(".line"), function (line) {
+          return line.getAttribute("data-text");
+        })
+        .join("\n");
+      if (!text) text = pre.textContent;
+      var done = function (ok) {
+        button.textContent = ok ? "已複製" : "請手動選取";
+        setTimeout(function () { button.textContent = "複製"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback(text)); });
+      } else {
+        done(fallback(text));
+      }
+    });
+  });
+
+  function fallback(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  // Highlight the current section in the table of contents.
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a[href^='#']"));
+  var targets = links
+    .map(function (a) { return document.getElementById(decodeURIComponent(a.getAttribute("href").slice(1))); })
+    .filter(Boolean);
+  if ("IntersectionObserver" in window && targets.length) {
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          links.forEach(function (a) {
+            a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+          });
+        });
+      },
+      { rootMargin: "0px 0px -75% 0px" }
+    );
+    targets.forEach(function (t) { observer.observe(t); });
+  }
+
+  // Close the mobile table of contents after choosing a section.
+  var tocDetails = document.querySelector(".toc details");
+  links.forEach(function (a) {
+    a.addEventListener("click", function () {
+      if (tocDetails && window.matchMedia("(max-width: 960px)").matches) tocDetails.open = false;
+    });
+  });
+  if (tocDetails && window.matchMedia("(min-width: 961px)").matches) tocDetails.open = true;
+
+  // Theme toggle: follows the OS setting until the reader picks one; the choice is remembered per browser.
+  var root = document.documentElement;
+  var themeBtn = document.querySelector(".theme-toggle");
+  function paintTheme() {
+    if (!themeBtn) return;
+    var light = root.getAttribute("data-theme") !== "dark";
+    themeBtn.querySelector(".theme-icon").textContent = light ? "🌙" : "☀️";
+    themeBtn.querySelector(".theme-text").textContent = light ? "深色" : "淺色";
+    themeBtn.setAttribute("aria-label", light ? "切換成深色主題" : "切換成淺色主題");
+  }
+  if (themeBtn) {
+    paintTheme();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("learn-codex-theme", next); } catch (e) {}
+      paintTheme();
+    });
+  }
+
+  // Text size for presenting: A−/A+ in the header, or the +, -, 0 keys. Remembered per browser.
+  var TEXT_STEPS = [1, 1.15, 1.3, 1.5, 1.75, 2];
+  var sizeBox = document.querySelector(".text-size");
+  function currentStep() {
+    var z = parseFloat(getComputedStyle(root).getPropertyValue("--text-scale")) || 1;
+    var best = 0;
+    TEXT_STEPS.forEach(function (s, i) { if (Math.abs(s - z) < Math.abs(TEXT_STEPS[best] - z)) best = i; });
+    return best;
+  }
+  function setStep(i) {
+    i = Math.max(0, Math.min(TEXT_STEPS.length - 1, i));
+    var z = TEXT_STEPS[i];
+    if (z === 1) root.style.removeProperty("--text-scale"); else root.style.setProperty("--text-scale", z);
+    try { if (z === 1) localStorage.removeItem("learn-codex-text-scale"); else localStorage.setItem("learn-codex-text-scale", String(z)); } catch (e) {}
+    paintSize();
+  }
+  function paintSize() {
+    if (!sizeBox) return;
+    var i = currentStep(), pct = Math.round(TEXT_STEPS[i] * 100) + "%";
+    var value = sizeBox.querySelector(".text-size-value");
+    value.textContent = pct;
+    value.setAttribute("aria-label", "文字大小 " + pct + "，按一下恢復預設");
+    sizeBox.querySelector('[data-step="-1"]').disabled = i === 0;
+    sizeBox.querySelector('[data-step="1"]').disabled = i === TEXT_STEPS.length - 1;
+  }
+  if (sizeBox) {
+    paintSize();
+    sizeBox.querySelectorAll(".text-size-btn").forEach(function (b) {
+      b.addEventListener("click", function () { setStep(currentStep() + Number(b.getAttribute("data-step"))); });
+    });
+    sizeBox.querySelector(".text-size-value").addEventListener("click", function () { setStep(0); });
+    document.addEventListener("keydown", function (e) {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      var t = e.target;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (e.key === "+" || e.key === "=") setStep(currentStep() + 1);
+      else if (e.key === "-" || e.key === "_") setStep(currentStep() - 1);
+      else if (e.key === "0") setStep(0);
+      else return;
+      e.preventDefault();
+    });
+  }
+
+  // Podcast player in the sidebar.
+  var audio = document.getElementById("podcast-audio");
+  if (audio) {
+    var playBtn = document.getElementById("tocAudioPlay");
+    var timeDisplay = document.getElementById("tocAudioTime");
+    var progressWrap = document.getElementById("tocAudioProgressWrap");
+    var progressBar = document.getElementById("tocAudioProgressBar");
+    var speedBtns = Array.prototype.slice.call(document.querySelectorAll(".toc-speed-btn"));
+    var fallbackTotal = timeDisplay ? timeDisplay.textContent.split(" / ")[1] : "00:00";
+
+    var fmt = function (s) {
+      if (isNaN(s) || !isFinite(s)) return "00:00";
+      var m = Math.floor(s / 60), sec = Math.floor(s % 60);
+      return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+    };
+    var updateUI = function () {
+      var total = audio.duration && isFinite(audio.duration) ? fmt(audio.duration) : fallbackTotal;
+      if (timeDisplay) timeDisplay.textContent = fmt(audio.currentTime) + " / " + total;
+      var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      if (progressBar) progressBar.style.width = pct + "%";
+      if (progressWrap) {
+        progressWrap.setAttribute("aria-valuenow", String(Math.round(pct)));
+        progressWrap.setAttribute("aria-valuetext", fmt(audio.currentTime));
+      }
+    };
+    var setPlaying = function (playing) {
+      if (!playBtn) return;
+      playBtn.textContent = playing ? "⏸" : "▶";
+      playBtn.setAttribute("aria-label", playing ? "暫停" : "播放");
+    };
+    var seekTo = function (t) {
+      var max = audio.duration && isFinite(audio.duration) ? audio.duration : t;
+      audio.currentTime = Math.max(0, Math.min(max, t));
+      updateUI();
+    };
+
+    if (playBtn) {
+      playBtn.addEventListener("click", function () {
+        if (audio.paused) audio.play(); else audio.pause();
+      });
+    }
+    audio.addEventListener("play", function () { setPlaying(true); });
+    audio.addEventListener("pause", function () { setPlaying(false); });
+    audio.addEventListener("ended", function () { setPlaying(false); });
+    ["timeupdate", "loadedmetadata", "durationchange"].forEach(function (ev) {
+      audio.addEventListener(ev, updateUI);
+    });
+
+    if (progressWrap) {
+      progressWrap.addEventListener("click", function (e) {
+        if (!audio.duration) return;
+        var r = progressWrap.getBoundingClientRect();
+        seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration);
+      });
+      progressWrap.addEventListener("keydown", function (e) {
+        var step = { ArrowRight: 5, ArrowUp: 5, ArrowLeft: -5, ArrowDown: -5 }[e.key];
+        if (e.key === "Home") { e.preventDefault(); seekTo(0); }
+        else if (e.key === "End" && audio.duration) { e.preventDefault(); seekTo(audio.duration); }
+        else if (step) { e.preventDefault(); seekTo(audio.currentTime + step); }
+      });
+    }
+
+    speedBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var spd = parseFloat(btn.getAttribute("data-speed"));
+        if (!spd) return;
+        audio.playbackRate = spd;
+        speedBtns.forEach(function (b) {
+          var on = Math.abs(parseFloat(b.getAttribute("data-speed")) - spd) < 0.01;
+          b.classList.toggle("active", on);
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+        });
+      });
+    });
+  }
+
+  // Back-to-top button.
+  var toTop = document.querySelector(".to-top");
+  if (toTop) {
+    var update = function () { toTop.hidden = window.scrollY < 800; };
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  }
+})();
+
+(() => {
+  const figures = [...document.querySelectorAll('.lecture-slide')];
+  if (!figures.length) return;
+  let viewer, image, title, prev, next, full;
+  const createViewer = () => {
+    viewer = document.createElement('div');
+  viewer.className = 'infographic-viewer';
+  viewer.hidden = true;
+  viewer.setAttribute('role', 'dialog');
+  viewer.setAttribute('aria-modal', 'true');
+  viewer.setAttribute('aria-labelledby', 'infographic-title');
+  viewer.innerHTML = `<header><h2 id="infographic-title"></h2><button type="button" data-action="close">關閉（Esc）</button></header><div class="slide-stage"><img alt=""></div><div class="slide-controls"><button type="button" data-action="prev">上一張</button><span class="slide-count" aria-live="polite"></span><button type="button" data-action="next">下一張</button><button type="button" data-action="fullscreen">全螢幕</button></div><p>← → 切換 · Home / End 首末張 · Esc 關閉</p>`;
+    image = viewer.querySelector('img');
+    title = viewer.querySelector('h2');
+    prev = viewer.querySelector('[data-action="prev"]');
+    next = viewer.querySelector('[data-action="next"]');
+    full = viewer.querySelector('[data-action="fullscreen"]');
+    prev.addEventListener('click', () => move(index - 1));
+    next.addEventListener('click', () => move(index + 1));
+    viewer.querySelector('[data-action=close]').addEventListener('click', close);
+    if (!viewer.requestFullscreen) full.hidden = true;
+    full.addEventListener('click', async () => {
+      if (document.fullscreenElement === viewer) { await close(); return; }
+      try { await viewer.requestFullscreen(); enteredFullscreen = true; }
+      catch { full.textContent = '無法開啟全螢幕'; }
+    });
+  };
+  let group = [], index = 0, opener, oldOverflow, closing = false, enteredFullscreen = false;
+  const render = () => {
+    const figure = group[index];
+    const img = figure.querySelector('img');
+    image.src = img.src;
+    image.alt = img.alt;
+    title.textContent = figure.querySelector('figcaption').firstChild.textContent.trim();
+    viewer.querySelector('.slide-count').textContent = `${index + 1} / ${group.length}`;
+    prev.disabled = index === 0;
+    next.disabled = index === group.length - 1;
+  };
+  const move = value => { index = Math.max(0, Math.min(group.length - 1, value)); render(); };
+  const close = async () => {
+    if (!viewer || viewer.hidden || closing) return;
+    closing = true;
+    if (document.fullscreenElement === viewer) await document.exitFullscreen().catch(() => {});
+    viewer.hidden = true;
+    viewer.remove();
+    document.body.style.overflow = oldOverflow;
+    opener?.focus({preventScroll:true});
+    enteredFullscreen = false;
+    closing = false;
+  };
+  figures.forEach(figure => figure.querySelector('button').addEventListener('click', event => {
+    createViewer();
+    opener = event.currentTarget;
+    group = figures.filter(f => f.dataset.section === figure.dataset.section);
+    index = group.indexOf(figure);
+    oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.body.append(viewer);
+    viewer.hidden = false;
+    render();
+    viewer.querySelector('[data-action="close"]').focus();
+  }));
+  document.addEventListener('fullscreenchange', () => {
+    if (!viewer) return;
+    full.textContent = document.fullscreenElement === viewer ? '離開全螢幕' : '全螢幕';
+    if (enteredFullscreen && !document.fullscreenElement && !closing) close();
+  });
+  document.addEventListener('keydown', event => {
+    if (!viewer || viewer.hidden) return;
+    if (['Escape','ArrowLeft','ArrowRight','Home','End'].includes(event.key)) {
+      event.preventDefault();
+      if (event.key === 'Escape') close();
+      if (event.key === 'ArrowLeft') move(index - 1);
+      if (event.key === 'ArrowRight') move(index + 1);
+      if (event.key === 'Home') move(0);
+      if (event.key === 'End') move(group.length - 1);
+    }
+    if (event.key === 'Tab') {
+      const buttons = [...viewer.querySelectorAll('button')].filter(b => !b.disabled && !b.hidden);
+      const first = buttons[0], last = buttons[buttons.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  }, true);
+})();
+
+</script>
+</body>
+</html>
