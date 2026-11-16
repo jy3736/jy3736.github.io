@@ -3,105 +3,178 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="南臺科技大學高齡福祉服務系智慧雨林學生專題工作坊，隸屬教育部智慧雨林計畫。2026 年 12 月 17 日、12 月 24 日，用自己蒐集的資料，以檢索增強生成（Retrieval-Augmented Generation, RAG）做一個能回答問題並附上出處的人工智慧（AI）小工具。">
-  <meta name="theme-color" content="#172e28">
+  <meta name="description" content="南臺科技大學高齡福祉服務系智慧雨林學生專題工作坊，隸屬教育部智慧雨林產業創生人才育成計畫。2026 年 12 月 17 日、12 月 24 日，用自己蒐集的資料，以檢索增強生成（Retrieval-Augmented Generation, RAG）做一個能回答問題並附上出處的人工智慧（AI）小工具。">
+  <meta name="theme-color" content="#1b3d3a">
   <link rel="icon" href="data:,">
   <title>用自己蒐集的資料做一個 AI 小工具｜智慧雨林學生專題工作坊</title>
   <style>
     :root {
       color-scheme: light;
-      --ink: #172e28;
-      --muted: #4b5d52;
-      --paper: #f7f6ed;
-      --line: #cdd4c5;
-      --lime: #d6ed9e;
-      font-family: "Instrument Sans", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+      --navy: #183a5a;
+      --band: #1b3d3a;
+      --teal: #1f6f68;
+      --mint: #e3efe9;
+      --mint-deep: #cfe3da;
+      --orange: #e08a4b;
+      --peach: #f6e6dc;
+      --brown: #8a4a24;
+      --ink: #26323a;
+      --muted: #55636a;
+      --line: #d9e2de;
+      --gray: #f2f3f2;
+      --paper: #ffffff;
+      font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.7; }
-    .wrap { width: min(65rem, calc(100% - 3rem)); margin-inline: auto; }
-    header { background: var(--ink); color: var(--paper); padding-block: clamp(1.6rem, 4vw, 3.2rem); }
-    .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(1.25rem, 4vw, 3rem); }
-    .context { letter-spacing: .12em; color: var(--lime); font-weight: 650; margin: 0 0 1.2rem; }
-    h1, h2, h3 { line-height: 1.24; text-wrap: balance; }
-    h1 { font-size: clamp(1.9rem, 4vw, 3.35rem); margin: 0; letter-spacing: -.04em; }
-    h1 span { color: var(--lime); }
-    .date { margin: 1.65rem 0 0; font-size: .98rem; }
-    .program { margin: .35rem 0 0; font-size: .92rem; color: #c9d5c4; }
-    .lead { margin: 1.1rem 0 0; max-width: 36rem; color: #e1e8dc; font-size: clamp(1rem, 1.7vw, 1.2rem); }
-    main { padding-block: clamp(1.85rem, 4vw, 3.2rem); }
-    .workshop-figure { margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: .85rem; }
+    .wrap { width: min(66rem, calc(100% - 3rem)); margin-inline: auto; }
+    h1, h2, h3 { line-height: 1.22; text-wrap: balance; }
+
+    /* Hero */
+    header { background: var(--mint); color: var(--navy); padding-block: clamp(1.5rem, 4vw, 2.8rem) clamp(1.8rem, 4vw, 3rem); }
+    .topline { display: flex; align-items: center; gap: 1rem; margin-bottom: clamp(1rem, 3vw, 1.8rem); font-weight: 700; }
+    .eyebrow { display: inline-flex; align-items: center; gap: .55rem; color: var(--teal); letter-spacing: .08em; margin: 0; font-size: .95rem; }
+    .eyebrow::before { content: ""; width: .6rem; height: .6rem; border-radius: 50%; background: var(--orange); flex: none; }
+    .topline .rule { flex: 1; height: 1px; background: #9fbfb4; }
+    .topline .year { color: var(--navy); font-size: 1.35rem; letter-spacing: .04em; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; gap: clamp(1.25rem, 4vw, 3rem); }
+    .context { margin: 0 0 .7rem; color: var(--teal); font-weight: 650; }
+    h1 { font-size: clamp(2.2rem, 5.4vw, 4rem); margin: 0; letter-spacing: -.02em; font-weight: 900; }
+    h1 span { color: var(--teal); }
+    .lead { margin: 1.2rem 0 0; max-width: 34rem; color: #3b4f5c; font-size: clamp(1rem, 1.6vw, 1.12rem); }
+    .workshop-figure { margin: 0; overflow: hidden; border-radius: 1rem; box-shadow: 0 .6rem 1.8rem rgba(24, 58, 90, .14); background: #fff; }
     .workshop-figure img { display: block; width: 100%; height: auto; }
-    h2 { margin: 0 0 1.3rem; font-size: clamp(1.7rem, 3.8vw, 2.7rem); }
-    ol { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
-    li { display: grid; grid-template-columns: 9.5rem 1fr; gap: 1.35rem; padding-block: 1.45rem; border-bottom: 1px solid var(--line); }
-    .when { font-weight: 700; color: var(--muted); margin: 0; }
-    h3 { font-size: 1.27rem; margin: 0 0 .4rem; }
-    li p:last-child { margin: 0; max-width: 45rem; color: var(--muted); }
-    .project { margin-top: 2.65rem; background: #e7efd9; border-inline-start: .28rem solid #577844; padding: clamp(1.2rem, 4vw, 2.1rem); }
-    .project h2 { font-size: 1.55rem; margin-bottom: .55rem; }
+
+    /* Date band */
+    .band { background: var(--band); color: #fff; }
+    .band .wrap { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0; padding-block: 1.2rem; }
+    .band .cell { padding-inline: clamp(1rem, 3vw, 2.4rem); border-inline-start: 1px solid rgba(255,255,255,.28); }
+    .band .cell:first-child { padding-inline-start: 0; border: 0; }
+    .band .label { display: block; font-size: .85rem; color: #b9d3cc; margin-bottom: .1rem; }
+    .band .big { font-size: clamp(1.6rem, 3.6vw, 2.5rem); font-weight: 800; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+    .band .day { font-size: 1rem; font-weight: 700; color: #b9d3cc; margin-inline-start: .45rem; }
+    .band .mid { font-size: clamp(1.15rem, 2.4vw, 1.55rem); font-weight: 800; }
+
+    /* Schedule */
+    main { padding-block: clamp(2rem, 4.5vw, 3.4rem); }
+    h2 { margin: 0 0 1.2rem; font-size: clamp(1.6rem, 3.4vw, 2.3rem); color: var(--navy); }
+    .agenda { list-style: none; padding: 0; margin: 0; border-bottom: 1px solid var(--line); }
+    .agenda-head, .agenda li { display: grid; grid-template-columns: 10.5rem 14rem 1fr; gap: 1.4rem; align-items: center; }
+    .agenda-head { background: var(--peach); color: var(--brown); font-weight: 800; font-size: 1.1rem; padding: .8rem 1.4rem; letter-spacing: .12em; }
+    .agenda li { padding: 1.35rem 1.4rem; border-top: 1px solid var(--line); position: relative; }
+    .agenda li.session::before { content: ""; position: absolute; inset-block: 1rem; inset-inline-start: 0; width: .3rem; background: var(--orange); border-radius: .15rem; }
+    .agenda li.between { background: var(--gray); }
+    .when { margin: 0; font-weight: 800; color: var(--teal); font-size: 1.15rem; }
+    .between .when { color: var(--muted); font-weight: 650; font-size: 1.02rem; }
+    .agenda h3 { margin: 0; font-size: 1.22rem; color: var(--ink); }
+    .between h3 { font-weight: 650; color: var(--muted); }
+    .agenda li p.desc { margin: 0; color: var(--muted); }
+
+    .project { margin-top: 2.6rem; background: var(--mint); border-radius: .9rem; border-inline-start: .35rem solid var(--orange); padding: clamp(1.2rem, 4vw, 2rem); }
+    .project h2 { font-size: 1.5rem; margin-bottom: .55rem; }
     .project p { margin: 0; }
-    footer { border-top: 1px solid var(--line); padding-block: 1.4rem 2rem; color: var(--muted); font-size: .92rem; }
-    footer p { margin: 0; }
-    @media (max-width: 48rem) {
+    .topics { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; padding: 0; margin: 1rem 0 0; }
+    .topics li { background: #fff; border: 1px solid var(--mint-deep); color: var(--teal); font-weight: 650; padding: .3rem .85rem; border-radius: 999px; font-size: .95rem; }
+
+    /* Footer */
+    footer { background: var(--mint); color: var(--navy); padding-block: 2rem 2.4rem; margin-top: clamp(2rem, 4vw, 3rem); }
+    footer .program-name { margin: 0; font-size: clamp(1.25rem, 2.6vw, 1.7rem); font-weight: 900; letter-spacing: .04em; }
+    footer .program-en { margin: .15rem 0 0; font-size: .82rem; color: var(--muted); }
+    footer .host { margin: .9rem 0 0; color: var(--ink); }
+
+    @media (max-width: 52rem) {
       .hero { grid-template-columns: 1fr; }
+      .agenda-head { display: none; }
+      .agenda li { grid-template-columns: 1fr; gap: .3rem; }
+      .agenda li.session::before { inset-block: 1.35rem; }
     }
     @media (max-width: 36rem) {
       .wrap { width: calc(100% - 2rem); }
-      li { grid-template-columns: 1fr; gap: .4rem; }
+      .topline .rule { display: none; }
+      .band .wrap { grid-template-columns: 1fr 1fr; row-gap: .9rem; }
+      .band .cell:nth-child(3) { grid-column: 1 / -1; padding-inline-start: 0; border: 0; border-top: 1px solid rgba(255,255,255,.28); padding-top: .8rem; }
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="wrap hero">
-      <div>
-        <p class="context">智慧雨林學生專題工作坊 · 南臺科技大學高齡福祉服務系</p>
-        <h1>用自己蒐集的資料<br>做一個 <span>AI 小工具</span></h1>
-        <p class="date"><time datetime="2026-12-17">2026 年 12 月 17 日</time>、<time datetime="2026-12-24">12 月 24 日</time> · 每次 2 小時</p>
-        <p class="program">教育部智慧雨林計畫</p>
-        <p class="lead">從打磚塊看懂機器學習（<span lang="en">Machine Learning, ML</span>）如何讓機器從資料學習，再用自己蒐集的資料，做出一個能回答問題、附上出處的人工智慧（<span lang="en">Artificial Intelligence, AI</span>）小工具。</p>
+    <div class="wrap">
+      <div class="topline">
+        <p class="eyebrow">智慧雨林產業創生人才育成計畫</p>
+        <span class="rule" aria-hidden="true"></span>
+        <span class="year">2026</span>
       </div>
-      <figure class="workshop-figure">
-        <img src="workshop-infographic.webp" width="1536" height="1024"
-          alt="從打磚塊觀察模型預測球的落點，接著整理自己的資料並練習可重複使用的步驟，最後做出回答問題並附上資料出處的 AI 小工具。">
-      </figure>
+      <div class="hero">
+        <div>
+          <p class="context">智慧雨林學生專題工作坊 · 南臺科技大學高齡福祉服務系</p>
+          <h1>用自己蒐集的資料<br>做一個 <span>AI 小工具</span></h1>
+          <p class="lead">從打磚塊看懂機器學習（<span lang="en">Machine Learning, ML</span>）如何讓機器從資料學習，再用自己蒐集的資料，做出一個能回答問題、附上出處的人工智慧（<span lang="en">Artificial Intelligence, AI</span>）小工具。</p>
+        </div>
+        <figure class="workshop-figure">
+          <img src="workshop-infographic.webp" width="1536" height="1024"
+            alt="從打磚塊觀察模型預測球的落點，接著整理自己的資料並練習可重複使用的步驟，最後做出回答問題並附上資料出處的 AI 小工具。">
+        </figure>
+      </div>
     </div>
   </header>
+
+  <section class="band" aria-label="上課日期">
+    <div class="wrap">
+      <div class="cell">
+        <span class="label">第一堂</span>
+        <time class="big" datetime="2026-12-17">12.17</time><span class="day">星期四</span>
+      </div>
+      <div class="cell">
+        <span class="label">第二堂</span>
+        <time class="big" datetime="2026-12-24">12.24</time><span class="day">星期四</span>
+      </div>
+      <div class="cell">
+        <span class="label">課程長度</span>
+        <span class="mid">每次 2 小時</span>
+      </div>
+    </div>
+  </section>
+
   <main class="wrap">
     <section aria-labelledby="schedule">
       <h2 id="schedule">課程安排</h2>
-      <ol role="list">
-        <li>
+      <div class="agenda-head" aria-hidden="true"><span>日期</span><span>議程</span><span>教學活動</span></div>
+      <ol class="agenda" role="list">
+        <li class="session">
           <p class="when"><time datetime="2026-12-17">12 月 17 日</time></p>
-          <div>
-            <h3>看懂原理，選定題目</h3>
-            <p>操作打磚塊，觀察模型怎麼從遊戲資料學習並預測球的落點。接著看 RAG（檢索增強生成，<span lang="en">Retrieval-Augmented Generation</span>）怎麼找資料、根據資料回答，再練習把常用做法寫成 AI 可以重複使用的 Skill（技能，<span lang="en">Agent Skill</span>）。下課前，各組選定一個想解決的問題。</p>
-          </div>
+          <h3>看懂原理，選定題目</h3>
+          <p class="desc">操作打磚塊，觀察模型怎麼從遊戲資料學習並預測球的落點。接著看 RAG（檢索增強生成，<span lang="en">Retrieval-Augmented Generation</span>）怎麼找資料、根據資料回答，再練習把常用做法寫成 AI 可以重複使用的 Skill（技能，<span lang="en">Agent Skill</span>）。下課前，各組選定一個想解決的問題。</p>
         </li>
-        <li>
+        <li class="between">
           <p class="when">兩堂課之間</p>
-          <div>
-            <h3>蒐集資料，準備兩個問題</h3>
-            <p>整理幾份可以使用的資料。一題可以從資料找到答案，另一題可以選資料裡沒交代的內容。</p>
-          </div>
+          <h3>蒐集資料，準備兩個問題</h3>
+          <p class="desc">整理幾份可以使用的資料。一題可以從資料找到答案，另一題可以選資料裡沒交代的內容。</p>
         </li>
-        <li>
+        <li class="session">
           <p class="when"><time datetime="2026-12-24">12 月 24 日</time></p>
-          <div>
-            <h3>做出小工具，現場試問</h3>
-            <p>用帶來的資料實作 RAG 小工具。各組現場試問兩題，確認工具能在有資料時指出出處，也能在資料不足時說明還缺什麼。</p>
-          </div>
+          <h3>做出小工具，現場試問</h3>
+          <p class="desc">用帶來的資料實作 RAG 小工具。各組現場試問兩題，確認工具能在有資料時指出出處，也能在資料不足時說明還缺什麼。</p>
         </li>
       </ol>
     </section>
     <section class="project" aria-labelledby="project">
       <h2 id="project">專題成果</h2>
-      <p>一個主題、一個可操作的小工具、兩題可展示。可以做課程問答、服務場所查詢、健康餐點建議，也可以由各組自訂主題。</p>
+      <p>一個主題、一個可操作的小工具、兩題可展示。主題可以參考：</p>
+      <ul class="topics" role="list">
+        <li>課程問答</li>
+        <li>服務場所查詢</li>
+        <li>健康餐點建議</li>
+        <li>各組自訂主題</li>
+      </ul>
     </section>
   </main>
-  <footer class="wrap">
-    <p>主辦：南臺科技大學高齡福祉服務系｜教育部智慧雨林計畫</p>
+
+  <footer>
+    <div class="wrap">
+      <p class="program-name">智慧雨林產業創生人才育成計畫</p>
+      <p class="program-en" lang="en">Ministry of Education Smart Rainforest Industry Innovation Talent Cultivation Program</p>
+      <p class="host">主辦：南臺科技大學高齡福祉服務系｜教育部</p>
+    </div>
   </footer>
 </body>
 </html>
