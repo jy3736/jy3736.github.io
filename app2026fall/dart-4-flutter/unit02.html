@@ -202,6 +202,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 .deck-bar{display:flex;align-items:center;justify-content:center;gap:.8rem;padding:.45rem .8rem;border-top:1px solid var(--line);background:var(--surface-2)}
 .deck-bar button{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.15rem .8rem;cursor:pointer;font-size:.9rem}
 .deck-bar button:hover{border-color:var(--accent);color:var(--accent)}
+.deck-bar button:disabled{opacity:.4;cursor:default}
 .deck-count{font-family:var(--mono);font-size:.85rem;color:var(--muted);min-width:4.5rem;text-align:center}
 .deck:fullscreen{display:flex;flex-direction:column;border:0;border-radius:0;background:#000}
 .deck:fullscreen .deck-stage{flex:1;aspect-ratio:auto;background:#000}
@@ -764,7 +765,7 @@ FormatException: Invalid radix-10 number (at character 1)
 </ul>
 <p>小提示：看不懂英文文件時，可以用瀏覽器的翻譯功能，或請 AI 用簡單的中文解釋其中一段。</p>
 </main></div>
-<footer class="site">範例程式皆以 Dart 3.9.2 實際執行產生結果。參考資料：dart.dev 官方文件（CC BY 4.0）。</footer>
+<footer class="site"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>範例程式皆以 Dart 3.9.2 實際執行產生結果。參考資料：dart.dev 官方文件（CC BY 4.0）。</p></footer>
 <script>
 (function(){
   var root=document.documentElement,key='dart-handout-theme';
@@ -821,7 +822,7 @@ FormatException: Invalid radix-10 number (at character 1)
   }
   document.querySelectorAll('.deck').forEach(function(deck){
     var stage=deck.querySelector('.deck-stage'),canvas=deck.querySelector('.deck-canvas');
-    var slides=deck.querySelectorAll('.deck-slide'),count=deck.querySelector('.deck-count'),i=0;
+    var slides=deck.querySelectorAll('.deck-slide'),count=deck.querySelector('.deck-count'),i=Number(deck.dataset.initialIndex||0);
     function fit(){
       var w=stage.clientWidth,h=stage.clientHeight,s=Math.min(w/1920,h/1080);
       canvas.style.transform='translate('+((w-1920*s)/2)+'px,'+((h-1080*s)/2)+'px) scale('+s+')';
@@ -833,16 +834,26 @@ FormatException: Invalid radix-10 number (at character 1)
     }
     deck.querySelector('.deck-prev').addEventListener('click',function(){show(i-1);});
     deck.querySelector('.deck-next').addEventListener('click',function(){show(i+1);});
-    deck.querySelector('.deck-full').addEventListener('click',function(){
+    var fullButton=deck.querySelector('.deck-full'),restoreFocus=null,wasFullscreen=false;
+    fullButton.addEventListener('click',function(){
       if(document.fullscreenElement){document.exitFullscreen();}
-      else if(deck.requestFullscreen){deck.requestFullscreen();}
+      else if(deck.requestFullscreen){restoreFocus=document.activeElement;deck.requestFullscreen();}
     });
     deck.addEventListener('keydown',function(e){
       if(e.key==='ArrowRight'||e.key==='PageDown'){show(i+1);e.preventDefault();}
       if(e.key==='ArrowLeft'||e.key==='PageUp'){show(i-1);e.preventDefault();}
+      if(e.key==='Home'){show(0);e.preventDefault();}
+      if(e.key==='End'){show(slides.length-1);e.preventDefault();}
+      if(e.key==='Escape'&&document.fullscreenElement===deck){document.exitFullscreen();e.preventDefault();}
     });
     if('ResizeObserver' in window){new ResizeObserver(fit).observe(stage);}else{window.addEventListener('resize',fit);}
-    document.addEventListener('fullscreenchange',fit);
+    document.addEventListener('fullscreenchange',function(){
+      var active=document.fullscreenElement===deck;
+      if(wasFullscreen&&!active&&restoreFocus){restoreFocus.focus();}
+      wasFullscreen=active;
+      fullButton.textContent=active?'離開全螢幕':'全螢幕';
+      fit();
+    });
     fit();
   });
   window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=true;});});

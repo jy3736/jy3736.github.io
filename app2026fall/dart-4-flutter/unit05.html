@@ -202,6 +202,7 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 .deck-bar{display:flex;align-items:center;justify-content:center;gap:.8rem;padding:.45rem .8rem;border-top:1px solid var(--line);background:var(--surface-2)}
 .deck-bar button{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:6px;padding:.15rem .8rem;cursor:pointer;font-size:.9rem}
 .deck-bar button:hover{border-color:var(--accent);color:var(--accent)}
+.deck-bar button:disabled{opacity:.4;cursor:default}
 .deck-count{font-family:var(--mono);font-size:.85rem;color:var(--muted);min-width:4.5rem;text-align:center}
 .deck:fullscreen{display:flex;flex-direction:column;border:0;border-radius:0;background:#000}
 .deck:fullscreen .deck-stage{flex:1;aspect-ratio:auto;background:#000}
@@ -234,6 +235,129 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem
 </ul>
 
 <h2 id="review">1. 暖身：程式當掉的時候發生了什麼事？</h2>
+<figure class="deck" data-slide="01-review" data-initial-index="0" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide"><section id="unit05-infographics-01-review-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-01-review-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-01-review-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-01-review-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-01-review-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-01-review-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-01-review-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-01-review-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-01-review-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-01-review-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-01-review-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-01-review-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-01-review-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">1 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <p>上一個單元用 <code>?</code> 處理「沒有值」。但還有另一種情況：<strong>動作本身失敗了</strong>。例如把 <code>'三十度'</code> 交給 <code>double.parse</code>，它無法給出任何合理的數字，只能<strong>丟出例外（exception）</strong>。</p>
 <figure class="code"><figcaption><span class="file">e11_uncaught_format.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-key">void</span> <span class="t-fn">main</span>() {
   <span class="t-key">var</span> text = <span class="t-str">&#x27;三十度&#x27;</span>;
@@ -246,6 +370,129 @@ FormatException: Invalid double
 <div class="flow"><span>① 可能失敗的動作</span><b>→</b><span>② 成功：繼續</span><b>／</b><span>③ 失敗：接住並處理</span><b>→</b><span>④ 收尾</span></div>
 
 <h2 id="try">2. try／catch：接住失敗，繼續處理下一筆</h2>
+<figure class="deck" data-slide="02-try" data-initial-index="1" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-02-try-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-02-try-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-02-try-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-02-try-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-02-try-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-02-try-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-02-try-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-02-try-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-02-try-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-02-try-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-02-try-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-02-try-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-02-try-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">2 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 
 <h3>基本範例</h3>
 <figure class="code"><figcaption><span class="file">s01_try_catch.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 例外處理：把「可能會失敗」的那幾行包在 try 裡面</span>
@@ -337,6 +584,129 @@ FormatException: Invalid double
 失敗：[三十度, ]</pre></div></details>
 
 <h2 id="throw">3. 自訂例外：說清楚是哪一種失敗</h2>
+<figure class="deck" data-slide="03-throw" data-initial-index="2" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-03-throw-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-03-throw-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-03-throw-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-03-throw-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-03-throw-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-03-throw-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-03-throw-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-03-throw-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-03-throw-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-03-throw-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-03-throw-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-03-throw-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-03-throw-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">3 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <p><code>FormatException</code> 只說「格式不對」。但我們常需要更具體的資訊：<strong>哪一台</strong>感測器、<strong>為什麼</strong>失敗。自己定義例外型別就能把這些資訊帶著走。</p>
 
 <h3>延伸練習</h3>
@@ -401,6 +771,129 @@ FormatException: Invalid double
 </ul>
 
 <h2 id="enum">4. enum：把狀態變成型別</h2>
+<figure class="deck" data-slide="04-enum" data-initial-index="3" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-04-enum-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-04-enum-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-04-enum-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-04-enum-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-04-enum-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-04-enum-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-04-enum-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-04-enum-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-04-enum-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-04-enum-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-04-enum-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-04-enum-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-04-enum-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">4 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <p>用字串表示狀態很容易出錯：<code>'警報'</code>、<code>'警戒'</code>、<code>'danger'</code> 混用，打錯字也不會被發現。<code>enum</code> 把所有可能的狀態列出來，打錯字在寫程式時就被抓到。</p>
 
 <h3>基本範例</h3>
@@ -492,6 +985,129 @@ FormatException: Invalid double
 現在可以操作的裝置：[冷氣]</pre></div></details>
 
 <h2 id="extension">5. extension：幫現成的型別加方法</h2>
+<figure class="deck" data-slide="05-extension" data-initial-index="4" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-05-extension-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-05-extension-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-05-extension-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-05-extension-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-05-extension-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-05-extension-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-05-extension-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-05-extension-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-05-extension-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-05-extension-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-05-extension-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-05-extension-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-05-extension-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">5 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <p><code>double</code> 和 <code>String</code> 是 Dart 內建的型別，我們改不了它們，但可以用 <code>extension</code> 幫它們<strong>加上</strong>自己需要的方法，讓程式讀起來像在講人話。</p>
 
 <h3>延伸練習</h3>
@@ -537,6 +1153,129 @@ true
 <p>當你發現同一段小處理（格式化、去空白再轉數字、判斷是否超標）在程式裡重複出現，就是把它變成 extension 的時機。</p></div>
 
 <h2 id="collection">6. 集合語法：在建立清單時就組好內容</h2>
+<figure class="deck" data-slide="06-collection" data-initial-index="5" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-06-collection-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-06-collection-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-06-collection-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-06-collection-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-06-collection-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-06-collection-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-06-collection-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-06-collection-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-06-collection-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-06-collection-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-06-collection-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-06-collection-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-06-collection-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">6 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <p>畫面上要顯示的清單，常常是「固定幾項 ＋ 依條件多幾項 ＋ 依資料重複幾項」。Dart 讓你在 <code>[ ]</code> 裡面直接寫展開、判斷和迴圈，不必先建空清單再一行行 <code>add</code>。</p>
 
 <h3>基本範例</h3>
@@ -605,6 +1344,129 @@ A2 31.8°C（偏熱）</pre></div></details>
 <p>Flutter 的畫面是一個「元件清單」，<code>if</code> 元素和 <code>for</code> 元素就是之後「有資料才顯示」、「每筆資料一列」的標準做法。</p></div>
 
 <h2 id="practice">7. 綜合實作：不會當掉的報表</h2>
+<figure class="deck" data-slide="07-practice" data-initial-index="6" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-07-practice-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-07-practice-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-07-practice-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-07-practice-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-07-practice-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-07-practice-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-07-practice-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-07-practice-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-07-practice-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-07-practice-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-07-practice-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-07-practice-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-07-practice-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">7 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <p>把四個主題放在同一支程式裡：解析失敗丟出自訂例外、狀態用 <code>enum</code>、格式化用 <code>extension</code>、報表用集合語法組出來。</p>
 <figure class="code"><figcaption><span class="file">s06_robust_report.dart</span><button class="copy" type="button">複製</button></figcaption><pre><code><span class="t-com">// 小型情境：把例外處理、enum、extension 和集合語法用在同一份報表上</span>
 
@@ -700,6 +1562,129 @@ A4：感測器沒有回應
 </ol></div>
 
 <h2 id="summary">8. 本單元重點整理</h2>
+<figure class="deck" data-slide="08-summary" data-initial-index="7" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-08-summary-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-08-summary-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-08-summary-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-08-summary-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-08-summary-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-08-summary-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-08-summary-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-08-summary-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-08-summary-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-08-summary-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-08-summary-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-08-summary-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-08-summary-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">8 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <ul>
   <li><code>try</code> 只包會失敗的那幾行；<code>on</code> 指定型別、<code>catch</code> 拿到物件、<code>finally</code> 收尾。</li>
   <li>失敗很正常就回傳 <code>null</code>（<code>tryParse</code>）；失敗代表有問題就 <code>throw</code>。</li>
@@ -711,6 +1696,129 @@ A4：感測器沒有回應
 </ul>
 
 <h2 id="glossary">9. 名詞小辭典</h2>
+<figure class="deck" data-slide="09-glossary" data-initial-index="8" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-09-glossary-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-09-glossary-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-09-glossary-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-09-glossary-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-09-glossary-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-09-glossary-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-09-glossary-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-09-glossary-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-09-glossary-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-09-glossary-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-09-glossary-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-09-glossary-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-09-glossary-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">9 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <div class="table-wrap"><table>
 <tr><th>中文</th><th>英文</th><th>一句話解釋</th></tr>
 <tr><td>例外</td><td>exception</td><td>執行中發生、可以被接住處理的失敗</td></tr>
@@ -724,6 +1832,129 @@ A4：感測器沒有回應
 </table></div>
 
 <h2 id="homework">10. 本單元作業：讓程式承受壞資料</h2>
+<figure class="deck" data-slide="10-homework" data-initial-index="9" tabindex="0" aria-label="投影片，可用左右方向鍵翻頁"><div class="deck-stage"><div class="deck-canvas"><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-01-review" aria-label="失敗的動作，需要有人接住" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/01-review.png" alt="失敗的動作，需要有人接住" title="失敗的動作，需要有人接住" aria-describedby="unit05-infographics-10-homework-unit05-01-review-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-01-review-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">失敗的動作，需要有人接住
+double.parse(&#x27;三十度&#x27;)
+FormatException
+沒有接住 → 程式停止
+接住並處理 → 繼續下一筆
+先決定：失敗時要做什麼？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-02-try" aria-label="每一筆資料，都有自己的收尾" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/02-try.png" alt="每一筆資料，都有自己的收尾" title="每一筆資料，都有自己的收尾" aria-describedby="unit05-infographics-10-homework-unit05-02-try-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-02-try-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">每一筆資料，都有自己的收尾
+逐筆處理
+try：double.parse(text)
+成功：使用數值
+on FormatException：記錄原因
+finally：這一筆收尾
+還有資料？
+是：下一筆
+否：完成
+預期會失敗：tryParse → null
+需要交代失敗：parse → 例外</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-03-throw" aria-label="把失敗原因，交給呼叫的人" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/03-throw.png" alt="把失敗原因，交給呼叫的人" title="把失敗原因，交給呼叫的人" aria-describedby="unit05-infographics-10-homework-unit05-03-throw-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-03-throw-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把失敗原因，交給呼叫的人
+checkReading
+A2：-999
+throw SensorException(...)
+sensorId：A2
+reason：感測器沒有回應
+logAndCheck
+先記錄，再 rethrow
+保留原本的呼叫堆疊
+main
+on SensorException catch (e)
+讀取 e.reason，決定如何處理</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-04-enum" aria-label="固定的狀態，交給 enum 管理" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/04-enum.png" alt="固定的狀態，交給 enum 管理" title="固定的狀態，交給 enum 管理" aria-describedby="unit05-infographics-10-homework-unit05-04-enum-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-04-enum-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">固定的狀態，交給 enum 管理
+AlertLevel
+normal｜正常｜rank 0
+warning｜注意｜rank 1
+danger｜警報｜rank 2
+小於 30°C → 不用處理
+30°C 以上、未滿 35°C → 開電風扇
+35°C 以上 → 立刻通知管理員
+needsNotify：rank &gt;= 1
+switch 表達式：每種狀態都有對應動作</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-05-extension" aria-label="重複的小處理，取一個好懂的名字" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/05-extension.png" alt="重複的小處理，取一個好懂的名字" title="重複的小處理，取一個好懂的名字" aria-describedby="unit05-infographics-10-homework-unit05-05-extension-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-05-extension-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">重複的小處理，取一個好懂的名字
+extension CelsiusFormat on double
+31.267 → asCelsius → 31.3°C
+extension SafeParse on String
+&#x27; 28.0 &#x27; → trim() → double.tryParse → 28.0
+&#x27;三十度&#x27; → toDoubleOrNull() → null
+this：被呼叫的那個值</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-06-collection" aria-label="把清單的組裝規則，寫進中括號" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/06-collection.png" alt="把清單的組裝規則，寫進中括號" title="把清單的組裝規則，寫進中括號" aria-describedby="unit05-infographics-10-homework-unit05-06-collection-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-06-collection-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">把清單的組裝規則，寫進中括號
+...清單：展開內容
+...?清單：null 就略過
+if：成立才加入
+for：逐筆產生項目
+base = [&#x27;溫度&#x27;, &#x27;濕度&#x27;]
+extra = [&#x27;二氧化碳&#x27;]
+[...base, ...extra, &#x27;照度&#x27;]
+[溫度, 濕度, 二氧化碳, 照度]</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-07-practice" aria-label="好資料繼續算，壞資料留下原因" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/07-practice.png" alt="好資料繼續算，壞資料留下原因" title="好資料繼續算，壞資料留下原因" aria-describedby="unit05-infographics-10-homework-unit05-07-practice-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-07-practice-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">好資料繼續算，壞資料留下原因
+A1：27.5
+A2：31.8
+A3：三十度
+A4：-999
+parseReading
+ok：有效資料
+failed：失敗原因
+A3：「三十度」不是數字
+A4：感測器沒有回應
+enum 判斷狀態
+extension 格式化
+集合語法組報表
+A1 27.5°C（正常）
+A2 31.8°C（注意）
+有效 2 筆、異常 2 筆
+ok 與 failed 都加入同一份報表
+--- 以下需要檢查 ---</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-08-summary" aria-label="一條資料流程，串起四個工具" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/08-summary.png" alt="一條資料流程，串起四個工具" title="一條資料流程，串起四個工具" aria-describedby="unit05-infographics-10-homework-unit05-08-summary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-08-summary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">一條資料流程，串起四個工具
+原始資料
+例外處理：接住失敗、留下原因
+enum：固定狀態
+extension：重複處理有名字
+集合語法：組出報表
+try → on / catch → finally
+壞資料 → 記錄原因 → 繼續下一筆
+檢查自己：catch 裡有留下紀錄嗎？</span>
+</section></div><div class="deck-slide" hidden><section id="unit05-infographics-10-homework-unit05-09-glossary" aria-label="用資料的旅程，記住這些名詞" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/09-glossary.png" alt="用資料的旅程，記住這些名詞" title="用資料的旅程，記住這些名詞" aria-describedby="unit05-infographics-10-homework-unit05-09-glossary-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-09-glossary-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">用資料的旅程，記住這些名詞
+exception｜執行中的失敗
+throw｜把失敗往外送
+catch｜接住例外
+rethrow｜把同一個例外繼續往上送
+enum｜固定幾種狀態
+extension｜替型別加方法
+spread：...｜展開清單內容
+collection element｜清單裡的 if、for、...</span>
+</section></div><div class="deck-slide"><section id="unit05-infographics-10-homework-unit05-10-homework" aria-label="讓程式承受壞資料" style="background:#fffaf0;padding:0">
+<img src="figures/unit05-infographics/10-homework.png" alt="讓程式承受壞資料" title="讓程式承受壞資料" aria-describedby="unit05-infographics-10-homework-unit05-10-homework-text" width="1920" height="1080" decoding="async" style="display:block;width:100%;height:100%;object-fit:contain;max-width:none;border-radius:0">
+<span id="unit05-infographics-10-homework-unit05-10-homework-text" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">讓程式承受壞資料
+至少 6 筆原始資料
+至少 2 筆壞資料
+自訂例外 → 主程式接住 → 收集原因
+enum：至少 3 種狀態，帶 label
+switch：產生建議動作
+集合語法 → List&lt;String&gt; 報表
+標題／每筆資料／異常區塊／統計行
+全部都是壞資料，仍能完成？
+沒有有效資料時，有顯示提示？
+每個 catch 都有留下紀錄？</span>
+</section></div></div></div><div class="deck-bar"><button type="button" class="deck-prev" aria-label="上一張">◀</button><span class="deck-count" aria-live="polite">10 / 10</span><button type="button" class="deck-next" aria-label="下一張">▶</button><button type="button" class="deck-full">全螢幕</button></div></figure>
 <ol>
   <li>準備一批<strong>至少 6 筆</strong>的原始資料（文字形式），其中至少 2 筆是壞的（不是數字、空字串，或代表失敗的 -999）。</li>
   <li>解析時遇到壞資料要 <code>throw</code> 自訂例外；主程式接住後，把原因收進「需要檢查」的清單，程式不可以中途停止。</li>
@@ -748,7 +1979,7 @@ A4：感測器沒有回應
 </ul>
 <p>小提示：看不懂英文文件時，可以用瀏覽器的翻譯功能，或請 AI 用簡單的中文解釋其中一段。</p>
 </main></div>
-<footer class="site">範例程式皆以 Dart 3.9.2 實際執行產生結果。參考資料：dart.dev 官方文件（CC BY 4.0）。</footer>
+<footer class="site"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>範例程式皆以 Dart 3.9.2 實際執行產生結果。參考資料：dart.dev 官方文件（CC BY 4.0）。</p></footer>
 <script>
 (function(){
   var root=document.documentElement,key='dart-handout-theme';
@@ -805,7 +2036,7 @@ A4：感測器沒有回應
   }
   document.querySelectorAll('.deck').forEach(function(deck){
     var stage=deck.querySelector('.deck-stage'),canvas=deck.querySelector('.deck-canvas');
-    var slides=deck.querySelectorAll('.deck-slide'),count=deck.querySelector('.deck-count'),i=0;
+    var slides=deck.querySelectorAll('.deck-slide'),count=deck.querySelector('.deck-count'),i=Number(deck.dataset.initialIndex||0);
     function fit(){
       var w=stage.clientWidth,h=stage.clientHeight,s=Math.min(w/1920,h/1080);
       canvas.style.transform='translate('+((w-1920*s)/2)+'px,'+((h-1080*s)/2)+'px) scale('+s+')';
@@ -817,16 +2048,26 @@ A4：感測器沒有回應
     }
     deck.querySelector('.deck-prev').addEventListener('click',function(){show(i-1);});
     deck.querySelector('.deck-next').addEventListener('click',function(){show(i+1);});
-    deck.querySelector('.deck-full').addEventListener('click',function(){
+    var fullButton=deck.querySelector('.deck-full'),restoreFocus=null,wasFullscreen=false;
+    fullButton.addEventListener('click',function(){
       if(document.fullscreenElement){document.exitFullscreen();}
-      else if(deck.requestFullscreen){deck.requestFullscreen();}
+      else if(deck.requestFullscreen){restoreFocus=document.activeElement;deck.requestFullscreen();}
     });
     deck.addEventListener('keydown',function(e){
       if(e.key==='ArrowRight'||e.key==='PageDown'){show(i+1);e.preventDefault();}
       if(e.key==='ArrowLeft'||e.key==='PageUp'){show(i-1);e.preventDefault();}
+      if(e.key==='Home'){show(0);e.preventDefault();}
+      if(e.key==='End'){show(slides.length-1);e.preventDefault();}
+      if(e.key==='Escape'&&document.fullscreenElement===deck){document.exitFullscreen();e.preventDefault();}
     });
     if('ResizeObserver' in window){new ResizeObserver(fit).observe(stage);}else{window.addEventListener('resize',fit);}
-    document.addEventListener('fullscreenchange',fit);
+    document.addEventListener('fullscreenchange',function(){
+      var active=document.fullscreenElement===deck;
+      if(wasFullscreen&&!active&&restoreFocus){restoreFocus.focus();}
+      wasFullscreen=active;
+      fullButton.textContent=active?'離開全螢幕':'全螢幕';
+      fit();
+    });
     fit();
   });
   window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=true;});});
