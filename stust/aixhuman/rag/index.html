@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RAG 檢索增強生成</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="styles.css?v=20261117-discussion">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>RAG <span id="title"></span></h1>
+    <div class="head-r">
+      <p class="tag" id="intro"></p>
+      <div class="page-tools">
+        <button class="btn ghost" id="slides-theme" type="button"></button>
+        <div class="intro-tools header-tools" id="slides-tools">
+          <button class="btn" id="slides-open" type="button"></button>
+        </div>
+        <div class="intro-tools header-tools" id="handout-tools" hidden>
+          <div class="text-size" role="group" aria-labelledby="handout-size-label">
+            <span class="text-size-label" id="handout-size-label"></span>
+            <button class="btn ghost" id="handout-smaller" type="button">A−</button>
+            <button class="btn ghost text-size-value" id="handout-size" type="button">100%</button>
+            <button class="btn ghost" id="handout-larger" type="button">A+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="Pages">
+    <a class="tab" href="#slides" data-route="slides"><span id="nav-slides"></span></a>
+    <a class="tab" href="#handout" data-route="handout"><span id="nav-handout"></span></a>
+    <a class="tab" href="#simulation" data-route="simulation"><span id="nav-simulation"></span></a>
+    <a class="tab tab-end" href="#references" data-route="references"><span id="nav-references"></span></a>
+  </nav>
+
+  <p class="narration-status" id="narration-status" role="status"></p>
+
+  <!-- ===== Slide deck: illustrated slides; "播放投影片" in the header opens the player ===== -->
+  <main class="intro" id="page-slides" hidden></main>
+
+  <!-- ===== Self-study handout: rich text with flow figures (content in handout-notes.js) ===== -->
+  <main class="intro handout" id="page-handout" hidden></main>
+
+  <!-- ===== Simulation: progress on the left, controls on the right, R · A · G panels below ===== -->
+  <main class="game-page" id="page-simulation" hidden>
+    <div class="main">
+      <section class="card run-state" aria-labelledby="run-heading">
+        <h2 class="mode-title" id="run-heading"></h2>
+        <ol class="run-progress" id="run-progress"></ol>
+        <button class="btn run-toggle" id="run-toggle" type="button" hidden></button>
+        <div role="status" aria-atomic="true">
+          <strong id="status"></strong>
+          <p id="run-detail"></p>
+        </div>
+        <div class="voice-caption" id="voice-caption">
+          <small id="caption-label"></small>
+          <p id="caption-text" lang="zh-Hant-TW" tabindex="0"></p>
+        </div>
+      </section>
+
+      <details class="game-controls" id="sim-controls" open>
+        <summary id="controls-label"></summary>
+        <form class="side" id="query-form">
+          <section class="card">
+            <div class="controls">
+              <label for="dataset" id="dataset-label"></label><select id="dataset"></select>
+            </div>
+            <div class="controls">
+              <label for="speed" id="speed-label"></label>
+              <select id="speed"><option value="6000"></option><option value="4000" selected></option><option value="2000"></option></select>
+            </div>
+          </section>
+          <section class="card">
+            <label class="label" for="query" id="query-label"></label>
+            <input type="text" id="query" readonly aria-readonly="true">
+            <div class="row">
+              <button class="btn" id="play" type="submit"></button>
+              <button class="btn ghost" id="step" type="button"></button>
+              <button class="btn ghost" id="reset" type="button"></button>
+            </div>
+            <div class="sub">
+              <label class="check"><input type="checkbox" id="checkpoint-voice" checked> <span id="checkpoint-voice-label"></span></label>
+              <p class="keys" id="narration-coverage"></p>
+              <button class="btn ghost listen" id="listen-simulation" type="button"></button>
+            </div>
+          </section>
+          <section class="card example-groups" id="examples"></section>
+        </form>
+      </details>
+    </div>
+
+    <div class="panels pipeline" id="pipeline">
+      <article class="card stage"><h2 class="label" id="retrieve"></h2><div id="retrieval"></div></article>
+      <article class="card stage"><h2 class="label" id="augment"></h2><div id="context"></div></article>
+      <article class="card stage"><h2 class="label" id="generate"></h2><div id="answer"></div></article>
+    </div>
+
+    <details class="card library">
+      <summary id="library-label"></summary>
+      <ol id="library"></ol>
+      <p class="note" id="source-note"></p>
+      <button class="btn ghost listen" id="listen-library" type="button" hidden></button>
+    </details>
+    <p class="note" id="method"></p>
+  </main>
+
+  <!-- ===== Referenced sources: citation links such as [L1] open this tab ===== -->
+  <main class="card guide-section references" id="page-references" aria-labelledby="references-heading" hidden>
+    <h2 id="references-heading"></h2>
+    <ol id="references-list"></ol>
+    <p class="note" id="copyright"></p>
+  </main>
+</div>
+<dialog class="slide-player" id="slide-player" aria-labelledby="player-title">
+  <h2 class="sr-only" id="player-title"></h2>
+  <div class="slide-stage" id="slide-stage">
+    <div class="intro slide-canvas" id="slide-canvas"></div>
+  </div>
+  <div class="slide-controls">
+    <button class="btn ghost" id="slides-prev" type="button"></button>
+    <output id="slides-count" aria-live="polite" aria-atomic="true"></output>
+    <button class="btn" id="slides-next" type="button"></button>
+    <button class="btn ghost" id="slides-audio" type="button" aria-pressed="false"></button>
+    <span class="slide-key-hint" id="slides-keys"></span>
+    <button class="btn ghost" id="player-theme" type="button"></button>
+    <button class="btn ghost" id="slides-fullscreen" type="button"></button>
+    <button class="btn ghost" id="slides-close" type="button"></button>
+  </div>
+</dialog>
+<script src="stust-eecs/curricula.js"></script>
+<script src="audio/caption-timings.js"></script>
+<script src="audio/demo/captions.js?v=20261117-pause"></script>
+<script src="audio/school-tracks.js"></script>
+<script src="demo-data.js?v=20261117-pause"></script>
+<script src="audio/handout/podcasts.js?v=20261117-three-handout-pages"></script>
+<script src="handout-notes.js?v=20261117-three-handout-pages"></script>
+<script src="slide-deck.js?v=20261117-four-slides"></script>
+<script src="app.js?v=20261117-audio-errors"></script>
+</body>
+</html>
