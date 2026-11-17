@@ -1,0 +1,1213 @@
+{
+ "_comment": "Source for the handout podcast audio and transcripts. Build: python3 audio/build_podcast.py --provider openai|google|azure|say. Lines are written to be spoken: avoid symbols such as → × ÷ and unit abbreviations.",
+ "speakers": {
+  "zh": {
+   "A": "小佳",
+   "B": "艾迪"
+  },
+  "en": {
+   "A": "Sam",
+   "B": "Reed"
+  }
+ },
+ "zh": [
+  {
+   "title": "機器學習，從例子開始",
+   "lines": [
+    [
+     "A",
+     "歡迎收聽打磚塊 AI 自學廣播，我是小佳。"
+    ],
+    [
+     "B",
+     "我是艾迪。今天是第一集，我們從最基本的問題開始：機器學習到底是什麼？"
+    ],
+    [
+     "A",
+     "我常聽到這個詞，但總覺得很抽象。"
+    ],
+    [
+     "B",
+     "先想想一般寫程式。假如要過濾垃圾郵件，工程師可能會寫：標題有「中獎」兩個字，就丟進垃圾桶。"
+    ],
+    [
+     "A",
+     "聽起來很合理啊。"
+    ],
+    [
+     "B",
+     "問題是，詐騙信每天都在變，規則永遠寫不完。機器學習換個做法：準備很多封信，每封都標好是不是垃圾郵件，讓電腦自己找出規律。"
+    ],
+    [
+     "A",
+     "所以重點是例子，加上答案。"
+    ],
+    [
+     "B",
+     "對。學到的規律存在模型裡。你可以把模型想成一個有很多旋鈕的公式，訓練就是把旋鈕調到剛好的位置。"
+    ],
+    [
+     "A",
+     "那模型能預測哪些東西？"
+    ],
+    [
+     "B",
+     "常見兩種。一種是預測類別，例如垃圾郵件或一般郵件；另一種是預測數量，例如飲料店明天會賣幾杯。"
+    ],
+    [
+     "A",
+     "打磚塊是哪一種？"
+    ],
+    [
+     "B",
+     "是預測數量。模型預測一個位置，也就是球拍該去的 x 座標，程式再把球拍移過去。"
+    ],
+    [
+     "A",
+     "最後還有一個名詞要釐清：人工智慧、機器學習、神經網路，有什麼關係？"
+    ],
+    [
+     "B",
+     "人工智慧範圍最大；機器學習是其中一種方法；神經網路則是機器學習裡的一類模型。像一層一層的套圈圈。"
+    ],
+    [
+     "A",
+     "要提醒大家，模型並不是真的「懂」，它只是從資料中找到規律。"
+    ],
+    [
+     "B",
+     "沒錯。留一個問題給你：預測明天的最高氣溫，是預測類別還是數量？答案在講義的自我檢查裡。"
+    ],
+    [
+     "A",
+     "我們下一集見！"
+    ]
+   ]
+  },
+  {
+   "title": "模型從什麼回饋中學習？",
+   "lines": [
+    [
+     "A",
+     "歡迎回來，我是小佳。"
+    ],
+    [
+     "B",
+     "我是艾迪。今天聊聊：模型學習的時候，拿到的是什麼樣的回饋？"
+    ],
+    [
+     "A",
+     "我知道有三種：監督式、非監督式、強化學習。"
+    ],
+    [
+     "B",
+     "很好。監督式學習的每筆例子都有答案，叫做標籤。模型預測完，馬上知道差了多少，學得最直接。"
+    ],
+    [
+     "A",
+     "非監督式呢？"
+    ],
+    [
+     "B",
+     "只有資料、沒有答案。例如把購買習慣相近的顧客分成幾群。至於每一群代表什麼意思，還是要人來解讀。"
+    ],
+    [
+     "A",
+     "強化學習聽起來最像在玩遊戲。"
+    ],
+    [
+     "B",
+     "它沒有每一步的標準答案，只有行動後的獎勵。像機器狗往前走越遠，分數越高。獎勵常常比較晚才出現，所以要嘗試非常多次。"
+    ],
+    [
+     "A",
+     "那我們的打磚塊，AI 自己玩，應該是強化學習吧？"
+    ],
+    [
+     "B",
+     "這是很常見的誤會！球落地之後，遊戲就知道球真正落在哪裡，可以替每一筆觀察配上精確答案。所以是監督式學習。"
+    ],
+    [
+     "A",
+     "原來如此，因為有標準答案。"
+    ],
+    [
+     "B",
+     "而且「落在哪個位置」比「接到或沒接到」提供更多資訊，模型學得更快。"
+    ],
+    [
+     "A",
+     "思考題來了：音樂 App 依照聆聽紀錄把歌分群，事先沒有曲風標籤，這是哪一種？"
+    ],
+    [
+     "B",
+     "想好答案，再去講義打開參考答案。下集見！"
+    ]
+   ]
+  },
+  {
+   "title": "把生活問題，整理成訓練例子",
+   "lines": [
+    [
+     "A",
+     "我是小佳，今天要動手整理資料。"
+    ],
+    [
+     "B",
+     "我是艾迪。假設飲料店想預估明天會賣幾杯。第一步，把過去的紀錄整理成一張表。"
+    ],
+    [
+     "A",
+     "表格要怎麼看？"
+    ],
+    [
+     "B",
+     "每一列是一筆例子，代表一天。前面幾欄是特徵，例如氣溫、平日還是假日；最後一欄是標籤，也就是實際賣出幾杯。"
+    ],
+    [
+     "A",
+     "特徵可以隨便放嗎？越多越好？"
+    ],
+    [
+     "B",
+     "不行。關鍵問題是：預測的當下拿得到嗎？前一晚預測，只能用氣象預報，不能用明天實際測到的氣溫。"
+    ],
+    [
+     "A",
+     "如果不小心放了未來才知道的資訊呢？"
+    ],
+    [
+     "B",
+     "那叫資料洩漏。練習時模型看起來超準，真正上線就失準。"
+    ],
+    [
+     "A",
+     "還有什麼要注意？"
+    ],
+    [
+     "B",
+     "單位要一致，文字類別要轉成數字，例如平日是零、假日是一。還有，資料要涵蓋各種情況，只收夏天的資料，就不會預測冬天。"
+    ],
+    [
+     "A",
+     "打磚塊也一樣嗎？"
+    ],
+    [
+     "B",
+     "一樣。每筆資料的特徵是球的位置 x、y，和方向 d x、d y。程式會把位置換算到負一到一之間，方向換成長度為一的向量，讓四個數字大小接近，訓練比較穩定。"
+    ],
+    [
+     "A",
+     "思考題：在「二十度、平日、賣三十杯」這筆資料裡，哪個是標籤？"
+    ],
+    [
+     "B",
+     "答案在講義裡。下集見！"
+    ]
+   ]
+  },
+  {
+   "title": "先訓練，再拿來預測",
+   "lines": [
+    [
+     "A",
+     "我是小佳。今天要分清楚兩個階段：訓練和預測。"
+    ],
+    [
+     "B",
+     "我是艾迪。訓練是調整模型參數的過程。我們用一個超簡單的模型來體會：杯數，大約等於 a 乘以氣溫，再加上 b。"
+    ],
+    [
+     "A",
+     "一開始 a 和 b 是多少？"
+    ],
+    [
+     "B",
+     "隨便給，例如 a 等於一、b 等於零。二十八度時，模型預測二十八杯，但實際賣了四十八杯，少估了二十杯。"
+    ],
+    [
+     "A",
+     "那就把 a 和 b 調大一點？"
+    ],
+    [
+     "B",
+     "對！例如 a 改成一點三、b 改成二，預測變成三十八點四杯，更接近了。對每一筆資料反覆這樣做，就是訓練。"
+    ],
+    [
+     "A",
+     "每次要調多少呢？"
+    ],
+    [
+     "B",
+     "由學習率決定。太大會來回震盪，太小又學得很慢。神經網路只是旋鈕更多，我們遊戲裡有五百四十一個。"
+    ],
+    [
+     "A",
+     "那預測，也叫推論，是什麼？"
+    ],
+    [
+     "B",
+     "把新的情況交給模型，用固定的參數算出答案，不再調整。計算很快，所以遊戲每一格畫面都能預測。"
+    ],
+    [
+     "A",
+     "我想到一個問題：在 AI 上場模式，模型漏接一球，下一球會變聰明嗎？"
+    ],
+    [
+     "B",
+     "不會，權重是固定的。會邊玩邊學的是 AI 學習模式。"
+    ],
+    [
+     "A",
+     "最後，資料檔和模型檔有什麼不同？"
+    ],
+    [
+     "B",
+     "資料檔存原始例子，可以匯出成 CSV；模型檔只存學到的權重，存成 JSON。下集見！"
+    ]
+   ]
+  },
+  {
+   "title": "遇到沒看過的情況，也能預測嗎？",
+   "lines": [
+    [
+     "A",
+     "我是小佳。今天的主題是：怎麼知道模型真的有用？"
+    ],
+    [
+     "B",
+     "我是艾迪。先打個比方：考前只背練習題答案，考試換了新題目，就答不出來。"
+    ],
+    [
+     "A",
+     "模型也會背答案？"
+    ],
+    [
+     "B",
+     "會。所以要先保留一部分例子，不拿來訓練，訓練完再用它們測試。這叫驗證資料。"
+    ],
+    [
+     "A",
+     "那要怎麼打分數？"
+    ],
+    [
+     "B",
+     "預測類別，用正確率，就是答對數除以總數。五十封信對了四十五封，就是百分之九十。"
+    ],
+    [
+     "A",
+     "預測數量呢？"
+    ],
+    [
+     "B",
+     "看誤差。例如三天的預測和實際分別差十杯、兩杯、五杯，平均誤差大約五點七杯。遊戲裡用像素當單位。"
+    ],
+    [
+     "A",
+     "我聽過過度擬合，是什麼？"
+    ],
+    [
+     "B",
+     "就是訓練誤差一直下降，驗證誤差卻停住、甚至上升。模型開始記住訓練資料的雜訊。選模型時要看驗證資料上的表現。"
+    ],
+    [
+     "A",
+     "所以訓練資料上百分之百正確，反而要小心。"
+    ],
+    [
+     "B",
+     "對。另外情況改變也會出問題，像用夏天資料訓練，到冬天就可能不準。"
+    ],
+    [
+     "A",
+     "思考題：模型 A 訓練誤差二、驗證誤差三十；模型 B 訓練誤差八、驗證誤差九。選哪一個？"
+    ],
+    [
+     "B",
+     "想一想，再看講義。下集我們正式進入打磚塊！"
+    ]
+   ]
+  },
+  {
+   "title": "電腦怎麼「學會」打磚塊？",
+   "lines": [
+    [
+     "A",
+     "我是小佳。從這集開始，我們進入第二部分：讓電腦學會打磚塊。"
+    ],
+    [
+     "B",
+     "我是艾迪。先問一個問題：你覺得模型看得到遊戲畫面嗎？"
+    ],
+    [
+     "A",
+     "應該看得到吧？"
+    ],
+    [
+     "B",
+     "其實看不到！它每次只收到四個數字：球的位置 x、y，以及移動方向 d x、d y。不知道磚塊在哪，也不知道分數。"
+    ],
+    [
+     "A",
+     "輸出呢？"
+    ],
+    [
+     "B",
+     "只有一個數字：球拍應該去的 x 位置。"
+    ],
+    [
+     "A",
+     "為什麼方向不直接用速度？"
+    ],
+    [
+     "B",
+     "因為遊戲裡球速會變，但球往哪裡飛只看方向。換成長度為一的向量，模型就能專注在真正有用的資訊。"
+    ],
+    [
+     "A",
+     "網路長什麼樣子？"
+    ],
+    [
+     "B",
+     "四、二十、二十、一。四個輸入，兩層各二十個神經元，一個輸出。每個神經元把輸入乘上權重、加總、再加偏差值，中間層還會經過 tanh 函數，讓網路能學彎曲的關係。"
+    ],
+    [
+     "A",
+     "五百四十一個參數是怎麼算的？"
+    ],
+    [
+     "B",
+     "四乘二十加二十，是一百；二十乘二十加二十，是四百二十；二十乘一加一，是二十一。加起來五百四十一。"
+    ],
+    [
+     "A",
+     "有趣的是，這題其實能用反彈公式算出來？"
+    ],
+    [
+     "B",
+     "對，所以很適合教學，我們能檢查模型學得對不對。去 AI 上場模式，打開顯示預測落點看看吧！"
+    ]
+   ]
+  },
+  {
+   "title": "答案從哪裡來？",
+   "lines": [
+    [
+     "A",
+     "我是小佳。監督式學習需要答案，那打磚塊的答案從哪裡來？"
+    ],
+    [
+     "B",
+     "我是艾迪。有兩個來源，對應兩種模式。第一種是模仿學習，答案是你最後把球拍放在哪裡。"
+    ],
+    [
+     "A",
+     "所以模型學的是「我會怎麼做」。"
+    ],
+    [
+     "B",
+     "沒錯，不一定是最好的做法。你的習慣、慢半拍、失誤，都會被學進去。"
+    ],
+    [
+     "A",
+     "那如果我常常漏接呢？"
+    ],
+    [
+     "B",
+     "可以勾選「只用接到的球訓練」，把失誤的示範排除掉。例如三十球漏了十二球，就剩十八球拿來訓練。"
+    ],
+    [
+     "A",
+     "第二種呢？"
+    ],
+    [
+     "B",
+     "從錯誤中學習。答案是球真正的落點，由遊戲物理決定，是客觀答案。AI 從亂猜開始，每落一球，就把觀察和落點存進資料庫，最多兩萬筆，再拿來訓練。"
+    ],
+    [
+     "A",
+     "兩種方式怎麼選？"
+    ],
+    [
+     "B",
+     "模仿學習要人花時間示範，但資料少也能起步；從錯誤中學習不需要人，但要更多球，學習曲線可能會起伏。"
+    ],
+    [
+     "A",
+     "模仿模型一定比我差嗎？"
+    ],
+    [
+     "B",
+     "上限大致接近示範者。不過它把很多球的示範平均起來，有時反而比你偶爾手滑時更穩定。"
+    ],
+    [
+     "A",
+     "去手動模式玩幾球試試吧，下集見！"
+    ]
+   ]
+  },
+  {
+   "title": "模型怎麼學？",
+   "lines": [
+    [
+     "A",
+     "我是小佳。今天把學習過程拆成三步：收集、訓練、使用。"
+    ],
+    [
+     "B",
+     "我是艾迪。先說收集。球往下掉的時候，遊戲每隔三個畫面記錄一次球的狀態。"
+    ],
+    [
+     "A",
+     "為什麼不是每個畫面都記？"
+    ],
+    [
+     "B",
+     "相鄰畫面幾乎一樣，隔幾格可以減少重複。等球到達球拍高度，才知道答案，再把同一個答案配給這一球所有的觀察。"
+    ],
+    [
+     "A",
+     "所以一球會產生很多筆資料。"
+    ],
+    [
+     "B",
+     "對。例如一球下落四十二個畫面，大約產生十四筆樣本，答案都是同一個落點。"
+    ],
+    [
+     "A",
+     "接下來是訓練。"
+    ],
+    [
+     "B",
+     "模型做出預測，和答案比較，算出平方誤差。然後用反向傳播，從輸出層往回推，找出每個權重對誤差有多少影響，再一點一點調整。我們遊戲用的方法叫 Adam，學習率是千分之三。"
+    ],
+    [
+     "A",
+     "最後是使用。"
+    ],
+    [
+     "B",
+     "每一格畫面，把當下球況交給模型，球拍往預測的位置移動。但要注意，AI 球拍每步最多只能移動八個像素。"
+    ],
+    [
+     "A",
+     "所以預測對了，也可能來不及接？"
+    ],
+    [
+     "B",
+     "沒錯。尤其球剛開始下落時最難預測，因為離落點遠，中途可能撞牆好幾次。去 AI 學習模式，看看網路的權重怎麼變化吧！"
+    ]
+   ]
+  },
+  {
+   "title": "看懂一次學習的結果",
+   "lines": [
+    [
+     "A",
+     "我是小佳。今天要把重要名詞串起來，順便學會看圖。"
+    ],
+    [
+     "B",
+     "我是艾迪。六個名詞，一口氣串起來：特徵輸入模型，模型輸出預測，和標籤比較得到損失，根據損失做一次梯度更新，重複很多次，再用驗證資料檢查，最後存檔，用固定權重做推論。"
+    ],
+    [
+     "A",
+     "我們來跟著一筆預測走一次。"
+    ],
+    [
+     "B",
+     "模型輸出零點五五，乘上畫面寬度四百八十，就是二百六十四像素。實際落點三百，誤差三十六像素。"
+    ],
+    [
+     "A",
+     "這樣算準嗎？"
+    ],
+    [
+     "B",
+     "球拍寬八十四像素，一半是四十二。誤差小於四十二，代表落點在半個球拍內，只要球拍到位就接得到。"
+    ],
+    [
+     "A",
+     "手動模式的訓練圖怎麼看？"
+    ],
+    [
+     "B",
+     "橘線是訓練誤差，青線是驗證誤差，虛線是四十二像素。兩條線一起往下、接近虛線，就是好訊號。橘線下降、青線卻上升，就是過度擬合。"
+    ],
+    [
+     "A",
+     "為什麼驗證資料要以整球為單位切分？"
+    ],
+    [
+     "B",
+     "同一球的觀察幾乎一樣。如果隨機切，驗證資料會混進跟訓練資料很像的樣本，成績會比實際好看。"
+    ],
+    [
+     "A",
+     "最後提醒：損失低，不代表接球率一定高。"
+    ],
+    [
+     "B",
+     "對，因為還有球拍速度的限制。最後還是要到 AI 上場看接球率。下集是最後一集！"
+    ]
+   ]
+  },
+  {
+   "title": "練出兩個模型，讓它們上場比較",
+   "lines": [
+    [
+     "A",
+     "我是小佳，這是最後一集，要來做實驗了！"
+    ],
+    [
+     "B",
+     "我是艾迪。任務是練出兩個模型：一個模仿你，一個從錯誤中自學，然後讓它們上場比較。"
+    ],
+    [
+     "A",
+     "怎麼比才公平？"
+    ],
+    [
+     "B",
+     "除了模型本身，其他條件都要一樣，這叫控制變因。第一，速度要相同，因為速度越快，球拍越可能來不及。"
+    ],
+    [
+     "A",
+     "第二呢？"
+    ],
+    [
+     "B",
+     "落球數要接近，最好至少五十球，因為接球率是用最近五十球計算的。"
+    ],
+    [
+     "A",
+     "五球接到四球，和五十球接到四十球，都是百分之八十呀。"
+    ],
+    [
+     "B",
+     "比例一樣，但後者可信多了。球數少的時候，運氣影響很大。"
+    ],
+    [
+     "A",
+     "比完之後，還能做什麼？"
+    ],
+    [
+     "B",
+     "一次改變一個條件再比較，例如多收集資料、只用接到的球訓練，或讓 AI 學久一點。記得做一張紀錄表：模型名稱、訓練方式、資料球數、驗證誤差、速度、落球數、接球率。"
+    ],
+    [
+     "A",
+     "最後的大問題：哪個模型接球率比較高？你的示範，又怎麼影響模仿模型？"
+    ],
+    [
+     "B",
+     "答案要靠你自己動手找出來。謝謝收聽，祝實驗順利！"
+    ],
+    [
+     "A",
+     "我們遊戲裡見！"
+    ]
+   ]
+  }
+ ],
+ "en": [
+  {
+   "title": "Machine learning starts with examples",
+   "lines": [
+    [
+     "A",
+     "Welcome to the Arkanoid Learns study podcast. I'm Sam."
+    ],
+    [
+     "B",
+     "And I'm Reed. In this first episode we start with the basic question: what is machine learning?"
+    ],
+    [
+     "A",
+     "I hear the term everywhere, but it still feels abstract."
+    ],
+    [
+     "B",
+     "Think about ordinary programming first. To filter spam, an engineer might write a rule: if the subject says you won, send it to the spam folder."
+    ],
+    [
+     "A",
+     "That sounds reasonable."
+    ],
+    [
+     "B",
+     "The trouble is that scams change every day, so the rules never end. Machine learning flips it around. Collect many emails, label each one as spam or not, and let the computer find the pattern."
+    ],
+    [
+     "A",
+     "So the key is examples, plus answers."
+    ],
+    [
+     "B",
+     "Exactly. The pattern is stored in a model. Picture a formula with lots of knobs. Training turns the knobs to the right positions."
+    ],
+    [
+     "A",
+     "What can a model predict?"
+    ],
+    [
+     "B",
+     "Two common kinds. A category, like spam or regular mail. Or a number, like how many drinks a shop will sell tomorrow."
+    ],
+    [
+     "A",
+     "Which kind is Arkanoid?"
+    ],
+    [
+     "B",
+     "A number. The model predicts a position, the x coordinate where the paddle should go, and the program moves the paddle there."
+    ],
+    [
+     "A",
+     "One more thing to untangle: how do A I, machine learning and neural networks relate?"
+    ],
+    [
+     "B",
+     "A I is the widest field. Machine learning is one approach within it. Neural networks are one family of machine learning models. Think of circles inside circles."
+    ],
+    [
+     "A",
+     "And a reminder: a model doesn't really understand. It finds patterns in data."
+    ],
+    [
+     "B",
+     "Right. A question for you: is predicting tomorrow's high temperature a category or a number? Check your answer in the handout."
+    ],
+    [
+     "A",
+     "See you next episode!"
+    ]
+   ]
+  },
+  {
+   "title": "What feedback does the model learn from?",
+   "lines": [
+    [
+     "A",
+     "Welcome back. I'm Sam."
+    ],
+    [
+     "B",
+     "I'm Reed. Today: when a model learns, what kind of feedback does it get?"
+    ],
+    [
+     "A",
+     "I know there are three types: supervised, unsupervised and reinforcement learning."
+    ],
+    [
+     "B",
+     "Great. In supervised learning every example has an answer, called a label. After predicting, the model immediately knows how far off it was."
+    ],
+    [
+     "A",
+     "And unsupervised?"
+    ],
+    [
+     "B",
+     "Data, but no answers. For example, grouping customers with similar buying habits. People still decide what each group means."
+    ],
+    [
+     "A",
+     "Reinforcement learning sounds the most like playing a game."
+    ],
+    [
+     "B",
+     "It has no correct answer for each step, only rewards after acting. A robot dog scores more the farther it walks. Rewards often come late, so it needs a lot of attempts."
+    ],
+    [
+     "A",
+     "So in our Arkanoid game, when the A I plays by itself, that's reinforcement learning, right?"
+    ],
+    [
+     "B",
+     "That's a very common mix-up! Once the ball lands, the game knows exactly where. It can attach a precise answer to every observation. So it's supervised learning."
+    ],
+    [
+     "A",
+     "Because there's a correct answer."
+    ],
+    [
+     "B",
+     "And knowing where the ball landed tells the model much more than just caught or missed, so it learns faster."
+    ],
+    [
+     "A",
+     "Question time: a music app groups songs by listening history, with no genre labels. Which type is that?"
+    ],
+    [
+     "B",
+     "Decide, then reveal the answer in the handout. See you next time!"
+    ]
+   ]
+  },
+  {
+   "title": "Turn a real question into training examples",
+   "lines": [
+    [
+     "A",
+     "I'm Sam, and today we're organising data."
+    ],
+    [
+     "B",
+     "I'm Reed. Say a drink shop wants to estimate tomorrow's sales. Step one: turn past records into a table."
+    ],
+    [
+     "A",
+     "How do I read the table?"
+    ],
+    [
+     "B",
+     "Each row is one example, one day. The first columns are features, such as temperature and whether it's a weekday. The last column is the label: how many cups were actually sold."
+    ],
+    [
+     "A",
+     "Can I add any feature I like? Is more always better?"
+    ],
+    [
+     "B",
+     "No. The key question is: can I get this when I make the prediction? The night before, you can use the weather forecast, not tomorrow's measured temperature."
+    ],
+    [
+     "A",
+     "What if I accidentally include future information?"
+    ],
+    [
+     "B",
+     "That's called data leakage. The model looks amazing in practice, then fails in real use."
+    ],
+    [
+     "A",
+     "What else should I watch for?"
+    ],
+    [
+     "B",
+     "Keep units consistent. Turn text categories into numbers, like weekday zero and weekend one. And cover many situations. Summer data alone won't predict winter."
+    ],
+    [
+     "A",
+     "Is Arkanoid the same?"
+    ],
+    [
+     "B",
+     "Yes. Each sample's features are the ball's position, x and y, and its direction, d x and d y. The program scales position to between minus one and one, and turns direction into a vector of length one, so all four numbers have similar sizes. That keeps training stable."
+    ],
+    [
+     "A",
+     "Question: in the row twenty degrees, weekday, thirty cups, which part is the label?"
+    ],
+    [
+     "B",
+     "The answer is in the handout. See you next time!"
+    ]
+   ]
+  },
+  {
+   "title": "Train first, then use the model",
+   "lines": [
+    [
+     "A",
+     "I'm Sam. Today we separate two stages: training and prediction."
+    ],
+    [
+     "B",
+     "I'm Reed. Training adjusts the model's parameters. Let's use a tiny model: cups sold is about a times temperature, plus b."
+    ],
+    [
+     "A",
+     "What are a and b at the start?"
+    ],
+    [
+     "B",
+     "Anything. Say a is one and b is zero. At twenty-eight degrees the model predicts twenty-eight cups, but the shop sold forty-eight. It's twenty short."
+    ],
+    [
+     "A",
+     "So raise a and b a little?"
+    ],
+    [
+     "B",
+     "Yes! Say a becomes one point three and b becomes two. Now it predicts thirty-eight point four cups, which is closer. Repeating that over every row is training."
+    ],
+    [
+     "A",
+     "How big is each adjustment?"
+    ],
+    [
+     "B",
+     "The learning rate decides. Too big and it swings back and forth. Too small and it crawls. A neural network just has more knobs. Ours has five hundred forty-one."
+    ],
+    [
+     "A",
+     "And prediction, also called inference?"
+    ],
+    [
+     "B",
+     "Give the model a new case and it computes an answer with fixed parameters, no adjusting. It's fast, so the game can predict on every frame."
+    ],
+    [
+     "A",
+     "Here's a question. In A I Play, if the model misses a ball, does it get smarter for the next one?"
+    ],
+    [
+     "B",
+     "No. The weights are fixed. The mode that learns while playing is A I Learn."
+    ],
+    [
+     "A",
+     "Last one: how is a data file different from a model file?"
+    ],
+    [
+     "B",
+     "A data file stores raw examples, exported as C S V. A model file stores only the learned weights, as JSON. See you next time!"
+    ]
+   ]
+  },
+  {
+   "title": "Does it work on cases it has never seen?",
+   "lines": [
+    [
+     "A",
+     "I'm Sam. Today's topic: how do we know a model really works?"
+    ],
+    [
+     "B",
+     "I'm Reed. Here's an analogy. If you memorise the answers to practice questions, a new exam can still catch you out."
+    ],
+    [
+     "A",
+     "Models memorise too?"
+    ],
+    [
+     "B",
+     "They can. So we keep some examples out of training and test on them afterwards. Those are the validation data."
+    ],
+    [
+     "A",
+     "How do we score it?"
+    ],
+    [
+     "B",
+     "For categories, use accuracy: correct answers divided by the total. Forty-five right out of fifty emails is ninety percent."
+    ],
+    [
+     "A",
+     "And for numbers?"
+    ],
+    [
+     "B",
+     "Look at the error. If three days are off by ten, two and five cups, the mean error is about five point seven cups. The game measures error in pixels."
+    ],
+    [
+     "A",
+     "I've heard of overfitting. What is it?"
+    ],
+    [
+     "B",
+     "Training error keeps falling while validation error stalls or rises. The model is memorising noise in the training data. Choose models by how they do on validation data."
+    ],
+    [
+     "A",
+     "So being one hundred percent right on training data is a warning sign."
+    ],
+    [
+     "B",
+     "Yes. Changing conditions matter too. A model trained on summer data may fail in winter."
+    ],
+    [
+     "A",
+     "Question: model A has training error two and validation error thirty. Model B has eight and nine. Which would you pick?"
+    ],
+    [
+     "B",
+     "Think it through, then check the handout. Next time, we dive into Arkanoid!"
+    ]
+   ]
+  },
+  {
+   "title": "How does a computer learn to play Arkanoid?",
+   "lines": [
+    [
+     "A",
+     "I'm Sam. From here on we're in part two: teaching a computer to play Arkanoid."
+    ],
+    [
+     "B",
+     "I'm Reed. First question: do you think the model can see the game screen?"
+    ],
+    [
+     "A",
+     "I'd assume so."
+    ],
+    [
+     "B",
+     "It can't! Each time it gets just four numbers: the ball's position, x and y, and its direction, d x and d y. It doesn't know where the bricks are, or the score."
+    ],
+    [
+     "A",
+     "And the output?"
+    ],
+    [
+     "B",
+     "One number: the x position the paddle should move to."
+    ],
+    [
+     "A",
+     "Why use direction instead of velocity?"
+    ],
+    [
+     "B",
+     "Ball speed changes during a game, but where it goes depends only on direction. A length-one vector keeps the model focused on what matters."
+    ],
+    [
+     "A",
+     "What does the network look like?"
+    ],
+    [
+     "B",
+     "Four, twenty, twenty, one. Four inputs, two layers of twenty neurons, one output. Each neuron multiplies its inputs by weights, adds them up with a bias, and in the hidden layers passes the result through tanh. That lets the network learn curved relationships."
+    ],
+    [
+     "A",
+     "Where does five hundred forty-one parameters come from?"
+    ],
+    [
+     "B",
+     "Four times twenty plus twenty is one hundred. Twenty times twenty plus twenty is four hundred twenty. Twenty times one plus one is twenty-one. Together, five hundred forty-one."
+    ],
+    [
+     "A",
+     "And this problem could actually be solved with a bounce formula?"
+    ],
+    [
+     "B",
+     "Yes, which makes it great for teaching. We can check whether the model learned the right thing. Open A I Play and turn on the predicted landing point!"
+    ]
+   ]
+  },
+  {
+   "title": "Where do the answers come from?",
+   "lines": [
+    [
+     "A",
+     "I'm Sam. Supervised learning needs answers. So where do Arkanoid's answers come from?"
+    ],
+    [
+     "B",
+     "I'm Reed. Two sources, matching two modes. The first is imitation learning. The answer is where you finally put the paddle."
+    ],
+    [
+     "A",
+     "So the model learns what I would do."
+    ],
+    [
+     "B",
+     "Right, which isn't always the best move. Your habits, slow reactions and mistakes get learned too."
+    ],
+    [
+     "A",
+     "What if I miss a lot?"
+    ],
+    [
+     "B",
+     "Tick train only on caught balls to drop the failed demonstrations. If you miss twelve of thirty throws, eighteen remain for training."
+    ],
+    [
+     "A",
+     "And the second source?"
+    ],
+    [
+     "B",
+     "Learning from mistakes. The answer is where the ball actually lands. Game physics decides it, so it's objective. The A I starts by guessing. After every throw it stores the observations and landing point in a buffer of up to twenty thousand samples, and trains on them."
+    ],
+    [
+     "A",
+     "How do I choose between them?"
+    ],
+    [
+     "B",
+     "Imitation needs a person to demonstrate but can start with little data. Learning from mistakes needs no person, but more throws, and progress can be bumpy."
+    ],
+    [
+     "A",
+     "Is an imitation model always worse than me?"
+    ],
+    [
+     "B",
+     "Its ceiling is close to the demonstrator's. But it averages over many throws, so it can be steadier than your occasional slips."
+    ],
+    [
+     "A",
+     "Go play a few throws in Manual mode. See you next time!"
+    ]
+   ]
+  },
+  {
+   "title": "How learning happens",
+   "lines": [
+    [
+     "A",
+     "I'm Sam. Today we break learning into three steps: collect, train and use."
+    ],
+    [
+     "B",
+     "I'm Reed. Collecting first. While the ball falls, the game records its state every three frames."
+    ],
+    [
+     "A",
+     "Why not every frame?"
+    ],
+    [
+     "B",
+     "Neighbouring frames are nearly identical, so skipping a few cuts the duplicates. The answer is only known when the ball reaches paddle height. Then every observation of that throw gets the same answer."
+    ],
+    [
+     "A",
+     "So one throw makes many samples."
+    ],
+    [
+     "B",
+     "Yes. A ball that falls for forty-two frames gives about fourteen samples, all with the same landing point."
+    ],
+    [
+     "A",
+     "Next, training."
+    ],
+    [
+     "B",
+     "The model predicts, compares with the answer and computes the squared error. Backpropagation works backwards from the output to find how much each weight contributed, then adjusts them a little. Our game uses an optimiser called Adam, with a learning rate of zero point zero zero three."
+    ],
+    [
+     "A",
+     "And finally, using the model."
+    ],
+    [
+     "B",
+     "On every frame, the current ball state goes into the model, and the paddle moves toward the prediction. But the A I paddle can move at most eight pixels per step."
+    ],
+    [
+     "A",
+     "So even a correct prediction might arrive too late?"
+    ],
+    [
+     "B",
+     "Exactly. The start of a fall is hardest to predict, because the ball is far away and may bounce off walls. Open A I Learn and watch the network's weights change!"
+    ]
+   ]
+  },
+  {
+   "title": "Read a learning result",
+   "lines": [
+    [
+     "A",
+     "I'm Sam. Today we connect the key terms and learn to read the charts."
+    ],
+    [
+     "B",
+     "I'm Reed. Six terms in one pass: features go into the model, it predicts, comparing with the label gives the loss, the loss drives one gradient step, repeat many times, check on validation data, then save and run inference with fixed weights."
+    ],
+    [
+     "A",
+     "Let's follow one prediction."
+    ],
+    [
+     "B",
+     "The model outputs zero point five five. Times the screen width of four hundred eighty, that's two hundred sixty-four pixels. The ball lands at three hundred, so the error is thirty-six pixels."
+    ],
+    [
+     "A",
+     "Is that accurate enough?"
+    ],
+    [
+     "B",
+     "The paddle is eighty-four pixels wide, so half is forty-two. An error under forty-two means the ball lands within half a paddle, so it's caught if the paddle gets there."
+    ],
+    [
+     "A",
+     "How do I read Manual mode's training chart?"
+    ],
+    [
+     "B",
+     "Amber is training error, cyan is validation error, and the dashed line is forty-two pixels. Both falling toward the dashed line is a good sign. Amber falling while cyan rises means overfitting."
+    ],
+    [
+     "A",
+     "Why split validation data by whole throws?"
+    ],
+    [
+     "B",
+     "Observations from one throw are near-duplicates. A random split would mix near-copies into validation and make the score look better than it is."
+    ],
+    [
+     "A",
+     "And a last reminder: low loss doesn't guarantee a high catch rate."
+    ],
+    [
+     "B",
+     "Right, because of the paddle's speed limit. Always confirm with the catch rate in A I Play. Next is our final episode!"
+    ]
+   ]
+  },
+  {
+   "title": "Train two models. Compare their play.",
+   "lines": [
+    [
+     "A",
+     "I'm Sam. This is the final episode, and it's experiment time!"
+    ],
+    [
+     "B",
+     "I'm Reed. The task: train two models, one that imitates you and one that learns from its mistakes, then let them compete."
+    ],
+    [
+     "A",
+     "How do we make it fair?"
+    ],
+    [
+     "B",
+     "Keep everything except the model the same. That's controlling variables. First, use the same speed, because at higher speed the paddle is more likely to arrive late."
+    ],
+    [
+     "A",
+     "Second?"
+    ],
+    [
+     "B",
+     "Play a similar number of throws, ideally at least fifty, because the catch rate covers the latest fifty throws."
+    ],
+    [
+     "A",
+     "Four out of five and forty out of fifty are both eighty percent, though."
+    ],
+    [
+     "B",
+     "Same rate, but the second is far more trustworthy. With few throws, luck dominates."
+    ],
+    [
+     "A",
+     "What can we do after comparing?"
+    ],
+    [
+     "B",
+     "Change one condition at a time and compare again: more data, only caught balls, or longer A I learning. Keep a results table with the model name, method, throws of data, validation error, speed, throws played and catch rate."
+    ],
+    [
+     "A",
+     "The big questions: which model catches more balls? And how do your demonstrations shape the imitation model?"
+    ],
+    [
+     "B",
+     "You'll find out by doing it yourself. Thanks for listening, and good luck with your experiments!"
+    ],
+    [
+     "A",
+     "See you in the game!"
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arkanoid Learns</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 data-i18n-html="h1">ARKANOID <span>LEARNS</span></h1>
+    <div class="head-r">
+      <p class="tag" data-i18n="tag"></p>
+      <div class="intro-tools header-tools" id="intro-tools">
+        <button class="btn ghost" id="slides-theme" type="button"></button>
+        <button class="btn" id="slides-open" type="button" data-i18n="slidesOpen"></button>
+      </div>
+      <div class="intro-tools header-tools" id="handout-tools" hidden>
+        <div class="text-size" role="group" aria-labelledby="handout-size-label">
+          <span class="text-size-label" id="handout-size-label" data-i18n="sizeLabel"></span>
+          <button class="btn ghost" id="handout-smaller" type="button">A−</button>
+          <button class="btn ghost text-size-value" id="handout-size" type="button">100%</button>
+          <button class="btn ghost" id="handout-larger" type="button">A+</button>
+        </div>
+        <button class="btn ghost" id="handout-theme" type="button"></button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="Pages">
+    <a class="tab" href="#intro" data-route="intro"><span data-i18n="navIntro"></span></a>
+    <a class="tab" href="#handout" data-route="handout"><span data-i18n="navHandout"></span></a>
+    <a class="tab" href="#manual" data-route="manual"><span class="num">1</span><span data-i18n="navManual"></span></a>
+    <a class="tab" href="#learn" data-route="learn"><span class="num">2</span><span data-i18n="navLearn"></span></a>
+    <a class="tab" href="#play" data-route="play"><span class="num">3</span><span data-i18n="navPlay"></span></a>
+  </nav>
+
+  <!-- ===== ML Intro (its toolbar lives in the header) ===== -->
+  <main class="intro" id="page-intro" data-i18n-html="intro"></main>
+
+  <!-- ===== Text handout of the ML Intro slide deck (its toolbar lives in the header) ===== -->
+  <main class="intro handout" id="page-handout" data-i18n-html="handout" hidden></main>
+
+  <!-- ===== Game pages: one screen, a panel per mode ===== -->
+  <main class="game-page" id="page-game" hidden>
+    <div class="game-views" role="group" aria-label="View">
+      <button class="btn ghost" type="button" data-game-view="progress" data-i18n="viewProgress" aria-pressed="false"></button>
+      <button class="btn ghost" type="button" data-game-view="network" data-i18n="viewNetwork" aria-pressed="false"></button>
+      <button class="btn ghost" type="button" data-game-view="both" data-i18n="viewBoth" aria-pressed="false"></button>
+      <button class="btn ghost" type="button" data-game-view="all" data-i18n="viewAll" aria-pressed="true"></button>
+    </div>
+    <div class="main">
+      <div class="screen" id="screen"><canvas id="game" width="480" height="600" aria-label="Arkanoid"></canvas></div>
+
+      <details class="game-controls" id="game-controls" open>
+      <summary data-i18n="gameControls"></summary>
+      <div class="side">
+        <section class="card mode-settings" aria-labelledby="mode-title">
+          <h2 class="mode-title" id="mode-title"></h2>
+          <div class="speed">
+            <div class="speed-top"><label for="speed" data-i18n="speedL"></label><output id="speedOut" for="speed">1.00×</output></div>
+            <input type="range" id="speed" min="-2" max="6" step="0.25" value="0">
+            <div class="ticks" aria-hidden="true"><span>0.25×</span><span>1×</span><span>4×</span><span>16×</span><span>64×</span></div>
+          </div>
+          <label class="check"><input type="checkbox" id="showPred" checked> <span data-i18n="showPred"></span></label>
+          <details class="mode-help">
+            <summary data-i18n="modeHelp"></summary>
+            <p class="mode-desc" id="mode-desc"></p>
+            <p class="keys" id="hint"></p>
+          </details>
+        </section>
+
+        <!-- Manual: collect → train → save -->
+        <section class="card manual-controls" data-mode="manual" aria-label="Manual">
+          <p class="label" data-i18n="mDataH"></p>
+          <div class="stats">
+            <div class="stat"><b id="m-throws">0</b><span data-i18n="mThrows"></span></div>
+            <div class="stat"><b id="m-samples">0</b><span data-i18n="mSamples"></span></div>
+            <div class="stat"><b id="m-caught">–</b><span data-i18n="mCaught"></span></div>
+          </div>
+          <div class="row data-actions">
+            <label class="check"><input type="checkbox" id="m-only"> <span data-i18n="mOnlyCaught"></span></label>
+            <button class="btn ghost" id="m-csv" type="button" data-i18n="mCsv"></button>
+            <button class="btn ghost" id="m-clear" type="button" data-i18n="mClear"></button>
+          </div>
+          <div class="sub manual-training">
+            <p class="label" data-i18n="mTrainH"></p>
+            <div class="row"><button class="btn" id="m-train" type="button" data-i18n="mTrain"></button></div>
+            <div class="bar" id="m-bar"><i></i></div>
+            <div class="stats">
+              <div class="stat"><b id="m-trainErr">–</b><span data-i18n="mTrainErr"></span></div>
+              <div class="stat"><b id="m-valErr">–</b><span data-i18n="mValErr"></span></div>
+            </div>
+            <p class="keys" id="m-note"></p>
+          </div>
+          <div class="sub manual-save">
+            <p class="label" data-i18n="mSaveH"></p>
+            <div class="row">
+              <input type="text" id="m-name" data-i18n-ph="namePh" maxlength="40">
+              <button class="btn" id="m-save" type="button" data-i18n="mSave" aria-describedby="m-save-status"></button>
+            </div>
+            <p class="keys manual-save-status" id="m-save-status" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <!-- AI learn: learn from mistakes → stop → train & save -->
+        <section class="card" data-mode="learn" aria-label="AI learn">
+          <p class="label" data-i18n="lStatsH"></p>
+          <div class="stats">
+            <div class="stat"><b id="l-throws">0</b><span data-i18n="sThrows"></span></div>
+            <div class="stat"><b id="l-samples">0</b><span data-i18n="sSamples"></span></div>
+            <div class="stat"><b id="l-steps">0</b><span data-i18n="sSteps"></span></div>
+            <div class="stat"><b id="l-err">–</b><span data-i18n="sErr"></span></div>
+            <div class="stat"><b id="l-catch">–</b><span data-i18n="sCatch"></span></div>
+            <div class="stat"><b id="l-games">0</b><span data-i18n="sGames"></span></div>
+          </div>
+          <div class="row">
+            <button class="btn" id="l-run" type="button"></button>
+            <button class="btn ghost" id="l-reset" type="button" data-i18n="lReset"></button>
+          </div>
+          <div class="sub">
+            <p class="label" data-i18n="lSaveH"></p>
+            <div class="row">
+              <input type="text" id="l-name" data-i18n-ph="namePh" maxlength="40">
+              <button class="btn" id="l-save" type="button" data-i18n="lSave"></button>
+            </div>
+            <div class="bar" id="l-bar"><i></i></div>
+            <p class="keys" id="l-note"></p>
+          </div>
+        </section>
+
+        <!-- AI play: load a saved model and let it play -->
+        <section class="card" data-mode="play" aria-label="AI play">
+          <p class="label" data-i18n="pPickH"></p>
+          <div class="row"><select id="p-model" aria-label="Model"></select></div>
+          <p class="keys" id="p-info"></p>
+          <div class="row">
+            <button class="btn" id="p-run" type="button"></button>
+            <button class="btn ghost" id="p-import" type="button" data-i18n="pImport"></button>
+            <button class="btn ghost" id="p-export" type="button" data-i18n="pExport"></button>
+            <button class="btn ghost" id="p-delete" type="button" data-i18n="pDelete"></button>
+            <input type="file" id="p-file" accept=".json,application/json" hidden>
+          </div>
+          <div class="sub">
+            <p class="label" data-i18n="pStatsH"></p>
+            <div class="stats">
+              <div class="stat"><b id="p-catch">–</b><span data-i18n="pCatch"></span></div>
+              <div class="stat"><b id="p-err">–</b><span data-i18n="pErr"></span></div>
+              <div class="stat"><b id="p-games">0</b><span data-i18n="pGames"></span></div>
+              <div class="stat"><b id="p-best">0</b><span data-i18n="pBest"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <p class="toast" id="toast" aria-live="polite"></p>
+      </div>
+      </details>
+    </div>
+
+    <div class="panels" data-mode="manual">
+      <section class="card">
+        <div class="card-head"><p class="label" data-i18n="lossH"></p><button class="expand" type="button" aria-expanded="false"></button></div>
+        <canvas class="plot" id="m-loss"></canvas>
+        <div class="legend"><span><i style="background:var(--amber)"></i><span data-i18n="legTrain"></span></span><span><i style="background:var(--cyan)"></i><span data-i18n="legVal"></span></span><span data-i18n="legLine"></span></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><p class="label" data-i18n="netH"></p><button class="expand" type="button" aria-expanded="false"></button></div>
+        <canvas class="plot tall" id="m-net"></canvas>
+        <div class="legend"><span><i style="background:var(--amber)"></i><span data-i18n="legPos"></span></span><span><i style="background:var(--violet)"></i><span data-i18n="legNeg"></span></span><span data-i18n="legIn"></span></div>
+      </section>
+    </div>
+
+    <div class="panels" data-mode="learn">
+      <section class="card">
+        <div class="card-head"><p class="label" data-i18n="errH"></p><b class="chart-rate" id="l-plot-rate">–</b><button class="expand" type="button" aria-expanded="false"></button></div>
+        <canvas class="plot" id="l-err-plot"></canvas>
+        <div class="legend"><span><i style="background:var(--cyan)"></i><span data-i18n="rateLegend"></span></span><span><i style="background:var(--coral)"></i><span data-i18n="rateMissed"></span></span><span data-i18n="rateWindow"></span></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><p class="label" data-i18n="netH"></p><button class="expand" type="button" aria-expanded="false"></button></div>
+        <canvas class="plot tall" id="l-net"></canvas>
+        <div class="legend"><span><i style="background:var(--amber)"></i><span data-i18n="legPos"></span></span><span><i style="background:var(--violet)"></i><span data-i18n="legNeg"></span></span><span data-i18n="legIn"></span></div>
+      </section>
+    </div>
+
+    <div class="panels" data-mode="play">
+      <section class="card">
+        <div class="card-head"><p class="label" data-i18n="errH"></p><b class="chart-rate" id="p-plot-rate">–</b><button class="expand" type="button" aria-expanded="false"></button></div>
+        <canvas class="plot" id="p-err-plot"></canvas>
+        <div class="legend"><span><i style="background:var(--cyan)"></i><span data-i18n="rateLegend"></span></span><span><i style="background:var(--coral)"></i><span data-i18n="rateMissed"></span></span><span data-i18n="rateWindow"></span></div>
+      </section>
+      <section class="card">
+        <div class="card-head"><p class="label" data-i18n="netH"></p><button class="expand" type="button" aria-expanded="false"></button></div>
+        <canvas class="plot tall" id="p-net"></canvas>
+        <div class="legend"><span><i style="background:var(--amber)"></i><span data-i18n="legPos"></span></span><span><i style="background:var(--violet)"></i><span data-i18n="legNeg"></span></span><span data-i18n="legIn"></span></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="backdrop" id="backdrop" hidden></div>
+</div>
+<dialog class="slide-player" id="slide-player" aria-labelledby="slides-title">
+  <h2 class="sr-only" id="slides-title" data-i18n="slidesTitle"></h2>
+  <div class="slide-stage" id="slide-stage">
+    <div class="intro slide-canvas" id="slide-canvas"></div>
+  </div>
+  <div class="slide-controls">
+    <button class="btn ghost" id="slides-prev" type="button" data-i18n="slidesPrev"></button>
+    <output id="slides-count" aria-live="polite" aria-atomic="true"></output>
+    <button class="btn" id="slides-next" type="button" data-i18n="slidesNext"></button>
+    <button class="btn ghost" id="slides-audio" type="button" aria-pressed="false" hidden></button>
+    <span class="slide-key-hint" data-i18n="slidesKeys"></span>
+    <button class="btn ghost" id="player-theme" type="button"></button>
+    <button class="btn ghost" id="slides-fullscreen" type="button" data-i18n="slidesFullscreen"></button>
+    <button class="btn ghost" id="slides-close" type="button" data-i18n="slidesClose"></button>
+  </div>
+</dialog>
+<script src="handout-notes.js"></script>
+<script src="handout-podcast.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
