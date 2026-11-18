@@ -6,32 +6,6 @@ window.RAG_HANDOUT = {
       "kicker": "自學講義・檢索增強生成（RAG）",
       "title": "讓 AI 先查資料，再回答",
       "intro": "不需要寫程式，也不需要資訊背景。這份講義用開書考、圖書館找書這些熟悉的情境，帶你弄懂 AI 為什麼要先查資料、怎麼查、怎麼回答，以及拿到答案後怎麼自己核對。",
-      "meta": [
-        "3 頁・7 節",
-        "對應 4 張投影片",
-        "自學約 30 分鐘",
-        "不需要程式背景",
-        "每頁附語音導讀"
-      ],
-      "howTitle": "怎麼使用這份講義",
-      "how": [
-        [
-          "先看「一句話記住」",
-          "每節開頭先給結論，抓住重點。"
-        ],
-        [
-          "讀生活比喻",
-          "用熟悉的情境理解新觀念。"
-        ],
-        [
-          "看圖解和例子",
-          "例子都來自本頁的真實資料。"
-        ],
-        [
-          "自我檢查",
-          "先自己回答，再看參考答案。"
-        ]
-      ],
       "glossaryTitle": "先認識幾個詞",
       "glossaryLead": "讀到不熟的詞時，可以回來這裡查。",
       "contents": "本頁目錄",
@@ -66,7 +40,6 @@ window.RAG_HANDOUT = {
       "sectionCount": "{n} 節",
       "deckLink": "延伸閱讀：自學講義第 {n} 頁",
       "discussion": "Podcast 深入討論",
-      "transcript": "看逐字稿",
       "discussionLead": "兩位主持人把這一頁的觀念聊得更深：講義沒細談的原因、例子和常見誤解。可以讀完再聽，也可以邊做家事邊聽。",
       "scoreQuestion": "問題",
       "scoreHits": "和問題相同的詞",
@@ -722,30 +695,6 @@ window.RAG_HANDOUT = {
       "kicker": "Self-study guide · Retrieval-augmented generation",
       "title": "Let AI look it up before it answers",
       "intro": "This guide takes RAG apart step by step: why it is needed, how retrieval finds passages, how the prompt is assembled, how answers cite sources, and how to use and check RAG in tools such as GPTs and Gems. Every section has a flow figure, a worked example, and self-check questions.",
-      "meta": [
-        "7 sections",
-        "About 45 minutes",
-        "Pairs with the simulation"
-      ],
-      "howTitle": "How to use this guide",
-      "how": [
-        [
-          "Read the goals",
-          "Know what each section will teach."
-        ],
-        [
-          "Read and follow the figure",
-          "Each figure draws the idea as a step-by-step path."
-        ],
-        [
-          "Work the example",
-          "Examples use real passages from this page’s datasets."
-        ],
-        [
-          "Check yourself",
-          "Answer first, then reveal the suggested answer."
-        ]
-      ],
       "contents": "Contents",
       "parts": [
         [

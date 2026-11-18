@@ -206,15 +206,80 @@ function buildIntro(english = false) {
       <li class="info-panel butter"><h3>${english ? 'AI Play' : 'AI 上場'}</h3><p>${c.playStep}</p><a class="info-link" href="#play">${c.playLink}<span aria-hidden="true"> →</span></a></li>
     </ol><div class="info-measure"><b>${c.threshold}</b><p>${c.thresholdNote}</p></div><p class="info-question">${c.question}</p>`);
 }
+// Concise visual deck; full explanations remain in the matching handout sections.
+const SLIDE_GUIDE = [
+  {
+    "title": "從例子學規律，再預測新情況",
+    "summary": "過去紀錄與答案用來調整模型；新情況交給訓練好的模型產生預測。人工智慧包含機器學習，神經網路是其中一類模型。",
+    "question": "模型每次做預測，都會再學習一次嗎？",
+    "answer": "不一定。只有執行訓練更新才會調整參數；推論使用固定參數。"
+  },
+  {
+    "title": "先看回饋，分清三種學習",
+    "summary": "監督式有目標答案；非監督式找出資料結構；強化學習依行動後的獎勵學策略。本遊戲使用位置答案進行監督式更新。",
+    "question": "AI 自己玩，為什麼仍可能是監督式學習？",
+    "answer": "判斷依據是更新時使用的回饋。本遊戲提供實際位置答案來訓練預測器。"
+  },
+  {
+    "title": "一筆資料＝輸入＋答案",
+    "summary": "氣溫與日期是特徵，實際杯數是標籤。一天一筆；預測明天時只能使用當時能取得的資訊，不能把未知銷量當輸入。",
+    "question": "「明天實際賣出幾杯」可以當明天預測的輸入嗎？",
+    "answer": "不可以。預測時尚未知道，這是要預測的目標。"
+  },
+  {
+    "title": "訓練會調整；推論用已學參數",
+    "summary": "訓練會比較預測與答案、調整權重；推論使用固定權重。資料檔保存例子，模型檔保存學到的參數。",
+    "question": "只拿到模型檔，能做預測嗎？",
+    "answer": "可載入相容的模型參數做推論，不必每次重新訓練。"
+  },
+  {
+    "title": "用沒參與訓練的例子檢查",
+    "summary": "保留資料不參與權重更新。分類可看正確率；數值預測可看誤差。9／10＝90%；|50－60|＝10 杯。例子與圖中數字皆為教學示意。",
+    "question": "訓練誤差很低，是否足以證明新情況也準？",
+    "answer": "不足。還要觀察未參與訓練的資料，且資料情境需接近實際用途。"
+  },
+  {
+    "title": "把球況，轉成球拍的位置",
+    "summary": "球的位置 x、y 與方向 dx、dy 是四個輸入，模型預測一個 x 位置。4→20→20→1 網路共有 541 個參數；控制器再移動球拍。",
+    "question": "模型直接輸出向左或向右的按鍵嗎？",
+    "answer": "不是。模型輸出位置 x，由遊戲控制器讓球拍朝該位置移動。"
+  },
+  {
+    "title": "兩種模式，差在答案來源",
+    "summary": "手動模式的標籤是玩家最後的球拍位置，可選擇只用接到的球；AI 學習模式的標籤是球到球拍高度時的實際落點。",
+    "question": "玩家沒有移到實際落點，模仿模型學哪個答案？",
+    "answer": "仍學玩家最後的球拍位置；這正是示範品質會影響結果的原因。"
+  },
+  {
+    "title": "一球的觀察，怎麼變成訓練資料？",
+    "summary": "下降途中每 3 畫面記錄球況，到球拍高度再取得答案。同一球的多筆觀察配上同一目標，透過比較答案與反向傳播反覆調整權重。",
+    "question": "同一球取樣三次，會有三個不同落點答案嗎？",
+    "answer": "不會。每筆球況各不相同，但同一球配上相同的最終目標位置。"
+  },
+  {
+    "title": "誤差、驗證、接球率：各看什麼？",
+    "summary": "絕對誤差 |200－230|＝30 px。手動模式以整球約 80／20 分組；訓練的損失用平方差，畫面以像素誤差呈現。42 px 是 84 px 球拍的半寬參考，並非接球保證。",
+    "question": "為什麼同一球的觀察不能分散到訓練與驗證組？",
+    "answer": "相鄰觀察高度相似，混在兩組會讓驗證結果過於樂觀。應以整球分組。"
+  },
+  {
+    "title": "練出兩個模型，再比較上場表現",
+    "summary": "手動至少玩 20 球後訓練並存檔；AI 學習觀察近 20 球誤差中位數，再停止、訓練並存檔。用相同速度、相近落球數重複比較，記錄近 50 球接球率；圖中的曲線不是實測。",
+    "question": "誤差低於 42 px，就一定接到嗎？",
+    "answer": "不一定，球拍可能來不及移到位。還需比較實際接球率與重複試驗結果。"
+  }
+];
+const slideImage = index => `slide-images/self-study-v2/${String(index + 1).padStart(2, '0')}-zh.png`;
 function buildIllustratedIntro(markup) {
   const template = document.createElement('template');
   template.innerHTML = markup;
   template.content.querySelectorAll('.info-slide').forEach((slide, index) => {
-    const title = slide.querySelector('h2').textContent;
-    const description = slide.querySelector('.info-heading p').textContent;
+    const guide = SLIDE_GUIDE[index];
+    const title = guide.title;
+    const description = guide.summary;
     const image = document.createElement('img');
     image.className = 'slide-illustration';
-    image.src = `slide-images/concise/${String(index + 1).padStart(2, '0')}-zh.png`;
+    image.src = slideImage(index);
     image.alt = `${title} — ${description}`;
     image.width = 1672;
     image.height = 941;
@@ -222,7 +287,11 @@ function buildIllustratedIntro(markup) {
     image.loading = index === 0 ? 'eager' : 'lazy';
     slide.classList.add('illustrated-slide');
     slide.setAttribute('aria-label', title);
-    slide.replaceChildren(image);   // the slide's full text lives in the 自學講義 tab
+    slide.replaceChildren(image);
+    const study = document.createElement('details');
+    study.className = 'slide-study';
+    study.innerHTML = `<summary>自學重點與檢查 · ${index + 1} / 10</summary><p>${guide.summary}</p><p><b>想一想：</b>${guide.question}</p><details><summary>查看答案</summary><p>${guide.answer}</p></details><a href="#handout" data-jump="handout-${String(index + 1).padStart(2, '0')}">閱讀本節完整講義 →</a>`;
+    slide.append(study);
     // Narration for this slide: the matching podcast episode, when it has been generated.
     const episode = (window.HANDOUT_PODCAST?.zh || [])[index];
     if (episode?.src) {
@@ -301,7 +370,7 @@ function buildHandout(english = false) {
     heading.remove();
     const n = notes.sections[i];
     const [partLabel, partName] = partOf(i);
-    const src = english ? `slide-images/${num(i)}-en.png` : `slide-images/concise/${num(i)}-zh.png`;
+    const src = english ? `slide-images/${num(i)}-en.png` : slideImage(i);
     const partBreak = i === 0 || i === half ? `<p class="handout-divider"><b>${partLabel}</b>${partName}</p>` : '';
     const study = n ? `
       <section class="handout-explain">${sub('✎', ui.explain)}<div class="handout-prose">${n.explain.map(text => `<p>${text}</p>`).join('')}</div></section>
@@ -1317,6 +1386,17 @@ addEventListener('keydown', event => {
   event.preventDefault();
 });
 // Contents links scroll within the handout so the #handout route stays put.
+$('page-intro').addEventListener('click', event => {
+  const link = event.target.closest('[data-jump]');
+  if (!link) return;
+  event.preventDefault();
+  addEventListener('hashchange', () => {
+    const target = $(link.dataset.jump);
+    target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    target.querySelector('h2').focus({ preventScroll: true });
+  }, { once: true });
+  location.hash = 'handout';
+});
 $('page-handout').addEventListener('click', event => {
   const link = event.target.closest('[data-jump]');
   if (!link) return;

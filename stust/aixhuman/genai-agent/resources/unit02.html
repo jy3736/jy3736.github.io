@@ -1,0 +1,47 @@
+<!doctype html><html lang="zh-Hant-TW"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Learn-Codex 參考摘錄</title><style>body{max-width:70ch;margin:40px auto;padding:0 20px;font:18px/1.8 system-ui;color:#142e54;background:#fcfdfb}p{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#075fbc}</style><a href="../index.html#handout">← 回講義</a><h1>Learn-Codex 參考摘錄</h1><p>來源：unit02.html；摘錄日期：2026-11-18。僅保留本次教材使用的章節文字，非即時產品說明。</p><section id="rules"><h2>05 把專案規則寫進專案</h2><p>
+每次請 Codex 做事，你可能都要重複交代「修改後要跑測試」、「不要改原始資料」。把這些規則寫成檔案放進專案資料夾，Codex 開始工作前會自動讀取，就不用每次重講。一個「交給任何人打開都能順利工作」的 Codex 專案，通常長這樣。以 . 開頭的資料夾在 macOS 的 Finder 和 Windows 檔案總管中預設會隱藏，但在 VS Code 的檔案總管裡看得到。
+
+Codex 專案的常見結構 複製 my-project/ ├── AGENTS.md                     ← 給 Codex 的專案規則 ├── .codex/ │   └── config.toml               ← 專案層級的 Codex 設定（選用） └── .agents/ └── skills/ └── my-skill/ ├── SKILL.md          ← 技能的說明與步驟（必要） ├── references/       ← 參考文件（選用） └── assets/           ← 範本、預期結果等資源（選用）
+
+Markdown 是什麼
+
+.md 結尾的檔案是 Markdown 格式，一種用簡單符號標示格式的純文字檔：
+
+# 標題 ：一個 # 是大標題， ## 是小一級的標題。 - 項目 ：減號加空格開頭，是條列項目。 `文字` ：用反引號包起來，表示這是指令或程式名稱。
+
+範例：畢業專題的 AGENTS.md
+
+Markdown AGENTS.md 複製 # AGENTS.md ## 專案說明 - 這是「校園二手書交易平台」畢業專題，前端 Flutter，後端 Python FastAPI。 ## 工作規則 - 修改 Python 程式後，執行 `pytest` 並回報結果。 - 修改 Dart 程式後，執行 `flutter analyze` 與 `flutter test`。 - 新增任何套件前，先問我們並說明理由。 - 程式碼註解使用繁體中文，變數與函式名稱使用英文。 - 不要修改 `docs/proposal/` 裡的計畫書檔案。
+
+這五條規則有三種類型： 做完要驗證什麼 、 做之前要先問 、 不准碰哪裡 。自己寫規則時，照這三個方向想就對了。
+
+Codex 怎麼找 AGENTS.md
+
+Codex 每次開始工作時，會把找到的規則檔串成一份指示：
+
+全域 ：Codex 家目錄（預設是 ~/.codex ）裡的 AGENTS.override.md ；沒有的話讀 AGENTS.md 。這是你個人套用到所有專案的規則。（ ~ 代表你的使用者家目錄。） 專案 ：從專案最上層（通常是 Git 儲存庫的根目錄）一路往下，走到你目前所在的資料夾。每一層依序找 AGENTS.override.md 、 AGENTS.md ，每層最多採用一個。 合併 ：由上往下串起來。越靠近目前資料夾的檔案越晚出現，所以會 覆蓋 前面的規則。
+
+用例子看懂「越近越優先」 資料夾結構 複製 ~/.codex/AGENTS.md            ← 全域：「回答請用繁體中文」 bookshop/ ├── AGENTS.md                 ← 專案：「修改後執行 pytest」 └── backend/ └── payments/ └── AGENTS.override.md  ← 付款模組：「改用 make test-payments」 如果在 bookshop/backend/payments 裡啟動 Codex，它會依序讀到三份規則。「繁體中文」照樣適用；但測試指令的規則，付款模組那份最靠近，所以以「make test-payments」為準。
+
+還要注意：
+
+空白的規則檔會被略過。所有規則合併後的大小上限預設為 32 KiB（約一萬多個中文字），超過就不再加入。專案很大時，把規則拆到各子資料夾。 在要放規則的資料夾執行 /init ，Codex 會產生一份 AGENTS.md 草稿，檢查、修改後再 commit。 想確認 Codex 讀到了哪些規則，直接問它：「列出你載入的指示來源。」
+
+成績報告範例（ 第 4 單元 ）的 AGENTS.md ：
+
+Markdown 01-grade-report/AGENTS.md 複製 1 # AGENTS.md 2 3 ## 專案說明 4 - 成績報告產生器：讀取 `data/scores.csv`，輸出 Markdown 成績報告到 `output/report.md`。 5 - 只使用 Python 3.10 以上的標準函式庫，不安裝任何第三方套件。 6 7 ## 工作規則 8 - 修改 `grade_report.py` 後，執行 `python3 -m unittest discover -s tests` 並回報結果。 9 - 計分規則以 `.agents/skills/grade-report/references/spec.md` 為準，不要自行更改權重或等第門檻。 10 - 報告內容使用繁體中文；變數與函式名稱使用英文。 11 - 不要修改 `data/scores.csv` 的原始資料。
+
+.codex/config.toml：專案層級設定
+
+個人預設設定放在 ~/.codex/config.toml ；某個專案需要不同的設定時，在專案中加入 .codex/config.toml 。CLI 與 VS Code 擴充套件共用同一套設定。
+
+TOML 格式很單純：每一行寫「 設定名稱 = 值 」，文字值要加引號， # 後面是註解（給人看的說明，Codex 會忽略）。
+
+TOML .codex/config.toml 複製 # 何時暫停下來問你 approval_policy = &quot;on-request&quot; # 執行指令時，檔案與網路的存取程度 sandbox_mode = &quot;workspace-write&quot;
+
+同一個設定可能出現在好幾個地方，Codex 依下面的順序決定用哪一個（數字越小越優先）：
+
+順序 設定來源 1 啟動 CLI 時直接加的旗標與 --config 覆寫 2 專案的 .codex/config.toml （越靠近目前資料夾越優先， 只在信任的專案生效 ） 3 用 --profile 選擇的設定檔 4 你的使用者設定 ~/.codex/config.toml 5 工作區雲端管理的預設值 6 系統設定（Unix 為 /etc/codex/config.toml ） 7 Codex 內建的預設值
+
+安全提醒 把專案標記為 不信任 時，Codex 會略過專案裡的 .codex/ 設定，包括專案設定、hooks 與 rules。從網路下載的陌生專案，先確認內容再信任。 專案設定檔不能改和帳號憑證、服務供應商、設定檔選擇有關的設定（例如 model_provider 、 profile ），Codex 會忽略並在啟動時警告。 在 CLI 中執行 /status 可以看目前的模型、核准政策與可寫入路徑； /debug-config 會依優先順序列出各設定層。
+</p></section></html>

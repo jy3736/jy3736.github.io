@@ -1,0 +1,87 @@
+/* Arkanoid shell and infographic styles are shared from ../arkanoid-ml/styles.css.
+   Demo styles remain isolated in demo.css; these overrides join the two layouts. */
+body { padding:24px 0 40px; }
+.wrap { width:90%; max-width:none; }
+[hidden] { display:none!important; }
+#page-demo { display:grid; gap:20px; min-width:0; }
+#page-demo .topbar { display:block; }
+#page-demo .topbar > .slider { max-width:480px; }
+footer { color:var(--muted); font-size:12px; padding-top:20px; border-top:1px solid var(--line); }
+.demo-notice { margin:0; padding:12px 16px; border-left:3px solid var(--cyan); color:var(--fg); background:var(--panel); font-size:14px; }
+.skip-link { position:absolute; top:-100px; left:5%; z-index:10; background:var(--ink); padding:12px; }
+.skip-link:focus { top:8px; }
+.info-slide .lesson-diagram { padding:22px 12px; min-height:108px; display:grid; place-items:center; border:2px solid var(--sheet-border); border-radius:14px; background:var(--sheet-cell); color:var(--sheet-ink); font-weight:750; font-size:clamp(18px,1.8vw,25px); text-align:center; overflow-wrap:anywhere; }
+.info-slide .info-panel { position:relative; }
+.info-slide .info-panel:not(:last-child)::after { content:'→'; position:absolute; right:-28px; top:50%; z-index:1; color:var(--sheet-blue); font-size:28px; font-weight:bold; }
+.slide-links { display:flex; gap:10px; flex-wrap:wrap; font-size:14px; }
+.slide-links a { color:var(--sheet-blue); }
+.lesson-source { color:var(--sheet-muted); font-size:13px; margin:0; }
+.lesson-source a { margin-inline-end:12px; }
+.lesson-action { display:inline-block; width:fit-content; border:2px solid var(--sheet-border); border-radius:8px; padding:8px 14px; background:var(--sheet-surface); color:var(--sheet-ink); font:600 15px var(--font-body); cursor:pointer; text-decoration:none; }
+.handout-head { grid-template-columns:auto minmax(0,1fr); }
+.handout-doc { --reading-scale:1; }
+.handout-doc :is(p,li,td,th,summary,pre,.lesson-action) { font-size:calc(16px * var(--reading-scale)); }
+.handout-doc :is(.lesson-source,.lesson-source a) { font-size:calc(13px * var(--reading-scale)); }
+.handout-doc .handout-titles h2 { font-size:calc(28px * var(--reading-scale)); }
+.handout-explain p { margin:0 0 14px; }
+.handout-check { border:2px solid var(--sheet-border); border-radius:18px; padding:20px; background:var(--sheet-mint); }
+.handout-check h3 { margin-bottom:12px; }
+.handout-check li { margin-bottom:10px; }
+.handout-check ol { padding-inline-start:1.4em; }
+.handout-body details { border-top:2px solid var(--sheet-rule); padding-top:14px; }
+.handout-body summary { cursor:pointer; font-weight:650; }
+.handout-body details p { margin-bottom:0; }
+.prompt-block { min-width:0; padding:20px; border:2px solid var(--sheet-rule); border-radius:14px; background:var(--sheet-surface); }
+.prompt-block pre { white-space:pre-wrap; overflow-wrap:anywhere; font-family:var(--font-mono); line-height:1.8; }
+.lesson-table-wrap { overflow-x:auto; }
+.lesson-table { width:100%; border-collapse:collapse; }
+.lesson-table caption { text-align:left; font-weight:700; margin:12px 0; }
+.lesson-table :is(th,td) { padding:12px; text-align:left; border:1px solid var(--sheet-rule); vertical-align:top; }
+.lesson-table th { background:var(--sheet-surface); }
+.slide-player .slide-canvas { height:auto; }
+.slide-player .info-slide { height:720px; }
+.slide-player .lesson-diagram { font-size:26px; }
+@media(max-width:760px) {
+ .info-slide .info-panel:not(:last-child)::after { content:none; }
+ .slide-player .info-slide { height:auto; }
+ .handout-doc .handout-titles h2 { font-size:calc(23px * var(--reading-scale)); }
+ .handout-check,.prompt-block { padding:14px; }
+ .lesson-table :is(th,td) { padding:7px; }
+}
+@media print {
+ @page { size:A4 portrait; margin:14mm; }
+ .tabs,header,.header-tools,footer,.slide-links,.lesson-action,.skip-link { display:none!important; }
+ html[data-slide-theme] .intro { --sheet-ink:#142e54; --sheet-blue:#075fbc; --sheet-muted:#405772; --sheet-paper:#fff; --sheet-border:#142e54; --sheet-rule:#dbe4eb; --sheet-surface:#edf2f6; --sheet-cell:#fff; --sheet-mint:#d7f8e6; --sheet-sky:#daf3ff; --sheet-butter:#fff0b9; --sheet-lavender:#ede8ff; --sheet-rose:#ffe5dd; }
+ .handout-doc { border:0; box-shadow:none; padding:0; }
+ .handout-doc :is(p,li,td,th,summary,pre) { font-size:11pt; }
+ .handout-doc .handout-titles h2 { font-size:22pt; }
+ .handout-doc details p { display:block; }
+ .info-slide { min-height:0; break-after:page; box-shadow:none; }
+ .info-slide .info-three { grid-template-columns:1fr; }
+ .info-slide .info-panel::after { display:none; }
+ .handout-check { break-inside:auto; }
+}
+
+/* Cooperation modes are alternatives, rather than steps in a pipeline. */
+.info-slide.lesson-comparison .info-panel::after { display:none; }
+
+/* The image carries the main explanation; optional study text stays outside presentation. */
+#page-intro .illustrated-slide { display:block; padding:0; overflow:hidden; }
+.illustrated-slide > .slide-links { padding:12px 20px; align-items:center; background:var(--sheet-surface); border-top:1px solid var(--sheet-rule); }
+.slide-study { padding:12px 20px; line-height:1.75; background:var(--sheet-surface); color:var(--sheet-ink); font-size:16px; }
+.slide-study summary { cursor:pointer; font-weight:700; }
+.slide-study p { margin:10px 0; max-width:76ch; }
+.slide-study details { padding:8px 0; }
+.lesson-figure { margin:0; }
+.lesson-figure img { display:block; width:100%; height:auto; border-radius:12px; }
+.lesson-figure figcaption { margin-top:8px; color:var(--sheet-muted); font-size:14px; }
+.slide-player .info-slide.illustrated-slide { width:1280px; height:720px; min-height:0; padding:0; border-radius:12px; }
+.slide-player .slide-illustration { width:100%; height:100%; object-fit:contain; }
+@media (max-width:760px), (max-width:1000px) and (max-height:500px) {
+ .slide-player .info-slide.illustrated-slide { width:100%; height:auto; }
+ .slide-player .slide-illustration { height:auto; }
+}
+@media print {
+ .slide-study { display:none; }
+ .lesson-figure { break-inside:avoid; }
+}

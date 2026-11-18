@@ -592,8 +592,8 @@ function renderReferences() {
   }, 'CC BY-NC-SA 4.0');
   $('copyright').replaceChildren(
     chinese
-      ? '© 2026 楊榮林（南臺科技大學電子工程系）。本頁內容採用 '
-      : '© 2026 楊榮林 (Department of Electronic Engineering, Southern Taiwan University of Science and Technology). This page is licensed under ',
+      ? '© 2026 楊榮林（南臺科技大學電子工程系）。本網站內容採用 '
+      : '© 2026 楊榮林 (Department of Electronic Engineering, Southern Taiwan University of Science and Technology). This site is licensed under ',
     license,
     chinese
       ? ' 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。'
@@ -936,7 +936,7 @@ const deckCopy = {
     nav:['RAG 簡介', '自學講義', '模擬展示', '參考資料'], navigation:'RAG 頁面', toc:'目錄',
     open:'播放投影片', title:'RAG 投影片', prev:'← 上一張', next:'下一張 →', close:'關閉', fullscreen:'全螢幕',
     keys:'← → 換頁 · Esc 離開', count:'第 {n} 張，共 {total} 張', light:'淺色模式', dark:'深色模式',
-    audioPlay:'🔊 語音導讀', audioStop:'⏸ 停止語音', audioLabel:'本頁語音導讀',
+    audioPlay:'🔊 語音導讀', audioStop:'⏸ 停止語音', audioLabel:'本頁語音導讀', podcastLabel:'Podcast 導讀（沒來上課也聽得懂）',
     coverLead:'先找資料，再把資料放進提示，最後根據資料回答並附上來源。',
     pipe:{question:'問題', questionText:'使用者提出問題', library:'資料庫', retrieve:'R · 檢索', retrieveText:'比對並挑出相關片段',
       augment:'A · 加入提示', augmentText:'問題、指示和片段組成一份提示', generate:'G · 生成回答', generateText:'根據片段回答並標示來源',
@@ -967,7 +967,7 @@ const deckCopy = {
     nav:['Intro to RAG', 'Study guide', 'Simulation demo', 'References'], navigation:'RAG pages', toc:'Contents',
     open:'Present slides', title:'RAG slides', prev:'← Previous', next:'Next →', close:'Close', fullscreen:'Full screen',
     keys:'← → navigate · Esc exit', count:'Slide {n} of {total}', light:'Light theme', dark:'Dark theme',
-    audioPlay:'🔊 Narration', audioStop:'⏸ Stop narration', audioLabel:'Narration for this slide (Mandarin)',
+    audioPlay:'🔊 Narration', audioStop:'⏸ Stop narration', audioLabel:'Narration for this slide (Mandarin)', podcastLabel:'Podcast explainer (Mandarin)',
     coverLead:'Retrieve evidence, add it to the prompt, then answer from the evidence and cite it.',
     pipe:{question:'Question', questionText:'A user asks', library:'Collection', retrieve:'R · Retrieve', retrieveText:'Match and select relevant passages',
       augment:'A · Augment', augmentText:'Combine question, instructions, and passages', generate:'G · Generate', generateText:'Answer from the passages and cite them',
@@ -997,7 +997,27 @@ const deckCopy = {
 };
 const dt = key => deckCopy[lang][key];
 const PANEL_COLORS = ['mint', 'sky', 'butter', 'rose', 'lavender'];
-const deckAudioSrc = index => 'audio/deck/' + String((window.RAG_VISUAL_SLIDES[index]?.sourceIndex ?? index) + 1).padStart(2, '0') + '.mp3';
+const slidePodcast = index => lang === 'zh' ? window.RAG_SLIDE_PODCASTS?.[index + 1] : null;
+const deckAudioSrc = index => slidePodcast(index)?.src ?? 'audio/deck/' + String((window.RAG_VISUAL_SLIDES[index]?.sourceIndex ?? index) + 1).padStart(2, '0') + '.mp3';
+// Slide audio is optional: probe each file once (metadata only) and drop its player when the file is missing.
+const missingDeckAudio = new Set(), deckAudioProbes = new Map();
+function probeDeckAudio(src) {
+  if (!deckAudioProbes.has(src)) deckAudioProbes.set(src, new Promise(resolve => {
+    const probe = new Audio();
+    probe.preload = 'metadata';
+    probe.addEventListener('loadedmetadata', () => resolve(true), {once: true});
+    probe.addEventListener('error', () => resolve(false), {once: true});
+    probe.src = src;
+  }).then(ok => {
+    if (!ok) {
+      missingDeckAudio.add(src);
+      document.querySelectorAll('.slide-audio[data-audio-src]').forEach(el => { if (el.dataset.audioSrc === src) el.remove(); });
+      syncDeckAudioAvailability();
+    }
+    return ok;
+  }));
+  return deckAudioProbes.get(src);
+}
 // Every slide uses the same framed sheet, so the deck has one consistent size.
 const sheet = (name, title, lead, body) => `<section class="info-slide illustrated-slide ${name}" aria-label="${title}"><div class="sheet-face"><div class="info-heading"><h2>${title}</h2><p>${lead}</p></div>${body}</div></section>`;
 const esc = text => String(text).replace(/[&<>"]/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;'})[ch]);
@@ -1052,14 +1072,28 @@ function buildTextSlides() {
       `<li class="info-panel ${PANEL_COLORS[i]}"><h3>${title}</h3><p>${text}</p>${i === 1 ? `<a class="info-link" href="#simulation">${dt('endLink')}<span aria-hidden="true"> →</span></a>` : ''}</li>`).join('')}</ol><p class="info-question">${dt('endQuestion')}</p>`)
   ];
 }
+// The text supplement under a slide (window.RAG_SLIDE_NOTES in slide-deck.js): key point, a walk through
+// the slide's regions in reading order, an analogy, a common misconception and one self-check question.
+function slideNotes(n) {
+  const note = window.RAG_SLIDE_NOTES?.[n];
+  if (!note) return '';
+  return `<details class="visual-slide-notes"><summary>自學重點與檢查</summary>
+    <p class="slide-note-key"><b>一句話記住</b>${cite(note.key)}</p>
+    <h3>照著圖看</h3>
+    <ol class="slide-note-walk">${note.walk.map(([where, text]) => `<li><b>${where}</b><p>${cite(text)}</p></li>`).join('')}</ol>
+    <div class="slide-note-pair"><p><b>生活比喻</b>${note.analogy}</p><p><b>常見誤解</b>${cite(note.pitfall)}</p></div>
+    <details class="slide-note-check"><summary><b>自我檢查</b>${cite(note.check[0])}</summary><p>${cite(note.check[1])}</p></details>
+  </details>`;
+}
 function buildSlides() {
   const originals = buildTextSlides();
   if (lang !== 'zh') return window.RAG_VISUAL_SLIDES.map(item => originals[item.sourceIndex]);
   // Diagram-led slides use concise captions; versioned assets preserve earlier designs.
   return window.RAG_VISUAL_SLIDES.map((item, index) => `<section class="info-slide illustrated-slide visual-slide" aria-label="${esc(item.title)}">
-    <img class="slide-illustration" src="slide-images/concise/${item.image || String(index + 1).padStart(2, '0') + '-zh.png'}" alt="${esc(item.description)}" width="1672" height="941" decoding="async">
+    <h2 class="sr-only">${esc(item.title)}</h2>
+    <img class="slide-illustration" src="slide-images/${item.imageDirectory || 'concise'}/${item.image || String(index + 1).padStart(2, '0') + '-zh.png'}" alt="${esc(item.title)}。${esc(item.description)}" width="1672" height="941" decoding="async">
     ${item.sourceIndex === 6 ? `<a class="visual-slide-action" href="#simulation">${dt('endLink')} →</a>` : ''}
-    <details class="visual-slide-notes"><summary>文字解說與補充</summary><p>${esc(item.description)}</p>${originals[item.sourceIndex]}</details>
+    ${slideNotes(index + 1) || `<details class="visual-slide-notes"><summary>文字解說與補充</summary><p>${esc(item.description)}</p>${originals[item.sourceIndex]}</details>`}
   </section>`);
 }
 function renderDeck() {
@@ -1071,7 +1105,7 @@ function renderDeck() {
     else slide.querySelectorAll('img').forEach(img => { img.loading = 'lazy'; });
     const title = slide.getAttribute('aria-label');
     const number = document.createElement('div');
-    number.className = 'slide-page-number';
+    number.className = window.RAG_VISUAL_SLIDES[index]?.imageHasNumber ? 'slide-page-number sr-only' : 'slide-page-number';
     number.textContent = `${index + 1} / ${template.content.children.length}`;
     number.setAttribute('aria-label', `第 ${index + 1} 張，共 ${template.content.children.length} 張`);
     const image = slide.querySelector(':scope > .slide-illustration');
@@ -1079,7 +1113,15 @@ function renderDeck() {
     else slide.append(number);
     const narration = document.createElement('div');
     narration.className = 'slide-audio';
-    narration.innerHTML = `<span aria-hidden="true">🎧</span><span class="slide-audio-label">${dt('audioLabel')}</span><audio controls preload="none" src="${deckAudioSrc(index)}" aria-label="${dt('audioLabel')}：${title}"></audio>`;
+    narration.dataset.audioSrc = deckAudioSrc(index);
+    probeDeckAudio(narration.dataset.audioSrc);
+    const ep = slidePodcast(index);
+    if (ep) {
+      // Two-host podcast explainer (demo/slide_podcast.py): audio player only.
+      narration.classList.add('slide-podcast');
+      narration.innerHTML = `<div class="slide-podcast-head"><span aria-hidden="true">🎙️</span><div><p>${dt('podcastLabel')} · ${Object.values(ep.hosts).join('、')} · ${ep.duration}</p><b>${esc(ep.title)}</b></div></div>
+        <audio controls preload="none" src="${ep.src}" aria-label="${dt('podcastLabel')}：${esc(ep.title)}（${ep.duration}）"></audio>`;
+    } else narration.innerHTML = `<span aria-hidden="true">🎧</span><span class="slide-audio-label">${dt('audioLabel')}</span><audio controls preload="none" src="${deckAudioSrc(index)}" aria-label="${dt('audioLabel')}：${title}"></audio>`;
     slide.append(narration);
     // Each slide links to the handout page that explains it (pages[n].slides in handout-notes.js).
     const notes = window.RAG_HANDOUT?.[lang], page = notes?.pages?.findIndex(p => p.slides.includes(index + 1)) ?? -1;
@@ -1165,6 +1207,12 @@ function syncDeckAudio() {
   if (deckNarrating && deckAudio.paused) deckAudio.play().catch(() => { deckNarrating = false; syncDeckAudioButton(); });
   syncDeckAudioButton();
 }
+// Hide the player's narration button on slides whose audio file is missing (runs only after slideIndex exists).
+function syncDeckAudioAvailability() {
+  const missing = missingDeckAudio.has(deckAudioSrc(slideIndex));
+  if (missing && deckNarrating) { deckNarrating = false; deckAudio.pause(); syncDeckAudioButton(); }
+  $('slides-audio').hidden = missing;
+}
 function syncDeckAudioButton() {
   $('slides-audio').textContent = dt(deckNarrating ? 'audioStop' : 'audioPlay');
   $('slides-audio').setAttribute('aria-pressed', String(deckNarrating));
@@ -1184,6 +1232,8 @@ function renderSlide() {
   const all = deckSlides();
   slideIndex = Math.max(0, Math.min(slideIndex, all.length - 1));
   const slide = all[slideIndex].cloneNode(true);
+  slide.querySelectorAll('.slide-audio[data-audio-src]').forEach(el => { if (missingDeckAudio.has(el.dataset.audioSrc)) el.remove(); });
+  syncDeckAudioAvailability();
   slide.querySelectorAll('img').forEach(img => { img.loading = 'eager'; });
   $('slide-canvas').replaceChildren(slide);
   $('slide-stage').scrollTop = 0;
@@ -1334,8 +1384,7 @@ function handoutPodcast(page, title) {
   return `<section class="handout-podcast" aria-label="${esc(title)}"><div class="handout-podcast-head"><span class="handout-podcast-icon" aria-hidden="true">🎧</span><div><p>${esc(title)}</p><b>${clip.duration}</b></div></div>
     <audio controls preload="none" src="${clip.src}" aria-label="${esc(title)}（${clip.duration}）"></audio></section>`;
 }
-// Two-host discussion episode for a page (audio/discussion/page-N.mp3, from demo/handout_discussion.py),
-// with its transcript folded underneath.
+// Two-host discussion episode for a page (audio/discussion/page-N.mp3, from demo/handout_discussion.py).
 function handoutDiscussion(page, ui) {
   const ep = window.RAG_HANDOUT_DISCUSSIONS?.[page];
   if (!ep) return '';
@@ -1344,7 +1393,6 @@ function handoutDiscussion(page, ui) {
     <div class="handout-podcast-head"><span class="handout-podcast-icon" aria-hidden="true">🎙️</span><div><p>${ui.discussion} · ${hosts} · ${ep.duration}</p><b>${esc(ep.title)}</b></div></div>
     <p class="handout-discussion-lead">${ui.discussionLead}</p>
     <audio controls preload="none" src="${ep.src}" aria-label="${esc(ui.discussion)}：${esc(ep.title)}（${ep.duration}）"></audio>
-    <details class="handout-transcript"><summary>${ui.transcript}</summary><dl>${ep.lines.map(([who, text]) => `<div class="speaker-${who}"><dt>${esc(ep.hosts[who])}</dt><dd>${esc(text)}</dd></div>`).join('')}</dl></details>
   </section>`;
 }
 const progressMeter =(keys, ui) => `<p class="handout-progress" aria-live="polite" data-keys="${keys.join(' ')}"><span class="handout-progress-text" data-template="${ui.progress}"></span><span class="handout-meter" aria-hidden="true"><i></i></span><button class="handout-reset" type="button">${ui.reset}</button></p>`;
@@ -1376,9 +1424,7 @@ function renderHandout() {
       <p class="handout-kicker">${ui.kicker}</p>
       <h2>${ui.title}</h2>
       <p class="handout-intro">${ui.intro}</p>
-      <ul class="handout-meta">${ui.meta.map(item => `<li>${item}</li>`).join('')}</ul>
       ${handoutPodcast(0, ui.hubListen ?? ui.listen)}
-      <div class="handout-how"><h3>${ui.howTitle}</h3><ol>${ui.how.map(([step, text]) => `<li><b>${step}</b><span>${text}</span></li>`).join('')}</ol></div>
     </header>
     <section class="handout-pages" aria-labelledby="handout-pages-title">
       <div class="handout-toc-head"><div><h3 id="handout-pages-title">${ui.pagesTitle}</h3><p>${ui.pagesLead}</p></div>${progressMeter(allKeys, ui)}</div>
@@ -1390,7 +1436,7 @@ function renderHandout() {
     const strip = page.slides.map(s => {
       const slide = slideImage(s);
       return slide ? `<li><button type="button" class="handout-slide" data-open-slide="${s - 1}" aria-label="${ui.playSlide.replace('{n}', s)}：${esc(slide.title)}">
-        <img src="slide-images/concise/${slide.image}" alt="" width="1672" height="941" loading="lazy" decoding="async"><span><b>${s}</b>${esc(slide.title)}</span></button></li>` : '';
+        <img src="slide-images/${slide.imageDirectory || 'concise'}/${slide.image}" alt="" width="1672" height="941" loading="lazy" decoding="async"><span><b>${s}</b>${esc(slide.title)}</span></button></li>` : '';
     }).join('');
     const toc = sections.map((section, i) => `<li><a href="#handout/${n}" data-jump="handout-${keys[i]}"><span class="handout-toc-num">${num(i)}</span><span class="handout-toc-title">${section.title}</span><span class="handout-toc-done" aria-hidden="true">✓</span></a></li>`).join('');
     const body = sections.map((s, i) => `<article class="handout-section" id="handout-${keys[i]}" aria-labelledby="handout-${keys[i]}-title">
