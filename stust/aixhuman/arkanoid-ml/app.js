@@ -430,7 +430,7 @@ const I18N = {
     mSavePending: '尚無已訓練模型。先按「訓練模型」，完成後即可儲存。',
     mSaveTraining: '模型訓練中，完成後即可儲存。', mSaveReady: '模型已訓練完成，可以儲存。',
     viewProgress: '遊戲＋訓練過程', viewNetwork: '遊戲＋網路', viewBoth: '遊戲＋兩個圖表', viewAll: '全部', gameControls: '操作面板',
-    h1: '打磚塊 <span>AI 學習版</span>', langBtn: 'English', expand: '放大', collapse: '縮小',
+    h1: '從機器學習出發：<span>走向生成式 AI 與智慧代理</span>', langBtn: 'English', expand: '放大', collapse: '縮小',
     tag: '用一個小遊戲走過機器學習的完整流程：收集資料、訓練模型、讓模型上場。',
     navIntro: '機器學習入門', navHandout: '自學講義', handout: HANDOUT_ZH, sizeLabel: '字級', sizeSmaller: '縮小文字', sizeLarger: '放大文字', sizeReset: '目前字級 {p}，按一下恢復 100%', navManual: '手動模式', navLearn: 'AI 學習', navPlay: 'AI 上場', intro: INTRO_ZH,
     speedL: '遊戲速度', showPred: '顯示模型預測的落點',
