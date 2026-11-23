@@ -14,7 +14,7 @@
 <a class="skip" href="#main">跳到主要內容</a>
 <header class="site">
   <a class="brand" href="index.html">計算機程式及實習：C 語言講義</a>
-  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="setup-wsl.html">環境設定</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html">Unit 4</a><a href="unit05.html">Unit 5</a><a href="unit06.html">Unit 6</a><a href="unit07.html">Unit 7</a><a href="unit08.html">Unit 8</a><a href="unit09.html" aria-current="page">Unit 9</a><a href="unit10.html">Unit 10</a><a href="unit11.html">Unit 11</a></nav>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="setup-wsl.html">環境設定</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html">Unit 4</a><a href="unit05.html">Unit 5</a><a href="unit06.html">Unit 6</a><a href="unit07.html">Unit 7</a><a href="unit08.html">Unit 8</a><a href="unit09.html" aria-current="page">Unit 9</a><a href="unit09a.html">Unit 9a</a><a href="unit10.html">Unit 10</a><a href="unit11.html">Unit 11</a></nav>
   <div class="fontsize" role="group" aria-label="文字大小">
     <button type="button" data-fs="normal" aria-label="文字大小：標準" aria-pressed="true">A</button>
     <button type="button" data-fs="medium" aria-label="文字大小：中" aria-pressed="false">A</button>
@@ -41,12 +41,6 @@
 <p>對應課程：第 11 週講義與實作練習</p>
 <p>本講義的觀念說明整理自文末「延伸閱讀」列出的公開教材，並附上出處。所有範例程式都是完整的程式，可以直接編譯執行。</p>
 </blockquote>
-<figure class="slide-deck" data-slide-deck="unit09-infographic" tabindex="0" aria-label="投影片，共 4 張，可用左右方向鍵切換">
-<div class="slide-deck-stage"><img src="slides/unit09-infographic/01.png" alt="第 1 張：值與位址是兩件事" width="1920" height="1080" decoding="async"></div>
-<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 4</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">值與位址是兩件事</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
-<script type="application/json" class="slide-deck-data">[{"src": "slides/unit09-infographic/01.png", "title": "值與位址是兩件事"}, {"src": "slides/unit09-infographic/02.png", "title": "指標存位址，星號取資料"}, {"src": "slides/unit09-infographic/03.png", "title": "NULL：先檢查，再解參照"}, {"src": "slides/unit09-infographic/04.png", "title": "傳位址，讓函式寫回結果"}]</script>
-</figure>
-
 <h2 id="sec-1">本週對照表</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -93,6 +87,12 @@
 <figure class="code"><figcaption><span>終端機指令</span><button class="copy" type="button">複製</button></figcaption><pre><code class="language-sh hl">gcc<span class="w"> </span>-std<span class="o">=</span>c17<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-Wpedantic<span class="w"> </span>檔名.c<span class="w"> </span>-o<span class="w"> </span>檔名</code></pre></figure>
 <p><strong>關於位址的數值</strong>：實際的位址每次執行都可能不同。本講義凡是印出位址的地方，都只標示「一串十六進位數字」，追蹤表中的位址（例如 <code>1000</code>）是為了說明而假設的數字，這和練習檔「位址為假設值」的作法相同。</p>
 <h2 id="sec-2">1. 位址與取址運算子 <code>&amp;</code></h2>
+<figure class="slide-deck" data-slide-deck="unit09-infographic" tabindex="0" aria-label="投影片，共 1 張，可用左右方向鍵切換">
+<div class="slide-deck-stage"><img src="slides/unit09-infographic/01.png" alt="第 1 張：值與位址是兩件事" width="1920" height="1080" decoding="async"></div>
+<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 1</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">值與位址是兩件事</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
+<script type="application/json" class="slide-deck-data">[{"src": "slides/unit09-infographic/01.png", "title": "值與位址是兩件事"}]</script>
+</figure>
+
 <h3 id="s-15624540">用白話說</h3>
 <p>電腦的記憶體就像一整條街上的信箱，每個信箱都有一個門牌號碼。你宣告一個變數，就等於租下一個（或幾個相連的）信箱來放資料。這個門牌號碼就是變數的<strong>位址</strong>（address）。</p>
 <p><code>&amp;變數</code> 的意思是「告訴我這個變數的門牌號碼」。其實你從第 4 週就在用它了：<code>scanf("%d", &amp;age)</code> 就是把 <code>age</code> 的門牌號碼交給 <code>scanf</code>，讓它知道要把讀到的數字放進哪個信箱。</p>
@@ -127,6 +127,12 @@ age 佔 4 位元組，height 佔 8 位元組
 <li>「值」是信箱裡的東西（19），「位址」是信箱的門牌號碼，兩者是不同的東西。</li>
 </ol>
 <h2 id="sec-3">2. 指標變數與解參照 <code>*</code></h2>
+<figure class="slide-deck" data-slide-deck="unit09-infographic" tabindex="0" aria-label="投影片，共 1 張，可用左右方向鍵切換">
+<div class="slide-deck-stage"><img src="slides/unit09-infographic/02.png" alt="第 1 張：指標存位址，星號取資料" width="1920" height="1080" decoding="async"></div>
+<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 1</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">指標存位址，星號取資料</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
+<script type="application/json" class="slide-deck-data">[{"src": "slides/unit09-infographic/02.png", "title": "指標存位址，星號取資料"}]</script>
+</figure>
+
 <h3 id="s-15624540_1">用白話說</h3>
 <p><strong>指標</strong>（pointer）是一種專門用來存放「門牌號碼」的變數。</p>
 <ul>
@@ -291,6 +297,12 @@ age 佔 4 位元組，height 佔 8 位元組
 <li>在補充範例 2-2 中輸入兩個相同的分數，誰會得到獎勵？為什麼？</li>
 </ul>
 <h2 id="sec-4">3. NULL 指標：「目前沒有指向任何地方」</h2>
+<figure class="slide-deck" data-slide-deck="unit09-infographic" tabindex="0" aria-label="投影片，共 1 張，可用左右方向鍵切換">
+<div class="slide-deck-stage"><img src="slides/unit09-infographic/03.png" alt="第 1 張：NULL：先檢查，再解參照" width="1920" height="1080" decoding="async"></div>
+<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 1</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">NULL：先檢查，再解參照</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
+<script type="application/json" class="slide-deck-data">[{"src": "slides/unit09-infographic/03.png", "title": "NULL：先檢查，再解參照"}]</script>
+</figure>
+
 <h3 id="s-15624540_2">用白話說</h3>
 <p>指標宣告後如果還沒有要指向誰，可以先存一個特別的值 <code>NULL</code>，意思是「空的，沒有門牌號碼」。使用指標之前先檢查它是不是 <code>NULL</code>，可以避免打開一個根本不存在的信箱。</p>
 <h3 id="s-28912433_2">教材怎麼說</h3>
@@ -337,6 +349,12 @@ age 佔 4 位元組，height 佔 8 位元組
 <li>如果少了這個檢查，第二次呼叫就會對 <code>NULL</code> 解參照，程式很可能直接被終止（GNU C 手冊 §14.7）。</li>
 </ol>
 <h2 id="sec-5">4. 指標參數：讓函式修改呼叫端的變數</h2>
+<figure class="slide-deck" data-slide-deck="unit09-infographic" tabindex="0" aria-label="投影片，共 1 張，可用左右方向鍵切換">
+<div class="slide-deck-stage"><img src="slides/unit09-infographic/04.png" alt="第 1 張：傳位址，讓函式寫回結果" width="1920" height="1080" decoding="async"></div>
+<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 1</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">傳位址，讓函式寫回結果</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
+<script type="application/json" class="slide-deck-data">[{"src": "slides/unit09-infographic/04.png", "title": "傳位址，讓函式寫回結果"}]</script>
+</figure>
+
 <h3 id="s-15624540_3">用白話說</h3>
 <p>第 7 週學到：函式拿到的是引數的<strong>複本</strong>，改參數不會影響呼叫端。那如果希望函式真的幫忙改掉呼叫端的變數，或是一次交回兩個結果，該怎麼辦？</p>
 <p>答案是：<strong>把變數的門牌號碼交給函式</strong>。函式拿到的仍然是複本，但那是「門牌號碼的複本」；照著門牌號碼找過去，開的還是同一個信箱。</p>
@@ -540,7 +558,7 @@ age 佔 4 位元組，height 佔 8 位元組
 <li><a href="https://www.gnu.org/software/c-intro-and-ref/manual/">GNU C 手冊</a> §14.1 至 §14.7</li>
 <li><a href="https://en.cppreference.com/w/c/language/pointer">cppreference：指標宣告</a></li>
 </ul>
-<nav class="pager" aria-label="上一篇與下一篇"><a class="prev" href="unit08.html">← Unit 8：字串與基礎整合</a><a class="next" href="unit10.html">Unit 10：陣列、字串與指標的關係 →</a></nav>
+<nav class="pager" aria-label="上一篇與下一篇"><a class="prev" href="unit08.html">← Unit 8：字串與基礎整合</a><a class="next" href="unit09a.html">Unit 9a：指標動畫圖解 →</a></nav>
 </main>
 </div>
 <footer class="site"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>觀念說明整理自：<a href="https://beej.us/guide/bgc/">Beej's Guide to C Programming</a>（CC BY-NC-ND 3.0）、

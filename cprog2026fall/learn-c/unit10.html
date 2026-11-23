@@ -14,7 +14,7 @@
 <a class="skip" href="#main">跳到主要內容</a>
 <header class="site">
   <a class="brand" href="index.html">計算機程式及實習：C 語言講義</a>
-  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="setup-wsl.html">環境設定</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html">Unit 4</a><a href="unit05.html">Unit 5</a><a href="unit06.html">Unit 6</a><a href="unit07.html">Unit 7</a><a href="unit08.html">Unit 8</a><a href="unit09.html">Unit 9</a><a href="unit10.html" aria-current="page">Unit 10</a><a href="unit11.html">Unit 11</a></nav>
+  <nav class="pages" aria-label="講義"><a href="index.html">首頁</a><a href="setup-wsl.html">環境設定</a><a href="unit01.html">Unit 1</a><a href="unit02.html">Unit 2</a><a href="unit03.html">Unit 3</a><a href="unit04.html">Unit 4</a><a href="unit05.html">Unit 5</a><a href="unit06.html">Unit 6</a><a href="unit07.html">Unit 7</a><a href="unit08.html">Unit 8</a><a href="unit09.html">Unit 9</a><a href="unit09a.html">Unit 9a</a><a href="unit10.html" aria-current="page">Unit 10</a><a href="unit11.html">Unit 11</a></nav>
   <div class="fontsize" role="group" aria-label="文字大小">
     <button type="button" data-fs="normal" aria-label="文字大小：標準" aria-pressed="true">A</button>
     <button type="button" data-fs="medium" aria-label="文字大小：中" aria-pressed="false">A</button>
@@ -41,12 +41,6 @@
 <p>對應課程：第 12 週講義與實作練習</p>
 <p>本講義的觀念說明整理自文末「延伸閱讀」列出的公開教材，並附上出處。所有範例程式都是完整的程式，可以直接編譯執行。</p>
 </blockquote>
-<figure class="slide-deck" data-slide-deck="unit10-infographic" tabindex="0" aria-label="投影片，共 4 張，可用左右方向鍵切換">
-<div class="slide-deck-stage"><img src="slides/unit10-infographic/01.png" alt="第 1 張：陣列開頭的位址與整個陣列" width="1920" height="1080" decoding="async"></div>
-<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 4</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">陣列開頭的位址與整個陣列</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
-<script type="application/json" class="slide-deck-data">[{"src": "slides/unit10-infographic/01.png", "title": "陣列開頭的位址與整個陣列"}, {"src": "slides/unit10-infographic/02.png", "title": "指標加一，就是移動一格"}, {"src": "slides/unit10-infographic/03.png", "title": "傳陣列，也要傳長度"}, {"src": "slides/unit10-infographic/04.png", "title": "逐字元前進，遇到空字元停止"}]</script>
-</figure>
-
 <h2 id="sec-1">本週對照表</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -92,6 +86,12 @@
 <p>編譯指令與練習檔相同；執行範例中<span class='typed'>黃底標示</span>的文字代表你用鍵盤輸入的內容。</p>
 <figure class="code"><figcaption><span>終端機指令</span><button class="copy" type="button">複製</button></figcaption><pre><code class="language-sh hl">gcc<span class="w"> </span>-std<span class="o">=</span>c17<span class="w"> </span>-Wall<span class="w"> </span>-Wextra<span class="w"> </span>-Wpedantic<span class="w"> </span>檔名.c<span class="w"> </span>-o<span class="w"> </span>檔名</code></pre></figure>
 <h2 id="sec-2">1. 陣列名稱就是「第一格的位址」</h2>
+<figure class="slide-deck" data-slide-deck="unit10-infographic" tabindex="0" aria-label="投影片，共 1 張，可用左右方向鍵切換">
+<div class="slide-deck-stage"><img src="slides/unit10-infographic/01.png" alt="第 1 張：陣列開頭的位址與整個陣列" width="1920" height="1080" decoding="async"></div>
+<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 1</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">陣列開頭的位址與整個陣列</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
+<script type="application/json" class="slide-deck-data">[{"src": "slides/unit10-infographic/01.png", "title": "陣列開頭的位址與整個陣列"}]</script>
+</figure>
+
 <h3 id="s-15624540">用白話說</h3>
 <p>第 8 週把陣列比喻成一排置物櫃，第 11 週把位址比喻成門牌號碼。把兩者合起來：<strong>陣列的名字，其實就代表這排櫃子「第一格」的門牌號碼</strong>。知道第一格在哪裡，又知道每格一樣大，就能算出任何一格在哪裡。</p>
 <h3 id="s-28912433">教材怎麼說</h3>
@@ -125,6 +125,12 @@ sizeof rainfall 是 16，sizeof p 是 8
 <li><code>sizeof</code> 是例外（GNU C 手冊 §14.11）：<code>sizeof rainfall</code> 算的是整個陣列（4 格 × 4 位元組 = 16），<code>sizeof p</code> 算的是指標本身的大小（本講義測試的電腦上是 8）。所以陣列和指標<strong>並不是完全相同的東西</strong>。</li>
 </ol>
 <h2 id="sec-3">2. 指標運算：<code>p + i</code> 就是往後數 <code>i</code> 格</h2>
+<figure class="slide-deck" data-slide-deck="unit10-infographic" tabindex="0" aria-label="投影片，共 1 張，可用左右方向鍵切換">
+<div class="slide-deck-stage"><img src="slides/unit10-infographic/02.png" alt="第 1 張：指標加一，就是移動一格" width="1920" height="1080" decoding="async"></div>
+<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 1</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">指標加一，就是移動一格</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
+<script type="application/json" class="slide-deck-data">[{"src": "slides/unit10-infographic/02.png", "title": "指標加一，就是移動一格"}]</script>
+</figure>
+
 <h3 id="s-15624540_1">用白話說</h3>
 <p>如果 <code>p</code> 指向某一格，<code>p + 1</code> 就是「下一格」的位址，<code>p + 2</code> 是「再下一格」。這裡的「加 1」不是位址數字加 1，而是<strong>往後移動一整格</strong>，不管那一格佔幾個位元組。</p>
 <h3 id="s-28912433_1">教材怎麼說</h3>
@@ -299,6 +305,12 @@ i=3：temps[i]=25.1  *(p+i)=25.1  p[i]=25.1
 <li>把補充範例 2-3 的條件改成 <code>*p &lt;= 30 &amp;&amp; p &lt; end</code>，說明為什麼順序對調之後可能會出問題。</li>
 </ul>
 <h2 id="sec-4">3. 把陣列傳給函式</h2>
+<figure class="slide-deck" data-slide-deck="unit10-infographic" tabindex="0" aria-label="投影片，共 1 張，可用左右方向鍵切換">
+<div class="slide-deck-stage"><img src="slides/unit10-infographic/03.png" alt="第 1 張：傳陣列，也要傳長度" width="1920" height="1080" decoding="async"></div>
+<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 1</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">傳陣列，也要傳長度</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
+<script type="application/json" class="slide-deck-data">[{"src": "slides/unit10-infographic/03.png", "title": "傳陣列，也要傳長度"}]</script>
+</figure>
+
 <h3 id="s-15624540_2">用白話說</h3>
 <p>第 7 週說過，傳給函式的是<strong>複本</strong>。但複製一整個陣列很浪費，所以 C 的作法是：傳陣列時，只把「第一格的位址」複製過去。函式拿到位址，就能找到呼叫端的那一整排資料，也就能<strong>修改</strong>它。</p>
 <h3 id="s-28912433_2">教材怎麼說</h3>
@@ -395,6 +407,12 @@ i=3：temps[i]=25.1  *(p+i)=25.1  p[i]=25.1
 <li>把 <code>applyDiscount</code> 的參數改寫成 <code>double prices[]</code>，程式的行為會改變嗎？（對照 Beej §6.6.2。）</li>
 </ul>
 <h2 id="sec-5">4. 用指標走訪字串</h2>
+<figure class="slide-deck" data-slide-deck="unit10-infographic" tabindex="0" aria-label="投影片，共 1 張，可用左右方向鍵切換">
+<div class="slide-deck-stage"><img src="slides/unit10-infographic/04.png" alt="第 1 張：逐字元前進，遇到空字元停止" width="1920" height="1080" decoding="async"></div>
+<div class="slide-deck-bar"><button type="button" class="slide-deck-btn" data-step="-1" aria-label="上一張">←</button><span class="slide-deck-count" aria-live="polite">1 / 1</span><button type="button" class="slide-deck-btn" data-step="1" aria-label="下一張">→</button><span class="slide-deck-title">逐字元前進，遇到空字元停止</span><button type="button" class="slide-deck-full" aria-label="全螢幕">⛶ 全螢幕</button></div>
+<script type="application/json" class="slide-deck-data">[{"src": "slides/unit10-infographic/04.png", "title": "逐字元前進，遇到空字元停止"}]</script>
+</figure>
+
 <h3 id="s-15624540_3">用白話說</h3>
 <p>字串就是以 <code>\0</code> 結尾的 <code>char</code> 陣列（第 9 週），所以陣列和指標的所有規則都適用。用指標處理字串時，常見的寫法是：<strong>讓指標從第一個字元出發，一路 <code>p++</code>，遇到 <code>\0</code> 就停</strong>。這樣不需要事先知道字串有多長。</p>
 <h3 id="s-28912433_3">教材怎麼說</h3>
@@ -506,7 +524,7 @@ i=3：temps[i]=25.1  *(p+i)=25.1  p[i]=25.1
 <li><a href="https://beej.us/guide/bgc/html/split/types-iv-qualifiers-and-specifiers.html">Beej's Guide to C §16.1.1 const</a></li>
 <li><a href="https://www.gnu.org/software/c-intro-and-ref/manual/">GNU C 手冊</a> §14.10 Pointer Arithmetic、§14.11 Pointers and Arrays</li>
 </ul>
-<nav class="pager" aria-label="上一篇與下一篇"><a class="prev" href="unit09.html">← Unit 9：指標與位址概念</a><a class="next" href="unit11.html">Unit 11：結構化程式與多函式設計 →</a></nav>
+<nav class="pager" aria-label="上一篇與下一篇"><a class="prev" href="unit09a.html">← Unit 9a：指標動畫圖解</a><a class="next" href="unit11.html">Unit 11：結構化程式與多函式設計 →</a></nav>
 </main>
 </div>
 <footer class="site"><p class="copyright">© 2026 楊榮林（南臺科技大學電子工程系）。本講義內容採用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 授權：註明出處即可分享與改作，改作須以相同方式授權，不得用於商業或營利目的；文中提及的第三方商標、軟體畫面與連結內容屬各權利人所有，不在此授權範圍內。</p><p>觀念說明整理自：<a href="https://beej.us/guide/bgc/">Beej's Guide to C Programming</a>（CC BY-NC-ND 3.0）、

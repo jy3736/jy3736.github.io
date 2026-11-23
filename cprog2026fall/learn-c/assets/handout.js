@@ -159,4 +159,83 @@
     });
     show(0);
   });
+  // Step-through figures (tools/anim_figures.py): each step swaps classes and values that the build precomputed.
+  document.querySelectorAll('figure.anim').forEach(function(fig){
+    var full=fig.querySelector('.anim-full'),returnFocus=null,savedOverflow='';
+    function fsElement(){return document.fullscreenElement||document.webkitFullscreenElement;}
+    function setFull(on){
+      var was=fig.classList.contains('anim-fullscreen');
+      if(on&&!was){returnFocus=document.activeElement;savedOverflow=document.documentElement.style.overflow;}
+      fig.classList.toggle('anim-fullscreen',on);
+      full.textContent=on?'✕ 離開全螢幕':'⛶ 全螢幕';
+      full.setAttribute('aria-pressed',String(on));
+      full.setAttribute('aria-label',on?'離開全螢幕':'全螢幕顯示動畫');
+      if(on){document.documentElement.style.overflow='hidden';fig.focus();}
+      else if(was){document.documentElement.style.overflow=savedOverflow;if(returnFocus)returnFocus.focus();}
+    }
+    function closeFull(){
+      if(fsElement()===fig){var exit=document.exitFullscreen||document.webkitExitFullscreen;if(exit)exit.call(document);}
+      else setFull(false);
+    }
+    full.addEventListener('click',function(){
+      if(fig.classList.contains('anim-fullscreen')){closeFull();return;}
+      setFull(true);
+      var request=fig.requestFullscreen||fig.webkitRequestFullscreen;
+      if(request){try{var result=request.call(fig);if(result&&result.catch)result.catch(function(){/* CSS overlay remains available. */});}catch(e){/* CSS overlay remains available. */}}
+    });
+    ['fullscreenchange','webkitfullscreenchange'].forEach(function(event){
+      document.addEventListener(event,function(){if(fsElement()===fig)setFull(true);else if(fig.classList.contains('anim-fullscreen'))setFull(false);});
+    });
+    fig.addEventListener('keydown',function(e){
+      if(!fig.classList.contains('anim-fullscreen'))return;
+      if(e.key==='Escape'){closeFull();e.preventDefault();}
+      if(e.key==='Tab'){
+        var buttons=Array.from(fig.querySelectorAll('button:not(:disabled)')),a=buttons[0],b=buttons[buttons.length-1];
+        if(e.shiftKey&&(document.activeElement===a||document.activeElement===fig)){b.focus();e.preventDefault();}
+        else if(!e.shiftKey&&document.activeElement===b){a.focus();e.preventDefault();}
+      }
+    });
+    var steps;try{steps=JSON.parse(fig.querySelector('.anim-data').textContent);}catch(e){return;}
+    if(steps.length<2)return;
+    var els=fig.querySelectorAll('[data-k]'),say=fig.querySelector('.anim-say'),count=fig.querySelector('.anim-count'),
+      prev=fig.querySelector('[data-act="prev"]'),next=fig.querySelector('[data-act="next"]'),
+      first=fig.querySelector('[data-act="first"]'),play=fig.querySelector('[data-act="play"]'),i=0,timer=null;
+    function show(n){
+      i=Math.max(0,Math.min(steps.length-1,n));var st=steps[i];
+      els.forEach(function(el){
+        var k=el.getAttribute('data-k'),c=st.cls[k]||'';
+        el.setAttribute('class',(el.getAttribute('data-base')+' '+c).trim());
+        if(k in st.text){var v=el.querySelector('.v');if(v)v.textContent=st.text[k];}
+      });
+      var active=fig.querySelector('.anim-ln.cur'),pane=fig.querySelector('.anim-code');
+      if(active&&pane&&fig.querySelector('.anim-io'))pane.scrollTop=Math.max(0,active.offsetTop-pane.offsetTop-pane.clientHeight/2);
+      say.innerHTML=st.say;count.textContent=(i+1)+' / '+steps.length;
+      prev.disabled=first.disabled=i===0;next.disabled=i===steps.length-1;
+      if(i===steps.length-1)stop();
+    }
+    function stop(){clearInterval(timer);timer=null;play.textContent='▶ 自動播放';play.setAttribute('aria-pressed','false');}
+    function start(){
+      if(i===steps.length-1)show(0);
+      play.textContent='⏸ 暫停';play.setAttribute('aria-pressed','true');
+      timer=setInterval(function(){show(i+1);},2600);
+    }
+    prev.addEventListener('click',function(){stop();show(i-1);});
+    next.addEventListener('click',function(){stop();show(i+1);});
+    first.addEventListener('click',function(){stop();show(0);});
+    play.addEventListener('click',function(){timer?stop():start();});
+    fig.addEventListener('keydown',function(e){
+      if(e.target.closest('button')&&(e.key===' '||e.key==='Enter'))return;
+      if(e.key==='ArrowRight'){stop();show(i+1);e.preventDefault();}
+      else if(e.key==='ArrowLeft'){stop();show(i-1);e.preventDefault();}
+      else if(e.key==='Home'){stop();show(0);e.preventDefault();}
+      else if(e.key==='End'){stop();show(steps.length-1);e.preventDefault();}
+    });
+    var sx=null;
+    fig.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;},{passive:true});
+    fig.addEventListener('touchend',function(e){
+      if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;
+      if(Math.abs(dx)>50){stop();show(dx<0?i+1:i-1);}sx=null;
+    });
+    show(0);
+  });
 })();
